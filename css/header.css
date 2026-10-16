@@ -58,3 +58,4 @@ body.scrolled .minibar{transform:none;opacity:1;pointer-events:auto}
 .sheet .modesw{background:var(--faint);border-color:var(--line)}
 .sheet .modesw button{color:var(--ink)}
 .sheet .modesw button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.fl-lab{flex:none;align-self:center;font-size:11px;letter-spacing:.08em;color:#D9B66A;opacity:.9;margin-right:2px}

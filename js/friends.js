@@ -154,15 +154,16 @@ function renderFlaps(){
   const flap=(cls,label,sub)=>{ const b=el('button','flap '+cls); b.type='button'; b.appendChild(document.createTextNode(label)); if(sub) b.appendChild(el('span','fi',sub)); nav.appendChild(b); return b; };
   let n=0;
   if (live){
-    const m=flap('me','自分'); m.setAttribute('aria-pressed',String(!mixedFriends().length)); n++;
+    nav.appendChild(el('span','fl-lab','見るリスト'));
+    const m=flap('me','自分だけ'); m.setAttribute('aria-pressed',String(!mixedFriends().length)); n++;
     m.setAttribute('aria-label','自分のリスト');
     m.onclick=()=>{ if(!mix.size) return; mix.clear(); saveMix(); syncFriendSubs(); rebuildShops(); buzz(); render(); window.scrollTo({top:0}); };
     for (const f of Object.keys(friends).sort((a,b)=>friends[a].at-friends[b].at)){
-      const on=mix.has(f), b=flap('',friends[f].nick); n++;
+      const on=mix.has(f), b=flap('',friends[f].nick+'と'); n++;
       b.setAttribute('aria-pressed',String(on)); b.setAttribute('aria-label',`${friends[f].nick}とのリスト`);
       b.onclick=()=>toggleMix(f);
     }
-    if (!readOnly){ const a=flap('add', Object.keys(friends).length?'＋':'＋ 友達とリストを見る'); a.setAttribute('aria-label','友達を追加'); a.onclick=openFriends; n++; }
+    if (!readOnly){ const a=flap('add', Object.keys(friends).length?'＋':'＋ 友達を追加'); a.setAttribute('aria-label','友達を追加'); a.onclick=openFriends; n++; }
   }
 }
 function openFriends(){ setTab('set'); setTimeout(()=>{ const s=$('secFriends'); if(s) s.scrollIntoView({block:'start',behavior:'smooth'}); },80); }

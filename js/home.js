@@ -9,7 +9,9 @@ function segBar(v,items,cur,onPick,cls){
 function listSeg(v){ segBar(v,[['want',`行きたい ${shops.filter(inWant).length}`],['went',`行った ${shops.filter(inWent).length}`]],listSub,k=>{ listSub=k; }); }
 function recSeg(v){ segBar(v,[['cal','カレンダー'],['rank','ランキング'],['score','予想成績']],recSub,k=>{ recSub=k; }); }
 function goAdd(){ listSub='want'; setTab('list'); openSearch(''); }
-function renderHome(v){
+function renderHome(v0){
+  // one column with the same gap between every block
+  const v=el('div','homestack'); v0.appendChild(v);
   darumaGreet(v);
   todayBlock(v);
   hero(v);

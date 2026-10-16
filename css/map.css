@@ -27,4 +27,6 @@
   background:rgba(255,255,255,.92);border-radius:6px;padding:1px 6px;box-shadow:0 1px 3px rgba(0,0,0,.18);pointer-events:none}
 .pinm.sel .pl{font-size:14px;left:28px;top:-2px}
 .pinm.nolabel .pl{display:none}
-.herem{width:16px;height:16px;border-radius:50%;background:#4285F4;border:3px solid #fff;box-shadow:0 0 0 6px rgba(66,133,244,.22),0 1px 3px rgba(0,0,0,.3)}
+.herem{width:16px;height:16px;border-radius:50%;background:#4285F4;border:3px solid #fff;box-shadow:0 0 0 6px rgba(66,133,244,.22),0 1px 3px rgba(0,0,0,.3)}/* long names: cut short on the map (the card below shows the full name) */
+.pinm .pl{max-width:7.5em;overflow:hidden;text-overflow:ellipsis}
+.pinm.sel .pl{max-width:14em}

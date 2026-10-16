@@ -67,3 +67,9 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center;justify-conten
 @media (prefers-reduced-motion:no-preference){ .skel i{animation:shimmer 1.4s linear infinite} }
 @keyframes shimmer{to{background-position:-150% 0}}
 .pagetitle{font-family:var(--serif);font-weight:700;font-size:24px;margin:20px 0 4px;letter-spacing:.04em}
+/* faint big ripples (波紋) behind everything */
+html::before,body::after{content:"";position:fixed;z-index:-1;pointer-events:none;border-radius:50%;width:900px;height:900px;
+  background:repeating-radial-gradient(circle,transparent 0 54px,color-mix(in srgb,var(--indigo) 7%,transparent) 55px 57px,transparent 58px 110px);
+  -webkit-mask:radial-gradient(circle,#000 25%,transparent 70%);mask:radial-gradient(circle,#000 25%,transparent 70%)}
+html::before{right:-420px;top:120px}
+body::after{left:-480px;bottom:-360px;width:1000px;height:1000px}

@@ -19,12 +19,13 @@ function loadMapLib(){
   return loadMapLib.p;
 }
 // plain like Google Maps: Japanese names only; no shop/facility icons (our pins are the shops), no road number signs,
-// no small district names. stations stay (they help to find the way)
+// no small district names, no bus stops. train stations stay (they help to find the way)
 function tidyStyle(m){
   for (const l of m.getStyle().layers){
     if (l.type!=='symbol') continue;
     const sl=l['source-layer']||'', id=l.id;
-    const hide = (sl==='poi' && !/station|transit|rail/.test(id)) || /shield/.test(id) || sl==='housenumber'
+    if (id==='poi_transit') m.setFilter(id,['==',['get','class'],'rail']);   // train stations only (no bus stops)
+    const hide = (sl==='poi' && id!=='poi_transit') || /shield/.test(id) || sl==='housenumber'
       || (sl==='place' && /neighbourhood|quarter|suburb|hamlet|other/.test(id));
     if (hide){ m.setLayoutProperty(id,'visibility','none'); continue; }
     if (m.getLayoutProperty(id,'text-field')) m.setLayoutProperty(id,'text-field',['coalesce',['get','name:ja'],['get','name']]);
