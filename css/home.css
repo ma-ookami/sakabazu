@@ -135,3 +135,8 @@ body.gating .tabs,body.gating .crew,body.gating .modesw{display:none}
 .homestack .homeacts{gap:14px}
 .homestack .hact{border-radius:var(--r-xl)}
 .homestack .hact.main{padding:18px 20px}
+/* the add button gets the same ripples as 今日どこ行く?, set a little off to the other side */
+.hact.main{position:relative;overflow:hidden}
+.hact.main > *{position:relative;z-index:1}
+.hact.main::after{content:"";position:absolute;right:-20px;top:-75px;width:170px;height:170px;border-radius:50%;
+  background:repeating-radial-gradient(circle,transparent 0 13px,color-mix(in srgb,var(--on-red) 11%,transparent) 13px 14px);pointer-events:none}
