@@ -1,0 +1,24 @@
+/* original map */
+.mapwrap{position:relative;margin-top:10px;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line);background:var(--card);box-shadow:var(--shadow-1);height:min(62vh,560px);min-height:320px}
+.map{width:100%;height:100%;display:block;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.map:active{cursor:grabbing}
+.map .lant{fill:var(--red)}
+.map .cap{fill:var(--ink)}
+.map .lant-want{fill:var(--card);stroke:var(--red);stroke-width:1.6;stroke-dasharray:3 2}
+.map .ring{fill:none;stroke:var(--red);stroke-width:1.2;opacity:.55}
+.map .ring2{opacity:.25}
+.map .here{fill:var(--gold)}
+.map .here-halo{fill:var(--gold);opacity:.2}
+.map .plabel{font-family:var(--serif);font-weight:700;font-size:12px;fill:var(--ink);paint-order:stroke;stroke:var(--card);stroke-width:3.5px;stroke-linejoin:round}
+.mapctl{position:absolute;right:10px;top:10px;display:grid;gap:6px}
+.mapctl button{min-width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card);box-shadow:var(--shadow-1);font-size:17px;padding:0 6px}
+.mapctl .wide{font-size:11px}
+.mapnorth{position:absolute;left:12px;top:10px;font-family:var(--brush);font-size:13px;color:var(--sub);pointer-events:none}
+.mapscale{position:absolute;left:12px;bottom:10px;font-size:11px;color:var(--sub);pointer-events:none}
+.mapscale i{display:block;height:5px;border:1px solid var(--sub);border-top:0;margin-bottom:2px}
+.mapempty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:32px;color:var(--sub);font-size:13px;pointer-events:none}
+.mapcard{margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-1);padding:14px 16px}
+.mapcard .st{font-size:11px;color:var(--red);border:1px solid var(--red);border-radius:999px;padding:0 8px;flex:none}
+.mapcard .acts{display:flex;gap:8px;margin-top:12px}
+.unloc{margin-top:20px}
+.unloc .chips{flex-wrap:wrap}

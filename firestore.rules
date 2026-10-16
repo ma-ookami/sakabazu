@@ -1,0 +1,185 @@
+rules_version = '2';
+
+// 飲み屋街メモ のデータを守るルール。
+// - グループは「招待リンク(グループID)を知っている人(ログイン済み)」だけが1件ずつ読める。一覧での取り出しは禁止
+// - メンバーの一覧は参加画面に必要なので、グループIDを知っている人が読める
+// - 店・ランキング・今日の提案は、メンバーだけが読み書きできる
+// - メンバー情報・ランキングは本人だけが書ける
+//   (別のスマホやPCからは、links/<その端末のID> で「前に参加した人」として入れる。
+//    合言葉を設定しているメンバーに入るには、合言葉が必要。Google を連携した人は Google ログインで同じ人になる)
+// - メンバーを外せるのは、グループを作った人(作った端末、または作った人の合言葉で入り直した端末)だけ
+// - 自分のグループの場所(users/<uid>)は本人だけ。グループを作れるのは1人3つまで
+// - 保存できる項目は、アプリが使うものだけに制限する
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- helpers ----------
+    function signedIn() { return request.auth != null; }
+    function userPath() { return /databases/$(database)/documents/users/$(request.auth.uid); }
+    function groupPath(gid) { return /databases/$(database)/documents/groups/$(gid); }
+    function memberPath(gid, mid) { return /databases/$(database)/documents/groups/$(gid)/members/$(mid); }
+    function pinPath(gid, mid) { return /databases/$(database)/documents/groups/$(gid)/pins/$(mid); }
+    function linkPath(gid) { return /databases/$(database)/documents/groups/$(gid)/links/$(request.auth.uid); }
+    function hasLink(gid) { return exists(linkPath(gid)); }
+    // this device acts as member <mid>: it joined as that member, or linked itself to it
+    function actsAs(gid, mid) {
+      return signedIn() && (mid == request.auth.uid || (hasLink(gid) && get(linkPath(gid)).data.mid == mid));
+    }
+    function isMember(gid) {
+      return signedIn() && (exists(memberPath(gid, request.auth.uid)) || hasLink(gid));
+    }
+    // the creator: the device that created the group, or a device that re-entered as the creator
+    // with the creator's passcode (only while that passcode is still set)
+    function isCreatorUid(gid, c) {
+      return signedIn() && c != ''
+        && (c == request.auth.uid
+            || (hasLink(gid) && get(linkPath(gid)).data.mid == c
+                && get(linkPath(gid)).data.get('verified', false) == true
+                && exists(pinPath(gid, c))));
+    }
+    function isCreator(gid) { return isCreatorUid(gid, get(groupPath(gid)).data.get('createdBy', '')); }
+    function isText(v, min, max) { return v is string && v.size() >= min && v.size() <= max; }
+    function isDay(v) { return v is string && v.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$'); }
+    // a passcode was sent and it matches: sha256("<gid>:<mid>:<pin>") == stored hash
+    function pinGiven(gid, mid, d) {
+      return exists(pinPath(gid, mid))
+        && d.get('pin', '') is string && d.get('pin', '').matches('^[0-9]{4}$')
+        && hashing.sha256((gid + ':' + mid + ':' + d.get('pin', '')).toUtf8()).toHexString().lower()
+           == get(pinPath(gid, mid)).data.hash;
+    }
+    // claiming a member: needs the passcode only if that member set one
+    function pinOk(gid, mid, d) { return !exists(pinPath(gid, mid)) || pinGiven(gid, mid, d); }
+
+    // ---------- shapes ----------
+    function validGroup(d) {
+      return d.keys().hasOnly(['name', 'createdBy', 'createdAt'])
+        && isText(d.get('name', ''), 0, 24)
+        && isText(d.createdBy, 1, 128)
+        && d.createdAt is int;
+    }
+    function validMember(d) {
+      return d.keys().hasOnly(['nick', 'joinedAt', 'hasPin', 'google', 'photo'])
+        && isText(d.nick, 1, 20)
+        && d.joinedAt is int
+        && d.get('hasPin', false) is bool
+        && d.get('google', false) is bool
+        && isText(d.get('photo', ''), 0, 500);
+    }
+    function optMap(d, k) { return !(k in d) || d[k] == null || d[k] is map; }
+    function validShop(d) {
+      return d.keys().hasOnly(['name', 'area', 'createdBy', 'createdAt', 'updatedAt', 'wants', 'went', 'r', 'tags',
+                               'loc', 'planDate', 'hours', 'links', 'visits', 'hp'])
+        && isText(d.name, 1, 60)
+        && isText(d.get('area', ''), 0, 40)
+        && isText(d.createdBy, 1, 128)
+        && d.createdAt is int
+        && d.get('updatedAt', 0) is int
+        && optMap(d, 'wants') && optMap(d, 'went') && optMap(d, 'r') && optMap(d, 'tags')
+        && optMap(d, 'loc') && optMap(d, 'hours') && optMap(d, 'visits') && optMap(d, 'hp')
+        && (!('planDate' in d) || isText(d.planDate, 0, 10))
+        && (!('links' in d) || (d.links is list && d.links.size() <= 5));
+    }
+
+    match /groups/{gid} {
+      allow get: if signedIn();
+      allow list: if false;
+      // creating a group also records it in the creator's users doc (at most 3 groups), in the same batch
+      allow create: if signedIn() && validGroup(request.resource.data)
+        && request.resource.data.createdBy == request.auth.uid
+        && getAfter(userPath()).data.get('owned', []).hasAny([gid])
+        && getAfter(userPath()).data.get('owned', []).size() <= 3;
+      allow update: if isMember(gid) && validGroup(request.resource.data)
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if false;
+
+      match /members/{mid} {
+        allow read: if signedIn();
+        allow create: if signedIn() && request.auth.uid == mid
+          && existsAfter(groupPath(gid))
+          && validMember(request.resource.data);
+        allow update: if actsAs(gid, mid) && validMember(request.resource.data);
+        allow delete: if actsAs(gid, mid) || isCreator(gid);
+      }
+
+      // passcode hashes: never readable by anyone, only checked by these rules
+      match /pins/{mid} {
+        allow read: if false;
+        allow create, update: if actsAs(gid, mid)
+          && request.resource.data.keys().hasOnly(['hash'])
+          && request.resource.data.hash is string
+          && request.resource.data.hash.matches('^[0-9a-f]{64}$');
+        allow delete: if actsAs(gid, mid) || isCreator(gid);
+      }
+
+      // "this device is member <mid>": needs that member's passcode, if they set one.
+      // "verified" can only be set by sending the right passcode (or kept for the same member)
+      match /links/{lid} {
+        allow get: if signedIn() && lid == request.auth.uid;
+        allow list: if isCreator(gid);
+        allow create, update: if signedIn() && lid == request.auth.uid
+          && request.resource.data.keys().hasOnly(['mid', 'at', 'pin', 'verified'])
+          && isText(request.resource.data.mid, 1, 128)
+          && request.resource.data.at is int
+          && exists(memberPath(gid, request.resource.data.mid))
+          && (pinOk(gid, request.resource.data.mid, request.resource.data)
+              || (resource != null && resource.data.mid == request.resource.data.mid))
+          && (request.resource.data.get('verified', false) == false
+              || pinGiven(gid, request.resource.data.mid, request.resource.data)
+              || (resource != null && resource.data.get('verified', false) == true && resource.data.mid == request.resource.data.mid));
+        allow delete: if (signedIn() && lid == request.auth.uid) || isCreator(gid);
+      }
+
+      match /shops/{sid} {
+        allow read: if isMember(gid);
+        allow create: if isMember(gid) && validShop(request.resource.data)
+          && actsAs(gid, request.resource.data.createdBy);
+        allow update: if isMember(gid) && validShop(request.resource.data)
+          && request.resource.data.createdBy == resource.data.createdBy
+          && request.resource.data.createdAt == resource.data.createdAt;
+        allow delete: if isMember(gid);
+      }
+
+      match /rankings/{mid} {
+        allow read: if isMember(gid);
+        allow create, update: if actsAs(gid, mid) && isMember(gid)
+          && request.resource.data.keys().hasOnly(['ids', 'updatedAt'])
+          && request.resource.data.ids is list && request.resource.data.ids.size() <= 10
+          && request.resource.data.updatedAt is int;
+        allow delete: if actsAs(gid, mid) || isCreator(gid);
+      }
+
+      // today's proposals: <YYYY-MM-DD>_<shopId>
+      match /today/{tid} {
+        allow read: if isMember(gid);
+        allow create: if isMember(gid)
+          && request.resource.data.keys().hasOnly(['shopId', 'date', 'by', 'time', 'createdAt', 'votes'])
+          && isText(request.resource.data.shopId, 1, 64)
+          && isDay(request.resource.data.date)
+          && tid == request.resource.data.date + '_' + request.resource.data.shopId
+          && actsAs(gid, request.resource.data.by)
+          && isText(request.resource.data.get('time', ''), 0, 5)
+          && request.resource.data.createdAt is int
+          && request.resource.data.get('votes', {}) is map;
+        allow update: if isMember(gid)
+          && request.resource.data.keys().hasOnly(['shopId', 'date', 'by', 'time', 'createdAt', 'votes'])
+          && request.resource.data.shopId == resource.data.shopId
+          && request.resource.data.date == resource.data.date
+          && request.resource.data.by == resource.data.by
+          && isText(request.resource.data.get('time', ''), 0, 5)
+          && request.resource.data.get('votes', {}) is map;
+        allow delete: if isMember(gid);
+      }
+    }
+
+    // where my group is: { gid, owned: [gids I created] }
+    match /users/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow write: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['gid', 'owned'])
+        && isText(request.resource.data.get('gid', ''), 0, 64)
+        && request.resource.data.get('owned', []) is list
+        && request.resource.data.get('owned', []).size() <= 3;
+    }
+  }
+}

@@ -1,0 +1,26 @@
+/* "today where?" sheet (omakase slot, proposal) */
+.omakase{margin:18px 0 20px;display:grid;gap:10px}
+.reel{height:var(--rh);overflow:hidden;width:100%;-webkit-mask:linear-gradient(transparent,#000 22%,#000 78%,transparent);mask:linear-gradient(transparent,#000 22%,#000 78%,transparent)}
+.reel-s{display:grid;will-change:transform}
+.reel-s span{height:var(--rh);display:grid;place-items:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 6px}
+.slot{--rh:46px;position:relative;overflow:hidden;border-radius:var(--r-xl);box-shadow:var(--shadow-1);background:radial-gradient(240px 160px at 50% 0%,color-mix(in srgb,var(--glow) 35%,transparent),transparent 70%),var(--indigo);color:var(--on-indigo);padding:20px 18px;text-align:center;display:grid;gap:2px;min-height:120px;align-content:center}
+.slot.hit{background:radial-gradient(240px 160px at 50% 0%,rgba(255,255,255,.18),transparent 70%),var(--red);color:var(--on-red)}
+@media (prefers-reduced-motion:no-preference){ .slot.hit.fresh{animation:slotHit .5s var(--ease-spring)} .slot.hit.fresh .sl-n{animation:stampIn .45s var(--ease-spring)} }
+@keyframes slotHit{0%{transform:scale(.96)}50%{transform:scale(1.02)}100%{transform:none}}
+@keyframes stampIn{0%{transform:scale(1.6) rotate(-6deg);opacity:0}100%{transform:none;opacity:1}}
+.slot.hit::after{background:repeating-radial-gradient(circle,transparent 0 13px,color-mix(in srgb,var(--on-red) 20%,transparent) 13px 14px)}
+.sl-k{font-size:12px;opacity:.85}
+.sl-n{font-family:var(--serif);font-weight:700;font-size:24px;line-height:1.3;word-break:break-word}
+.sl-a{font-size:12px;opacity:.85}
+.sl-btns{display:flex;gap:8px}
+.sl-btns .btn{flex:1;padding:14px}
+.propose{border:1.5px solid var(--red);border-radius:var(--r-lg);padding:14px 16px;margin:0 0 18px;background:var(--card);box-shadow:var(--shadow-1)}
+.pp-t{margin:0 0 10px;font-weight:700}
+.pp-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pp-row label{font-size:13px;color:var(--sub);display:flex;align-items:center;gap:6px}
+.plist{list-style:none;margin:0;padding:0}
+.plist li{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.pinfo{flex:1;min-width:0;background:none;border:0;padding:0;text-align:left;display:grid;gap:1px;color:inherit}
+.pn{font-family:var(--serif);font-weight:700;font-size:16px;line-height:1.35}
+.pm{font-size:12px;color:var(--sub)}
+.pk{font-size:12px;opacity:.8}

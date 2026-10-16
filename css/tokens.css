@@ -1,0 +1,34 @@
+/* colors and design tokens (radius, shadow, motion) */
+:root{
+  /* washi paper, sumi ink, vermilion lantern, indigo noren */
+  --bg:#F3EEE5; --card:#FFFCF7; --ink:#27211D; --sub:#7A6C5F; --line:#E3D8C6; --faint:#EEE7DA;
+  --red:#B2322A; --on-red:#FFF8F0; --indigo:#1C2A44; --on-indigo:#F2EADB; --gold:#9A7333; --field:#FFFDF9;
+  --raised:#FFFCF7; --green:#2F7A45; --sat:#47689A; --glow:rgba(178,50,42,.30); --scrim:rgba(24,18,12,.36);
+  --shadow-1:0 1px 2px rgba(70,45,20,.05),0 3px 10px rgba(70,45,20,.06);
+  --shadow-2:0 2px 6px rgba(70,45,20,.07),0 14px 36px rgba(70,45,20,.14);
+  --r-sm:10px; --r-md:14px; --r-lg:20px; --r-xl:26px;
+  --ease-out:cubic-bezier(.2,.8,.2,1); --ease-spring:cubic-bezier(.3,1.3,.5,1);
+  --serif:"Zen Old Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+  --brush:"Zen Antique","Hiragino Mincho ProN","Yu Mincho",serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+/* the same night palette twice: once for the OS setting, once for an explicit data-theme */
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E121A; --card:#171D28; --ink:#EEE6D6; --sub:#9B9181; --line:#273042; --faint:#141A25;
+    --red:#E9604E; --on-red:#1A0C0A; --indigo:#141E33; --on-indigo:#EEE6D6; --gold:#D8B06A; --field:#121823;
+    --raised:#242C3B; --green:#7FCB92; --sat:#8EAEE0; --glow:rgba(255,96,64,.50); --scrim:rgba(0,0,0,.55);
+    --shadow-1:0 1px 2px rgba(0,0,0,.35); --shadow-2:0 16px 40px rgba(0,0,0,.5);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E121A; --card:#171D28; --ink:#EEE6D6; --sub:#9B9181; --line:#273042; --faint:#141A25;
+  --red:#E9604E; --on-red:#1A0C0A; --indigo:#141E33; --on-indigo:#EEE6D6; --gold:#D8B06A; --field:#121823;
+  --raised:#242C3B; --green:#7FCB92; --sat:#8EAEE0; --glow:rgba(255,96,64,.50); --scrim:rgba(0,0,0,.55);
+  --shadow-1:0 1px 2px rgba(0,0,0,.35); --shadow-2:0 16px 40px rgba(0,0,0,.5);
+  color-scheme:dark;
+}

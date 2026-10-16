@@ -1,0 +1,45 @@
+/* records tab (ranking, calendar, score) */
+/* ranking */
+.people{display:flex;gap:14px;overflow-x:auto;padding:20px 0 8px;scrollbar-width:none}
+.person{flex:none;background:none;border:0;display:grid;justify-items:center;gap:4px;font-size:12px;color:var(--sub);padding:0;width:62px}
+.person img,.person .ph{width:48px;height:48px;border-radius:50%;border:2px solid transparent;background:var(--faint)}
+.person[aria-pressed="true"]{color:var(--ink);font-weight:700}
+.person[aria-pressed="true"] img,.person[aria-pressed="true"] .ph{border-color:var(--red)}
+.person span{max-width:62px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank-title{font-family:var(--serif);font-size:22px;font-weight:700;margin:14px 0 4px}
+.rank{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:0}
+.rank li{display:grid;grid-template-columns:56px 1fr auto;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.rank .num{font-family:var(--brush);font-size:30px;line-height:1;text-align:center;color:var(--sub)}
+.rank li:nth-child(1) .num{color:var(--gold);font-size:40px}
+.rank li:nth-child(2) .num,.rank li:nth-child(3) .num{color:var(--gold)}
+.rank .nm{font-family:var(--serif);font-weight:700;font-size:17px;line-height:1.35;background:none;border:0;padding:0;text-align:left}
+.rank .ar{font-size:12px;color:var(--sub)}
+.rank .ctl{display:flex;gap:2px}
+.addrank{display:flex;gap:8px;margin-top:18px}
+.addrank select{flex:1;min-width:0;padding:11px 12px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--field)}
+.calhead{display:flex;align-items:center;justify-content:space-between;margin:20px 0 4px}
+.calhead h2{font-family:var(--serif);font-weight:700;font-size:22px;margin:0;letter-spacing:.04em;font-variant-numeric:tabular-nums}
+.calnav{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--card);font-size:22px;line-height:1;box-shadow:var(--shadow-1)}
+.calstat{font-size:12px;color:var(--sub);margin:0 0 12px;text-align:center}
+.calgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.calwd{text-align:center;font-size:11px;color:var(--sub);padding:2px 0 4px}
+.calwd.sun,.day.sun .dn{color:var(--red)}
+.calwd.sat,.day.sat .dn{color:var(--sat)}
+.day{min-height:58px;border:0;border-radius:12px;background:var(--card);transition:box-shadow .2s;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 2px 4px;font-size:13px;min-width:0;color:var(--ink)}
+.day.out{visibility:hidden}
+.day.has{background:color-mix(in srgb,var(--red) 13%,var(--card))}
+.day .dn{width:24px;height:24px;display:grid;place-items:center;border-radius:50%;line-height:1}
+.day.today .dn{background:var(--ink);color:var(--bg)!important;font-weight:700}
+.day[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--red)}
+.dots{display:flex;gap:2px}
+.dot{width:6px;height:8px;border-radius:45%;background:var(--red);display:block}
+.dname{font-size:9px;line-height:1.2;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:0 2px}
+.daylist{margin-top:18px}
+.dl-h{font-family:var(--serif);font-size:18px;margin:0 0 6px}
+.daylist .faces{margin-top:4px}
+.scorecard{margin:18px 0 6px;padding:22px 20px;border-radius:var(--r-xl);background:radial-gradient(200px 140px at 50% 0%,color-mix(in srgb,var(--glow) 40%,transparent),transparent 70%),var(--indigo);box-shadow:var(--shadow-2);color:var(--on-indigo);display:grid;justify-items:center;text-align:center;gap:2px;position:relative;overflow:hidden}
+.scorecard::after{content:"";position:absolute;left:-50px;top:50%;width:180px;height:180px;transform:translateY(-50%);border-radius:50%;background:repeating-radial-gradient(circle,transparent 0 13px,color-mix(in srgb,var(--on-indigo) 14%,transparent) 13px 14px);pointer-events:none}
+.scorecard .sk{font-size:12px;opacity:.85}
+.scorecard .sv{font-family:var(--brush);font-weight:400;font-size:48px;line-height:1.1}
+.scorecard .sb{margin:8px 0 0;font-size:13px}
+.rank .yen{font-size:18px}

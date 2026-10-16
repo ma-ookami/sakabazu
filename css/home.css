@@ -1,0 +1,53 @@
+/* home tab (next-plan ticket, today block, welcome) */
+.ticket{display:grid;grid-template-columns:96px 1fr;width:100%;text-align:left;margin:22px 0 6px;border:0;padding:0;background:transparent;color:inherit;position:relative;filter:drop-shadow(0 6px 16px rgba(70,45,20,.10))}
+.ticket::before,.ticket::after{content:"";position:absolute;left:89px;width:14px;height:14px;border-radius:50%;background:var(--bg);z-index:1}
+.ticket::before{top:-7px}.ticket::after{bottom:-7px}
+.tk-l{background:linear-gradient(160deg,color-mix(in srgb,var(--red) 88%,#fff),var(--red));color:var(--on-red);border-radius:var(--r-lg) 0 0 var(--r-lg);padding:14px 6px;display:grid;justify-items:center;align-content:center;gap:1px;text-align:center}
+.tk-k{font-size:11px;opacity:.9}
+.tk-d{font-family:var(--brush);font-size:32px;line-height:1.15}
+.tk-w{font-size:11px;opacity:.9}
+.tk-r{background:var(--card);border:1px solid var(--line);border-left:2px dashed var(--line);border-radius:0 var(--r-lg) var(--r-lg) 0;padding:14px 16px;display:grid;align-content:center;gap:2px;min-width:0}
+.tk-n{font-family:var(--serif);font-weight:700;font-size:20px;line-height:1.3;word-break:break-word}
+.tk-a{font-size:12px;color:var(--sub)}
+.tk-r .stack{margin-top:6px}
+.tk-r .stack img,.tk-r .stack .ph{border-color:var(--card)}
+.todaybtn{display:grid;gap:2px;width:100%;margin:22px 0 4px;padding:22px 52px 22px 22px;border:0;border-radius:var(--r-xl);text-align:left;color:var(--on-indigo);position:relative;overflow:hidden;
+  background:radial-gradient(220px 160px at 88% 50%,color-mix(in srgb,var(--glow) 45%,transparent),transparent 70%),var(--indigo);box-shadow:var(--shadow-2)}
+.todaybtn::before{content:"›";position:absolute;right:20px;top:50%;transform:translateY(-52%);font-size:30px;line-height:1;opacity:.75;z-index:1}
+.todaybtn::after,.slot::after{content:"";position:absolute;right:-40px;top:50%;width:170px;height:170px;transform:translateY(-50%);border-radius:50%;background:repeating-radial-gradient(circle,transparent 0 13px,color-mix(in srgb,var(--on-indigo) 14%,transparent) 13px 14px);pointer-events:none}
+.tb-t{font-family:var(--brush);font-size:25px;letter-spacing:.06em;line-height:1.3}
+.tb-s{font-size:12px;opacity:.8}
+.today{margin:24px 0 4px}
+.today-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.today-t{font-family:var(--serif);font-weight:700;font-size:20px;margin:0;letter-spacing:.04em;display:flex;align-items:center;gap:10px}
+.today-t::before{content:"";width:6px;height:18px;border-radius:3px;background:var(--red);box-shadow:0 0 10px var(--glow)}
+.tcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow-1)}
+.tcard.lead{border-color:color-mix(in srgb,var(--red) 55%,var(--line));box-shadow:0 0 0 1px color-mix(in srgb,var(--red) 30%,transparent),0 10px 26px color-mix(in srgb,var(--red) 16%,transparent)}
+.tname{background:none;border:0;padding:0;text-align:left;color:inherit}
+.tbtns{display:flex;gap:6px;flex:none}
+.tbtns .sbtn{padding:7px 14px;font-size:13px}
+.wrapchips{flex-wrap:wrap}
+.scopeseg{margin:20px 0 0}
+.scopeseg button{padding:7px 18px}
+.scopenote{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:18px 0 0;font-size:12px;color:var(--sub)}
+.topseg{display:flex;margin:18px 0 4px}
+.topseg button{flex:1;padding:8px 6px}
+.addlink{display:block;width:100%;margin:14px 0 0;padding:13px;border:1.5px dashed var(--line);border-radius:var(--r-lg);background:transparent;color:var(--sub);font-size:14px;transition:border-color .2s,color .2s}
+.addlink:hover{border-color:var(--red);color:var(--red)}
+.recent{margin-top:28px}
+.recent .plist{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:0 16px;box-shadow:var(--shadow-1)}
+.recent .plist li:first-child{border-top:0}
+.welcome{text-align:center;padding:30px 12px 10px}
+.welcome h2{font-size:21px;margin:0 0 6px}
+.welcome p{color:var(--sub);font-size:13px;margin:0 0 16px}
+/* before joining: start, invited, or come back */
+body.gating .tabs,body.gating .crew,body.gating .modesw{display:none}
+.gate{margin:26px 0 0;display:grid;gap:16px}
+.gate-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-xl);padding:22px 20px;box-shadow:var(--shadow-1)}
+.gate-t{font-family:var(--serif);font-weight:700;font-size:21px;line-height:1.4;margin:0 0 8px}
+.gate-back{margin-top:18px;border-top:1px solid var(--line);padding-top:6px}
+.gate-back summary{cursor:pointer;padding:10px 0;font-weight:700;font-size:14px;color:var(--sub)}
+.gate-members{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.gate-pin{margin-top:12px}
+.gate-google{text-align:center;padding:4px 8px}
+.gate-google .hint{margin-bottom:10px}

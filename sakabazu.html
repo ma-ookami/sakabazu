@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>酒場図-SAKABA-ZU-</title>
+<meta name="description" content="友達と居酒屋の「行きたい店」「行った店」を記録して、今日どこで飲むかすぐ決める">
+<meta name="theme-color" content="#1C2A44">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Antique&family=Zen+Old+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/header.css">
+<link rel="stylesheet" href="css/tabs.css">
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/records.css">
+<link rel="stylesheet" href="css/sheets.css">
+<link rel="stylesheet" href="css/detail.css">
+<link rel="stylesheet" href="css/pick.css">
+<link rel="stylesheet" href="css/map.css">
+<link rel="stylesheet" href="css/list.css">
+</head>
+<body>
+<div class="minibar" id="minibar"><button class="mb-in" id="mbTop" aria-label="いちばん上へ"><svg class="mb-lan" viewBox="0 0 14 20" aria-hidden="true"><rect x="4" y="0" width="6" height="2.5" rx="1" fill="#1F1B19"/><ellipse cx="7" cy="10" rx="6.5" ry="7.5" fill="#D2412F"/><rect x="4" y="17.5" width="6" height="2.5" rx="1" fill="#1F1B19"/></svg><span class="mb-t">酒場図</span><span class="mb-s" id="mbStats"></span></button></div>
+<div class="wrap">
+  <div class="sign">
+  <div class="rod" aria-hidden="true"></div>
+  <header class="noren">
+    <h1>酒場図<small>-SAKABA-ZU-</small></h1>
+    <div class="stats"><span><b id="sWant">0</b>行きたい</span><span><b id="sWent">0</b>行った</span>
+      <div class="modesw" id="modeSw" role="group" aria-label="使い方の切り替え" hidden></div>
+      <button class="crew" id="crewBtn" aria-label="メンバーと招待"><span class="stack" id="crewStack"></span><span id="crewTxt">メンバー</span></button>
+    </div>
+  </header>
+  <svg class="lantern" viewBox="0 0 60 132" aria-hidden="true">
+    <defs>
+      <radialGradient id="lg" cx="42%" cy="45%" r="62%"><stop offset="0" stop-color="#F2664F"/><stop offset=".65" stop-color="#C3342A"/><stop offset="1" stop-color="#8E2019"/></radialGradient>
+    </defs>
+    <line x1="30" y1="0" x2="30" y2="14" stroke="#5B3A20" stroke-width="2"/>
+    <rect x="16" y="13" width="28" height="9" rx="2" fill="#1F1B19"/>
+    <ellipse cx="30" cy="64" rx="27" ry="43" fill="url(#lg)"/>
+    <g fill="none" stroke="#7A1A14" stroke-opacity=".35" stroke-width="1">
+      <path d="M9 36 Q30 42 51 36"/><path d="M4 50 Q30 57 56 50"/><path d="M3 64 Q30 71 57 64"/><path d="M4 78 Q30 85 56 78"/><path d="M9 92 Q30 98 51 92"/>
+    </g>
+    <text x="30" y="75" text-anchor="middle" font-family="Zen Antique, serif" font-size="30" fill="#1F1B19">呑</text>
+    <rect x="16" y="104" width="28" height="9" rx="2" fill="#1F1B19"/>
+    <g stroke="#C3342A" stroke-width="1.4"><line x1="27" y1="113" x2="26" y2="130"/><line x1="30" y1="113" x2="30" y2="131"/><line x1="33" y1="113" x2="34" y2="130"/></g>
+  </svg>
+  </div>
+
+  <nav class="tabs" role="tablist" aria-label="表示切り替え">
+    <button class="tab" role="tab" data-tab="home" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.8 11.2 12 4.6l8.2 6.6"/><path d="M6.3 9.6v9.9h11.4V9.6"/><path d="M10.2 19.5v-5.2h3.6v5.2"/></svg><span>ホーム</span></button>
+    <button class="tab" role="tab" data-tab="list" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 3h5M9.5 21h5"/><ellipse cx="12" cy="12" rx="6.2" ry="7.6"/><path d="M6.4 9.2c3.6 1 7.6 1 11.2 0M5.9 12.4c4 1 8.2 1 12.2 0M6.6 15.5c3.4 .9 7.4 .9 10.8 0"/></svg><span>リスト</span><small id="tWant"></small><small id="tWent"></small></button>
+    <button class="tab" role="tab" data-tab="rec" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14.5" rx="2.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/><circle cx="12" cy="15" r="1.6"/></svg><span>記録</span></button>
+    <button class="tab" role="tab" data-tab="map" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.6-6.1-6.6-11.2a6.6 6.6 0 0 1 13.2 0C18.6 14.9 12 21 12 21z"/><circle cx="12" cy="9.8" r="2.4"/></svg><span>地図</span></button>
+  </nav>
+
+  <div id="join"></div>
+  <div id="notice"></div>
+  <main id="view"></main>
+</div>
+
+<section class="sheet" id="detail" hidden role="dialog" aria-modal="true" aria-labelledby="dName">
+  <div class="sheet-in">
+    <div class="sheet-head">
+      <button class="back" id="dBack"><b>‹</b>戻る</button>
+      <button class="btn btn-line" id="dEdit">情報を編集</button>
+    </div>
+    <h2 class="d-name" id="dName"></h2>
+    <p class="d-area" id="dArea"></p>
+    <div class="seg" id="dSeg" role="group" aria-label="ステータス">
+      <button data-s="want">行きたい</button><button data-s="went">行った</button>
+    </div>
+    <div id="dBody"></div>
+    <button class="danger" id="dDel">この店を削除</button>
+  </div>
+</section>
+
+<section class="sheet" id="formSheet" hidden role="dialog" aria-modal="true" aria-labelledby="fTitle">
+  <div class="sheet-in">
+    <div class="sheet-head"><button class="back" id="fBack"><b>‹</b>戻る</button></div>
+    <h2 class="d-name" id="fTitle">お店の情報を編集</h2>
+    <form class="form" id="form" novalidate>
+      <label for="fName">店名</label>
+      <input id="fName" class="field" required maxlength="60" autocomplete="off">
+      <label for="fArea">エリア・最寄り駅</label>
+      <input id="fArea" class="field" maxlength="40" placeholder="例: 駅前の路地裏" autocomplete="off">
+      <label for="fOpen">営業時間</label>
+      <div class="hrow"><input id="fOpen" type="time" class="dateinput" aria-label="開店時間"><span>〜</span><input id="fClose" type="time" class="dateinput" aria-label="閉店時間"></div>
+      <p class="hint fhint">深夜まで営業している店は、閉店に「2:00」のように翌日の時刻を入れてください。</p>
+      <label>定休日</label>
+      <div class="wdays" id="fDays" role="group" aria-label="定休日"></div>
+      <label for="fHNote">営業時間のメモ</label>
+      <input id="fHNote" class="field" maxlength="60" placeholder="例: 日曜は22時まで、ランチ営業あり" autocomplete="off">
+      <label>お店のリンク</label>
+      <div id="fLinks"></div>
+      <button type="button" class="textbtn" id="fAddLink">＋ リンクを追加</button>
+      <div class="actions">
+        <button type="submit" class="btn btn-red">保存する</button>
+        <button type="button" class="btn btn-line" id="fCancel">やめる</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<section class="sheet" id="pickSheet" hidden role="dialog" aria-modal="true" aria-labelledby="pTitle">
+  <div class="sheet-in">
+    <div class="sheet-head"><button class="back" id="pBack"><b>‹</b>戻る</button></div>
+    <h2 class="d-name" id="pTitle">今日どこ行く?</h2>
+    <div id="pBody"></div>
+  </div>
+</section>
+
+<section class="sheet" id="crewSheet" hidden role="dialog" aria-modal="true" aria-labelledby="cTitle">
+  <div class="sheet-in">
+    <div class="sheet-head"><button class="back" id="cBack"><b>‹</b>戻る</button></div>
+    <h2 class="d-name" id="cTitle">メンバー</h2>
+    <div id="cBody"></div>
+  </div>
+</section>
+
+<div class="toast" id="toast" hidden role="status"><span id="toastMsg"></span><button id="toastAct" hidden></button></div>
+
+<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-check-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="js/core.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/cloud.js"></script>
+<script src="js/hotpepper.js"></script>
+<script src="js/crew.js"></script>
+<script src="js/render.js"></script>
+<script src="js/today.js"></script>
+<script src="js/lists.js"></script>
+<script src="js/map.js"></script>
+<script src="js/visits.js"></script>
+<script src="js/home.js"></script>
+<script src="js/shop-info.js"></script>
+<script src="js/detail.js"></script>
+<script src="js/store.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

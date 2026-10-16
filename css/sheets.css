@@ -1,0 +1,81 @@
+/* bottom sheets, sections, forms, members, confirm dialog */
+/* .sheet is the dimmed backdrop; .sheet-in is the panel that slides up and scrolls */
+.sheet{position:fixed;inset:0;z-index:20;background:var(--scrim);overscroll-behavior:contain}
+.sheet[hidden]{display:none}
+.sheet-in{position:absolute;left:0;right:0;bottom:0;top:calc(env(safe-area-inset-top,0px) + 10px);max-width:640px;margin:0 auto;
+  overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+  background:var(--bg);border-radius:var(--r-xl) var(--r-xl) 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.18);
+  padding:0 18px calc(64px + env(safe-area-inset-bottom,0px))}
+@media (min-width:700px){ .sheet-in{top:28px} }
+@media (prefers-reduced-motion:no-preference){
+  .sheet:not([hidden]):not(.vt){animation:fadeIn .3s ease}
+  .sheet:not([hidden]):not(.vt) .sheet-in{animation:sheetUp .46s cubic-bezier(.22,1,.36,1)}
+  .sheet.closing{animation:fadeOut .26s ease forwards}
+  .sheet.closing .sheet-in{animation:sheetDown .26s cubic-bezier(.4,0,1,1) forwards}
+}
+@keyframes fadeIn{from{background:transparent}}
+@keyframes fadeOut{to{background:transparent}}
+@keyframes sheetUp{from{transform:translateY(100%)}}
+@keyframes sheetDown{from{transform:translateY(var(--drag,0px))}to{transform:translateY(100%)}}
+.sheet-in.dragging{transition:none}
+.sheet-in.snap{transition:transform .3s var(--ease-out)}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;gap:8px;position:sticky;top:0;z-index:3;margin:0 -18px;padding:16px 12px 6px 6px;min-height:60px;
+  background:color-mix(in srgb,var(--bg) 86%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-radius:var(--r-xl) var(--r-xl) 0 0;touch-action:none;cursor:grab}
+.sheet-head::before{content:"";position:absolute;left:50%;top:7px;width:40px;height:5px;margin-left:-20px;border-radius:3px;background:color-mix(in srgb,var(--sub) 45%,transparent)}
+.back{background:none;border:0;padding:0 10px 0 6px;min-height:44px;color:var(--red);font-size:16px;font-weight:500;display:inline-flex;align-items:center;gap:2px}
+.back b{font-size:26px;font-weight:300;line-height:1;margin-top:-3px}
+.sheet-head .btn{padding:7px 14px;font-size:13px;border-radius:999px}
+.d-name{font-family:var(--serif);font-weight:700;font-size:clamp(26px,7.5vw,36px);line-height:1.25;margin:4px 0 2px;word-break:break-word}
+.d-area{color:var(--sub);margin:0;font-size:13px}
+.sec{padding:18px 0;border-bottom:1px solid var(--line)}
+.sec:last-of-type{border-bottom:0}
+.sec-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.sec-h h3{margin:0;font-size:15px;font-weight:700}
+.sec-h small{color:var(--sub);font-size:11px}
+.big-went{width:100%;margin-top:22px;padding:16px;border-radius:var(--r-lg);font-family:var(--brush);font-size:20px;letter-spacing:.1em;font-weight:400}
+.danger{background:none;border:0;color:var(--sub);padding:14px 0;margin-top:20px;font-size:13px;text-decoration:underline;text-underline-offset:3px}
+.form label{display:block;font-weight:700;margin:18px 0 6px;font-size:14px}
+.form input{width:100%}
+.form .actions{display:flex;gap:8px;margin-top:24px}
+.mlist{list-style:none;margin:16px 0 0;padding:0}
+.mlist li{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.mlist img,.mlist .ph{width:40px;height:40px;border-radius:50%;background:var(--faint);display:inline-block;flex:none}
+.mlist .mn{font-weight:700}
+.mlist .ms{font-size:12px;color:var(--sub)}
+.steps{margin:10px 0 0;padding-left:1.4em;font-size:14px}
+.steps li{margin-bottom:6px}
+.linkbox{display:flex;gap:8px;margin-top:12px}
+.linkbox input{flex:1;min-width:0;font-size:12px}
+#pickSheet{z-index:20}#detail,#crewSheet{z-index:21}#formSheet{z-index:22}
+.hrow{display:flex;align-items:center;gap:8px}
+.hrow .dateinput{flex:1;min-width:0}
+.fhint{margin:6px 0 0}
+.wdays{display:flex;gap:6px;flex-wrap:wrap}
+.wd{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card);font-size:14px}
+.wd[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:700}
+.lrow{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.lrow .field{flex:1;min-width:0}
+.htext{font-size:13px;color:var(--sub)}
+.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.linkbtn{padding:8px 14px;font-size:13px;border-radius:999px}
+
+/* confirm dialog (replaces window.confirm) */
+.ask{border:0;padding:0;background:transparent;color:var(--ink);max-width:min(88vw,380px);width:100%;overflow:visible}
+.ask::backdrop{background:rgba(16,12,8,.42)}
+.ask-in{background:var(--card);border:1px solid var(--line);border-radius:var(--r-xl);padding:22px 20px 16px;box-shadow:var(--shadow-2)}
+.ask p{margin:0 0 18px;font-size:15px;line-height:1.7}
+.ask .actions{display:flex;gap:8px;justify-content:flex-end}
+.ask .btn{flex:1}
+.ask .btn-danger{background:var(--red);color:var(--on-red)}
+@media (prefers-reduced-motion:no-preference){
+  .ask[open] .ask-in{animation:askIn .28s var(--ease-spring)}
+  .ask[open]::backdrop{animation:fadeIn .2s ease}
+}
+@keyframes askIn{from{transform:scale(.92);opacity:0}}
+
+/* view transitions: quick crossfade between tabs, shop name flies from the card into the sheet */
+.tabs{view-transition-name:tabs}
+.minibar{view-transition-name:minibar}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.22s}
+::view-transition-group(shopname){animation-duration:.46s;animation-timing-function:cubic-bezier(.22,1,.36,1)}
+::view-transition-new(sheet){animation:sheetUp .46s cubic-bezier(.22,1,.36,1)}
