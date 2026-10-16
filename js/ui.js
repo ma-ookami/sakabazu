@@ -3,7 +3,7 @@ const reduceMotion = () => !!(window.matchMedia && matchMedia('(prefers-reduced-
 const canVT = () => typeof document.startViewTransition==='function' && !reduceMotion();
 
 /* bottom sheets: .sheet is the backdrop, .sheet-in the panel. Closing plays an animation before hidden=true. */
-const SHEETS = { pickSheet:()=>closePick(), detail:()=>closeDetail(), crewSheet:()=>closeCrew(), formSheet:()=>closeForm(), searchSheet:()=>closeSearch() };
+const SHEETS = { pickSheet:()=>closePick(), detail:()=>closeDetail(), formSheet:()=>closeForm(), searchSheet:()=>closeSearch() };
 const sheetTimers = {};
 const panelOf = id => $(id).querySelector('.sheet-in');
 const isOpen = id => !$(id).hidden && !$(id).classList.contains('closing');

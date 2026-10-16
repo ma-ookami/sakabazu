@@ -1,7 +1,4 @@
 /* ---------- members, invite, passcode, Google, and the screens before joining ---------- */
-async function renderCrew(){
-  if (isOpen('crewSheet') && !$('cBody').contains(document.activeElement)) buildCrew();
-}
 async function saveNick(nick){
   if(!me) return; members={...members,[me]:{...members[me],nick}}; render();
   if (mode==='db') enqueue('member:'+me,()=>db.doc('members/'+me).update({nick}));
@@ -9,10 +6,9 @@ async function saveNick(nick){
 async function leaveGroup(){
   if (mode!=='db' || !me) return;
   if (!(await ask(me===uid ? 'このグループから抜けます。これまでの評価やメモは残ります。' : 'この端末をグループから外します。あなたの記録はそのまま残ります。','抜ける',true))) return;
-  closeCrew(); try{ await leaveCloud(); }catch(e){ onWriteError(e); }
+  try{ await leaveCloud(); }catch(e){ onWriteError(e); }
 }
-async function openCrew(){ showSheet('crewSheet'); await buildCrew(); $('cBack').focus({preventScroll:true}); }
-function closeCrew(){ hideSheet('crewSheet'); }
+function openCrew(){ setTab('set'); }
 const busyBtn = async (b,fn) => { b.disabled=true; try{ await fn(); }catch(e){ console.warn(e); onWriteError(e); } finally{ if(b.isConnected) b.disabled=false; } };
 function nickForm(label,value,onSave){
   const f=el('form','quick'); f.style.margin='0'; f.noValidate=true;
@@ -29,8 +25,8 @@ function pinForm(label,onSave){
   f.onsubmit=e=>{ e.preventDefault(); if(!/^\d{4}$/.test(i.value)){ i.focus(); toast('4桁の数字を入れてください'); return; } busyBtn(b,()=>onSave(i.value)); };
   return f;
 }
-async function buildCrew(){
-  const body=$('cBody'); body.textContent='';
+async function buildCrew(body){
+  body.textContent='';
   if (mode!=='db'){ body.appendChild(el('p','hint','いまは記録をこの端末だけに保存しています(firebase-config.js が未設定)。メンバー機能を使うには、README の手順で Firebase を設定してください。')); return; }
   const ids=Object.keys(members).sort((a,b)=>(members[a].joinedAt||0)-(members[b].joinedAt||0));
   const ps=await people(ids); const mine=members[me]||{};

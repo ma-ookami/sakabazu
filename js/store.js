@@ -28,6 +28,7 @@ function tagSec(s){
 }
 function markWent(id,stayOpen){
   const s=shops.find(x=>x.id===id); if(!s) return;
+  darumaCheer(`「${s.name}」おつかれさま!`);
   { const d=today(); const ev=ensureVisit(s,d); patchShop(id,Object.assign({went:wentPatch(s,me,d), wants:{[me]:false}}, ev.patch)); }
   if (!stayOpen){ openDetail(id); toast('おつかれさまでした。会計を見る前に、いくらか予想してみましょう'); setTimeout(()=>{ const x=$('dVisitSec'); if(x) x.scrollIntoView({block:'start',behavior:'smooth'}); },350); }
 }

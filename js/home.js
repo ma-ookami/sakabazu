@@ -11,28 +11,17 @@ function listSeg(v){ segBar(v,[['want',`行きたい ${shops.filter(inWant).leng
 function recSeg(v){ segBar(v,[['cal','カレンダー'],['rank','ランキング'],['score','予想成績']],recSub,k=>{ recSub=k; }); }
 function goAdd(){ listSub='want'; setTab('list'); openSearch(''); }
 function renderHome(v){
-  const g=groupMode();
+  darumaGreet(v);
   todayBlock(v);
   hero(v);
-  if (!shops.some(s=>statusOf(s))){
-    const e=el('div','welcome'); e.appendChild(el('h2','mincho', g?'グループのリストはまだ空です':'まずは行きたい店から'));
-    e.appendChild(el('p',null,'気になる店をリストに入れていくと、「今日どこ行く?」で迷わずに決められます。'));
-    if(!readOnly){ const b=el('button','btn btn-red','🔍 お店を探して追加'); b.onclick=goAdd; e.appendChild(b); }
-    v.appendChild(e); return;
-  }
-  if (!readOnly){ const a=el('button','addlink','🔍 お店を探して追加'); a.onclick=goAdd; v.appendChild(a); }
-  const rec=calEntries().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
-  const box=el('section','recent'); const h=el('div','today-h'); h.appendChild(el('h2','today-t', g?'グループの最近':'最近行った店'));
-  const more=el('button','sbtn','カレンダー'); more.onclick=()=>{ recSub='cal'; setTab('rec'); }; h.appendChild(more); box.appendChild(h);
-  if (!rec.length) box.appendChild(el('p','hint','まだ来店の記録がありません。行ったら「行った」を押して記録しましょう。'));
-  else { const ul=el('ul','plist'); const slots=[];
-    for (const e of rec){ const li=el('li'); const info=el('button','pinfo'); info.onclick=()=>openDetail(e.s.id);
-      info.appendChild(el('span','pn',e.s.name||'(名前なし)'));
-      info.appendChild(el('span','pm',[fmtDate(e.date), e.s.area, e.actual>0?`1人 ${yen(e.actual)}`:''].filter(Boolean).join('　')));
-      if (g){ const f=el('span','faces'); const st=el('span','stack'); f.appendChild(st); info.appendChild(f); slots.push([st,e.ppl.slice(0,6)]); }
-      li.appendChild(info); ul.appendChild(li); }
-    box.appendChild(ul); fillFaces(slots); }
-  v.appendChild(box);
+  // what you can do from here
+  const acts=el('div','homeacts');
+  const act=(ic,t,sub,fn,cls)=>{ const b=el('button','hact'+(cls?' '+cls:'')); b.append(el('span','ha-ic',ic), el('span','ha-t',t)); if(sub) b.appendChild(el('span','ha-s',sub)); b.onclick=fn; acts.appendChild(b); };
+  if (!readOnly) act('🔍','お店をリストに追加','エリア・料理・URLから',goAdd,'main');
+  act('🏮','行きたい店',`${shops.filter(inWant).length}軒`,()=>{ listSub='want'; setTab('list'); });
+  act('📒','行った店',`${shops.filter(inWent).length}軒`,()=>{ recSub='cal'; setTab('rec'); });
+  act('🗺️','地図','近くの店',()=>setTab('map'));
+  v.appendChild(acts);
 }
 async function renderScore(v){
   const g=groupMode(); const P=SP();

@@ -56,7 +56,7 @@
     <button class="tab" role="tab" data-tab="list" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 3h5M9.5 21h5"/><ellipse cx="12" cy="12" rx="6.2" ry="7.6"/><path d="M6.4 9.2c3.6 1 7.6 1 11.2 0M5.9 12.4c4 1 8.2 1 12.2 0M6.6 15.5c3.4 .9 7.4 .9 10.8 0"/></svg><span>リスト</span><small id="tWant"></small><small id="tWent"></small></button>
     <button class="tab" role="tab" data-tab="rec" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14.5" rx="2.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/><circle cx="12" cy="15" r="1.6"/></svg><span>記録</span></button>
     <button class="tab" role="tab" data-tab="map" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.6-6.1-6.6-11.2a6.6 6.6 0 0 1 13.2 0C18.6 14.9 12 21 12 21z"/><circle cx="12" cy="9.8" r="2.4"/></svg><span>地図</span></button>
-    <button class="tab" id="crewBtn" aria-label="設定とメンバー"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M5.5 18.5l1.8-1.8M16.7 7.3l1.8-1.8"/></svg><span>設定</span></button>
+    <button class="tab" role="tab" data-tab="set" aria-selected="false" id="crewBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M5.5 18.5l1.8-1.8M16.7 7.3l1.8-1.8"/></svg><span>設定</span></button>
   </nav>
 
   <div id="join"></div>
@@ -123,14 +123,6 @@
   </div>
 </section>
 
-<section class="sheet" id="crewSheet" hidden role="dialog" aria-modal="true" aria-labelledby="cTitle">
-  <div class="sheet-in">
-    <div class="sheet-head"><button class="back" id="cBack"><b>‹</b>戻る</button></div>
-    <h2 class="d-name" id="cTitle">設定</h2>
-    <div id="cBody"></div>
-  </div>
-</section>
-
 <div class="toast" id="toast" hidden role="status"><span id="toastMsg"></span><button id="toastAct" hidden></button></div>
 
 <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
@@ -150,6 +142,7 @@
 <script src="js/map.js"></script>
 <script src="js/visits.js"></script>
 <script src="js/home.js"></script>
+<script src="js/daruma.js"></script>
 <script src="js/shop-info.js"></script>
 <script src="js/detail.js"></script>
 <script src="js/store.js"></script>

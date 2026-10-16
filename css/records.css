@@ -43,3 +43,4 @@
 .scorecard .sv{font-family:var(--brush);font-weight:400;font-size:48px;line-height:1.1}
 .scorecard .sb{margin:8px 0 0;font-size:13px}
 .rank .yen{font-size:18px}
+.day.today{margin:0}   /* .today (home section) must not push the cell down */

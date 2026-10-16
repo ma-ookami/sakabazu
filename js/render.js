@@ -8,11 +8,14 @@ function counts(){
   const mb=$('mbStats'); mb.textContent=''; mb.append('行きたい', el('b',null,String(w)), '・行った', el('b',null,String(g)));
 }
 function render(){
-  counts(); renderCrew();
+  counts();
+  // typing in settings: don't rebuild under the cursor (data updates arrive while you type)
+  if (tab==='set' && $('setBody') && $('setBody').contains(document.activeElement) && mode==='db') return;
   const ae=document.activeElement; const keep=(ae&&ae.id==='quick')?{s:ae.selectionStart,e:ae.selectionEnd}:null;
   const v=$('view'); v.textContent=''; document.body.classList.toggle('gating', mode==='gate');
   if (mode==='gate'){ renderGate(v); return; }
   if (mode==='loading'){ const k=el('div','skel'); k.setAttribute('role','status'); k.setAttribute('aria-label','読み込み中'); for(const h of [96,132,132,132]){ const i=el('i'); i.style.setProperty('--h',h+'px'); k.appendChild(i); } v.appendChild(k); return; }
+  if (tab==='set'){ v.appendChild(el('h2','pagetitle','設定')); const b=el('div'); b.id='setBody'; v.appendChild(b); buildCrew(b); return; }
   scopeStrip(v);
   if (tab==='home') renderHome(v);
   else if (tab==='list'){ listSeg(v); if(listSub==='want') renderWant(v); else renderWent(v); }
@@ -47,6 +50,7 @@ async function addOrBump(name,area,extra){
     return null;
   }
   const id=await addShop(name,area);
+  if (id) darumaCheer(`「${name}」、いいね!行けるといいね`);
   if (id && extra){
     const p={}; for (const k of ['loc','links','hours','tags','hp']) if (extra[k]) p[k]=extra[k];
     if (extra.note && me) p.r={[me]:{note:{t:extra.note}}};

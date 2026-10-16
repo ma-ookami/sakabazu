@@ -60,3 +60,31 @@ body.gating .tabs,body.gating .crew,body.gating .modesw{display:none}
 .sc-cap{font-size:12px;color:var(--sub)}
 .sc-now{font-size:14px;font-weight:700;color:var(--ink)}
 .sc-inv{margin-left:auto;border:0;background:none;color:var(--red);font-size:13px;padding:6px 0}
+/* だるま greeting */
+.dm-row{display:flex;align-items:center;gap:12px;margin:16px 0 4px}
+.daruma{flex:none;width:64px;height:66px;padding:0;border:0;background:none;cursor:pointer;color:var(--sub);-webkit-tap-highlight-color:transparent}
+.daruma svg{display:block;width:100%;height:100%;overflow:visible}
+.daruma .dm-body{transform-box:view-box;transform-origin:32px 60px}
+.daruma .dm-f,.daruma .dm-zzz{display:none}
+.daruma:not(.happy):not(.sleep) .dm-normal,.daruma.happy .dm-happy,.daruma.sleep:not(.happy) .dm-sleep,.daruma.sleep:not(.happy) .dm-zzz{display:inline}
+.daruma .dm-eyes{transform-box:fill-box;transform-origin:center}
+.daruma.blink .dm-eyes{animation:dmBlink .3s steps(2)}
+.daruma.wobble .dm-body{animation:dmWobble 1.1s cubic-bezier(.3,1.6,.5,1)}
+.daruma.hop .dm-body{animation:dmHop .8s cubic-bezier(.3,1.4,.5,1)}
+@media (prefers-reduced-motion:no-preference){ .daruma.sleep .dm-body{animation:dmNod 3.4s ease-in-out infinite} .daruma .dm-zzz{animation:dmZ 2.4s ease-in-out infinite} }
+@keyframes dmBlink{50%{transform:scaleY(.1)}}
+@keyframes dmWobble{0%{transform:rotate(0)}20%{transform:rotate(-14deg)}45%{transform:rotate(10deg)}65%{transform:rotate(-6deg)}82%{transform:rotate(3deg)}100%{transform:rotate(0)}}
+@keyframes dmHop{0%,100%{transform:translateY(0) scale(1)}25%{transform:translateY(0) scale(1.06,.92)}50%{transform:translateY(-12px) scale(.96,1.05)}75%{transform:translateY(0) scale(1.04,.95)}}
+@keyframes dmNod{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+@keyframes dmZ{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:.9;transform:translateY(-2px)}}
+.dm-bub{position:relative;margin:0;flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 14px;font-size:14px;line-height:1.5;box-shadow:var(--shadow-1)}
+.dm-bub::before{content:"";position:absolute;left:-7px;top:50%;width:12px;height:12px;background:var(--card);border-left:1px solid var(--line);border-bottom:1px solid var(--line);transform:translateY(-50%) rotate(45deg)}
+/* home actions */
+.homeacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:16px 0 8px}
+.hact{display:grid;justify-items:start;align-content:start;gap:2px;text-align:left;padding:12px 12px 10px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--card);box-shadow:var(--shadow-1);color:var(--ink);font:inherit}
+.hact.main{grid-column:1/-1;background:var(--red);border-color:var(--red);color:var(--on-red)}
+.ha-ic{font-size:20px;line-height:1.2}
+.ha-t{font-weight:700;font-size:14px;line-height:1.35}
+.hact.main .ha-t{font-size:16px}
+.ha-s{font-size:12px;opacity:.75}
+@media (prefers-reduced-motion:no-preference){ .hact:active{transform:scale(.97)} }
