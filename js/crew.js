@@ -2,7 +2,7 @@
 async function renderCrew(){
   const ids=Object.keys(members); const ps=await people(ids);
   const st=$('crewStack'); st.textContent=''; ids.slice(0,4).forEach(id=>st.appendChild(avatar(ps,id)));
-  $('crewTxt').textContent = ids.length>1 ? 'メンバー' : '招待する'; renderMode();
+  $('crewTxt').textContent = '設定'; renderMode();
   if (isOpen('crewSheet') && !$('cBody').contains(document.activeElement)) buildCrew();
 }
 async function saveNick(nick){
@@ -37,6 +37,9 @@ async function buildCrew(){
   if (mode!=='db'){ body.appendChild(el('p','hint','いまは記録をこの端末だけに保存しています(firebase-config.js が未設定)。メンバー機能を使うには、README の手順で Firebase を設定してください。')); return; }
   const ids=Object.keys(members).sort((a,b)=>(members[a].joinedAt||0)-(members[b].joinedAt||0));
   const ps=await people(ids); const mine=members[me]||{};
+  const nk=sec('あなたの名前'); nk.appendChild(nickForm('保存する',mine.nick,async n=>{ await saveNick(n); toast('保存しました'); })); body.appendChild(nk);
+
+  const mh=sec('メンバー'); body.appendChild(mh);
   const ul=el('ul','mlist');
   for (const id of ids){ const m=members[id]; const li=el('li'); li.appendChild(avatar(ps,id)); const d=el('div'); d.style.flex='1';
     d.appendChild(el('div','mn', m.nick + (id===me?'(あなた)':'') + (group&&group.createdBy===id?' ・作った人':'')));
@@ -45,7 +48,6 @@ async function buildCrew(){
     ul.appendChild(li); }
   body.appendChild(ul);
 
-  const nk=sec('ニックネーム'); nk.appendChild(nickForm('保存する',mine.nick,async n=>{ await saveNick(n); toast('保存しました'); })); body.appendChild(nk);
 
   const inv=sec('友達を招待する');
   inv.appendChild(el('p','hint','このリンクを送ると、開いた人がニックネームを入れて参加できます。リンクを知っている人なら誰でも入れるので、仲間内だけで送ってください。'));
@@ -56,8 +58,10 @@ async function buildCrew(){
   inv.appendChild(lb); body.appendChild(inv);
 
   const dev=sec('ほかの端末で使う');
-  const ge=googleEmail();
-  if (ge){
+  const ge=GOOGLE_ON ? googleEmail() : '';
+  if (!GOOGLE_ON){
+    // Google is off for now: passcode only
+  } else if (ge){
     dev.appendChild(el('p','hint',`Google(${ge})でログインしています。ほかの端末でもGoogleでログインすれば、同じあなたとして使えます。`));
     const so=el('button','btn btn-line','この端末でログアウト'); so.onclick=async()=>{ if(await ask('この端末でGoogleからログアウトします。もう一度Googleでログインすれば戻れます。','ログアウト')) googleSignOut(); }; dev.appendChild(so);
   } else if (me===uid){
@@ -66,7 +70,7 @@ async function buildCrew(){
   } else {
     dev.appendChild(el('p','hint','この端末は合言葉などで入っています。Googleとの連携は、最初に参加した端末で行えます。'));
   }
-  const pn=el('div'); pn.style.marginTop='16px';
+  const pn=el('div');
   pn.appendChild(el('h4','gstep', mine.hasPin ? '合言葉(設定済み)' : '合言葉'));
   pn.appendChild(el('p','hint', mine.hasPin ? 'ほかの端末で招待リンクを開き「前に参加した人として入る」から、あなたの名前と合言葉で入れます。' : '設定すると、ほかの端末で招待リンクを開き「前に参加した人として入る」から、あなたとして入れます。設定しないと、リンクを知っている人なら誰でもあなたとして入れてしまいます。'));
   pn.appendChild(pinForm(mine.hasPin?'変える':'設定する',async p=>{ await setPin(p); toast('合言葉を設定しました。忘れないようにしてください'); }));
@@ -93,8 +97,8 @@ function renderGate(v){
     card.appendChild(el('h2','gate-t','飲み仲間のグループに招待されています'));
     const ids=Object.keys(g.members||{}).sort((a,b)=>(g.members[a].joinedAt||0)-(g.members[b].joinedAt||0));
     if (ids.length) card.appendChild(el('p','hint','メンバー: '+ids.map(id=>g.members[id].nick).join('、')));
-    card.appendChild(el('p','hint','ニックネームを入れて参加してください。'));
-    card.appendChild(nickForm('参加する','',n=>joinGroup(n)));
+    card.appendChild(el('p','hint','名前はあとから「設定」で変えられます。'));
+    const jb=el('button','btn btn-red gate-join','参加する'); jb.onclick=()=>busyBtn(jb,()=>joinGroup(guestName())); card.appendChild(jb);
     if (ids.length){
       const back=el('details','gate-back'); back.appendChild(el('summary',null,'前に参加した人として入る'));
       back.appendChild(el('p','hint','別の端末で参加していた人は、自分の名前を選んでください。合言葉を設定している人は合言葉が必要です。'));
@@ -113,8 +117,10 @@ function renderGate(v){
     }
   }
   box.appendChild(card);
+  if (GOOGLE_ON){
   const gg=el('div','gate-google'); gg.appendChild(el('p','hint','Googleと連携していた人は、Googleでログインすると前の記録に戻れます。'));
   const gb=el('button','btn btn-line','Googleでログイン'); gb.onclick=()=>busyBtn(gb,googleSignIn); gg.appendChild(gb);
   box.appendChild(gg);
+  }
   v.appendChild(box);
 }

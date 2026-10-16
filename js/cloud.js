@@ -52,11 +52,11 @@ async function startGroup(){
   let mine=null; try{ const u=await fs.doc('users/'+uid).get(); mine=u.exists?u.data():null; }catch(e){ console.warn(e); }
   let saved=null; try{ saved=localStorage.getItem('nm-gid'); }catch{}
   const target = invited || (mine&&mine.gid) || saved || null;
-  if (!target){ showGate({kind:'welcome'}); return; }
+  if (!target){ autoStart(); return; }
   let g=null; try{ g=await fs.doc('groups/'+target).get(); }catch(e){ console.warn(e); }
   if (!g || !g.exists){
     try{ localStorage.removeItem('nm-gid'); }catch{}
-    showGate(invited ? {kind:'error', msg:'招待リンクのグループが見つかりませんでした。リンクが正しいか、送ってくれた人に確認してください。'} : {kind:'welcome'}); return;
+    if (invited) showGate({kind:'error', msg:'招待リンクのグループが見つかりませんでした。リンクが正しいか、送ってくれた人に確認してください。'}); else autoStart(); return;
   }
   gid=target; group=g.data();
   const mids=await memberList();
@@ -101,6 +101,13 @@ function enterGroup(mid, mine){
 function stopSubs(){ cloudSubs.forEach(f=>{ try{ f(); }catch{} }); cloudSubs=[]; }
 
 const newId = (n=20) => { const a='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789'; const b=crypto.getRandomValues(new Uint8Array(n)); return [...b].map(x=>a[x%a.length]).join(''); };
+// a placeholder name until the person changes it in 設定
+const guestName = () => 'ゲスト' + (100 + (crypto.getRandomValues(new Uint16Array(1))[0] % 900));
+// no group yet: make one right away and go straight to the app
+async function autoStart(){
+  try{ await createGroup(guestName()); toast('名前は右上の「設定」から変えられます'); }
+  catch(e){ console.warn(e); showGate({kind:'error', msg:'はじめられませんでした。通信状態を確認して、読み込み直してください。'}); }
+}
 function memberData(nick){
   const u=auth.currentUser, gp=u && u.providerData.find(p=>p.providerId==='google.com');
   const d={nick:nick.slice(0,20), joinedAt:Date.now(), hasPin:false, google:!!gp};
@@ -149,7 +156,7 @@ async function leaveCloud(){
   else await fs.doc(gpath('links/'+uid)).delete();
   await fs.doc('users/'+uid).set({gid:''},{merge:true});
   try{ localStorage.removeItem('nm-gid'); }catch{}
-  gid=null; showGate({kind:'welcome'});
+  gid=null; autoStart();
 }
 async function removeMember(mid){
   await fs.doc(gpath('pins/'+mid)).delete().catch(()=>{});
@@ -158,7 +165,10 @@ async function removeMember(mid){
 
 // Google: the member's own device links Google to its anonymous account (uid stays the same).
 // Elsewhere, signing in with that Google account gives the same uid, so it is the same member.
+// Google sign-in is switched off for now (buttons hidden); flip to true to bring it back
+const GOOGLE_ON = false;
 async function googleSignIn(){
+  if (!GOOGLE_ON) return;
   const u=auth.currentUser, p=new firebase.auth.GoogleAuthProvider(); p.setCustomParameters({prompt:'select_account'});
   const canLink = !!(u && u.isAnonymous && me && me===uid);   // only the member's own device links; others switch accounts
   try{
