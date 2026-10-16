@@ -166,18 +166,3 @@ function renderFlaps(){
   }
 }
 function openFriends(){ setTab('set'); setTimeout(()=>{ const s=$('secFriends'); if(s) s.scrollIntoView({block:'start',behavior:'smooth'}); },80); }
-
-// the lantern: a small menu (届いた提案 will live here too)
-function toggleLanMenu(open){
-  const m=$('lanMenu'), b=$('lanternBtn'); if(!m||!b) return;
-  open = open ?? m.hidden;
-  if (open){
-    m.textContent='';
-    const item=(ic,t,fn)=>{ const x=el('button'); x.setAttribute('role','menuitem'); x.append(el('span',null,ic), el('span',null,t)); x.onclick=()=>{ toggleLanMenu(false); fn(); }; m.appendChild(x); return x; };
-    item('👥','友達を追加',openFriends);
-    item('🎎','だるまを変える',()=>{ setTab('set'); setTimeout(()=>{ const s=$('secDaruma'); if(s) s.scrollIntoView({block:'start',behavior:'smooth'}); },80); });
-    m.appendChild(el('div','lm-sep'));
-    item('⚙️','設定',()=>setTab('set'));
-  }
-  m.hidden=!open; b.setAttribute('aria-expanded',String(open));
-}

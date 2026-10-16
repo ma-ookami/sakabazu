@@ -5,10 +5,9 @@
 .mast{position:relative;margin:0 -18px;padding:22px 20px 14px;color:var(--on-indigo);overflow:hidden;
   background:linear-gradient(180deg,rgba(23,36,64,0) 40%,rgba(23,36,64,.85)),url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='20' viewBox='0 0 40 20'><circle cx='0' cy='0' r='19' fill='%23172440'/><circle cx='0' cy='0' r='19' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='0' cy='0' r='14' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='0' cy='0' r='9' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='0' cy='0' r='4' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='40' cy='0' r='19' fill='%23172440'/><circle cx='40' cy='0' r='19' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='40' cy='0' r='14' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='40' cy='0' r='9' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='40' cy='0' r='4' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='20' cy='10' r='19' fill='%23172440'/><circle cx='20' cy='10' r='19' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='20' cy='10' r='14' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='20' cy='10' r='9' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='20' cy='10' r='4' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='0' cy='20' r='19' fill='%23172440'/><circle cx='0' cy='20' r='19' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='0' cy='20' r='14' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='0' cy='20' r='9' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='0' cy='20' r='4' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='40' cy='20' r='19' fill='%23172440'/><circle cx='40' cy='20' r='19' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='40' cy='20' r='14' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='40' cy='20' r='9' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='40' cy='20' r='4' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/></svg>") 0 0/40px 20px,#172440;
   border-bottom:3px solid var(--red);box-shadow:0 2px 0 #C9A253 inset}
-.logo{margin:0;display:flex;flex-direction:column;align-items:flex-start;gap:6px;line-height:1}
-.lg-k{font-family:"Dela Gothic One",var(--brush);font-weight:400;font-size:clamp(38px,11vw,50px);letter-spacing:.06em;color:#F6EBD6;
-  text-shadow:3px 3px 0 var(--red),3px 3px 0 var(--red)}
-.lg-r{display:flex;align-items:center;gap:8px;font-family:"Josefin Sans",sans-serif;font-weight:600;font-size:12px;letter-spacing:.42em;color:#D9B66A;padding-left:2px}
+.logo{margin:0;display:flex;flex-direction:column;align-items:flex-start;gap:8px;line-height:1;color:#F6EBD6}
+.lg-k{font-family:"Shippori Mincho B1",var(--serif);font-weight:800;font-size:clamp(36px,10vw,46px);letter-spacing:.16em}
+.lg-r{display:flex;align-items:center;gap:8px;font-family:"Josefin Sans",sans-serif;font-weight:600;font-size:11px;letter-spacing:.5em;opacity:.75;padding-left:2px}
 .lg-r::before,.lg-r::after{content:"";width:18px;height:1px;background:currentColor;opacity:.7}
 .mast .stats{display:none}
 .flaps{display:flex;gap:6px;margin-top:16px;overflow-x:auto;scrollbar-width:none;padding:2px 0}
@@ -20,19 +19,11 @@
 .flap:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 
 /* lantern = menu button */
-.lantern-btn{position:absolute;right:14px;top:-2px;z-index:3;width:44px;height:84px;padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.lantern-btn{position:absolute;right:14px;top:-2px;z-index:3;width:44px;height:84px;pointer-events:none}
 .lantern{display:block;width:34px;height:auto;margin:0 auto;transform-origin:50% 0;filter:drop-shadow(0 6px 14px var(--glow))}
 @media (prefers-reduced-motion:no-preference){ .lantern{animation:sway 5.5s ease-in-out infinite alternate} .lantern-btn.lit .lantern{animation:sway 5.5s ease-in-out infinite alternate,glow 1.6s ease-in-out infinite} }
 @keyframes sway{from{transform:rotate(-2.5deg)}to{transform:rotate(2.5deg)}}
 @keyframes glow{50%{filter:drop-shadow(0 0 18px #ffb35c) brightness(1.25)}}
-.lantern-btn:active .lantern{transform:scale(.94)}
-.lan-badge{position:absolute;top:18px;right:2px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--gold);color:#1F1B19;font-size:11px;font-weight:800;line-height:18px;text-align:center;box-shadow:0 0 0 2px var(--indigo)}
-.lanmenu{position:absolute;right:-8px;top:86px;z-index:16;min-width:200px;background:var(--raised,var(--card));border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-2);padding:6px;display:grid}
-.lanmenu[hidden]{display:none}
-.lanmenu button{display:flex;align-items:center;gap:10px;border:0;background:none;text-align:left;padding:11px 12px;border-radius:10px;font:inherit;font-size:14px;color:var(--ink)}
-.lanmenu button:hover{background:var(--faint)}
-.lanmenu .lm-n{margin-left:auto;font-size:11px;font-weight:800;background:var(--gold);color:#1F1B19;border-radius:999px;padding:1px 7px}
-.lanmenu .lm-sep{height:1px;background:var(--line);margin:4px 6px}
 
 /* compact bar that slides in once the noren scrolls away */
 .minibar{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);z-index:14;pointer-events:none;

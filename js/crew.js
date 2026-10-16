@@ -79,7 +79,7 @@ function profileSec(box,mine){
   box.appendChild(el('span','dm-pl','名前'));
   box.appendChild(nickForm('保存する',mine.nick,async n=>{ await saveNick(n); toast('保存しました'); }));
   const cur=()=>({...(members[me]&&members[me].ic||{})});
-  const set=async patch=>{ const ic={c:avDefault(me), s:'circle', e:'', ...cur(), ...patch}; await saveIcon(ic); };
+  const set=async patch=>{ const ic={c:avDefault(me), s:'circle', ...cur(), ...patch, e:''}; await saveIcon(ic); };
   const row=(label,node)=>{ const r=el('div','dm-prow'); r.append(el('span','dm-pl',label),node); box.appendChild(r); };
   const ic=cur(), c0=Number.isInteger(ic.c)?ic.c:avDefault(me);
   const sw=el('div','chips dm-colors'); sw.setAttribute('role','radiogroup'); sw.setAttribute('aria-label','アイコンの色');
@@ -87,12 +87,9 @@ function profileSec(box,mine){
   row('アイコンの色',sw);
   const sh=el('div','av-shapes'); sh.setAttribute('role','radiogroup'); sh.setAttribute('aria-label','アイコンの形');
   for (const [k,l] of Object.entries(AV_SHAPES)){ const b=el('button','shape-opt'); b.type='button'; b.setAttribute('role','radio'); b.setAttribute('aria-checked',String((ic.s||'circle')===k));
-    const a=el('span','ph av'+(k!=='circle'?' shape-'+k:''),ic.e||[...(mine.nick||'?')][0]); a.style.setProperty('--avbg',avBg(c0)); a.style.setProperty('--avfg',avFg(c0));
+    const a=el('span','ph av'+(k!=='circle'?' shape-'+k:''),[...(mine.nick||'?')][0]); a.style.setProperty('--avbg',avBg(c0)); a.style.setProperty('--avfg',avFg(c0));
     b.append(a,el('span',null,l)); b.onclick=()=>set({s:k}); sh.appendChild(b); }
   row('アイコンの形',sh);
-  const em=el('div','av-emoji'); em.setAttribute('role','radiogroup'); em.setAttribute('aria-label','アイコンの中身');
-  for (const e of AV_EMOJI){ const b=el('button','chip',e||'頭文字'); b.type='button'; b.setAttribute('role','radio'); b.setAttribute('aria-pressed',String((ic.e||'')===e)); b.setAttribute('aria-checked',String((ic.e||'')===e)); b.onclick=()=>set({e}); em.appendChild(b); }
-  row('アイコンの中身',em);
 }
 async function saveIcon(ic){
   if (!me) return; members={...members,[me]:{...members[me],ic}}; render();

@@ -7,7 +7,7 @@ const mapVisible=()=>located().filter(s=>mapV.show[statusOf(s)]);
 function mapsUrl(s){ const q=s.loc?`${s.loc.lat},${s.loc.lng}`:[s.name,s.area].filter(Boolean).join(' '); return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q); }
 
 const ML='https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl';
-const MAP_STYLE='https://tiles.openfreemap.org/styles/positron';
+const MAP_STYLE='https://tiles.openfreemap.org/styles/bright';
 let mlMap=null, mlBox=null, mlHere=null;
 const mlMarkers=new Map();
 function loadMapLib(){

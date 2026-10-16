@@ -62,7 +62,6 @@ function whoText(ids,what){
 const AV_VIVID = { 13:'#e60012', 14:'#0068d9', 15:'#ffd400' };
 const AV_ORDER = [0,1,2,3,4,5,6,7,8,9,10,11,13,14,15,12];
 const AV_SHAPES = { circle:'まる', squircle:'角丸', hexagon:'六角形', flower:'お花', badge:'バッジ' };
-const AV_EMOJI = ['','🍺','🍶','🏮','🍣','🍢','🍗','🐟','🦑','🍙','🥃','🍷','🐱','🦊','⭐','🔥'];
 const avBg = i => i===12 ? '#141318' : AV_VIVID[i] || `hsl(${i*30} 55% 44%)`;
 const avFg = i => i===15 ? '#2b1d00' : '#fff';
 const avDefault = id => { let h=0; for (const ch of String(id||'')) h=(h*31+ch.charCodeAt(0))>>>0; return h%12; };
@@ -72,7 +71,7 @@ function avatar(ps,id,cls){
   const c=Number.isInteger(ic.c) ? ic.c : avDefault(id);
   const p=el('span',(cls||'ph')+' av'+(ic.s && ic.s!=='circle' ? ' shape-'+ic.s : '')); p.classList.add('ph');
   p.style.setProperty('--avbg',avBg(c)); p.style.setProperty('--avfg',avFg(c));
-  p.textContent = ic.e || [...n][0] || ''; p.title=n; return p;
+  p.textContent = [...n][0] || ''; p.title=n; return p;
 }
 
 /* ---------- aggregation ---------- */
