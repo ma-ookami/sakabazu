@@ -69,8 +69,13 @@ service cloud.firestore {
         && d.createdAt is int;
     }
     function validMember(d) {
-      return d.keys().hasOnly(['nick', 'joinedAt', 'hasPin', 'google', 'photo'])
+      return d.keys().hasOnly(['nick', 'joinedAt', 'hasPin', 'google', 'photo', 'ic'])
         && isText(d.nick, 1, 20)
+        // icon: { c: color 0-15, s: shape, e: emoji or "" }
+        && (!('ic' in d) || (d.ic is map && d.ic.keys().hasOnly(['c', 's', 'e'])
+            && (!('c' in d.ic) || (d.ic.c is int && d.ic.c >= 0 && d.ic.c <= 15))
+            && (!('s' in d.ic) || d.ic.s in ['circle', 'squircle', 'hexagon', 'flower', 'badge'])
+            && (!('e' in d.ic) || isText(d.ic.e, 0, 8))))
         && d.joinedAt is int
         && d.get('hasPin', false) is bool
         && d.get('google', false) is bool

@@ -108,7 +108,12 @@ async function runSearch(more){
     ]);
     if (seq!==sx.seq) return;
     if (!main || (usedSa && hpVer===1)) return runSearch(more);   // an old Worker: search by the area's point instead
-    const names = (byName && byName.v>=2) ? byName.shops : [];
+    // the API doesn't apply small_area / lat-lng to name_any: keep only name matches inside the chosen area
+    const w=nameQ||{};
+    const inArea = r => w.small_area ? (r.small_area && r.small_area.code===w.small_area)
+      : w.lat ? Math.hypot((+r.lat-w.lat)*111000,(+r.lng-w.lng)*111000*Math.cos(w.lat*Math.PI/180)) <= 1500
+      : w.keyword==='札幌市' ? /札幌市/.test(r.address||'') : true;
+    const names = (byName && byName.v>=2) ? byName.shops.filter(inArea) : [];
     for (const r of names) r._name=true;
     const seen=new Set(more ? sx.results.map(r=>r.id) : names.map(r=>r.id));
     const add=main.shops.filter(r=>!seen.has(r.id));

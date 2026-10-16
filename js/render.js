@@ -10,7 +10,7 @@ function counts(){
 function render(){
   counts(); renderFlaps();
   // typing in settings: don't rebuild under the cursor (data updates arrive while you type)
-  if (tab==='set' && $('setBody') && $('setBody').contains(document.activeElement) && mode==='db') return;
+  if (tab==='set' && $('setBody') && $('setBody').contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName) && mode==='db') return;
   const ae=document.activeElement; const keep=(ae&&ae.id==='quick')?{s:ae.selectionStart,e:ae.selectionEnd}:null;
   const v=$('view'); v.textContent=''; document.body.classList.toggle('gating', mode==='gate');
   if (mode==='gate'){ renderGate(v); return; }

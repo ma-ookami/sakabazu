@@ -23,7 +23,7 @@ async function buildCrew(body){
   body.textContent='';
   if (mode!=='db'){ body.appendChild(el('p','hint','いまは記録をこの端末だけに保存しています(firebase-config.js が未設定)。メンバー機能を使うには、README の手順で Firebase を設定してください。')); return; }
   const mine=members[me]||{};
-  const nk=sec('あなたの名前'); nk.appendChild(nickForm('保存する',mine.nick,async n=>{ await saveNick(n); toast('保存しました'); })); body.appendChild(nk);
+  const nk=sec('あなた'); profileSec(nk,mine); body.appendChild(nk);
   const fr=sec('友達','コードで友達になると、その人とのリストが見られます'); fr.id='secFriends'; friendsSec(fr); body.appendChild(fr);
   const dm=sec('だるま','ホームにいるだるまの見た目。この端末に保存されます'); dm.id='secDaruma'; darumaMaker(dm); body.appendChild(dm);
 }
@@ -71,4 +71,30 @@ function renderGate(v){
   box.appendChild(gg);
   }
   v.appendChild(box);
+}
+
+// 設定 → あなた: the name, and an icon made of a color, a shape and a letter/emoji (like ますせん). friends see it too
+function profileSec(box,mine){
+  const head=el('div','prof'); const pv=avatar({},me,'prof-av'); const nm=el('b','prof-n',mine.nick||''); head.append(pv,nm); box.appendChild(head);
+  box.appendChild(el('span','dm-pl','名前'));
+  box.appendChild(nickForm('保存する',mine.nick,async n=>{ await saveNick(n); toast('保存しました'); }));
+  const cur=()=>({...(members[me]&&members[me].ic||{})});
+  const set=async patch=>{ const ic={c:avDefault(me), s:'circle', e:'', ...cur(), ...patch}; await saveIcon(ic); };
+  const row=(label,node)=>{ const r=el('div','dm-prow'); r.append(el('span','dm-pl',label),node); box.appendChild(r); };
+  const ic=cur(), c0=Number.isInteger(ic.c)?ic.c:avDefault(me);
+  const sw=el('div','chips dm-colors'); sw.setAttribute('role','radiogroup'); sw.setAttribute('aria-label','アイコンの色');
+  for (const i of AV_ORDER){ const b=el('button','dm-sw'); b.type='button'; b.style.background=avBg(i); b.setAttribute('role','radio'); b.setAttribute('aria-checked',String(i===c0)); b.setAttribute('aria-label','色 '+(i+1)); b.onclick=()=>set({c:i}); sw.appendChild(b); }
+  row('アイコンの色',sw);
+  const sh=el('div','av-shapes'); sh.setAttribute('role','radiogroup'); sh.setAttribute('aria-label','アイコンの形');
+  for (const [k,l] of Object.entries(AV_SHAPES)){ const b=el('button','shape-opt'); b.type='button'; b.setAttribute('role','radio'); b.setAttribute('aria-checked',String((ic.s||'circle')===k));
+    const a=el('span','ph av'+(k!=='circle'?' shape-'+k:''),ic.e||[...(mine.nick||'?')][0]); a.style.setProperty('--avbg',avBg(c0)); a.style.setProperty('--avfg',avFg(c0));
+    b.append(a,el('span',null,l)); b.onclick=()=>set({s:k}); sh.appendChild(b); }
+  row('アイコンの形',sh);
+  const em=el('div','av-emoji'); em.setAttribute('role','radiogroup'); em.setAttribute('aria-label','アイコンの中身');
+  for (const e of AV_EMOJI){ const b=el('button','chip',e||'頭文字'); b.type='button'; b.setAttribute('role','radio'); b.setAttribute('aria-pressed',String((ic.e||'')===e)); b.setAttribute('aria-checked',String((ic.e||'')===e)); b.onclick=()=>set({e}); em.appendChild(b); }
+  row('アイコンの中身',em);
+}
+async function saveIcon(ic){
+  if (!me) return; members={...members,[me]:{...members[me],ic}}; render();
+  if (mode==='db') enqueue('member:'+me,()=>db.doc('members/'+me).update({ic}));
 }

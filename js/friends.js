@@ -52,7 +52,9 @@ async function importShop(id){
 function watchFriends(){
   cloudSubs.push(db.collection('friends').limit(200).onSnapshot(snap=>{
     const o={}; for (const d of snap.docs){ const v=d.data()||{}; if(typeof v.gid==='string' && typeof v.mid==='string') o[d.id]={gid:v.gid, mid:v.mid, nick:String(v.nick||'友達').slice(0,20), at:v.at||0}; }
-    friends=o; syncFriendSubs(); rebuildShops(); render();
+    for (const f in o){ const was=friends[f]; if (was && was.fetched){ o[f].nick=was.nick; o[f].ic=was.ic; o[f].fetched=true; } }
+    friends=o; for (const f in o) if (!o[f].fetched) fetchFriend(f);
+    syncFriendSubs(); rebuildShops(); render();
   },()=>{}));
 }
 function syncFriendSubs(){
@@ -62,9 +64,13 @@ function syncFriendSubs(){
     fSubs[f]=fs.collection(`groups/${fr.gid}/shops`).limit(1000).onSnapshot(snap=>{
       fShops[f]=snap.docs.map(d=>({id:d.id,...JSON.parse(JSON.stringify(d.data()||{}))})); delete fDenied[f]; afterChange();
     },e=>{ console.warn(e); fDenied[f]=true; fShops[f]=[]; afterChange(); });
-    // their current name (the friend doc keeps the name from when we became friends)
-    fs.doc(`groups/${fr.gid}/members/${fr.mid}`).get().then(d=>{ const n=d.exists&&d.data().nick; if(n && friends[f] && friends[f].nick!==n){ friends[f].nick=n; render(); } }).catch(()=>{});
   }
+}
+// their current name and icon (the friend doc keeps the name from when we became friends)
+function fetchFriend(f){
+  const fr=friends[f]; if(!fr) return; fr.fetched=true;
+  fs.doc(`groups/${fr.gid}/members/${fr.mid}`).get().then(d=>{ if(!d.exists || !friends[f]) return; const v=d.data()||{};
+    if (v.nick) friends[f].nick=String(v.nick).slice(0,20); if (v.ic && typeof v.ic==='object') friends[f].ic=v.ic; render(); }).catch(()=>{});
 }
 function stopFriendSubs(){ for (const f of Object.keys(fSubs)){ try{ fSubs[f](); }catch{} } fSubs={}; fShops={}; }
 // pick a friend's list (tap the same one again to go back to only mine)
@@ -133,7 +139,7 @@ function friendsSec(box){
   if (ids.length){
     const ul=el('ul','mlist');
     for (const id of ids){ const fr=friends[id]; const li=el('li');
-      const av=el('span','ph fr-av',[...fr.nick][0]||'?'); li.appendChild(av);
+      li.appendChild(avatar({},fr.mid,'fr-av'));
       const d=el('div'); d.style.flex='1'; d.appendChild(el('div','mn',fr.nick)); d.appendChild(el('div','ms', fDenied[id]?'リストを見られません(外された可能性があります)':'友達')); li.appendChild(d);
       const x=el('button','sbtn','外す'); x.onclick=()=>removeFriend(id); li.appendChild(x);
       ul.appendChild(li); }

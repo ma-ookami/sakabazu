@@ -58,9 +58,22 @@ function whoText(ids,what){
   const ns=[...ids].sort((a,b)=>(a===me)-(b===me)).map(u=>nameOf({},u));
   return (ns.length<=3 ? ns.join('・') : `${ns.slice(0,2).join('・')}ほか${ns.length-2}人`)+'が'+what;
 }
-function avatar(ps,id,cls){ const ph=()=>{ const p=el('span',cls||'ph'); p.classList.add('ph'); const n=(members[id]&&members[id].nick)||(friendByMid(id)||{}).nick||(ps[id]&&ps[id].name)||''; p.textContent=[...n][0]||''; p.title=n; return p; };
-  const src=ps[id]&&ps[id].avatarUrl; if(!src) return ph();
-  const i=el('img',cls); i.alt=''; i.referrerPolicy='no-referrer'; i.onerror=()=>i.replaceWith(ph()); i.src=src; return i; }
+// member icons (like ますせん): a color, a shape, and the first letter of the name or an emoji. { c, s, e } on the member doc
+const AV_VIVID = { 13:'#e60012', 14:'#0068d9', 15:'#ffd400' };
+const AV_ORDER = [0,1,2,3,4,5,6,7,8,9,10,11,13,14,15,12];
+const AV_SHAPES = { circle:'まる', squircle:'角丸', hexagon:'六角形', flower:'お花', badge:'バッジ' };
+const AV_EMOJI = ['','🍺','🍶','🏮','🍣','🍢','🍗','🐟','🦑','🍙','🥃','🍷','🐱','🦊','⭐','🔥'];
+const avBg = i => i===12 ? '#141318' : AV_VIVID[i] || `hsl(${i*30} 55% 44%)`;
+const avFg = i => i===15 ? '#2b1d00' : '#fff';
+const avDefault = id => { let h=0; for (const ch of String(id||'')) h=(h*31+ch.charCodeAt(0))>>>0; return h%12; };
+const iconOf = id => { const m=members[id]||friendByMid(id); return (m && m.ic) || {}; };
+function avatar(ps,id,cls){
+  const ic=iconOf(id), n=(members[id]&&members[id].nick)||(friendByMid(id)||{}).nick||(ps[id]&&ps[id].name)||'';
+  const c=Number.isInteger(ic.c) ? ic.c : avDefault(id);
+  const p=el('span',(cls||'ph')+' av'+(ic.s && ic.s!=='circle' ? ' shape-'+ic.s : '')); p.classList.add('ph');
+  p.style.setProperty('--avbg',avBg(c)); p.style.setProperty('--avfg',avFg(c));
+  p.textContent = ic.e || [...n][0] || ''; p.title=n; return p;
+}
 
 /* ---------- aggregation ---------- */
 function avg(s,k){ const r=s.r||{}; const ms=[]; for(const u in r){ const m=r[u]&&r[u][k]&&r[u][k].m; if(m in SCORE) ms.push(SCORE[m]); } return ms.length? ms.reduce((a,b)=>a+b,0)/ms.length : null; }
