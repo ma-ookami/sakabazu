@@ -1,6 +1,18 @@
 /* ---------- hotpepper: グルメサーチAPI through our Cloudflare Worker, and mapping a result to a shop ---------- */
 // The API key lives in the Worker (worker/hotpepper-proxy.js), never in this page. params: keyword or lat/lng/range
 const hpOn = () => !!window.HOTPEPPER_PROXY;
+// where 探 looks. kw: added to the keyword / at: searched within 1km of that point / here: current location
+const HP_AREAS = [
+  {id:'sapporo', label:'札幌', kw:'札幌市'},
+  {id:'eki', label:'札幌駅', at:{lat:43.0686, lng:141.3508}},
+  {id:'odori', label:'大通', at:{lat:43.0607, lng:141.3545}},
+  {id:'susukino', label:'すすきの', at:{lat:43.0556, lng:141.3536}},
+  {id:'here', label:'現在地', here:true},
+  {id:'any', label:'指定なし'},
+];
+let hpArea_ = (()=>{ try{ return localStorage.getItem('nm-hparea')||'sapporo'; }catch{ return 'sapporo'; } })();
+const hpAreaOf = () => HP_AREAS.find(a=>a.id===hpArea_) || HP_AREAS[0];
+function setHpArea(id){ hpArea_=id; try{ localStorage.setItem('nm-hparea',id); }catch{} }
 async function hpSearch(params){
   const q=new URLSearchParams({count:'12', ...params});
   const ctl=new AbortController(), t=setTimeout(()=>ctl.abort(),10000);

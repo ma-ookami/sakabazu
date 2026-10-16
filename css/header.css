@@ -2,21 +2,21 @@
 /* noren */
 .sign{position:relative}
 .rod{height:10px;margin:0 -18px;background:linear-gradient(#9A6A3F,#5E3C21);border-radius:0 0 3px 3px;position:relative;z-index:2;box-shadow:0 2px 3px rgba(0,0,0,.18)}
-.lantern{position:absolute;right:22px;top:6px;width:48px;height:auto;z-index:3;transform-origin:50% 0;filter:drop-shadow(0 6px 14px var(--glow))}
+.lantern{position:absolute;right:22px;top:4px;width:36px;height:auto;z-index:3;transform-origin:50% 0;filter:drop-shadow(0 6px 14px var(--glow))}
 @media (prefers-reduced-motion:no-preference){ .lantern{animation:sway 5.5s ease-in-out infinite alternate} }
 @keyframes sway{from{transform:rotate(-2.5deg)}to{transform:rotate(2.5deg)}}
-.noren{background:radial-gradient(160px 120px at calc(100% - 46px) 40px,color-mix(in srgb,var(--glow) 55%,transparent),transparent 70%),
+.noren{background:radial-gradient(120px 90px at calc(100% - 40px) 34px,color-mix(in srgb,var(--glow) 55%,transparent),transparent 70%),
     repeating-linear-gradient(90deg,rgba(255,255,255,.03) 0 1px,transparent 1px 5px),var(--indigo);
-  color:var(--on-indigo);margin:0 -18px;padding:22px 92px 34px 22px;position:relative;
+  color:var(--on-indigo);margin:0 -18px;padding:12px 80px 26px 20px;position:relative;
   -webkit-mask:linear-gradient(#000,#000) top/100% calc(100% - 18px) no-repeat,
     repeating-linear-gradient(90deg,#000 0 calc(25% - 3px),transparent calc(25% - 3px) 25%) bottom/100% 18px no-repeat;
           mask:linear-gradient(#000,#000) top/100% calc(100% - 18px) no-repeat,
     repeating-linear-gradient(90deg,#000 0 calc(25% - 3px),transparent calc(25% - 3px) 25%) bottom/100% 18px no-repeat}
 .noren::before{content:"";position:absolute;left:22px;right:22px;top:12px;border-top:1px solid color-mix(in srgb,var(--on-indigo) 22%,transparent)}
 .noren h1{font-family:var(--brush);font-weight:400;
-  font-size:clamp(28px,8.4vw,46px);line-height:1.1;margin:6px 0 0;letter-spacing:.08em;white-space:nowrap}
-.noren h1 small{display:block;font-family:"Zen Kaku Gothic New",sans-serif;font-size:11px;font-weight:700;letter-spacing:.42em;opacity:.7;margin-top:6px}
-.noren .stats{display:flex;gap:10px;margin-top:12px;font-size:13px;opacity:.9;align-items:center;flex-wrap:wrap}
+  font-size:clamp(24px,6.6vw,34px);line-height:1.1;margin:4px 0 0;letter-spacing:.08em;white-space:nowrap}
+.noren h1 small{display:block;font-family:"Zen Kaku Gothic New",sans-serif;font-size:11px;font-weight:700;letter-spacing:.42em;opacity:.7;margin-top:4px}
+.noren .stats{display:none;gap:10px;margin-top:12px;font-size:13px;opacity:.9;align-items:center;flex-wrap:wrap}
 .noren .stats b{font-family:var(--serif);font-size:19px;font-weight:700;margin-right:3px}
 .noren .stats > span{display:none}
 
@@ -49,3 +49,7 @@ body.scrolled .minibar{transform:none;opacity:1;pointer-events:auto}
 .modesw[hidden]{display:none}
 .modesw button{border:0;background:transparent;color:var(--on-indigo);border-radius:999px;padding:5px 13px;font-size:12px;opacity:.8;transition:background-color .2s,color .2s}
 .modesw button[aria-pressed="true"]{background:var(--on-indigo);color:var(--indigo);font-weight:700;opacity:1}
+/* ひとり/グループ switch inside the settings sheet */
+.sheet .modesw{background:var(--faint);border-color:var(--line)}
+.sheet .modesw button{color:var(--ink)}
+.sheet .modesw button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}

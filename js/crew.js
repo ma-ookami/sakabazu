@@ -1,8 +1,6 @@
 /* ---------- members, invite, passcode, Google, and the screens before joining ---------- */
 async function renderCrew(){
-  const ids=Object.keys(members); const ps=await people(ids);
-  const st=$('crewStack'); st.textContent=''; ids.slice(0,4).forEach(id=>st.appendChild(avatar(ps,id)));
-  $('crewTxt').textContent = '設定'; renderMode();
+  renderMode();
   if (isOpen('crewSheet') && !$('cBody').contains(document.activeElement)) buildCrew();
 }
 async function saveNick(nick){
@@ -37,6 +35,7 @@ async function buildCrew(){
   if (mode!=='db'){ body.appendChild(el('p','hint','いまは記録をこの端末だけに保存しています(firebase-config.js が未設定)。メンバー機能を使うには、README の手順で Firebase を設定してください。')); return; }
   const ids=Object.keys(members).sort((a,b)=>(members[a].joinedAt||0)-(members[b].joinedAt||0));
   const ps=await people(ids); const mine=members[me]||{};
+  if (ids.length>1){ const md=sec('どのリストを見るか'); const sw=el('div','modesw'); sw.id='modeSw'; sw.setAttribute('role','group'); sw.setAttribute('aria-label','使い方の切り替え'); md.appendChild(sw); body.appendChild(md); renderMode(); }
   const nk=sec('あなたの名前'); nk.appendChild(nickForm('保存する',mine.nick,async n=>{ await saveNick(n); toast('保存しました'); })); body.appendChild(nk);
 
   const mh=sec('メンバー'); body.appendChild(mh);
@@ -50,7 +49,7 @@ async function buildCrew(){
 
 
   const inv=sec('友達を招待する');
-  inv.appendChild(el('p','hint','このリンクを送ると、開いた人がニックネームを入れて参加できます。リンクを知っている人なら誰でも入れるので、仲間内だけで送ってください。'));
+  inv.appendChild(el('p','hint','このリンクを送ると、開いた人がこのグループに参加できます。リンクを知っている人なら誰でも入れるので、仲間内だけで送ってください。'));
   const lb=el('div','linkbox'); const li=el('input','field'); li.readOnly=true; li.value=inviteUrl(); li.setAttribute('aria-label','招待リンク');
   const cb=el('button','btn btn-line','コピー'); cb.onclick=async()=>{ try{ await navigator.clipboard.writeText(inviteUrl()); toast('招待リンクをコピーしました'); }catch{ li.select(); toast('選択したリンクをコピーしてください'); } };
   lb.append(li,cb);

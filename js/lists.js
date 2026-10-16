@@ -21,7 +21,14 @@ async function renderWant(v){
       i.value=''; quickVal='';
       await addOrBump(name,area); $('quick') && $('quick').focus(); };
     v.appendChild(f);
-    v.appendChild(el('p','hint','店名を入れて＋で追加。「探」を押すと、地名や料理名でお店を探せます(空欄なら現在地の近く)。GoogleマップのURLを貼って＋を押しても追加できます。カードは右にスワイプで「行った」、左で外せます。'));
+    if (hpOn()){
+      const ar=el('div','chips hp-areas'); ar.setAttribute('aria-label','探す地域');
+      for (const a of HP_AREAS){ const c=el('button','chip',a.label); c.type='button'; c.setAttribute('aria-pressed',String(a.id===hpAreaOf().id));
+        c.onclick=()=>{ setHpArea(a.id); ar.querySelectorAll('.chip').forEach(x=>x.setAttribute('aria-pressed',String(x===c))); };
+        ar.appendChild(c); }
+      v.appendChild(ar);
+    }
+    v.appendChild(el('p','hint','店名を入れて＋で追加。「探」を押すと、選んだ地域の中で、料理名などでお店を探せます(空欄ならその地域のお店)。GoogleマップのURLを貼って＋を押しても追加できます。カードは右にスワイプで「行った」、左で外せます。'));
   }
   searchPanel(v);
   let arr=shops.filter(inWant);

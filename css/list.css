@@ -88,3 +88,4 @@
 .swipe > .card{touch-action:pan-y}
 .swipe.drag > .card{transition:none;box-shadow:var(--shadow-2)}
 .swipe > .card.settle{transition:transform .32s var(--ease-out)}
+.hp-areas{margin:2px 0 4px}

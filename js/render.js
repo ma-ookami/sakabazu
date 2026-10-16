@@ -1,6 +1,6 @@
 /* ---------- render ---------- */
-function setTab(t){ withTransition(()=>{ tab=t; for(const b of document.querySelectorAll('.tab')) b.setAttribute('aria-selected', String(b.dataset.tab===t)); render(); window.scrollTo({top:0}); }); }
-document.querySelectorAll('.tab').forEach(b => b.onclick = () => setTab(b.dataset.tab));
+function setTab(t){ withTransition(()=>{ tab=t; for(const b of document.querySelectorAll('.tab[data-tab]')) b.setAttribute('aria-selected', String(b.dataset.tab===t)); render(); window.scrollTo({top:0}); }); }
+document.querySelectorAll('.tab[data-tab]').forEach(b => b.onclick = () => setTab(b.dataset.tab));
 
 function counts(){
   const w=shops.filter(inWant).length, g=shops.filter(inWent).length;
@@ -52,16 +52,20 @@ function parsePlaceUrl(u){
   const l=parseMapUrl(u);
   return {name, loc:l.err?null:{lat:l.lat,lng:l.lng,src:'link'}, short:/goo\.gl|maps\.app/i.test(u)};
 }
-// ホットペッパーで探す。q が空なら現在地の近く(1km)
+// ホットペッパーで探す。選んだ地域(hpAreaOf)の中で。指定なしで q も空なら現在地の近く(1km)
 async function doSearch(q){
-  const label = q || '現在地の近く';
+  const a=hpAreaOf(), near = a.here || (!a.kw && !a.at && !q);
+  const place = near ? '現在地' : (a.kw || a.at) ? a.label : '';
+  const label = [place, q].filter(Boolean).join(' ') + (q ? '' : a.kw ? 'のお店' : 'の近く');
   if (!hpOn()){ srch={q:label,state:'error',results:[],msg:'お店検索はまだ設定されていません(firebase-config.js の HOTPEPPER_PROXY)。下のリンクからGoogleマップで探して、URLを貼って追加できます。'}; render(); return; }
   srch={q:label,state:'loading',results:[],msg:''}; render();
   let params={keyword:q};
-  if (!q){
+  if (a.kw) params={keyword:[a.kw,q].filter(Boolean).join(' ')};
+  else if (a.at) params={lat:a.at.lat, lng:a.at.lng, range:'3', ...(q?{keyword:q}:{order:'4'})};
+  else if (near){
     const here=await new Promise(r=>getHere(r));
-    if (!here){ srch={q:label,state:'error',results:[],msg:'現在地を取得できませんでした。地名や駅名を入れて探してください。'}; render(); return; }
-    params={lat:here.lat, lng:here.lng, range:'3', order:'4'};
+    if (!here){ srch={q:label,state:'error',results:[],msg:'現在地を取得できませんでした。地域を選ぶか、地名や駅名を入れて探してください。'}; render(); return; }
+    params={lat:here.lat, lng:here.lng, range:'3', ...(q?{keyword:q}:{order:'4'})};
   }
   try{
     const arr=await hpSearch(params);
