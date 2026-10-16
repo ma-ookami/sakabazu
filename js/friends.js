@@ -2,7 +2,8 @@
    myShops: my own shops (the only ones I write). shops: what the screens show = mine + the friends I mix in.
    A friend-only shop is read-only (id "f~<fid>~<shopId>"); acting on it first copies it into my list. */
 let myShops=[], friends={}, fShops={}, fDenied={}, fSubs={}, myCode='';
-let mix = new Set((()=>{ try{ return JSON.parse(localStorage.getItem('nm-mix')||'[]'); }catch{ return []; } })());
+// the friend whose list I'm looking at together with mine (one at a time: "けんとのリスト")
+let mix = new Set((()=>{ try{ return JSON.parse(localStorage.getItem('nm-mix')||'[]').slice(0,1); }catch{ return []; } })());
 const saveMix = () => { try{ localStorage.setItem('nm-mix',JSON.stringify([...mix])); }catch{} };
 const mixedFriends = () => [...mix].filter(f=>friends[f]);
 const friendByMid = mid => Object.values(friends).find(f=>f.mid===mid);
@@ -66,7 +67,8 @@ function syncFriendSubs(){
   }
 }
 function stopFriendSubs(){ for (const f of Object.keys(fSubs)){ try{ fSubs[f](); }catch{} } fSubs={}; fShops={}; }
-function toggleMix(f){ if(mix.has(f)) mix.delete(f); else mix.add(f); saveMix(); syncFriendSubs(); rebuildShops(); buzz(); render(); }
+// pick a friend's list (tap the same one again to go back to only mine)
+function toggleMix(f){ mix = mix.has(f) ? new Set() : new Set([f]); saveMix(); syncFriendSubs(); rebuildShops(); buzz(); render(); window.scrollTo({top:0}); }
 
 // my 友達コード: one per device, made the first time it is needed
 async function ensureCode(){
@@ -97,7 +99,7 @@ async function addFriend(raw){
   b.set(fs.doc(`groups/${v.gid}/friends/${uid}`),{gid, mid:me, nick:(members[me]&&members[me].nick)||'', code:c, at:Date.now()});
   b.set(fs.doc(gpath('friends/'+v.mid)),{gid:v.gid, mid:v.mid, nick:String(v.nick||'友達').slice(0,20), at:Date.now()});
   try{ await b.commit(); }catch(e){ console.warn(e); return '追加できませんでした('+(e.code||'error')+')'; }
-  mix.add(v.mid); saveMix();
+  mix=new Set([v.mid]); saveMix();
   return '';
 }
 async function removeFriend(f){
@@ -115,7 +117,7 @@ function friendsSec(box){
   const cp=el('button','sbtn','コピー'); cp.type='button'; cp.disabled=true;
   cp.onclick=async()=>{ try{ await navigator.clipboard.writeText(fmtCode(myCode)); toast('コピーしました'); }catch{ toast(fmtCode(myCode)); } };
   mine.appendChild(cp); box.appendChild(mine);
-  box.appendChild(el('p','hint','友達にこのコードを伝えて、アプリの「友達を追加」に入れてもらうと、お互いのリストを混ぜて見られます。'));
+  box.appendChild(el('p','hint','友達にこのコードを伝えて、アプリの「友達を追加」に入れてもらうと友達になれます。のれんの名前を押すと、その人とのリスト(2人の行きたい店を合わせたもの)が見られます。'));
   ensureCode().then(c=>{ cv.textContent=c?fmtCode(c):'作れませんでした'; cp.disabled=!c; });
 
   const f=el('form','quick'); f.noValidate=true; f.style.margin='12px 0 6px';
@@ -124,7 +126,7 @@ function friendsSec(box){
   f.onsubmit=async e=>{ e.preventDefault(); if(!i.value.trim()){ i.focus(); return; } b.disabled=true;
     const err=await addFriend(i.value); b.disabled=false;
     if (err){ toast(err); i.focus(); return; }
-    i.value=''; toast('友達になりました。リストに混ぜて表示します'); };
+    i.value=''; toast('友達になりました。のれんの名前から、2人のリストが見られます'); };
   box.appendChild(el('h4','fr-h','友達を追加')); box.appendChild(f);
 
   const ids=Object.keys(friends).sort((a,b)=>friends[a].at-friends[b].at);
@@ -139,19 +141,19 @@ function friendsSec(box){
   }
 }
 
-// the noren's flaps: 自分 (always in; tap = show only mine) / a flap per friend (tap = mix in, the flap lifts) / ＋ (add a friend)
+// the noren's flaps: 自分 / one per friend / ＋. the lifted flap is the list on screen: mine, or mine together with that friend
 function renderFlaps(){
   const nav=$('flaps'); if(!nav) return; nav.textContent='';
   const live = mode==='db' && !!me && !!members[me];
   const flap=(cls,label,sub)=>{ const b=el('button','flap '+cls); b.type='button'; b.appendChild(document.createTextNode(label)); if(sub) b.appendChild(el('span','fi',sub)); nav.appendChild(b); return b; };
   let n=0;
   if (live){
-    const m=flap('me','自分', mixedFriends().length?'':'表示中'); m.setAttribute('aria-pressed','true'); n++;
-    m.setAttribute('aria-label', mixedFriends().length ? '自分のリストだけにする' : '自分のリスト');
-    m.onclick=()=>{ if(!mix.size) return; mix.clear(); saveMix(); syncFriendSubs(); rebuildShops(); buzz(); render(); };
+    const m=flap('me','自分'); m.setAttribute('aria-pressed',String(!mixedFriends().length)); n++;
+    m.setAttribute('aria-label','自分のリスト');
+    m.onclick=()=>{ if(!mix.size) return; mix.clear(); saveMix(); syncFriendSubs(); rebuildShops(); buzz(); render(); window.scrollTo({top:0}); };
     for (const f of Object.keys(friends).sort((a,b)=>friends[a].at-friends[b].at)){
-      const on=mix.has(f), b=flap('',friends[f].nick, on?'':'混ぜる'); n++;
-      b.setAttribute('aria-pressed',String(on)); b.setAttribute('aria-label',`${friends[f].nick}のリストを${on?'外す':'混ぜる'}`);
+      const on=mix.has(f), b=flap('',friends[f].nick); n++;
+      b.setAttribute('aria-pressed',String(on)); b.setAttribute('aria-label',`${friends[f].nick}とのリスト`);
       b.onclick=()=>toggleMix(f);
     }
     if (!readOnly){ const a=flap('add','＋'); a.setAttribute('aria-label','友達を追加'); a.onclick=openFriends; n++; }

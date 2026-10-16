@@ -16,6 +16,8 @@ function render(){
   if (mode==='gate'){ renderGate(v); return; }
   if (mode==='loading'){ const k=el('div','skel'); k.setAttribute('role','status'); k.setAttribute('aria-label','読み込み中'); for(const h of [96,132,132,132]){ const i=el('i'); i.style.setProperty('--h',h+'px'); k.appendChild(i); } v.appendChild(k); return; }
   if (tab==='set'){ v.appendChild(el('h2','pagetitle','設定')); const b=el('div'); b.id='setBody'; v.appendChild(b); buildCrew(b); return; }
+  const wf=mixedFriends()[0];
+  if (wf){ const c=el('div','withcap'); c.append(el('span',null,`🤝 ${friends[wf].nick}とのリスト`), el('span','wc-s',fDenied[wf]?'(相手のリストを読めません)':'2人の店を合わせて表示')); v.appendChild(c); }
   if (tab==='home') renderHome(v);
   else if (tab==='list'){ listSeg(v); if(listSub==='want') renderWant(v); else renderWent(v); }
   else if (tab==='rec'){ recSeg(v); const sub=el('div'); v.appendChild(sub); if(recSub==='cal') renderCal(sub); else if(recSub==='rank') renderRank(sub); else renderScore(sub); }

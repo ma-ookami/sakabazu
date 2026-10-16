@@ -57,7 +57,7 @@ function vote(id,val){ if(!me) return; buzz(); patchToday(id,{votes:{[me]:val}})
 async function removeProposal(id){ if(!(await ask('この候補を外しますか?','外す'))) return; const o={...todayDocs}; delete o[id]; todayDocs=o; render();
   if (mode==='db') enqueue('today:'+id,()=>db.doc('today/'+id).delete()); else saveLocal(); }
 async function shareShop(s,time){
-  const text=`今日ここどう?\n${s.name}${s.area?`(${s.area})`:''}${time?`\n${time}〜`:''}\n${mapsUrl(s)}\n\n酒場図: ${inviteUrl()}`;
+  const text=`今日ここどう?\n${s.name}${s.area?`(${s.area})`:''}${time?`\n${time}〜`:''}\n${mapsUrl(s)}\n\n酒場図: ${location.origin+location.pathname}`;
   try{ if(navigator.share){ await navigator.share({text}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
   try{ await navigator.clipboard.writeText(text); toast('メッセージをコピーしました。LINEなどに貼って送れます'); }catch{ toast('コピーできませんでした'); }
 }
