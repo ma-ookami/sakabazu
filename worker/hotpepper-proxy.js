@@ -6,7 +6,8 @@ const ALLOWED = [
   'https://ma-ookami.github.io',
   /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/,
 ];
-const PARAMS = ['keyword', 'lat', 'lng', 'range', 'order', 'count', 'start'];
+const PARAMS = ['keyword', 'lat', 'lng', 'range', 'order', 'count', 'start',
+  'budget', 'genre', 'free_drink', 'free_food', 'private_room', 'non_smoking', 'midnight', 'card'];
 const API = 'https://webservice.recruit.co.jp/hotpepper/gourmet/v1/';
 
 const allowed = o => !!o && ALLOWED.some(a => typeof a === 'string' ? a === o : a.test(o));

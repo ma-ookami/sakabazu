@@ -35,7 +35,8 @@ function renderMap(v){
   zb('全体','全体を表示',()=>{ mapV.fit=true; fitMap(); drawMap(); },'wide');
   zb('現在地','現在地を表示',showHere,'wide');
   wrap.appendChild(ctl);
-  if (!all.length) wrap.appendChild(el('div','mapempty','まだ位置を記録した店がありません。店の詳細の「場所」から、現在地かGoogleマップのリンクで記録できます。'));
+  if (!all.length) wrap.appendChild(el('div','mapempty','まだ位置を記録した店がありません。店の詳細の「場所」から記録できます。'));
+  const at=el('a','mapattr','地図: 国土地理院'); at.href='https://maps.gsi.go.jp/development/ichiran.html'; at.target='_blank'; at.rel='noopener noreferrer'; wrap.appendChild(at);
   v.appendChild(wrap);
   const info=el('div'); info.id='mapInfo'; v.appendChild(info);
   const un=shops.filter(s=>inWent(s)&&!s.loc);
@@ -45,12 +46,13 @@ function renderMap(v){
 }
 function drawMap(){
   const svg=mapSvg; if(!svg||!svg.isConnected) return;
-  if(!mapV.c && !fitMap()) mapV.c={lat:35.681,lng:139.767};
+  if(!mapV.c && !fitMap()){ mapV.c={...SAPPORO}; mapV.span=3000; }
   const r=svg.getBoundingClientRect(); const pw=r.width||600, ph=r.height||400;
   const W=mapV.span, k=W/pw, H=ph*k;
   svg.setAttribute('viewBox',`${-W/2} ${-H/2} ${W} ${H}`); svg.textContent='';
   const c=mapV.c, dl=degLng(c.lat);
   const P=(lat,lng)=>[(lng-c.lng)*dl, -(lat-c.lat)*DEG_LAT];
+  drawTiles(svg,P,c,W,H,k);
   mapV.pins=[];
   const pts=mapVisible(); const labels=pts.length<=30 || W<3000;
   const sel=pts.find(s=>s.id===mapV.sel);
@@ -71,6 +73,30 @@ function drawMap(){
   if (mapV.here){ const [x,y]=P(mapV.here.lat,mapV.here.lng); const g=svgEl('g',{transform:`translate(${x} ${y}) scale(${k})`}); g.appendChild(svgEl('circle',{r:13},'here-halo')); g.appendChild(svgEl('circle',{r:5},'here')); svg.appendChild(g); }
   const step=niceStep(W/4), sc=$('mapScale');
   if (sc){ sc.textContent=''; const bar=el('i'); bar.style.width=(step/k)+'px'; sc.appendChild(bar); sc.appendChild(document.createTextNode(fmtDist(step))); }
+}
+// background: 国土地理院の淡色地図 tiles, each placed by its corners so the pins (drawn in local meters) line up
+const SAPPORO={lat:43.0607,lng:141.3545};
+const tileUrl=(z,x,y)=>`https://cyberjapandata.gsi.go.jp/xyz/pale/${z}/${x}/${y}.png`;
+const tileLng=(x,z)=>x/2**z*360-180;
+const tileLat=(y,z)=>{ const n=Math.PI-2*Math.PI*y/2**z; return 180/Math.PI*Math.atan(Math.sinh(n)); };
+const lngTile=(lng,z)=>Math.floor((lng+180)/360*2**z);
+const latTile=(lat,z)=>{ const r=lat*Math.PI/180; return Math.floor((1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*2**z); };
+const tileImgs=new Map();
+function drawTiles(svg,P,c,W,H,k){
+  const mpp=k/Math.min(2,window.devicePixelRatio||1);   // meters per screen pixel
+  const z=Math.max(5,Math.min(18,Math.round(Math.log2(156543.03*Math.cos(c.lat*Math.PI/180)/mpp))));
+  const dl=degLng(c.lat);
+  const x0=lngTile(c.lng-W/2/dl,z), x1=lngTile(c.lng+W/2/dl,z), y0=latTile(c.lat+H/2/DEG_LAT,z), y1=latTile(c.lat-H/2/DEG_LAT,z);
+  if ((x1-x0+1)*(y1-y0+1)>80) return;
+  const g=svgEl('g',{},'tiles');
+  for (let x=x0;x<=x1;x++) for (let y=y0;y<=y1;y++){
+    const key=`${z}/${x}/${y}`; let im=tileImgs.get(key);
+    if (!im){ im=svgEl('image',{href:tileUrl(z,x,y),preserveAspectRatio:'none'}); tileImgs.set(key,im); if(tileImgs.size>400) tileImgs.delete(tileImgs.keys().next().value); }
+    const [ax,ay]=P(tileLat(y,z),tileLng(x,z)), [bx,by]=P(tileLat(y+1,z),tileLng(x+1,z));
+    im.setAttribute('x',ax); im.setAttribute('y',ay); im.setAttribute('width',bx-ax+k*0.5); im.setAttribute('height',by-ay+k*0.5);
+    g.appendChild(im);
+  }
+  svg.appendChild(g);
 }
 function scheduleMap(){ if(mapRaf) return; mapRaf=requestAnimationFrame(()=>{ mapRaf=0; drawMap(); }); }
 function bindMap(svg){

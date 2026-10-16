@@ -1,6 +1,6 @@
 /* base elements and shared parts (buttons, fields, chips, segments, toast, skeleton) */
 *,*::before,*::after{box-sizing:inherit}
-html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px)}
+html{scrollbar-gutter:stable;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px)}
 body{margin:0;background:var(--bg);color:var(--ink);
   font-family:"Zen Kaku Gothic New","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
   font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased;position:relative;font-feature-settings:"palt" 1}

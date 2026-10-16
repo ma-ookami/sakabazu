@@ -24,6 +24,7 @@
 <link rel="stylesheet" href="css/pick.css">
 <link rel="stylesheet" href="css/map.css">
 <link rel="stylesheet" href="css/list.css">
+<link rel="stylesheet" href="css/search.css">
 </head>
 <body>
 <div class="minibar" id="minibar"><button class="mb-in" id="mbTop" aria-label="いちばん上へ"><svg class="mb-lan" viewBox="0 0 14 20" aria-hidden="true"><rect x="4" y="0" width="6" height="2.5" rx="1" fill="#1F1B19"/><ellipse cx="7" cy="10" rx="6.5" ry="7.5" fill="#D2412F"/><rect x="4" y="17.5" width="6" height="2.5" rx="1" fill="#1F1B19"/></svg><span class="mb-t">酒場図</span><span class="mb-s" id="mbStats"></span></button></div>
@@ -114,6 +115,14 @@
   </div>
 </section>
 
+<section class="sheet" id="searchSheet" hidden role="dialog" aria-modal="true" aria-labelledby="sTitle">
+  <div class="sheet-in">
+    <div class="sheet-head"><button class="back" id="sBack"><b>‹</b>戻る</button></div>
+    <h2 class="d-name" id="sTitle">お店を探す</h2>
+    <div id="sBody"></div>
+  </div>
+</section>
+
 <section class="sheet" id="crewSheet" hidden role="dialog" aria-modal="true" aria-labelledby="cTitle">
   <div class="sheet-in">
     <div class="sheet-head"><button class="back" id="cBack"><b>‹</b>戻る</button></div>
@@ -133,6 +142,7 @@
 <script src="js/ui.js"></script>
 <script src="js/cloud.js"></script>
 <script src="js/hotpepper.js"></script>
+<script src="js/search.js"></script>
 <script src="js/crew.js"></script>
 <script src="js/render.js"></script>
 <script src="js/today.js"></script>

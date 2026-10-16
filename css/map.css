@@ -16,9 +16,12 @@
 .mapnorth{position:absolute;left:12px;top:10px;font-family:var(--brush);font-size:13px;color:var(--sub);pointer-events:none}
 .mapscale{position:absolute;left:12px;bottom:10px;font-size:11px;color:var(--sub);pointer-events:none}
 .mapscale i{display:block;height:5px;border:1px solid var(--sub);border-top:0;margin-bottom:2px}
-.mapempty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:32px;color:var(--sub);font-size:13px;pointer-events:none}
+.mapempty{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);width:max-content;max-width:calc(100% - 32px);text-align:center;padding:8px 14px;border-radius:999px;background:color-mix(in srgb,var(--card) 90%,transparent);box-shadow:var(--shadow-1);color:var(--sub);font-size:12px;pointer-events:none}
 .mapcard{margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-1);padding:14px 16px}
 .mapcard .st{font-size:11px;color:var(--red);border:1px solid var(--red);border-radius:999px;padding:0 8px;flex:none}
 .mapcard .acts{display:flex;gap:8px;margin-top:12px}
 .unloc{margin-top:20px}
 .unloc .chips{flex-wrap:wrap}
+.map .tiles image{opacity:.9}
+.mapattr{position:absolute;right:8px;bottom:6px;font-size:10px;color:var(--sub);background:color-mix(in srgb,var(--card) 80%,transparent);padding:1px 6px;border-radius:6px;text-decoration:none}
+.mapscale{background:color-mix(in srgb,var(--card) 75%,transparent);padding:2px 4px;border-radius:4px}

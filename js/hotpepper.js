@@ -1,5 +1,5 @@
 /* ---------- hotpepper: グルメサーチAPI through our Cloudflare Worker, and mapping a result to a shop ---------- */
-// The API key lives in the Worker (worker/hotpepper-proxy.js), never in this page. params: keyword or lat/lng/range
+// The API key lives in the Worker (worker/hotpepper-proxy.js), never in this page. params: keyword or lat/lng/range, + filters. -> {shops,total}
 const hpOn = () => !!window.HOTPEPPER_PROXY;
 // where 探 looks. kw: added to the keyword / at: searched within 1km of that point / here: current location
 const HP_AREAS = [
@@ -21,7 +21,7 @@ async function hpSearch(params){
   const d=await r.json(), res=d&&d.results;
   if (!res) throw new Error('bad');
   if (res.error) throw Object.assign(new Error((res.error[0]||{}).message||'api'),{code:'api'});
-  return Array.isArray(res.shop)?res.shop:[];
+  return {shops:Array.isArray(res.shop)?res.shop:[], total:+res.results_available||0};
 }
 const hpPhoto = h => (h.photo && h.photo.pc && (h.photo.pc.m || h.photo.pc.s)) || '';
 const hpBudget = h => (h.budget && (h.budget.average || h.budget.name)) || '';

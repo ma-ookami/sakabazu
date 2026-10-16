@@ -5,7 +5,7 @@ async function renderWant(v){
     const lab=el('label','sr','行きたい店を追加'); lab.htmlFor='quick';
     const i=el('input','field'); i.id='quick'; i.placeholder='店名、または「駅前 焼き鳥」など'; i.maxLength=2000; i.autocomplete='off'; i.value=quickVal; i.oninput=()=>{ quickVal=i.value; };
     const sb=el('button','btn btn-line sbtn-circle','探'); sb.type='button'; sb.setAttribute('aria-label','候補を探す');
-    sb.onclick=()=>doSearch(i.value.trim());   // empty: shops near here
+    sb.onclick=()=>openSearch(i.value.trim());
     const b=el('button','btn btn-red','＋'); b.type='submit'; b.setAttribute('aria-label','追加');
     f.append(lab,i,sb,b);
     f.onsubmit=async e=>{ e.preventDefault(); const raw=i.value.trim(); if(!raw){ i.focus(); return; }
@@ -21,16 +21,8 @@ async function renderWant(v){
       i.value=''; quickVal='';
       await addOrBump(name,area); $('quick') && $('quick').focus(); };
     v.appendChild(f);
-    if (hpOn()){
-      const ar=el('div','chips hp-areas'); ar.setAttribute('aria-label','探す地域');
-      for (const a of HP_AREAS){ const c=el('button','chip',a.label); c.type='button'; c.setAttribute('aria-pressed',String(a.id===hpAreaOf().id));
-        c.onclick=()=>{ setHpArea(a.id); ar.querySelectorAll('.chip').forEach(x=>x.setAttribute('aria-pressed',String(x===c))); };
-        ar.appendChild(c); }
-      v.appendChild(ar);
-    }
-    v.appendChild(el('p','hint','店名を入れて＋で追加。「探」を押すと、選んだ地域の中で、料理名などでお店を探せます(空欄ならその地域のお店)。GoogleマップのURLを貼って＋を押しても追加できます。カードは右にスワイプで「行った」、左で外せます。'));
+    v.appendChild(el('p','hint','店名を入れて＋で追加。「探」を押すと、エリアや料理名で新しいお店を探せます。GoogleマップのURLを貼って＋を押しても追加できます。カードは右にスワイプで「行った」、左で外せます。'));
   }
-  searchPanel(v);
   let arr=shops.filter(inWant);
   if (arr.length>5){ const t=el('div','tools'); t.appendChild(searchBox(v)); v.appendChild(t); }
   tagChips(v,'want');
@@ -43,7 +35,7 @@ async function renderWant(v){
   const list=el('div','list'); v.appendChild(list);
   if (!arr.length){
     const e=el('div','empty'); e.appendChild(el('span','mincho', query?'該当する店がありません':'行きたい店はまだありません'));
-    if(!query) e.appendChild(document.createTextNode('気になる店を上の欄にポンポン入れていきましょう。')); list.appendChild(e); return;
+    if(!query) e.appendChild(document.createTextNode('気になる店を上の欄にポンポン入れていきましょう。')); searchInstead(e); list.appendChild(e); return;
   }
   const slots=[];
   for (const s of arr){
@@ -90,6 +82,7 @@ function renderWent(v){
   const list=el('div','list'); v.appendChild(list);
   if (!arr.length){ const e=el('div','empty'); e.appendChild(el('span','mincho', shops.some(inWent)?'条件に合う店がありません':'まだ記録がありません'));
     if(!shops.some(inWent)) e.appendChild(document.createTextNode('行きたいリストの店で「行った」を押すと、ここに溜まっていきます。'));
+    searchInstead(e);
     list.appendChild(e); return; }
   const slots=[], badgeSlots=[];
   for (const s of arr){

@@ -23,12 +23,19 @@ function matches(s){ if (tagFilter && !(s.tags && s.tags[tagFilter])) return fal
 
 function searchBox(v){
   const lab=el('label','sr','店名やエリアで探す'); lab.htmlFor='q';
-  const q=el('input','field'); q.id='q'; q.type='search'; q.placeholder='店名・エリアで探す'; q.value=query;
+  const q=el('input','field'); q.id='q'; q.type='search'; q.placeholder='リストの中から絞り込む'; q.value=query;
   q.oninput=()=>{ query=q.value; const pos=q.selectionStart; render(); const n=$('q'); n.focus(); n.setSelectionRange(pos,pos); };
   v.appendChild(lab); return q;
 }
+// nothing in my lists matched: offer to look for new shops with the same words
+function searchInstead(box){
+  const w=query.trim(); if(!w || !hpOn() || readOnly) return;
+  const b=el('button','btn btn-line',`「${w}」を新しいお店から探す`); b.style.marginTop='12px';
+  b.onclick=()=>{ query=''; render(); openSearch(w); };
+  box.appendChild(b);
+}
 
-let quickVal='', srch={q:'',state:'idle',results:[],msg:''};
+let quickVal='';
 async function addOrBump(name,area,extra){
   const hid=extra&&extra.hp&&extra.hp.id;
   const dup=shops.find(s=>(hid && s.hp && s.hp.id===hid) || norm(s.name)===norm(name));
@@ -51,66 +58,6 @@ function parsePlaceUrl(u){
   const m=s.match(/\/maps\/place\/([^/@?]+)/); const name=m?m[1].replace(/\+/g,' ').trim():'';
   const l=parseMapUrl(u);
   return {name, loc:l.err?null:{lat:l.lat,lng:l.lng,src:'link'}, short:/goo\.gl|maps\.app/i.test(u)};
-}
-// ホットペッパーで探す。選んだ地域(hpAreaOf)の中で。指定なしで q も空なら現在地の近く(1km)
-async function doSearch(q){
-  const a=hpAreaOf(), near = a.here || (!a.kw && !a.at && !q);
-  const place = near ? '現在地' : (a.kw || a.at) ? a.label : '';
-  const label = [place, q].filter(Boolean).join(' ') + (q ? '' : a.kw ? 'のお店' : 'の近く');
-  if (!hpOn()){ srch={q:label,state:'error',results:[],msg:'お店検索はまだ設定されていません(firebase-config.js の HOTPEPPER_PROXY)。下のリンクからGoogleマップで探して、URLを貼って追加できます。'}; render(); return; }
-  srch={q:label,state:'loading',results:[],msg:''}; render();
-  let params={keyword:q};
-  if (a.kw) params={keyword:[a.kw,q].filter(Boolean).join(' ')};
-  else if (a.at) params={lat:a.at.lat, lng:a.at.lng, range:'3', ...(q?{keyword:q}:{order:'4'})};
-  else if (near){
-    const here=await new Promise(r=>getHere(r));
-    if (!here){ srch={q:label,state:'error',results:[],msg:'現在地を取得できませんでした。地域を選ぶか、地名や駅名を入れて探してください。'}; render(); return; }
-    params={lat:here.lat, lng:here.lng, range:'3', ...(q?{keyword:q}:{order:'4'})};
-  }
-  try{
-    const arr=await hpSearch(params);
-    if (srch.q!==label) return;
-    srch={q:label,state:'done',results:arr,msg:''};
-  }catch(e){
-    if (srch.q!==label) return;
-    srch={q:label,state:'error',results:[],msg: e&&e.code==='api' ? 'お店検索のキーが正しくないか、使えない状態です。' : 'お店を探せませんでした。通信状態を確認して、もう一度どうぞ。'};
-  }
-  render();
-}
-function searchPanel(v){
-  if (srch.state==='idle') return;
-  const p=el('section','spanel'); p.setAttribute('aria-live','polite');
-  const h=el('div','spanel-h'); h.appendChild(el('span',null,`「${srch.q}」のお店`));
-  const x=el('button','ic','✕'); x.setAttribute('aria-label','候補を閉じる'); x.onclick=()=>{ srch={q:'',state:'idle',results:[],msg:''}; render(); }; h.appendChild(x); p.appendChild(h);
-  if (srch.state==='loading') p.appendChild(el('p','smsg','探しています…'));
-  else if (srch.state==='error') p.appendChild(el('p','smsg',srch.msg));
-  else if (!srch.results.length) p.appendChild(el('p','smsg','見つかりませんでした。言い方を変えるか、Googleマップで探してみてください。'));
-  else {
-    const ul=el('ul','sres');
-    for (const r of srch.results){
-      const li=el('li'); const ph=hpPhoto(r);
-      if (ph){ const im=el('img','sph'); im.src=ph; im.alt=''; im.loading='lazy'; li.appendChild(im); } else li.appendChild(el('span','sph'));
-      const tx=el('div','stx'); tx.appendChild(el('span','nm',r.name));
-      const sub=[hpArea(r), r.genre&&r.genre.name].filter(Boolean).join('・'); if(sub) tx.appendChild(el('span','ar',sub));
-      const bd=hpBudget(r); if(bd) tx.appendChild(el('span','ar','予算 '+bd));
-      if (r.catch) tx.appendChild(el('span','ds',r.catch));
-      li.appendChild(tx);
-      const ac=el('div','ac');
-      const exists=shops.some(s=>(s.hp&&s.hp.id===r.id) || norm(s.name)===norm(r.name));
-      const add=el('button','sbtn'+(exists?'':' on'), exists?'リストにあり':'＋ 追加'); add.disabled=exists||readOnly;
-      add.onclick=async()=>{ add.disabled=true; const id=await addOrBump(r.name,hpArea(r),hpShopExtra(r)); if(id) toast(`「${r.name}」を追加しました`); render(); };
-      ac.appendChild(add);
-      if (r.urls && r.urls.pc){ const a=el('a','sbtn','お店のページ'); a.href=r.urls.pc; a.target='_blank'; a.rel='noopener noreferrer'; ac.appendChild(a); }
-      li.appendChild(ac); ul.appendChild(li);
-    }
-    p.appendChild(ul);
-  }
-  const ft=el('p','caution');
-  if (hpOn()){ const c=el('a','credit','Powered by ホットペッパーグルメ Webサービス'); c.href='https://webservice.recruit.co.jp/'; c.target='_blank'; c.rel='noopener noreferrer'; ft.appendChild(c); }
-  const gq=srch.q==='現在地の近く' ? '居酒屋' : srch.q+(/居酒屋|飲み|バー|酒場/.test(srch.q)?'':' 居酒屋');
-  const g=el('a',null,`Googleマップで「${gq}」を探す`); g.href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(gq); g.target='_blank'; g.rel='noopener noreferrer';
-  ft.appendChild(g); p.appendChild(ft);
-  v.appendChild(p);
 }
 function hero(v){
   const t=today(); const wants=shops.filter(inWant);
