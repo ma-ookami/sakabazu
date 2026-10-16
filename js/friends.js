@@ -141,7 +141,7 @@ function friendsSec(box){
   }
 }
 
-// the noren's flaps: 自分 / one per friend / ＋. the lifted flap is the list on screen: mine, or mine together with that friend
+// the pills under the logo: 自分 / one per friend / ＋. the pressed one is the list on screen: mine, or mine together with that friend
 function renderFlaps(){
   const nav=$('flaps'); if(!nav) return; nav.textContent='';
   const live = mode==='db' && !!me && !!members[me];
@@ -156,9 +156,8 @@ function renderFlaps(){
       b.setAttribute('aria-pressed',String(on)); b.setAttribute('aria-label',`${friends[f].nick}とのリスト`);
       b.onclick=()=>toggleMix(f);
     }
-    if (!readOnly){ const a=flap('add','＋'); a.setAttribute('aria-label','友達を追加'); a.onclick=openFriends; n++; }
+    if (!readOnly){ const a=flap('add', Object.keys(friends).length?'＋':'＋ 友達とリストを見る'); a.setAttribute('aria-label','友達を追加'); a.onclick=openFriends; n++; }
   }
-  for (; n<4; n++) nav.appendChild(el('span','flap deco'));   // keep the cloth looking whole
 }
 function openFriends(){ setTab('set'); setTimeout(()=>{ const s=$('secFriends'); if(s) s.scrollIntoView({block:'start',behavior:'smooth'}); },80); }
 

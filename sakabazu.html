@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zen+Antique&family=Zen+Old+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Antique&family=Dela+Gothic+One&family=Josefin+Sans:wght@600&family=Zen+Old+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/header.css">
@@ -30,13 +30,10 @@
 <div class="minibar" id="minibar"><button class="mb-in" id="mbTop" aria-label="いちばん上へ"><svg class="mb-lan" viewBox="0 0 14 20" aria-hidden="true"><rect x="4" y="0" width="6" height="2.5" rx="1" fill="#1F1B19"/><ellipse cx="7" cy="10" rx="6.5" ry="7.5" fill="#D2412F"/><rect x="4" y="17.5" width="6" height="2.5" rx="1" fill="#1F1B19"/></svg><span class="mb-t">酒場図</span><span class="mb-s" id="mbStats"></span></button></div>
 <div class="wrap">
   <div class="sign">
-  <div class="rod" aria-hidden="true"></div>
-  <header class="noren">
-    <h1>酒場図<small>SAKABA-ZU</small></h1>
+  <header class="mast">
+    <h1 class="logo"><span class="lg-k">酒場図</span><span class="lg-r">SAKABA-ZU</span></h1>
     <div class="stats" hidden><span><b id="sWant">0</b>行きたい</span><span><b id="sWent">0</b>行った</span></div>
-    <nav class="flaps" id="flaps" aria-label="混ぜるリスト"></nav>
-  </header>
-  <button class="lantern-btn" id="lanternBtn" aria-label="メニュー" aria-haspopup="menu" aria-expanded="false"><svg class="lantern" viewBox="0 0 60 132" aria-hidden="true">
+    <button class="lantern-btn" id="lanternBtn" aria-label="メニュー" aria-haspopup="menu" aria-expanded="false"><svg class="lantern" viewBox="0 0 60 132" aria-hidden="true">
     <defs>
       <radialGradient id="lg" cx="42%" cy="45%" r="62%"><stop offset="0" stop-color="#F2664F"/><stop offset=".65" stop-color="#C3342A"/><stop offset="1" stop-color="#8E2019"/></radialGradient>
     </defs>
@@ -50,6 +47,8 @@
     <rect x="16" y="104" width="28" height="9" rx="2" fill="#1F1B19"/>
     <g stroke="#C3342A" stroke-width="1.4"><line x1="27" y1="113" x2="26" y2="130"/><line x1="30" y1="113" x2="30" y2="131"/><line x1="33" y1="113" x2="34" y2="130"/></g>
   </svg><span class="lan-badge" id="lanBadge" hidden></span></button>
+    <nav class="flaps" id="flaps" aria-label="誰とのリストを見るか"></nav>
+  </header>
   <div class="lanmenu" id="lanMenu" role="menu" hidden></div>
   </div>
 

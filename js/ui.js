@@ -102,6 +102,6 @@ function openDetailFrom(card,id){
 
 /* compact bar once the noren scrolls away */
 if ('IntersectionObserver' in window){
-  new IntersectionObserver(([e])=>document.body.classList.toggle('scrolled',!e.isIntersecting),{rootMargin:'-56px 0px 0px 0px'}).observe(document.querySelector('.noren'));
+  new IntersectionObserver(([e])=>document.body.classList.toggle('scrolled',!e.isIntersecting),{rootMargin:'-56px 0px 0px 0px'}).observe(document.querySelector('.mast'));
 }
 $('mbTop').onclick=()=>window.scrollTo({top:0,behavior:reduceMotion()?'auto':'smooth'});

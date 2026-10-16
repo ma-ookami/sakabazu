@@ -5,10 +5,10 @@ const DM_PARTS = {
   body:  { label:'体の色', color:true, opts:{ aka:['#E0453A','#B8322A'], kin:['#E9B949','#C08F22'], shiro:['#F6F1E7','#D8CDB8'], momo:['#F59CB2','#D9758F'],
            ao:['#5B93D3','#3C6FAA'], midori:['#62B072','#438A52'], kuro:['#3A3434','#221E1E'] } },
   gara:  { label:'体の模様', opts:{ nashi:'なし', kumo:'雲', nami:'波', ume:'梅', sen:'金の線' } },
-  eye:   { label:'目', opts:{ kira:'キラキラ', maru:'まる', ten:'てん', niko:'にっこり', gyoro:'ぎょろ', kata:'片目(願かけ)' } },
+  eye:   { label:'目', opts:{ kira:'キラキラ', maru:'まる', ten:'てん', niko:'にっこり', neko:'ねこ目', gyoro:'ぎょろ', kata:'片目(願かけ)' } },
   brow:  { label:'まゆ', opts:{ hoso:'ほそ', futo:'ふと', tsuru:'いかつい', nashi:'なし' } },
   hige:  { label:'ひげ', opts:{ nashi:'なし', chobi:'ちょび', kuru:'くるん', kame:'もじゃ' } },
-  mouth: { label:'口', opts:{ niko:'にこ', omega:'ω', pokan:'ぽかん', bero:'べー', he:'への字' } },
+  mouth: { label:'口', opts:{ niko:'にこ', han:'あーん', omega:'ω', pokan:'ぽかん', bero:'べー', he:'への字' } },
   hoho:  { label:'ほっぺ', opts:{ ari:'あり', nashi:'なし' } },
   moji:  { label:'お腹の字', opts:{ '福':'福', '酒':'酒', '呑':'呑', '吉':'吉', '勝':'勝', '神':'神', '雅':'雅', '':'なし' } },
   head:  { label:'あたま', opts:{ nashi:'なし', neko:'ねこ耳', hachi:'はちまき' } },
@@ -43,6 +43,9 @@ function darumaSvg(c){
       <circle cx="39" cy="30" r="4.4" fill="#fff" stroke="${ink}" stroke-width="1.4"/><circle cx="39" cy="30.4" r="2.3" fill="${ink}"/>`,
     ten:`<circle cx="25" cy="30.5" r="1.9" fill="${ink}"/><circle cx="39" cy="30.5" r="1.9" fill="${ink}"/>`,
     niko: ln('M21.5 31Q25 27 28.5 31',2.4)+ln('M35.5 31Q39 27 42.5 31',2.4),
+    neko:`<path d="M20 30.5Q25 24.5 30 30.5Q25 35.5 20 30.5Z" fill="#F4C84A" stroke="${ink}" stroke-width="1.4" stroke-linejoin="round"/><ellipse cx="25" cy="30.5" rx="1.1" ry="3.4" fill="${ink}"/>
+      <path d="M34 30.5Q39 24.5 44 30.5Q39 35.5 34 30.5Z" fill="#F4C84A" stroke="${ink}" stroke-width="1.4" stroke-linejoin="round"/><ellipse cx="39" cy="30.5" rx="1.1" ry="3.4" fill="${ink}"/>
+      <circle cx="26.6" cy="28.9" r=".9" fill="#fff"/><circle cx="40.6" cy="28.9" r=".9" fill="#fff"/>`,
     gyoro:`<circle cx="25" cy="30" r="5.4" fill="#fff" stroke="${ink}" stroke-width="1.8"/><circle cx="25.6" cy="30.4" r="1.7" fill="${ink}"/>
       <circle cx="39" cy="30" r="5.4" fill="#fff" stroke="${ink}" stroke-width="1.8"/><circle cx="38.4" cy="30.4" r="1.7" fill="${ink}"/>`,
     kata:`<circle cx="25" cy="30" r="4.4" fill="${ink}"/><circle cx="26.3" cy="28.6" r="1.2" fill="#fff"/><circle cx="39" cy="30" r="4.4" fill="#fff" stroke="${ink}" stroke-width="1.4"/>`,
@@ -60,6 +63,7 @@ function darumaSvg(c){
     omega: ln(`M28.5 ${37.5+my}Q30.2 ${40+my} 32 ${37.8+my}Q33.8 ${40+my} 35.5 ${37.5+my}`,1.7),
     pokan:`<ellipse cx="32" cy="${38.6+my}" rx="1.9" ry="2.2" fill="${ink}"/>`,
     bero: ln(`M29 ${37+my}Q32 ${39.5+my} 35 ${37+my}`,1.8)+`<path d="M30.6 ${38.4+my}Q32 ${42.5+my} 33.4 ${38.4+my}Z" fill="#F07A7A"/>`,
+    han:`<path d="M28.3 ${36.6+my}H35.7A3.7 3.7 0 0 1 28.3 ${36.6+my}Z" fill="#8E2A22" stroke="${ink}" stroke-width="1.3" stroke-linejoin="round"/><path d="M30 ${39.1+my}Q32 ${37.9+my} 34 ${39.1+my}Q32 ${40.6+my} 30 ${39.1+my}Z" fill="#F07A7A"/>`,
     he: ln(`M28.5 ${39+my}Q32 ${36.5+my} 35.5 ${39+my}`,2) }[c.mouth];
   const hoho = (o=.75) => c.hoho==='ari' ? `<ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="${o}"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="${o}"/>` : '';
   // patterns on the colored part of the body, clipped to the body
@@ -72,8 +76,8 @@ function darumaSvg(c){
     ume: [[12,44,1],[52,44,1],[16,54,.8],[48,54,.8],[9,34,.7],[55,34,.7]].map(([x,y,s])=>`<g transform="translate(${x} ${y}) scale(${s})">${[0,72,144,216,288].map(a=>`<circle cx="0" cy="-2.6" r="2" fill="#FFD6DE" transform="rotate(${a})"/>`).join('')}<circle r="1.2" fill="${gold}"/></g>`).join(''),
     sen: gl('M11 28Q9 40 13 51',1.8)+gl('M53 28Q55 40 51 51',1.8)+gl('M14 26Q12.5 40 16.5 50',1)+gl('M50 26Q51.5 40 47.5 50',1),
   }[c.gara];
-  const ears = c.head==='neko' ? `<path d="M10 16L11.5 2.5L23 9Z" fill="${B}"/><path d="M12.6 12.6L13.3 6.6L18.6 9.6Z" fill="#FF9DB0"/>
-      <path d="M54 16L52.5 2.5L41 9Z" fill="${B}"/><path d="M51.4 12.6L50.7 6.6L45.4 9.6Z" fill="#FF9DB0"/>` : '';
+  const ears = c.head==='neko' ? `<path d="M12 22L12.5 3L27 10Z" fill="${B}"/><path d="M14.4 15.5L14.8 7.4L21.6 10.6Z" fill="#FF9DB0"/>
+      <path d="M52 22L51.5 3L37 10Z" fill="${B}"/><path d="M49.6 15.5L49.2 7.4L42.4 10.6Z" fill="#FF9DB0"/>` : '';
   const hachi = c.head==='hachi' ? `<path d="M9.5 19Q32 11 54.5 19L55.5 23Q32 15 8.5 23Z" fill="#fff" stroke="${ink}" stroke-width=".8"/><circle cx="32" cy="16" r="2" fill="#E0453A"/>
       <path d="M55 20.5l6 -3.5M55 21.5l5.5 3.5" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M55 20.5l6 -3.5M55 21.5l5.5 3.5" stroke="${ink}" stroke-width=".7" stroke-linecap="round" opacity=".5"/>` : '';
   const kao = {
