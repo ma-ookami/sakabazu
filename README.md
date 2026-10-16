@@ -10,9 +10,10 @@
 | `index.html` | 入口(`sakabazu.html` へ移動するだけ) |
 | `sakabazu.html` | アプリ本体 |
 | `css/`、`js/` | 見た目と動き |
-| `firebase-config.js` | Firebase とホットペッパーの設定(手順4と「ホットペッパーのAPIキー」で貼り付ける) |
+| `firebase-config.js` | Firebase の設定とホットペッパー中継のURL(手順4と「ホットペッパー検索の中継を作る」で貼り付ける) |
 | `firestore.rules` | データを守るルール(手順3で Firebase に貼る) |
 | `manifest.webmanifest`、`icon-192.png`、`icon-512.png`、`apple-touch-icon.png` | ホーム画面に追加したときのアプリ情報 |
+| `worker/hotpepper-proxy.js` | ホットペッパー検索の中継(Cloudflare に貼る。GitHub に置いても問題なし。キーは入っていない) |
 | `firebase.json` | 手元でテストするときの設定(アップロード不要) |
 | `README.md`、`OVERVIEW.md` | この説明と仕様(アップロード不要) |
 
@@ -66,13 +67,29 @@ window.FIREBASE_CONFIG = {
 
 > この値は公開されても問題ありません。データは手順3のルールで守られています。
 
-## ホットペッパーのAPIキー
+## ホットペッパー検索の中継を作る(Cloudflare Workers)
 
-「探」ボタンでお店を探すのに使います(無料)。空のままでもアプリは動き、「探」は Googleマップ検索へのリンクだけになります。
+「探」ボタンでお店を探すのに使います(どちらも無料)。やらなくてもアプリは動き、「探」は Googleマップ検索へのリンクだけになります。
+APIキーをページに載せると誰でも見られてしまうので、キーは Cloudflare 側に保存し、アプリは中継(Worker)を呼びます。
 
+**A. ホットペッパーのAPIキーを取る**
 1. https://webservice.recruit.co.jp/ を開き、「新規登録」からメールアドレスを登録する
 2. 届いたメールの案内に沿って登録を終えると、APIキーが表示される(メールでも届きます)
-3. `firebase-config.js` の `window.HOTPEPPER_KEY = "";` の `""` の中にキーを貼り付けて保存する
+   **このキーは `firebase-config.js` には貼りません。**
+
+**B. Worker を作る**
+1. https://dash.cloudflare.com/sign-up でアカウントを作る(カード登録は不要)
+2. 左のメニュー「Compute(Workers)」→「Workers & Pages」→「作成」→「Worker を作成」(Hello World)
+3. 名前を `sakabazu-hp` などにして「デプロイ」
+4. 「コードを編集」を押し、最初から入っている文字をすべて消して、このフォルダの `worker/hotpepper-proxy.js` の中身を貼り付け、「デプロイ」
+5. Worker の画面に戻り「設定」→「変数とシークレット」→「追加」
+   - 種類: **シークレット**、名前: `HOTPEPPER_KEY`、値: Aで取ったAPIキー → 「デプロイ」
+6. Worker の URL(`https://sakabazu-hp.(あなたの名前).workers.dev`)をコピーする
+
+**C. アプリに URL を入れる**
+- `firebase-config.js` の `window.HOTPEPPER_PROXY = "";` の `""` の中に、B-6 の URL を貼り付けて保存する
+
+> 中継は `https://ma-ookami.github.io` と手元(localhost)のページからしか使えないようにしてあります。公開URLが変わったら `worker/hotpepper-proxy.js` の `ALLOWED` を直して貼り直してください。
 
 > 利用規約により、検索結果の近くに「Powered by ホットペッパーグルメ Webサービス」の表示が必要です。アプリにはすでに入っているので、消さないでください。
 
@@ -116,7 +133,7 @@ window.FIREBASE_CONFIG = {
 | 「サーバーにつながりませんでした」 | 手順2の「匿名」がオンになっていない |
 | 「はじめる」を押しても進まない・「保存できませんでした」 | 手順3のデータベース作成、またはルールの「公開」がまだ。ルールが途中で切れていたら丸ごと貼り直す |
 | 「Googleでログインできませんでした」 | 手順2の「Google」がオフ、または手順6の承認済みドメインが未登録 |
-| 「お店検索のキーが正しくないか、使えない状態です」 | `HOTPEPPER_KEY` の貼り間違い(前後の空白など) |
+| 「お店検索のキーが正しくないか、使えない状態です」 | Worker のシークレット `HOTPEPPER_KEY` が未登録・貼り間違い、または公開URLが Worker の `ALLOWED` に入っていない |
 | ページが404になる | Pages 設定後、数分待っていない。URLの最後の `/sakabazu/` を確認 |
 
 ## ほかの端末で使う

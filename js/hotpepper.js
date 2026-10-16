@@ -1,18 +1,15 @@
-/* ---------- hotpepper: グルメサーチAPI (JSONP) and mapping a result to a shop ---------- */
-const HP_URL = 'https://webservice.recruit.co.jp/hotpepper/gourmet/v1/';
-const hpOn = () => !!window.HOTPEPPER_KEY;
-// The API answers JSONP, which works from a static page without a server. params: keyword or lat/lng/range
-function hpSearch(params){
-  return new Promise((res,rej)=>{
-    const cb='nmhp'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-    const s=document.createElement('script');
-    const done=()=>{ clearTimeout(t); delete window[cb]; s.remove(); };
-    const t=setTimeout(()=>{ done(); rej(new Error('timeout')); },10000);
-    window[cb]=d=>{ done(); const r=d&&d.results; if(!r) return rej(new Error('bad')); if(r.error) return rej(Object.assign(new Error((r.error[0]||{}).message||'api'),{code:'api'})); res(Array.isArray(r.shop)?r.shop:[]); };
-    const q=new URLSearchParams({key:window.HOTPEPPER_KEY, format:'jsonp', callback:cb, count:'12', ...params});
-    s.src=HP_URL+'?'+q; s.onerror=()=>{ done(); rej(new Error('network')); };
-    document.head.appendChild(s);
-  });
+/* ---------- hotpepper: グルメサーチAPI through our Cloudflare Worker, and mapping a result to a shop ---------- */
+// The API key lives in the Worker (worker/hotpepper-proxy.js), never in this page. params: keyword or lat/lng/range
+const hpOn = () => !!window.HOTPEPPER_PROXY;
+async function hpSearch(params){
+  const q=new URLSearchParams({count:'12', ...params});
+  const ctl=new AbortController(), t=setTimeout(()=>ctl.abort(),10000);
+  let r; try{ r=await fetch(window.HOTPEPPER_PROXY.replace(/\/?$/,'/')+'?'+q,{signal:ctl.signal}); }finally{ clearTimeout(t); }
+  if (!r.ok) throw Object.assign(new Error('proxy '+r.status),{code: r.status===403||r.status===500 ? 'api' : 'net'});
+  const d=await r.json(), res=d&&d.results;
+  if (!res) throw new Error('bad');
+  if (res.error) throw Object.assign(new Error((res.error[0]||{}).message||'api'),{code:'api'});
+  return Array.isArray(res.shop)?res.shop:[];
 }
 const hpPhoto = h => (h.photo && h.photo.pc && (h.photo.pc.m || h.photo.pc.s)) || '';
 const hpBudget = h => (h.budget && (h.budget.average || h.budget.name)) || '';

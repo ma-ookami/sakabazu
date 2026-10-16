@@ -55,7 +55,7 @@ function parsePlaceUrl(u){
 // ホットペッパーで探す。q が空なら現在地の近く(1km)
 async function doSearch(q){
   const label = q || '現在地の近く';
-  if (!hpOn()){ srch={q:label,state:'error',results:[],msg:'お店検索はまだ設定されていません(firebase-config.js の HOTPEPPER_KEY)。下のリンクからGoogleマップで探して、URLを貼って追加できます。'}; render(); return; }
+  if (!hpOn()){ srch={q:label,state:'error',results:[],msg:'お店検索はまだ設定されていません(firebase-config.js の HOTPEPPER_PROXY)。下のリンクからGoogleマップで探して、URLを貼って追加できます。'}; render(); return; }
   srch={q:label,state:'loading',results:[],msg:''}; render();
   let params={keyword:q};
   if (!q){

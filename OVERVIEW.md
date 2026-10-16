@@ -134,7 +134,7 @@
 ## 実行環境
 
 - Firebase(compat SDK 12.19.0): Authentication(匿名・Google)、Cloud Firestore、App Check(任意)。無料の Spark プランで動く。
-- ホットペッパー グルメサーチAPI: JSONP でブラウザから直接呼ぶ(サーバー不要)。キーは `firebase-config.js` の `HOTPEPPER_KEY`。キーはページから見えるが、無料のAPIなので実害は小さい。
+- ホットペッパー グルメサーチAPI: Cloudflare Worker(`worker/hotpepper-proxy.js`)を中継して呼ぶ。APIキーは Worker のシークレットに置き、ページには載せない。Worker は許可したOriginだけ受け付け、検索に使う項目だけを渡し、結果を10分キャッシュする。中継URLは `firebase-config.js` の `HOTPEPPER_PROXY`。
 - 設定はすべて `firebase-config.js`。`FIREBASE_CONFIG` が空なら「この端末だけに保存」モード。
 
 ### この端末だけに保存するモード
@@ -142,7 +142,7 @@
 Firebase が未設定のとき、または Firebase の読み込みに失敗したとき。
 
 - データは `localStorage` のキー `nomiya-memo-v2` に保存(以前のファイル名のときからのキー。変えると既存のローカルデータが読めなくなるのでそのまま)。
-- グループ、メンバーは使えない。店検索は `HOTPEPPER_KEY` があれば使える。
+- グループ、メンバーは使えない。店検索は `HOTPEPPER_PROXY` があれば使える。
 - 表示モードの記憶は `localStorage` の `nm-scope`、最後に開いたグループは `nm-gid`。
 
 ### エミュレータでの確認
@@ -172,9 +172,10 @@ Firebase が未設定のとき、または Firebase の読み込みに失敗し�
 ```
 index.html      sakabazu.html へ移動するだけの入口(GitHub Pages のトップ)
 sakabazu.html   画面の骨組み(ヘッダー、下タブ、シート)と Firebase・css/・js/ の読み込み
-firebase-config.js  Firebase の設定、App Check のキー、ホットペッパーのキー
+firebase-config.js  Firebase の設定、App Check のキー、ホットペッパー中継のURL
 firestore.rules データを守るルール(Firebase コンソールに貼る)
 firebase.json   エミュレータの設定(テスト用)
+worker/         ホットペッパー検索の中継(Cloudflare Workers に貼る)
 manifest.webmanifest, icon-*.png, apple-touch-icon.png  ホーム画面に追加したときのアプリ情報
 css/            見た目
 js/             動き
@@ -192,7 +193,7 @@ js/             動き
 |---|---|
 | `core.js` | 定数(評価項目、タグ)、状態変数、`$`/`el`、ユーザー表示、評価の平均、ひとり/グループ判定(`SP()`, `inWant()` など) |
 | `cloud.js` | Firebase: ログイン(匿名・Google)、グループの作成・参加、合言葉、リンク、データの窓口 `groupDb`、購読 |
-| `hotpepper.js` | ホットペッパー検索(JSONP)と、結果を店のデータ(エリア・位置・営業時間・タグ・リンク)に変える処理 |
+| `hotpepper.js` | ホットペッパー検索(Worker経由)と、結果を店のデータ(エリア・位置・営業時間・タグ・リンク)に変える処理 |
 | `ui.js` | 動きと操作: シートの開閉とドラッグ、確認ダイアログ `ask()`、スワイプ `swipeable()`、View Transitions、スクロール時の細いバー |
 | `crew.js` | メンバーシート(招待リンク、合言葉、Google連携、外す・抜ける)、参加前の画面 `renderGate()` |
 | `render.js` | タブ切り替え、`render()`、店の追加と「探」(ホットペッパー)の結果 |
