@@ -199,14 +199,7 @@ service cloud.firestore {
     match /codes/{code} {
       allow get: if signedIn();
       allow list: if false;
-      allow create, update: if signedIn() && code.matches('^[A-Z0-9]{7}
-        && isText(request.resource.data.get('gid', ''), 0, 64)
-        && request.resource.data.get('owned', []) is list
-        && request.resource.data.get('owned', []).size() <= 3;
-    }
-  }
-}
-)
+      allow create, update: if signedIn() && code.matches('^[A-Z0-9]{7}$')
         && request.resource.data.keys().hasOnly(['gid', 'mid', 'nick', 'at'])
         && isText(request.resource.data.gid, 1, 64) && isText(request.resource.data.get('nick', ''), 0, 20)
         && request.resource.data.at is int
