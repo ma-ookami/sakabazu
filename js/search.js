@@ -206,7 +206,7 @@ function renderResults(){
     if (r.mobile_access) tags.appendChild(el('span','sx-acc',r.mobile_access));
     if (tags.childNodes.length) li.appendChild(tags);
     const ac=el('div','sx-ac');
-    const exists=shops.some(s=>(s.hp&&s.hp.id===r.id) || norm(s.name)===norm(r.name));
+    const exists=myShops.some(s=>(s.hp&&s.hp.id===r.id) || norm(s.name)===norm(r.name));
     const add=el('button','sbtn'+(exists?'':' on'), exists?'リストにあり':'＋ 行きたい'); add.disabled=exists||readOnly;
     add.onclick=async()=>{ add.disabled=true; const id=await addOrBump(r.name,hpArea(r),hpShopExtra(r)); if(id){ toast(`「${r.name}」を行きたいに追加しました`); add.textContent='リストにあり'; add.classList.remove('on'); render(); } else add.disabled=false; };
     ac.appendChild(add);

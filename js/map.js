@@ -58,22 +58,21 @@ function drawMap(){
   const order=pts.filter(s=>s!==sel).sort((a,b)=>(statusOf(a)==='went')-(statusOf(b)==='went')); if(sel) order.push(sel);
   for (const s of order){
     const [x,y]=P(s.loc.lat,s.loc.lng);
-    const g=svgEl('g',{transform:`translate(${x} ${y}) scale(${k})`});
-    if (s===sel){ g.appendChild(svgEl('circle',{r:20},'ring')); g.appendChild(svgEl('circle',{r:34},'ring ring2')); }
-    if (statusOf(s)==='went'){
-      g.appendChild(svgEl('ellipse',{rx:7.5,ry:9.5},'lant'));
-      g.appendChild(svgEl('rect',{x:-5,y:-12,width:10,height:3,rx:1},'cap'));
-      g.appendChild(svgEl('rect',{x:-5,y:9,width:10,height:3,rx:1},'cap'));
-    } else g.appendChild(svgEl('ellipse',{rx:7,ry:9},'lant-want'));
-    if (labels || s===sel){ const t=svgEl('text',{x:13,y:4},'plabel'); t.textContent=s.name||''; g.appendChild(t); }
+    // a teardrop pin whose tip is on the spot. went: filled red / want: white with a red ring
+    const g=svgEl('g',{transform:`translate(${x} ${y}) scale(${k*(s===sel?1.25:1)})`});
+    const went=statusOf(s)==='went';
+    g.appendChild(svgEl('ellipse',{cx:0,cy:0,rx:5,ry:2},'pin-sh'));
+    g.appendChild(svgEl('path',{d:'M0 0C-3 -7 -10 -11 -10 -20A10 10 0 1 1 10 -20C10 -11 3 -7 0 0Z'},went?'pin pin-went':'pin pin-want'));
+    g.appendChild(svgEl('circle',{cx:0,cy:-20,r:3.8},went?'pin-dot-went':'pin-dot-want'));
+    if (labels || s===sel){ const t=svgEl('text',{x:13,y:-16},'plabel'+(s===sel?' sel':'')); t.textContent=s.name||''; g.appendChild(t); }
     svg.appendChild(g);
-    mapV.pins.push({id:s.id,sx:(x+W/2)/k,sy:(y+H/2)/k});
+    mapV.pins.push({id:s.id,sx:(x+W/2)/k,sy:(y+H/2)/k-20});
   }
   if (mapV.here){ const [x,y]=P(mapV.here.lat,mapV.here.lng); const g=svgEl('g',{transform:`translate(${x} ${y}) scale(${k})`}); g.appendChild(svgEl('circle',{r:13},'here-halo')); g.appendChild(svgEl('circle',{r:5},'here')); svg.appendChild(g); }
   const step=niceStep(W/4), sc=$('mapScale');
   if (sc){ sc.textContent=''; const bar=el('i'); bar.style.width=(step/k)+'px'; sc.appendChild(bar); sc.appendChild(document.createTextNode(fmtDist(step))); }
 }
-// background: 国土地理院の淡色地図 tiles, each placed by its corners so the pins (drawn in local meters) line up
+// background: 国土地理院の淡色地図, faded to gray in CSS so the pins stand out; each tile placed by its corners so the pins (drawn in local meters) line up
 const SAPPORO={lat:43.0607,lng:141.3545};
 const tileUrl=(z,x,y)=>`https://cyberjapandata.gsi.go.jp/xyz/pale/${z}/${x}/${y}.png`;
 const tileLng=(x,z)=>x/2**z*360-180;
@@ -81,13 +80,17 @@ const tileLat=(y,z)=>{ const n=Math.PI-2*Math.PI*y/2**z; return 180/Math.PI*Math
 const lngTile=(lng,z)=>Math.floor((lng+180)/360*2**z);
 const latTile=(lat,z)=>{ const r=lat*Math.PI/180; return Math.floor((1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*2**z); };
 const tileImgs=new Map();
+// gray and pale (or inverted for the dark theme), as SVG filters so Safari applies them too
+const TILE_FADE='<defs><filter id="tfade"><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncR type="linear" slope=".6" intercept=".36"/><feFuncG type="linear" slope=".6" intercept=".36"/><feFuncB type="linear" slope=".6" intercept=".36"/></feComponentTransfer></filter>'  +'<filter id="tfadeD"><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncR type="linear" slope="-.7" intercept=".78"/><feFuncG type="linear" slope="-.7" intercept=".78"/><feFuncB type="linear" slope="-.7" intercept=".78"/></feComponentTransfer></filter></defs>';
 function drawTiles(svg,P,c,W,H,k){
-  const mpp=k/Math.min(2,window.devicePixelRatio||1);   // meters per screen pixel
+  const mpp=k/2;   // one zoom finer than the screen needs: tiles drawn at half size, so the map labels stay small
   const z=Math.max(5,Math.min(18,Math.round(Math.log2(156543.03*Math.cos(c.lat*Math.PI/180)/mpp))));
   const dl=degLng(c.lat);
   const x0=lngTile(c.lng-W/2/dl,z), x1=lngTile(c.lng+W/2/dl,z), y0=latTile(c.lat+H/2/DEG_LAT,z), y1=latTile(c.lat-H/2/DEG_LAT,z);
   if ((x1-x0+1)*(y1-y0+1)>80) return;
-  const g=svgEl('g',{},'tiles');
+  const dark=document.documentElement.dataset.theme==='dark' || (document.documentElement.dataset.theme!=='light' && !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches));
+  svg.insertAdjacentHTML('afterbegin', TILE_FADE);
+  const g=svgEl('g',{filter:dark?'url(#tfadeD)':'url(#tfade)',opacity:dark?.6:.75},'tiles');
   for (let x=x0;x<=x1;x++) for (let y=y0;y<=y1;y++){
     const key=`${z}/${x}/${y}`; let im=tileImgs.get(key);
     if (!im){ im=svgEl('image',{href:tileUrl(z,x,y),preserveAspectRatio:'none'}); tileImgs.set(key,im); if(tileImgs.size>400) tileImgs.delete(tileImgs.keys().next().value); }

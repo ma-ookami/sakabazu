@@ -88,3 +88,21 @@ body.gating .tabs,body.gating .crew,body.gating .modesw{display:none}
 .hact.main .ha-t{font-size:16px}
 .ha-s{font-size:12px;opacity:.75}
 @media (prefers-reduced-motion:no-preference){ .hact:active{transform:scale(.97)} }
+/* だるま maker (設定) */
+.dm-mtop{display:flex;align-items:center;gap:16px;margin:4px 0 8px}
+.daruma.dm-prev{width:96px;height:99px}
+.dm-acts{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.dm-parts{display:grid;gap:10px}
+.dm-prow{display:grid;gap:4px}
+.dm-pl{font-size:12px;font-weight:700;color:var(--sub)}
+.dm-prow .chips{flex-wrap:wrap;margin:0}
+.dm-colors{gap:8px}
+.dm-sw{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);padding:0;box-shadow:var(--shadow-1)}
+.dm-sw[aria-checked="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--ink)}
+.dm-colors{padding:4px}
+/* 設定 → 友達 */
+.fr-code{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:12px 14px;box-shadow:var(--shadow-1)}
+.fr-cl{font-size:12px;color:var(--sub);width:100%}
+.fr-cv{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:24px;letter-spacing:.12em;flex:1}
+.fr-h{font-size:13px;margin:16px 0 0}
+.fr-av{width:36px;height:36px;border-radius:50%;display:inline-grid;place-items:center;font-weight:700;background:color-mix(in srgb,var(--red) 16%,var(--card))}

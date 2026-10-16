@@ -1,6 +1,6 @@
 /* ---------- members, invite, passcode, Google, and the screens before joining ---------- */
 async function saveNick(nick){
-  if(!me) return; members={...members,[me]:{...members[me],nick}}; render();
+  if(!me) return; members={...members,[me]:{...members[me],nick}}; render(); syncCodeNick(nick);
   if (mode==='db') enqueue('member:'+me,()=>db.doc('members/'+me).update({nick}));
 }
 async function leaveGroup(){
@@ -31,6 +31,8 @@ async function buildCrew(body){
   const ids=Object.keys(members).sort((a,b)=>(members[a].joinedAt||0)-(members[b].joinedAt||0));
   const ps=await people(ids); const mine=members[me]||{};
   const nk=sec('あなたの名前'); nk.appendChild(nickForm('保存する',mine.nick,async n=>{ await saveNick(n); toast('保存しました'); })); body.appendChild(nk);
+  const fr=sec('友達','コードで追加すると、お互いのリストを混ぜて見られます'); fr.id='secFriends'; friendsSec(fr); body.appendChild(fr);
+  const dm=sec('だるま','ホームにいるだるまの見た目。この端末に保存されます'); dm.id='secDaruma'; darumaMaker(dm); body.appendChild(dm);
 
   const mh=sec('メンバー'); body.appendChild(mh);
   const ul=el('ul','mlist');

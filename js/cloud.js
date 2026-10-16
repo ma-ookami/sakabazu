@@ -47,7 +47,7 @@ function cloudBoot(){
 }
 
 async function startGroup(){
-  stopSubs(); members={}; shops=[]; rankings={}; todayDocs={}; me=null; mode='loading'; render();
+  stopSubs(); members={}; myShops=[]; shops=[]; friends={}; myCode=''; rankings={}; todayDocs={}; me=null; mode='loading'; render();
   const hash=/[#&]g=([A-Za-z0-9]{10,40})/.exec(location.hash), invited=hash&&hash[1];
   let mine=null; try{ const u=await fs.doc('users/'+uid).get(); mine=u.exists?u.data():null; }catch(e){ console.warn(e); }
   let saved=null; try{ saved=localStorage.getItem('nm-gid'); }catch{}
@@ -75,16 +75,17 @@ function enterGroup(mid, mine){
   gate=null; me=mid; db=groupDb; mode='db'; readOnly=false; isOwner = group.createdBy===mid;
   try{ localStorage.setItem('nm-gid',gid); }catch{}
   if (/[#&]g=/.test(location.hash)) history.replaceState(null,'',location.pathname+location.search);
-  if (!mine || mine.gid!==gid) fs.doc('users/'+uid).set({gid, owned:(mine&&mine.owned)||[]}).catch(console.warn);
+  if (!mine || mine.gid!==gid) fs.doc('users/'+uid).set({gid, owned:(mine&&mine.owned)||[]},{merge:true}).catch(console.warn);
   showNotice(); render();
   const lost=e=>{ console.warn(e); if(e && e.code==='permission-denied'){ toast('このグループに入れなくなりました'); startGroup(); } else toast('共有データとの接続が切れました。ページを開き直してください。'); };
   cloudSubs.push(fs.doc('groups/'+gid).onSnapshot(d=>{ if(d.exists){ group=d.data(); isOwner=group.createdBy===me; } },()=>{}));
   cloudSubs.push(db.collection('shops').orderBy('createdAt','desc').limit(1000).onSnapshot(snap=>{
-    shops=snap.docs.map(d=>({id:d.id,...JSON.parse(JSON.stringify(d.data()||{}))})); afterChange();
+    myShops=snap.docs.map(d=>({id:d.id,...JSON.parse(JSON.stringify(d.data()||{}))})); afterChange();
   },lost));
   cloudSubs.push(db.collection('rankings').limit(200).onSnapshot(snap=>{
     const o={}; for(const d of snap.docs){ const v=d.data()||{}; o[d.id]={ids:Array.isArray(v.ids)?[...v.ids]:[]}; } rankings=o; render();
   },()=>{}));
+  watchFriends();
   cloudSubs.push(db.collection('members').limit(200).onSnapshot(snap=>{
     const o={}; for(const d of snap.docs){ const v=d.data()||{}; if(typeof v.nick==='string' && v.nick.trim()) o[d.id]={nick:v.nick.trim().slice(0,20),joinedAt:v.joinedAt||0,hasPin:!!v.hasPin,google:!!v.google,photo:v.photo||''}; }
     members=o; membersLoaded=true;
@@ -98,7 +99,7 @@ function enterGroup(mid, mine){
     todayDocs=o; afterChange();
   },()=>{}));
 }
-function stopSubs(){ cloudSubs.forEach(f=>{ try{ f(); }catch{} }); cloudSubs=[]; }
+function stopSubs(){ cloudSubs.forEach(f=>{ try{ f(); }catch{} }); cloudSubs=[]; stopFriendSubs(); }
 
 const newId = (n=20) => { const a='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789'; const b=crypto.getRandomValues(new Uint8Array(n)); return [...b].map(x=>a[x%a.length]).join(''); };
 // a placeholder name until the person changes it in 設定
@@ -120,7 +121,7 @@ async function createGroup(nick){
   const b=fs.batch();
   b.set(fs.doc('groups/'+id),{createdBy:uid, createdAt:Date.now()});
   b.set(fs.doc(`groups/${id}/members/${uid}`),memberData(nick));
-  b.set(fs.doc('users/'+uid),{gid:id, owned:[...owned,id]});
+  b.set(fs.doc('users/'+uid),{gid:id, owned:[...owned,id]},{merge:true});
   await b.commit();
   gid=id; group={createdBy:uid}; enterGroup(uid,{gid:id,owned:[...owned,id]});
 }

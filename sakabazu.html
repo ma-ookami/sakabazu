@@ -32,10 +32,11 @@
   <div class="sign">
   <div class="rod" aria-hidden="true"></div>
   <header class="noren">
-    <h1>酒場図<small>-SAKABA-ZU-</small></h1>
+    <h1>酒場図<small>SAKABA-ZU</small></h1>
     <div class="stats" hidden><span><b id="sWant">0</b>行きたい</span><span><b id="sWent">0</b>行った</span></div>
+    <nav class="flaps" id="flaps" aria-label="混ぜるリスト"></nav>
   </header>
-  <svg class="lantern" viewBox="0 0 60 132" aria-hidden="true">
+  <button class="lantern-btn" id="lanternBtn" aria-label="メニュー" aria-haspopup="menu" aria-expanded="false"><svg class="lantern" viewBox="0 0 60 132" aria-hidden="true">
     <defs>
       <radialGradient id="lg" cx="42%" cy="45%" r="62%"><stop offset="0" stop-color="#F2664F"/><stop offset=".65" stop-color="#C3342A"/><stop offset="1" stop-color="#8E2019"/></radialGradient>
     </defs>
@@ -48,7 +49,8 @@
     <text x="30" y="75" text-anchor="middle" font-family="Zen Antique, serif" font-size="30" fill="#1F1B19">呑</text>
     <rect x="16" y="104" width="28" height="9" rx="2" fill="#1F1B19"/>
     <g stroke="#C3342A" stroke-width="1.4"><line x1="27" y1="113" x2="26" y2="130"/><line x1="30" y1="113" x2="30" y2="131"/><line x1="33" y1="113" x2="34" y2="130"/></g>
-  </svg>
+  </svg><span class="lan-badge" id="lanBadge" hidden></span></button>
+  <div class="lanmenu" id="lanMenu" role="menu" hidden></div>
   </div>
 
   <nav class="tabs" role="tablist" aria-label="表示切り替え">
@@ -131,6 +133,7 @@
 <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-check-compat.js"></script>
 <script src="firebase-config.js"></script>
 <script src="js/core.js"></script>
+<script src="js/friends.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/cloud.js"></script>
 <script src="js/hotpepper.js"></script>

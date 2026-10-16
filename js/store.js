@@ -11,8 +11,10 @@ function onWriteError(e){
 function deepMerge(t,s){ for(const k in s){ if(s[k]&&typeof s[k]==='object'&&!Array.isArray(s[k])){ if(!t[k]||typeof t[k]!=='object') t[k]={}; deepMerge(t[k],s[k]); } else t[k]=s[k]; } return t; }
 function patchShop(id,patch){
   if (readOnly) return Promise.resolve();
+  // a friend's shop: copy it into my list first, then apply the change there
+  if (id.startsWith('f~')){ importShop(id).then(nid=>{ if(nid && !nid.startsWith('f~')) patchShop(nid,patch); }); return Promise.resolve(); }
   patch.updatedAt=Date.now();
-  const s=shops.find(x=>x.id===id); if(s) deepMerge(s,JSON.parse(JSON.stringify(patch)));
+  const s=myShops.find(x=>x.id===id); if(s) deepMerge(s,JSON.parse(JSON.stringify(patch)));
   afterChange();
   if (mode==='db') return enqueue(id,()=>db.doc('shops/'+id).update(patch));
   saveLocal(); return Promise.resolve();
@@ -33,7 +35,7 @@ function markWent(id,stayOpen){
   if (!stayOpen){ openDetail(id); toast('おつかれさまでした。会計を見る前に、いくらか予想してみましょう'); setTimeout(()=>{ const x=$('dVisitSec'); if(x) x.scrollIntoView({block:'start',behavior:'smooth'}); },350); }
 }
 function markWant(id){ const s=shops.find(x=>x.id===id); if(!s||!me) return; patchShop(id,{wants:{[me]:true}, went:wentPatch(s,me,null)}); }
-function removeMine(id){ const s=shops.find(x=>x.id===id); if(!s||!me) return; const was={want:!!(s.wants&&s.wants[me]), went:wentBy(s)[me]||null};
+function removeMine(id){ const s=shops.find(x=>x.id===id); if(!s||!me||isFriendShop(s)) return; const was={want:!!(s.wants&&s.wants[me]), went:wentBy(s)[me]||null};
   patchShop(id,{wants:{[me]:false}, went:wentPatch(s,me,null)});
   toast('あなたのリストから外しました','元に戻す',()=>{ const cur=shops.find(x=>x.id===id); if(cur) patchShop(id,{wants:{[me]:was.want}, went:wentPatch(cur,me,was.went)}); }); }
 function queueMemo(id,k,t){ const key=id+'|'+k; pendingMemo[key]={id,k,t}; clearTimeout(memoTimers[key]); memoTimers[key]=setTimeout(()=>flushOne(key),700); }
@@ -43,15 +45,16 @@ async function addShop(name,area){
   const data={name,area,wants:me?{[me]:true}:{},went:{},createdBy:me,createdAt:Date.now(),updatedAt:Date.now(),r:{}};
   if (mode==='db'){
     const ref=db.collection('shops').doc();
-    shops.push({id:ref.id,...JSON.parse(JSON.stringify(data))}); render();
-    try{ await ref.set(data); }catch(e){ shops=shops.filter(s=>s.id!==ref.id); render(); onWriteError(e); }
+    myShops.push({id:ref.id,...JSON.parse(JSON.stringify(data))}); afterChange();
+    try{ await ref.set(data); }catch(e){ myShops=myShops.filter(s=>s.id!==ref.id); afterChange(); onWriteError(e); }
     return ref.id;
   }
   const id='l'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-  shops.push({id,...data}); saveLocal(); afterChange(); return id;
+  myShops.push({id,...data}); saveLocal(); afterChange(); return id;
 }
 async function deleteShop(id){
-  shops=shops.filter(s=>s.id!==id); afterChange();
+  if (id.startsWith('f~')) return;
+  myShops=myShops.filter(s=>s.id!==id); afterChange();
   if (mode==='db') await enqueue(id,()=>db.doc('shops/'+id).delete()); else saveLocal();
   if (me && rankList(me).includes(id)) saveRank(rankList(me).filter(x=>x!==id));
 }
@@ -64,5 +67,5 @@ function saveRank(ids){
 /* ---------- local fallback ---------- */
 const LKEY='nomiya-memo-v2';
 function loadLocal(){ try{ const v=JSON.parse(localStorage.getItem(LKEY)||'{}'); return {shops:Array.isArray(v.shops)?v.shops:[], rankings:v.rankings||{}, today:v.today||{}}; }catch{ return {shops:[],rankings:{},today:{}}; } }
-function saveLocal(){ if(mode!=='local') return; try{ localStorage.setItem(LKEY,JSON.stringify({shops,rankings,today:todayDocs})); }catch{} }
-function afterChange(){ render(); if(openId) patchDetail(); if(isOpen('pickSheet')) buildPick(); }
+function saveLocal(){ if(mode!=='local') return; try{ localStorage.setItem(LKEY,JSON.stringify({shops:myShops,rankings,today:todayDocs})); }catch{} }
+function afterChange(){ rebuildShops(); render(); if(openId) patchDetail(); if(isOpen('pickSheet')) buildPick(); }

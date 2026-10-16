@@ -10,6 +10,8 @@ rules_version = '2';
 // - メンバーを外せるのは、グループを作った人(作った端末、または作った人の合言葉で入り直した端末)だけ
 // - 自分のグループの場所(users/<uid>)は本人だけ。グループを作れるのは1人3つまで
 // - 保存できる項目は、アプリが使うものだけに制限する
+// - 友達: 友達コード(codes/<コード>)を入れた人は、そのリストの持ち主と友達になる(お互いの friends に登録)。
+//   友達はお互いの店を読めるだけ(書けない)
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -27,6 +29,15 @@ service cloud.firestore {
     }
     function isMember(gid) {
       return signedIn() && (exists(memberPath(gid, request.auth.uid)) || hasLink(gid));
+    }
+    // a friend of this list (added through a 友達コード) can read its shops
+    function isFriend(gid) {
+      return signedIn() && exists(/databases/$(database)/documents/groups/$(gid)/friends/$(request.auth.uid));
+    }
+    function validFriend(d) {
+      return d.keys().hasOnly(['gid', 'mid', 'nick', 'code', 'at'])
+        && isText(d.gid, 1, 64) && isText(d.mid, 1, 128) && isText(d.get('nick', ''), 0, 20)
+        && isText(d.get('code', ''), 0, 12) && d.at is int;
     }
     // the creator: the device that created the group, or a device that re-entered as the creator
     // with the creator's passcode (only while that passcode is still set)
@@ -130,8 +141,20 @@ service cloud.firestore {
         allow delete: if (signedIn() && lid == request.auth.uid) || isCreator(gid);
       }
 
+      // my friends. I add them (when I enter their code), and they add themselves (when they enter mine:
+      // they must send the code, and it must be the code of this list)
+      match /friends/{fid} {
+        allow read: if isMember(gid) || (signedIn() && fid == request.auth.uid);
+        allow create, update: if validFriend(request.resource.data)
+          && (isMember(gid)
+              || (signedIn() && fid == request.auth.uid
+                  && exists(/databases/$(database)/documents/codes/$(request.resource.data.get('code', '-')))
+                  && get(/databases/$(database)/documents/codes/$(request.resource.data.code)).data.gid == gid));
+        allow delete: if isMember(gid) || (signedIn() && fid == request.auth.uid);
+      }
+
       match /shops/{sid} {
-        allow read: if isMember(gid);
+        allow read: if isMember(gid) || isFriend(gid);
         allow create: if isMember(gid) && validShop(request.resource.data)
           && actsAs(gid, request.resource.data.createdBy);
         allow update: if isMember(gid) && validShop(request.resource.data)
@@ -172,11 +195,32 @@ service cloud.firestore {
       }
     }
 
-    // where my group is: { gid, owned: [gids I created] }
+    // 友達コード -> whose list. anyone signed in can look up one code (not list them); only the owner writes it
+    match /codes/{code} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create, update: if signedIn() && code.matches('^[A-Z0-9]{7}
+        && isText(request.resource.data.get('gid', ''), 0, 64)
+        && request.resource.data.get('owned', []) is list
+        && request.resource.data.get('owned', []).size() <= 3;
+    }
+  }
+}
+)
+        && request.resource.data.keys().hasOnly(['gid', 'mid', 'nick', 'at'])
+        && isText(request.resource.data.gid, 1, 64) && isText(request.resource.data.get('nick', ''), 0, 20)
+        && request.resource.data.at is int
+        && actsAs(request.resource.data.gid, request.resource.data.mid) && isMember(request.resource.data.gid)
+        && (resource == null || actsAs(resource.data.gid, resource.data.mid));
+      allow delete: if signedIn() && actsAs(resource.data.gid, resource.data.mid);
+    }
+
+    // where my group is: { gid, owned: [gids I created], code: my 友達コード }
     match /users/{uid} {
       allow read: if signedIn() && request.auth.uid == uid;
       allow write: if signedIn() && request.auth.uid == uid
-        && request.resource.data.keys().hasOnly(['gid', 'owned'])
+        && request.resource.data.keys().hasOnly(['gid', 'owned', 'code'])
+        && isText(request.resource.data.get('code', ''), 0, 12)
         && isText(request.resource.data.get('gid', ''), 0, 64)
         && request.resource.data.get('owned', []) is list
         && request.resource.data.get('owned', []).size() <= 3;

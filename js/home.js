@@ -1,7 +1,6 @@
 /* ---------- structure: mode, home, list, records ---------- */
-// group view: there are other members and the strip is on グループ (alone, there is nothing to merge)
-const groupMode = () => mode==='db' && !!me && !!members[me] && scope==='group' && Object.keys(members).length>1;
-try{ const sv=localStorage.getItem('nm-scope'); if(sv==='mine'||sv==='group') scope=sv; }catch{}
+// mixed view: at least one friend's list is mixed in (then we show who wants what)
+const groupMode = () => mode==='db' && !!me && mixedFriends().length>0;
 function segBar(v,items,cur,onPick,cls){
   const seg=el('div','seg topseg'+(cls?' '+cls:'')); seg.setAttribute('role','group');
   for (const [k,l] of items){ const b=el('button',null,l); b.setAttribute('aria-pressed',String(cur===k)); b.onclick=()=>{ if(cur!==k) withTransition(()=>{ onPick(k); render(); window.scrollTo({top:0}); }); }; seg.appendChild(b); }

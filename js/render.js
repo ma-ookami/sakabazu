@@ -8,7 +8,7 @@ function counts(){
   const mb=$('mbStats'); mb.textContent=''; mb.append('行きたい', el('b',null,String(w)), '・行った', el('b',null,String(g)));
 }
 function render(){
-  counts();
+  counts(); renderFlaps();
   // typing in settings: don't rebuild under the cursor (data updates arrive while you type)
   if (tab==='set' && $('setBody') && $('setBody').contains(document.activeElement) && mode==='db') return;
   const ae=document.activeElement; const keep=(ae&&ae.id==='quick')?{s:ae.selectionStart,e:ae.selectionEnd}:null;
@@ -16,7 +16,6 @@ function render(){
   if (mode==='gate'){ renderGate(v); return; }
   if (mode==='loading'){ const k=el('div','skel'); k.setAttribute('role','status'); k.setAttribute('aria-label','読み込み中'); for(const h of [96,132,132,132]){ const i=el('i'); i.style.setProperty('--h',h+'px'); k.appendChild(i); } v.appendChild(k); return; }
   if (tab==='set'){ v.appendChild(el('h2','pagetitle','設定')); const b=el('div'); b.id='setBody'; v.appendChild(b); buildCrew(b); return; }
-  scopeStrip(v);
   if (tab==='home') renderHome(v);
   else if (tab==='list'){ listSeg(v); if(listSub==='want') renderWant(v); else renderWent(v); }
   else if (tab==='rec'){ recSeg(v); const sub=el('div'); v.appendChild(sub); if(recSub==='cal') renderCal(sub); else if(recSub==='rank') renderRank(sub); else renderScore(sub); }
@@ -42,7 +41,8 @@ function searchInstead(box){
 let quickVal='';
 async function addOrBump(name,area,extra){
   const hid=extra&&extra.hp&&extra.hp.id;
-  const dup=shops.find(s=>(hid && s.hp && s.hp.id===hid) || norm(s.name)===norm(name));
+  const dup=myShops.find(   // only my own list: a friend's shop gets copied in, not bumped
+    s=>(hid && s.hp && s.hp.id===hid) || norm(s.name)===norm(name));
   if (dup){
     if (wentBy(dup)[me]) toast(`「${dup.name}」は行った店に記録済みです`, '開く', ()=>openDetail(dup.id));
     else if (dup.wants && dup.wants[me]) toast(`「${dup.name}」はもう行きたいに入っています`);

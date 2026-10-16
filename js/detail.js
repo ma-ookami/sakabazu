@@ -10,7 +10,7 @@ function memoBox(box,k,ph){
   const o=el('div','others'); o.dataset.k=k; box.appendChild(o);
 }
 function buildDetail(s){
-  const st=statusOf(s)||'want'; builtStatus=st+'|'+mySt(s)+'|'+scope;
+  const st=statusOf(s)||'want'; builtStatus=st+'|'+mySt(s)+'|'+[...mix].join();
   $('dEdit').hidden=readOnly; $('dDel').hidden=readOnly;
   $('dSeg').setAttribute('aria-label','あなたの状態');
   for (const b of $('dSeg').children){ b.disabled=readOnly||!me; b.onclick=()=>{ const cur=shops.find(x=>x.id===s.id); if(!cur) return; const m=mySt(cur); if(m===b.dataset.s) removeMine(s.id); else (b.dataset.s==='went'?markWent(s.id,true):markWant(s.id)); }; }
@@ -53,7 +53,7 @@ function buildDetail(s){
 }
 async function patchDetail(){
   const s=shops.find(x=>x.id===openId); if(!s){ if(openId) closeDetail(); return; }
-  if (builtStatus!==(statusOf(s)||'want')+'|'+mySt(s)+'|'+scope) buildDetail(s);
+  if (builtStatus!==(statusOf(s)||'want')+'|'+mySt(s)+'|'+[...mix].join()) buildDetail(s);
   $('dName').textContent=s.name||'(名前なし)'; $('dArea').textContent=s.area||'';
   for (const b of $('dSeg').children) b.setAttribute('aria-pressed',String(b.dataset.s===mySt(s)));
   const plan=$('dPlan'); if(plan && document.activeElement!==plan) plan.value=s.planDate||'';
