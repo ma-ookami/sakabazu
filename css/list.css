@@ -3,7 +3,6 @@
 .quickadd:focus-within{border-color:var(--red);box-shadow:var(--shadow-1),0 0 0 3px color-mix(in srgb,var(--red) 14%,transparent)}
 .quickadd .field{background:transparent;border:0;border-radius:0;padding:8px 6px;font-family:var(--serif);font-size:17px}
 .quickadd .field:focus-visible{outline:none;box-shadow:none}
-.quickadd .btn.sbtn-circle{box-shadow:none;width:42px;height:42px;border-radius:50%;padding:0;font-family:var(--brush);font-size:17px;font-weight:400;flex:none;background:var(--faint);border:0}
 .spanel{margin:10px 0 10px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:10px 16px 14px;box-shadow:var(--shadow-1)}
 .spanel-h{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--sub)}
 .smsg{margin:6px 0 4px;font-size:14px;color:var(--sub)}
@@ -19,7 +18,7 @@
 .caution{font-size:11px;color:var(--sub);margin:10px 0 0;display:grid;gap:4px}
 .caution a{color:var(--red);font-size:13px}
 .caution a.credit{color:var(--sub);font-size:11px}
-.quickadd .btn{width:42px;height:42px;border-radius:50%;padding:0;font-size:22px;font-weight:400;line-height:1;flex:none}
+.quickadd .btn{height:40px;border-radius:999px;padding:0 18px;font-size:15px;flex:none}
 /* cards */
 .list{display:grid;gap:12px}
 .card{background:var(--card);border-radius:var(--r-lg);padding:16px 18px;position:relative;border:1px solid var(--line);box-shadow:var(--shadow-1)}
@@ -88,3 +87,20 @@
 .swipe > .card{touch-action:pan-y}
 .swipe.drag > .card{transition:none;box-shadow:var(--shadow-2)}
 .swipe > .card.settle{transition:transform .32s var(--ease-out)}
+/* member initials when there is no photo */
+.stack .ph{width:22px;height:22px;border-radius:50%;border:2px solid var(--card);margin-left:-6px;background:color-mix(in srgb,var(--red) 16%,var(--card));color:var(--ink);display:inline-grid;place-items:center;font-size:10px;font-weight:700;line-height:1}
+.stack .ph:first-child{margin-left:0}
+.otable td.who .ph,.person .ph{display:inline-grid;place-items:center;font-weight:700;color:var(--ink)}
+.person .ph{font-size:18px}
+.otable td.who .ph{font-size:10px}
+/* the search bar on 行きたい (opens the search screen) and the hand-add fold under it */
+.findbar{display:flex;align-items:center;gap:10px;width:100%;margin:18px 0 6px;padding:13px 16px;border:1px solid var(--line);border-radius:999px;background:var(--card);box-shadow:var(--shadow-1);text-align:left;font:inherit;cursor:text}
+.findbar:hover{border-color:color-mix(in srgb,var(--red) 50%,var(--line))}
+.fb-ic{font-size:16px}
+.fb-ph{color:var(--sub);font-size:15px}
+.manual{margin:4px 2px 2px}
+.manual summary{cursor:pointer;font-size:13px;color:var(--red);padding:6px 0;list-style:none}
+.manual summary::-webkit-details-marker{display:none}
+.manual summary::before{content:"＋ "}
+.manual[open] summary::before{content:"－ "}
+.manual .quickadd{margin:6px 0 4px}

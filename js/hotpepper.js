@@ -1,28 +1,39 @@
 /* ---------- hotpepper: グルメサーチAPI through our Cloudflare Worker, and mapping a result to a shop ---------- */
-// The API key lives in the Worker (worker/hotpepper-proxy.js), never in this page. params: keyword or lat/lng/range, + filters. -> {shops,total}
+// The API key lives in the Worker (worker/hotpepper-proxy.js), never in this page. -> {shops,total,v}
+// v: the Worker's version. v1 only knows keyword/lat/lng; v2 also knows area codes, name_any, id and resolve
 const hpOn = () => !!window.HOTPEPPER_PROXY;
-// where 探 looks. kw: added to the keyword / at: searched within 1km of that point / here: current location
+// where the search looks. kw: added to the keyword / sa: ホットペッパーの小エリア code (at: fallback point for an old Worker) / here: current location
 const HP_AREAS = [
   {id:'sapporo', label:'札幌', kw:'札幌市'},
-  {id:'eki', label:'札幌駅', at:{lat:43.0686, lng:141.3508}},
-  {id:'odori', label:'大通', at:{lat:43.0607, lng:141.3545}},
-  {id:'susukino', label:'すすきの', at:{lat:43.0556, lng:141.3536}},
+  {id:'eki', label:'札幌駅', sa:'X501', at:{lat:43.0686, lng:141.3508}},
+  {id:'odori', label:'大通', sa:'X502', at:{lat:43.0607, lng:141.3545}},
+  {id:'susukino', label:'すすきの', sa:'X500', at:{lat:43.0556, lng:141.3536}},
+  {id:'kotoni', label:'琴似', sa:'X510', at:{lat:43.0817, lng:141.3065}},
+  {id:'maruyama', label:'円山', sa:'XIIC', at:{lat:43.0553, lng:141.3175}},
+  {id:'shinsapporo', label:'新札幌', sa:'X508', at:{lat:43.0393, lng:141.4766}},
+  {id:'asabu', label:'麻生', sa:'XII6', at:{lat:43.1069, lng:141.3384}},
   {id:'here', label:'現在地', here:true},
   {id:'any', label:'指定なし'},
 ];
 let hpArea_ = (()=>{ try{ return localStorage.getItem('nm-hparea')||'sapporo'; }catch{ return 'sapporo'; } })();
 const hpAreaOf = () => HP_AREAS.find(a=>a.id===hpArea_) || HP_AREAS[0];
 function setHpArea(id){ hpArea_=id; try{ localStorage.setItem('nm-hparea',id); }catch{} }
-async function hpSearch(params){
-  const q=new URLSearchParams({count:'12', ...params});
+let hpVer = 0;   // learned from the first answer
+async function hpCall(params){
+  const q=new URLSearchParams(params);
   const ctl=new AbortController(), t=setTimeout(()=>ctl.abort(),10000);
   let r; try{ r=await fetch(window.HOTPEPPER_PROXY.replace(/\/?$/,'/')+'?'+q,{signal:ctl.signal}); }finally{ clearTimeout(t); }
-  if (!r.ok) throw Object.assign(new Error('proxy '+r.status),{code: r.status===403||r.status===500 ? 'api' : 'net'});
-  const d=await r.json(), res=d&&d.results;
+  if (!r.ok) throw Object.assign(new Error('proxy '+r.status),{code: r.status===403||r.status===500 ? 'api' : r.status===400 ? 'old' : 'net'});
+  const d=await r.json(); hpVer = (d && d._v) || 1; return d;
+}
+async function hpSearch(params){
+  const d=await hpCall({count:'12', ...params}), res=d&&d.results;
   if (!res) throw new Error('bad');
   if (res.error) throw Object.assign(new Error((res.error[0]||{}).message||'api'),{code:'api'});
-  return {shops:Array.isArray(res.shop)?res.shop:[], total:+res.results_available||0};
+  return {shops:Array.isArray(res.shop)?res.shop:[], total:+res.results_available||0, v:hpVer};
 }
+// a short Google Maps link (maps.app.goo.gl) -> the long one, through the Worker. '' when it can't
+async function hpResolve(u){ try{ const d=await hpCall({resolve:u}); return (d&&d.url)||''; }catch{ return ''; } }
 const hpPhoto = h => (h.photo && h.photo.pc && (h.photo.pc.m || h.photo.pc.s)) || '';
 const hpBudget = h => (h.budget && (h.budget.average || h.budget.name)) || '';
 const hpArea = h => h.station_name ? h.station_name.replace(/駅$/,'')+'駅' : ((h.small_area&&h.small_area.name) || '');

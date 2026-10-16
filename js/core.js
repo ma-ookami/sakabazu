@@ -42,13 +42,24 @@ const inWent = s => wentIds(s).length>0;
 const statusOf = s => inWent(s) ? 'went' : inWant(s) ? 'want' : null;
 const mySt = s => wentBy(s)[me] ? 'went' : (s.wants && s.wants[me]) ? 'want' : null;
 function lastWent(s){ let m=''; for(const u of wentIds(s)){ const d=wentBy(s)[u]; if(typeof d==='string' && d>m) m=d; } return m; }
-function scopeBar(v){ return;
-  if (mode!=='db' || !me || !membersLoaded) return;
-  if (!members[me]){ if(readOnly) return; const n=el('div','scopenote'); n.appendChild(el('span',null,'いまは自分のリストだけ表示中'));
-    const b=el('button','sbtn','参加してみんなと合わせる'); b.onclick=()=>openCrew(true); n.appendChild(b); v.appendChild(n); return; }
+// the strip under the noren on every tab: whose shops you are looking at
+function scopeStrip(v){
+  if (mode!=='db' || !me || !members[me] || !membersLoaded) return;
+  const n=Object.keys(members).length, box=el('div','scopestrip');
+  if (n<2){
+    box.appendChild(el('span','sc-now','👤 自分のリスト'));
+    if (!readOnly){ const b=el('button','sc-inv','友達を招待して共有 ›'); b.onclick=()=>openCrew(); box.appendChild(b); }
+    v.appendChild(box); return;
+  }
   const seg=el('div','seg scopeseg'); seg.setAttribute('role','group'); seg.setAttribute('aria-label','表示するリスト');
-  for (const [k,l] of [['group',`みんな(${Object.keys(members).length}人)`],['mine','自分だけ']]){ const x=el('button',null,l); x.setAttribute('aria-pressed',String(scope===k)); x.onclick=()=>{ scope=k; render(); }; seg.appendChild(x); }
-  v.appendChild(seg);
+  for (const [k,l] of [['mine','👤 自分'],['group',`👥 グループ ${n}人`]]){ const b=el('button',null,l); b.setAttribute('aria-pressed',String(scope===k)); b.onclick=()=>setScope(k); seg.appendChild(b); }
+  box.appendChild(seg);
+  box.appendChild(el('span','sc-cap', scope==='group' ? 'メンバー全員の店を表示中' : '自分の店だけ表示中'));
+  v.appendChild(box);
+}
+function setScope(k){
+  if (scope===k) return; scope=k; try{ localStorage.setItem('nm-scope',k); }catch{}
+  buzz(); render(); if(openId){ builtStatus=null; patchDetail(); } if(isOpen('pickSheet')) buildPick();
 }
 const today = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 function fmtDate(s){ if(!s) return ''; const [y,m,d]=s.split('-').map(Number); if(!y) return ''; const dt=new Date(y,m-1,d); return `${m}/${d}(${'日月火水木金土'[dt.getDay()]})`; }
@@ -59,7 +70,13 @@ async function people(ids){
   const o={}; for(const id of ids) o[id]={id,name:(members[id]&&members[id].nick)||(id===me?'あなた':''),avatarUrl:(members[id]&&members[id].photo)||'',isMe:id===me}; return o;
 }
 const nameOf = (ps,id) => id===me ? 'あなた' : ((members[id]&&members[id].nick) || (ps[id]&&ps[id].name) || '友達');
-function avatar(ps,id,cls){ const ph=()=>{ const p=el('span',cls||'ph'); p.classList.add('ph'); return p; };
+// "けん・あなたが行きたい" / "けん・ゆうほか2人が行きたい"
+function whoText(ids,what){
+  if (!ids.length) return '';
+  const ns=[...ids].sort((a,b)=>(a===me)-(b===me)).map(u=>nameOf({},u));
+  return (ns.length<=3 ? ns.join('・') : `${ns.slice(0,2).join('・')}ほか${ns.length-2}人`)+'が'+what;
+}
+function avatar(ps,id,cls){ const ph=()=>{ const p=el('span',cls||'ph'); p.classList.add('ph'); const n=(members[id]&&members[id].nick)||(ps[id]&&ps[id].name)||''; p.textContent=[...n][0]||''; p.title=n; return p; };
   const src=ps[id]&&ps[id].avatarUrl; if(!src) return ph();
   const i=el('img',cls); i.alt=''; i.referrerPolicy='no-referrer'; i.onerror=()=>i.replaceWith(ph()); i.src=src; return i; }
 

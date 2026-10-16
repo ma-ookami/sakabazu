@@ -19,7 +19,6 @@ function fitMap(){
   mapV.span=clampSpan(Math.max((d-c)*degLng(lat)*1.4,(b-a)*DEG_LAT*1.4*asp,500)); return true;
 }
 function renderMap(v){
-  scopeBar(v);
   const all=located();
   const lg=el('div','chips'); lg.style.marginTop='18px';
   for (const [k,l] of [['went','行った'],['want','行きたい']]){ const n=all.filter(s=>statusOf(s)===k).length; const b=el('button','chip',`${l} ${n}`); b.setAttribute('aria-pressed',String(mapV.show[k])); b.onclick=()=>{ mapV.show[k]=!mapV.show[k]; render(); }; lg.appendChild(b); }

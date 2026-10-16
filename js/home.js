@@ -1,17 +1,7 @@
 /* ---------- structure: mode, home, list, records ---------- */
-const groupMode = () => mode==='db' && !!me && !!members[me] && scope==='group';
+// group view: there are other members and the strip is on グループ (alone, there is nothing to merge)
+const groupMode = () => mode==='db' && !!me && !!members[me] && scope==='group' && Object.keys(members).length>1;
 try{ const sv=localStorage.getItem('nm-scope'); if(sv==='mine'||sv==='group') scope=sv; }catch{}
-function renderMode(){
-  const m=$('modeSw'); if(!m) return;
-  const can = mode==='db' && me && members[me] && Object.keys(members).length>1;
-  if (!can){ m.hidden=true; m.textContent=''; return; }
-  m.hidden=false; m.textContent='';
-  for (const [k,l] of [['mine','ひとり'],['group',`グループ ${Object.keys(members).length}人`]]){
-    const b=el('button',null,l); b.setAttribute('aria-pressed',String(scope===k));
-    b.onclick=()=>{ if(scope===k) return; scope=k; try{ localStorage.setItem('nm-scope',k); }catch{} buzz(); render(); if(openId){ builtStatus=null; patchDetail(); } if(isOpen('pickSheet')) buildPick(); };
-    m.appendChild(b);
-  }
-}
 function segBar(v,items,cur,onPick,cls){
   const seg=el('div','seg topseg'+(cls?' '+cls:'')); seg.setAttribute('role','group');
   for (const [k,l] of items){ const b=el('button',null,l); b.setAttribute('aria-pressed',String(cur===k)); b.onclick=()=>{ if(cur!==k) withTransition(()=>{ onPick(k); render(); window.scrollTo({top:0}); }); }; seg.appendChild(b); }
@@ -19,20 +9,20 @@ function segBar(v,items,cur,onPick,cls){
 }
 function listSeg(v){ segBar(v,[['want',`行きたい ${shops.filter(inWant).length}`],['went',`行った ${shops.filter(inWent).length}`]],listSub,k=>{ listSub=k; }); }
 function recSeg(v){ segBar(v,[['cal','カレンダー'],['rank','ランキング'],['score','予想成績']],recSub,k=>{ recSub=k; }); }
-function goAdd(){ listSub='want'; setTab('list'); setTimeout(()=>{ const q=$('quick'); if(q) q.focus(); },60); }
+function goAdd(){ listSub='want'; setTab('list'); openSearch(''); }
 function renderHome(v){
   const g=groupMode();
   todayBlock(v);
   hero(v);
   if (!shops.some(s=>statusOf(s))){
-    const e=el('div','welcome'); e.appendChild(el('h2','mincho', g?'みんなのリストはまだ空です':'まずは行きたい店から'));
+    const e=el('div','welcome'); e.appendChild(el('h2','mincho', g?'グループのリストはまだ空です':'まずは行きたい店から'));
     e.appendChild(el('p',null,'気になる店をリストに入れていくと、「今日どこ行く?」で迷わずに決められます。'));
-    if(!readOnly){ const b=el('button','btn btn-red','＋ 行きたい店を追加'); b.onclick=goAdd; e.appendChild(b); }
+    if(!readOnly){ const b=el('button','btn btn-red','🔍 お店を探して追加'); b.onclick=goAdd; e.appendChild(b); }
     v.appendChild(e); return;
   }
-  if (!readOnly){ const a=el('button','addlink','＋ 行きたい店を追加'); a.onclick=goAdd; v.appendChild(a); }
+  if (!readOnly){ const a=el('button','addlink','🔍 お店を探して追加'); a.onclick=goAdd; v.appendChild(a); }
   const rec=calEntries().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
-  const box=el('section','recent'); const h=el('div','today-h'); h.appendChild(el('h2','today-t', g?'みんなの最近':'最近行った店'));
+  const box=el('section','recent'); const h=el('div','today-h'); h.appendChild(el('h2','today-t', g?'グループの最近':'最近行った店'));
   const more=el('button','sbtn','カレンダー'); more.onclick=()=>{ recSub='cal'; setTab('rec'); }; h.appendChild(more); box.appendChild(h);
   if (!rec.length) box.appendChild(el('p','hint','まだ来店の記録がありません。行ったら「行った」を押して記録しましょう。'));
   else { const ul=el('ul','plist'); const slots=[];

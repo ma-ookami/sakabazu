@@ -19,7 +19,7 @@ $('form').onsubmit=e=>{ e.preventDefault(); const name=$('fName').value.trim(), 
 $('fBack').onclick=closeForm; $('fCancel').onclick=closeForm;
 $('crewBtn').onclick=()=>openCrew(); $('cBack').onclick=closeCrew; $('sBack').onclick=closeSearch;
 $('dBack').onclick=closeDetail; $('dEdit').onclick=()=>openForm(openId);
-$('dDel').onclick=async()=>{ const s=shops.find(x=>x.id===openId); if(!s) return; if(!(await ask(`「${s.name}」とみんなの記録を削除します。元に戻せません。`,'削除する',true))) return; const id=openId; closeDetail(); await deleteShop(id); toast('削除しました'); };
+$('dDel').onclick=async()=>{ const s=shops.find(x=>x.id===openId); if(!s) return; if(!(await ask(`「${s.name}」と、この店の記録(メンバー全員分)を削除します。元に戻せません。`,'削除する',true))) return; const id=openId; closeDetail(); await deleteShop(id); toast('削除しました'); };
 document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !asking()){ if(isOpen('searchSheet')) closeSearch(); else if(isOpen('crewSheet')) closeCrew(); else if(isOpen('formSheet')) closeForm(); else if(openId) closeDetail(); else if(isOpen('pickSheet')) closePick(); } });
 window.addEventListener('pagehide',flushMemos);
 window.addEventListener('resize',()=>{ if(tab==='map') scheduleMap(); });

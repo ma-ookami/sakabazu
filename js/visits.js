@@ -28,7 +28,7 @@ async function fillGuess(s){
     f.onsubmit=e=>{ e.preventDefault(); const n=Math.round(Number(i.value)); if(!(n>0)){ toast('金額を入れてください'); return; } i.blur(); patchShop(s.id,{guess:{[me]:n}}); toast(`${yen(n)}で予想しました`); };
     d.appendChild(f);
   }
-  d.appendChild(el('p','hint', others.length ? `${others.map(u=>nameOf(ps,u)).join('、')}が予想済み。金額は答え合わせまで秘密です。` : 'みんなで予想しておき、行ったあと「来店記録」に実際の金額を入れると答え合わせできます。'));
+  d.appendChild(el('p','hint', others.length ? `${others.map(u=>nameOf(ps,u)).join('、')}が予想済み。金額は答え合わせまで秘密です。` : 'それぞれ予想しておき、行ったあと「来店記録」に実際の金額を入れると答え合わせできます。'));
 }
 function recordActual(id,vid,n){
   const s=shops.find(x=>x.id===id); if(!s) return; const v=(s.visits||{})[vid]||{};
@@ -84,7 +84,7 @@ async function fillVisits(s){
         gb.appendChild(gf);
       }
       const og=gid.filter(u=>u!==me);
-      gb.appendChild(el('p','hint', og.length ? `${og.map(u=>nameOf(ps,u)).join('、')}が予想済み。金額は答え合わせまで秘密です。` : (gid.length ? 'みんなの予想がそろったら、会計を確かめましょう。' : 'まだ誰も予想していません。')));
+      gb.appendChild(el('p','hint', og.length ? `${og.map(u=>nameOf(ps,u)).join('、')}が予想済み。金額は答え合わせまで秘密です。` : (gid.length ? '全員の予想がそろったら、会計を確かめましょう。' : 'まだ誰も予想していません。')));
       if (me && !readOnly){
       gb.appendChild(el('p','gstep','② 会計を見たら、実際の金額を記録'));
       const f=el('form','guessrow'); f.noValidate=true;
@@ -117,7 +117,6 @@ function calEntries(){
 }
 const cal={y:null,m:null,sel:null};
 function renderCal(v){
-  scopeBar(v);
   const now=new Date(); if(cal.y==null){ cal.y=now.getFullYear(); cal.m=now.getMonth(); }
   const by={}; for(const e of calEntries()) (by[e.date]=by[e.date]||[]).push(e);
   const ym=`${cal.y}-${String(cal.m+1).padStart(2,'0')}`; const td=today();

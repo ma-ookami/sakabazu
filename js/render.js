@@ -13,6 +13,7 @@ function render(){
   const v=$('view'); v.textContent=''; document.body.classList.toggle('gating', mode==='gate');
   if (mode==='gate'){ renderGate(v); return; }
   if (mode==='loading'){ const k=el('div','skel'); k.setAttribute('role','status'); k.setAttribute('aria-label','読み込み中'); for(const h of [96,132,132,132]){ const i=el('i'); i.style.setProperty('--h',h+'px'); k.appendChild(i); } v.appendChild(k); return; }
+  scopeStrip(v);
   if (tab==='home') renderHome(v);
   else if (tab==='list'){ listSeg(v); if(listSub==='want') renderWant(v); else renderWent(v); }
   else if (tab==='rec'){ recSeg(v); const sub=el('div'); v.appendChild(sub); if(recSub==='cal') renderCal(sub); else if(recSub==='rank') renderRank(sub); else renderScore(sub); }

@@ -1,6 +1,5 @@
 /* ---------- members, invite, passcode, Google, and the screens before joining ---------- */
 async function renderCrew(){
-  renderMode();
   if (isOpen('crewSheet') && !$('cBody').contains(document.activeElement)) buildCrew();
 }
 async function saveNick(nick){
@@ -35,7 +34,6 @@ async function buildCrew(){
   if (mode!=='db'){ body.appendChild(el('p','hint','いまは記録をこの端末だけに保存しています(firebase-config.js が未設定)。メンバー機能を使うには、README の手順で Firebase を設定してください。')); return; }
   const ids=Object.keys(members).sort((a,b)=>(members[a].joinedAt||0)-(members[b].joinedAt||0));
   const ps=await people(ids); const mine=members[me]||{};
-  if (ids.length>1){ const md=sec('どのリストを見るか'); const sw=el('div','modesw'); sw.id='modeSw'; sw.setAttribute('role','group'); sw.setAttribute('aria-label','使い方の切り替え'); md.appendChild(sw); body.appendChild(md); renderMode(); }
   const nk=sec('あなたの名前'); nk.appendChild(nickForm('保存する',mine.nick,async n=>{ await saveNick(n); toast('保存しました'); })); body.appendChild(nk);
 
   const mh=sec('メンバー'); body.appendChild(mh);
@@ -90,7 +88,7 @@ function renderGate(v){
   const card=el('div','gate-card');
   if (g.kind==='welcome'){
     card.appendChild(el('h2','gate-t','酒場図をはじめる'));
-    card.appendChild(el('p','hint','行きたい店と行った店を記録して、「今日どこ行く?」をすぐ決められるようにします。あとから友達を招待すると、みんなのリストが合わさります。'));
+    card.appendChild(el('p','hint','行きたい店と行った店を記録して、「今日どこ行く?」をすぐ決められるようにします。あとから友達を招待すると、グループのリストとして合わさります。'));
     card.appendChild(nickForm('はじめる','',n=>createGroup(n)));
   } else {
     card.appendChild(el('h2','gate-t','飲み仲間のグループに招待されています'));

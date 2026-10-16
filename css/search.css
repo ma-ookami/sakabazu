@@ -35,3 +35,12 @@
 .sx-more{display:block;width:100%;margin-top:14px}
 .sx-res .caution{margin-top:16px}
 .sx-box .sx-row:nth-of-type(2){border-bottom-color:transparent}
+.sx-alt{display:block;width:100%;margin-top:12px}
+.sx-h{font-size:12px;font-weight:700;color:var(--sub);margin:16px 2px 6px;letter-spacing:.04em}
+.sx-help{font-size:12px;color:var(--sub);margin:8px 2px 0;line-height:1.5}
+.sx-areas{margin-top:0}
+.sx-filters{margin-top:0}
+.sx-hit{justify-self:start;font-size:10px;font-weight:700;color:var(--on-red);background:var(--red);border-radius:4px;padding:1px 6px}
+.sx-urlcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px 16px;box-shadow:var(--shadow-1)}
+.sx-urlt{margin:0;font-weight:700}
+.sx-urlu{margin:4px 0 8px;font-size:12px;color:var(--sub);word-break:break-all}

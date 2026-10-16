@@ -52,3 +52,11 @@ body.gating .tabs,body.gating .crew,body.gating .modesw{display:none}
 .gate-google{text-align:center;padding:4px 8px}
 .gate-google .hint{margin-bottom:10px}
 .gate-join{width:100%;padding:14px}
+/* scope strip under the noren: 自分 / グループ */
+.scopestrip{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0 2px}
+.scopestrip .scopeseg{margin:0}
+.scopestrip .scopeseg button{padding:7px 16px;font-size:14px}
+.scopestrip .scopeseg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.sc-cap{font-size:12px;color:var(--sub)}
+.sc-now{font-size:14px;font-weight:700;color:var(--ink)}
+.sc-inv{margin-left:auto;border:0;background:none;color:var(--red);font-size:13px;padding:6px 0}

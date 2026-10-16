@@ -1,27 +1,23 @@
 /* ---------- want / went lists and ranking ---------- */
 async function renderWant(v){
   if (!readOnly){
+    // a plain search bar that opens the search screen
+    const sb=el('button','findbar'); sb.type='button';
+    sb.append(el('span','fb-ic','🔍'), el('span','fb-ph','お店を探す(エリア・料理・店名)'));
+    sb.onclick=()=>openSearch('');
+    v.appendChild(sb);
+    // shops the search can't find: type the name or paste a Google Maps link
+    const man=el('details','manual'); man.open=manualOpen; man.ontoggle=()=>{ manualOpen=man.open; if(man.open){ const q=$('quick'); if(q) q.focus(); } };
+    man.appendChild(el('summary',null,'見つからない店は、名前かGoogleマップのURLで追加'));
     const f=el('form','quick quickadd'); f.noValidate=true;
-    const lab=el('label','sr','行きたい店を追加'); lab.htmlFor='quick';
-    const i=el('input','field'); i.id='quick'; i.placeholder='店名、または「駅前 焼き鳥」など'; i.maxLength=2000; i.autocomplete='off'; i.value=quickVal; i.oninput=()=>{ quickVal=i.value; };
-    const sb=el('button','btn btn-line sbtn-circle','探'); sb.type='button'; sb.setAttribute('aria-label','候補を探す');
-    sb.onclick=()=>openSearch(i.value.trim());
-    const b=el('button','btn btn-red','＋'); b.type='submit'; b.setAttribute('aria-label','追加');
-    f.append(lab,i,sb,b);
+    const lab=el('label','sr','店名かGoogleマップのURL'); lab.htmlFor='quick';
+    const i=el('input','field'); i.id='quick'; i.placeholder='店名、またはGoogleマップのURL'; i.maxLength=2000; i.autocomplete='off'; i.value=quickVal; i.oninput=()=>{ quickVal=i.value; };
+    const b=el('button','btn btn-red','追加'); b.type='submit';
+    f.append(lab,i,b);
     f.onsubmit=async e=>{ e.preventDefault(); const raw=i.value.trim(); if(!raw){ i.focus(); return; }
-      if (/^https?:\/\//i.test(raw)){
-        const p=parsePlaceUrl(raw);
-        if (p.short){ toast('短縮リンクからは店名を読み取れません。ブラウザで開いて、アドレス欄の長いURLを貼ってください'); return; }
-        if (!p.name){ toast('このURLからは店名を読み取れませんでした。Googleマップでお店を開いたときのURLを貼ってください'); return; }
-        i.value=''; quickVal='';
-        const id=await addOrBump(p.name,'',{loc:p.loc}); if(id) toast(`「${p.name}」を追加しました${p.loc?'(位置つき)':''}`);
-        $('quick') && $('quick').focus(); return;
-      }
-      const [name,area='']=raw.split(/[@＠]/).map(x=>x.trim()); if(!name){ i.focus(); return; }
-      i.value=''; quickVal='';
-      await addOrBump(name,area); $('quick') && $('quick').focus(); };
-    v.appendChild(f);
-    v.appendChild(el('p','hint','店名を入れて＋で追加。「探」を押すと、エリアや料理名で新しいお店を探せます。GoogleマップのURLを貼って＋を押しても追加できます。カードは右にスワイプで「行った」、左で外せます。'));
+      if (await addManual(raw)){ i.value=''; quickVal=''; } $('quick') && $('quick').focus(); };
+    man.appendChild(f); v.appendChild(man);
+    v.appendChild(el('p','hint','カードは右にスワイプで「行った」、左で外せます。'));
   }
   let arr=shops.filter(inWant);
   if (arr.length>5){ const t=el('div','tools'); t.appendChild(searchBox(v)); v.appendChild(t); }
@@ -34,7 +30,7 @@ async function renderWant(v){
   });
   const list=el('div','list'); v.appendChild(list);
   if (!arr.length){
-    const e=el('div','empty'); e.appendChild(el('span','mincho', query?'該当する店がありません':'行きたい店はまだありません'));
+    const e=el('div','empty'); e.appendChild(el('span','mincho', query?'該当する店がありません':groupMode()?'グループの行きたい店はまだありません':'行きたい店はまだありません'));
     if(!query) e.appendChild(document.createTextNode('気になる店を上の欄にポンポン入れていきましょう。')); searchInstead(e); list.appendChild(e); return;
   }
   const slots=[];
@@ -44,11 +40,11 @@ async function renderWant(v){
     if (s.planDate) pill(chips,'plan',fmtDate(s.planDate)+' に行く予定');
     hoursPill(chips,s); tagPills(chips,s,3);
     if (chips.children.length) c.appendChild(chips);
-    const ids=wantIds(s);
-    if (ids.length || (!readOnly && me && groupMode())){
+    const ids=wantIds(s).sort((a,b)=>(a===me)-(b===me));   // others first, me last (same as whoText)
+    if (groupMode()){
     const foot=el('div','foot');
     const faces=el('div','faces'); const st=el('span','stack'); faces.appendChild(st);
-    faces.appendChild(el('span',null, ids.length? `${ids.length}人が行きたい` : ''));
+    faces.appendChild(el('span',null, whoText(ids,'行きたい')));
     foot.appendChild(faces); slots.push([st,ids.slice(0,5)]);
     if (!readOnly && me && groupMode()){ const mine=!!(s.wants&&s.wants[me]); const wb=el('button','want-btn live', mine?'行きたい ✓':'私も行きたい'); wb.setAttribute('aria-pressed',String(mine)); wb.onclick=()=>toggleWant(s.id); foot.appendChild(wb); }
     c.appendChild(foot); }
@@ -69,7 +65,6 @@ function renderWent(v){
   }
   v.appendChild(chips);
   tagChips(v,'went');
-  scopeBar(v);
   let arr=shops.filter(inWent).filter(matches);
   if (filter!=='all') arr=arr.filter(s=>{ const x=avg(s,filter); return x!=null && x>=1.5; });
   const key = sort==='again'?'again': sort==='price'?'price':null;
@@ -156,3 +151,15 @@ async function renderRank(v){
   }
 }
 function moveRank(i,d){ const l=rankList(me); const j=i+d; if(j<0||j>=l.length) return; [l[i],l[j]]=[l[j],l[i]]; saveRank(l); }
+
+// add by hand: a name ("店名@エリア" also works) or a link (Google Maps, ホットペッパー, any page). true when handled
+let manualOpen=false;
+async function addManual(raw){
+  if (isUrl(raw)){
+    const r=await addFromUrl(raw); if (r.added) return true;
+    if (r.needName){ openSearch(raw); return true; }   // the search screen asks the name for this link
+    toast(r.msg); return false;
+  }
+  const [name,area='']=raw.split(/[@＠]/).map(x=>x.trim()); if(!name) return false;
+  return !!(await addOrBump(name,area));
+}
