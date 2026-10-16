@@ -18,4 +18,4 @@ window.APPCHECK_SITE_KEY = "";
 // ホットペッパー検索の中継(Cloudflare Worker)のURL。README.md の「ホットペッパー検索の中継を作る」で作ったURLを貼り付けてください。
 // APIキーそのものはここに書かないでください(Worker 側に保存します)。
 // 空のままなら「探」ボタンは Googleマップ検索へのリンクだけになります。
-window.HOTPEPPER_PROXY = "";
+window.HOTPEPPER_PROXY = "https://sakabazu-hp.masaya-okami.workers.dev/";
