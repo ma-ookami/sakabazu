@@ -38,7 +38,7 @@ function buildDetail(s){
     for (const it of ITEMS){
       const lb=el('div','lb',it.label); lb.appendChild(el('small',null,it.hint)); grid.appendChild(lb);
       const stp=el('div','stamps'); stp.setAttribute('role','group'); stp.setAttribute('aria-label',it.label+'の評価'); stp.dataset.k=it.k;
-      for (const m of MARKS){ const b=el('button','stamp',m); b.dataset.m=m; b.disabled=readOnly||!me; b.setAttribute('aria-label',`${it.label} ${m}`);
+      for (const m of MARKS){ const b=el('button','stamp'); b.innerHTML=markSvg(m); b.dataset.m=m; b.disabled=readOnly||!me; b.setAttribute('aria-label',`${it.label} ${m}`);
         b.onclick=()=>{ const cur=myVal(openId,it.k).m; setMark(openId,it.k,cur===m?'':m); }; stp.appendChild(b); }
       grid.appendChild(stp);
     }

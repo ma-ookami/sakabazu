@@ -62,3 +62,7 @@
 .rrow.best .rn{font-weight:700;color:var(--red)}
 .rrow.best .ra{color:var(--red);font-weight:700}
 .pita{margin-left:6px;font-size:10px;color:var(--on-red);background:var(--red);border-radius:999px;padding:1px 7px;font-weight:700;vertical-align:1px}
+.stamp .mk{width:56%;height:56%;display:block}
+.tg-cat{font-size:12px;font-weight:700;color:var(--sub);margin:12px 0 6px;letter-spacing:.04em}
+.tg-cat:first-of-type{margin-top:2px}
+textarea.memo,.field{box-sizing:border-box;max-width:100%}

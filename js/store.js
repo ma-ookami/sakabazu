@@ -23,10 +23,14 @@ const buzz=()=>{ try{ navigator.vibrate && navigator.vibrate(8); }catch{} };
 function setMark(id,k,m){ if(!me) return; buzz(); patchShop(id,{r:{[me]:{[k]:{m}}}}); }
 function toggleWant(id){ const s=shops.find(x=>x.id===id); if(!s||!me) return; patchShop(id,{wants:{[me]:!(s.wants&&s.wants[me])}}); }
 function tagSec(s){
-  const box=sec('特徴', readOnly?'':'当てはまるものをタップ'); const ts=el('div','tagset');
-  for (const t of TAGS){ const b=el('button','tg',t.l); b.dataset.k=t.k; b.disabled=readOnly; b.setAttribute('aria-pressed',String(!!(s.tags&&s.tags[t.k])));
-    b.onclick=()=>{ const cur=shops.find(x=>x.id===s.id); patchShop(s.id,{tags:{[t.k]:!(cur&&cur.tags&&cur.tags[t.k])}}); }; ts.appendChild(b); }
-  box.appendChild(ts); return box;
+  const box=sec('特徴', readOnly?'':'当てはまるものをタップ');
+  for (const c of TAG_CATS){
+    box.appendChild(el('h4','tg-cat',c)); const ts=el('div','tagset');
+    for (const t of TAGS.filter(x=>x.c===c)){ const b=el('button','tg',t.l); b.dataset.k=t.k; b.disabled=readOnly; b.setAttribute('aria-pressed',String(!!(s.tags&&s.tags[t.k])));
+      b.onclick=()=>{ const cur=shops.find(x=>x.id===s.id); patchShop(s.id,{tags:{[t.k]:!(cur&&cur.tags&&cur.tags[t.k])}}); }; ts.appendChild(b); }
+    box.appendChild(ts);
+  }
+  return box;
 }
 function markWent(id,stayOpen){
   const s=shops.find(x=>x.id===id); if(!s) return;

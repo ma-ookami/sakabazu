@@ -79,3 +79,5 @@
 ::view-transition-old(root),::view-transition-new(root){animation-duration:.22s}
 ::view-transition-group(shopname){animation-duration:.46s;animation-timing-function:cubic-bezier(.22,1,.36,1)}
 ::view-transition-new(sheet){animation:sheetUp .46s cubic-bezier(.22,1,.36,1)}
+/* the sheet scrolls up and down only: no sideways wobble on phones */
+.sheet-in{overflow-x:hidden;touch-action:pan-y}

@@ -7,6 +7,9 @@ const ITEMS = [
   {k:'again', short:'また', label:'また行く',  hint:'◎絶対 ・ ×もういい', ph:'例: 次は座敷で予約したい'},
 ];
 const MARKS = ['◎','○','△','×'];
+// the marks as drawings (text glyphs sit off-center in some fonts)
+const markSvg = m => '<svg class="mk" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">'
+  + ({'◎':'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.2"/>','○':'<circle cx="12" cy="12" r="8.5"/>','△':'<path d="M12 3.8L20.5 19H3.5Z"/>','×':'<path d="M5.5 5.5L18.5 18.5M18.5 5.5L5.5 18.5"/>'}[m]||'') + '</svg>';
 const SCORE = {'◎':3,'○':2,'△':1,'×':0};
 const KANJI = ['一','二','三','四','五','六','七','八','九','十'];
 const RANK_MAX = 10;
@@ -15,7 +18,15 @@ let db=null, me=null, mode='loading', readOnly=false;
 let shops=[], rankings={}, members={}, isOwner=false, membersLoaded=false;
 let tab='home', openId=null, builtStatus=null, editingId=null, listSub='want', recSub='cal';
 let filter='all', query='', sort='new', rankWho=null, tagFilter=null;
-const TAGS=[{k:'private',l:'個室あり'},{k:'zashiki',l:'座敷'},{k:'counter',l:'カウンター'},{k:'solo',l:'一人飲みOK'},{k:'group',l:'大人数OK'},{k:'reserve',l:'予約必須'},{k:'smoke',l:'喫煙可'},{k:'nosmoke',l:'禁煙'},{k:'late',l:'深夜まで'},{k:'card',l:'カード可'},{k:'station',l:'駅近'}];
+// 特徴, grouped (c). keys are stored on the shop (tags.<k>), so existing keys never change
+const TAG_CATS=['雰囲気','席','お金・会計','時間・予約','たばこ・場所'];
+const TAGS=[
+  {k:'taishu',l:'大衆居酒屋',c:'雰囲気'},{k:'date',l:'デート向き',c:'雰囲気'},{k:'solo',l:'一人飲みOK',c:'雰囲気'},{k:'group',l:'大人数OK',c:'雰囲気'},{k:'quiet',l:'落ち着いた',c:'雰囲気'},{k:'lively',l:'にぎやか',c:'雰囲気'},
+  {k:'counter',l:'カウンター',c:'席'},{k:'zashiki',l:'座敷',c:'席'},{k:'private',l:'個室あり',c:'席'},{k:'tachinomi',l:'立ち飲み',c:'席'},
+  {k:'otoshi',l:'お通しあり',c:'お金・会計'},{k:'nootoshi',l:'お通しなし',c:'お金・会計'},{k:'senbero',l:'せんべろ',c:'お金・会計'},{k:'payseat',l:'会計は席で',c:'お金・会計'},{k:'payregi',l:'会計はレジで',c:'お金・会計'},{k:'card',l:'カード可',c:'お金・会計'},{k:'cashless',l:'電子マネー可',c:'お金・会計'},{k:'cashonly',l:'現金のみ',c:'お金・会計'},
+  {k:'late',l:'深夜まで',c:'時間・予約'},{k:'hiru',l:'昼飲みできる',c:'時間・予約'},{k:'reserve',l:'予約必須',c:'時間・予約'},
+  {k:'nosmoke',l:'禁煙',c:'たばこ・場所'},{k:'smoke',l:'喫煙可',c:'たばこ・場所'},{k:'station',l:'駅近',c:'たばこ・場所'},
+];
 const tagsOf = s => TAGS.filter(t => s.tags && s.tags[t.k]);
 const norm = x => (x||'').normalize('NFKC').toLowerCase().replace(/\s+/g,'');
 function tagLine(s){ const ts=tagsOf(s); if(!ts.length) return null; const d=el('div','tags'); ts.forEach(t=>d.appendChild(el('span',null,t.l))); return d; }
