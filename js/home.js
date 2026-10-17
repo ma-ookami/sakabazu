@@ -9,13 +9,10 @@ function segBar(v,items,cur,onPick,cls){
 function listSeg(v){ segBar(v,[['want',`行きたい ${shops.filter(inWant).length}`],['went',`行った ${shops.filter(inWent).length}`]],listSub,k=>{ listSub=k; }); }
 function goAdd(){ listSub='want'; setTab('list'); openSearch(''); }
 function renderHome(v0){
-  const v=el('div','homestack'); v0.appendChild(v);
-  darumaGreet(v);
+  const v=el('div','homestack decide'); v0.appendChild(v);
+  if (!myShops.length && !activeFriends().length){ darumaGreet(v); }   // nothing yet: the だるま tells where to start
   whoBar(v);
-  const wf=activeFriends()[0];
-  v.appendChild(el('h2','pick-h', wf ? `${friends[wf].nick}とどこ行く?` : '今日どこ行く?'));
-  const host=el('div','pick-inline'); host.id='pickInline'; v.appendChild(host);
-  buildPick();
+  renderDecide(v);
 }
 async function renderScore(v){
   const g=groupMode(); const P=SP();

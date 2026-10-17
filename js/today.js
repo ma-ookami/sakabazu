@@ -1,6 +1,6 @@
 /* ---------- today ---------- */
 let todayDocs={}; const cleaned=new Set();
-const pick={src:'all',at:'',genre:'',star:0,near:false,here:null,chosen:null,proposing:null,time:'19:00'};
+const pick={want:true,went:true,fopen:false,src:'all',at:'',genre:'',star:0,near:false,here:null,chosen:null,proposing:null,time:'19:00'};
 // 今日どこ行く? narrows by: the time you'd go (open then), the genre, and the stars
 const PICK_TIMES=['15:00','17:00','18:00','19:00','21:00','23:00'];
 const PICK_STARS=[3,3.5,4];
@@ -37,7 +37,7 @@ function openAt(s,t){
 function distM(a,b){ const R=6371000, r=x=>x*Math.PI/180; const dLat=r(b.lat-a.lat), dLng=r(b.lng-a.lng); const h=Math.sin(dLat/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dLng/2)**2; return 2*R*Math.asin(Math.sqrt(h)); }
 const fmtWalk=m=> m<1500 ? `徒歩${Math.max(1,Math.round(m/80))}分` : `${(m/1000).toFixed(1)}km`;
 function candidates(){
-  let arr=shops.filter(s=>pick.src==='all'?statusOf(s):pick.src==='want'?inWant(s):inWent(s));
+  let arr=shops.filter(s=>(pick.want&&inWant(s)) || (pick.went&&inWent(s)));
   arr=arr.filter(s=>fMatch(s,pick));
   const score=s=>(avg(s,'again')??1.2)*2 + wantIds(s).length*0.6 + (statusOf(s)==='want'?0.8:0);
   const out=arr.map(s=>({s,d:Infinity})); out.sort((a,b)=>score(b.s)-score(a.s));
@@ -174,3 +174,72 @@ function todayTab(b){
   if (both.length && both[0].shop){ const sh=el('button','btn btn-line sx-alt','🍻 決まった店をLINEなどで送る'); sh.onclick=()=>shareShop(both[0].shop,''); b.appendChild(sh); }
 }
 $('pBack').onclick=closePick;
+
+// ---------- 決める: 今日の候補 on top (the answer), then 候補を選ぶ (where they come from) ----------
+function renderDecide(v){
+  const wf=activeFriends()[0], cs=todayCands(), cands=candidates();
+  // 今日の候補
+  const top=el('section','dc-sec');
+  const th=el('div','dc-h'); th.appendChild(el('h2','dc-t', wf ? `${friends[wf].nick}との今日の候補` : '今日の候補'));
+  const pool = cs.length ? cs.filter(c=>c.shop).map(c=>c.shop) : cands.map(x=>x.s);
+  const dice=el('button','dc-dice','🎲 おまかせ'); dice.type='button'; dice.disabled=!pool.length; dice.onclick=()=>diceRoll(pool);
+  th.appendChild(dice); top.appendChild(th);
+  const ch=pick.chosen && shops.find(s=>s.id===pick.chosen);
+  if (ch){ const r=el('div','dc-roll'+(pick.fresh?' fresh':'')); pick.fresh=false; r.id='dcRoll';
+    r.append(el('span','dc-rk','🎲 今日はここどう?'), el('b','dc-rn',ch.name||''));
+    const bs=el('div','dc-rb'); const ok=el('button','sbtn on', isPicked(ch)?'✓ 候補':'候補に入れる'); ok.onclick=()=>togglePick(ch);
+    const again=el('button','sbtn','もう一回'); again.onclick=()=>diceRoll(pool); const x=el('button','sbtn','×'); x.setAttribute('aria-label','閉じる'); x.onclick=()=>{ pick.chosen=null; render(); };
+    bs.append(ok,again,x); r.appendChild(bs); top.appendChild(r); }
+  if (!cs.length) top.appendChild(el('p','dc-empty', wf ? `下の店から「＋候補」を押すと、ここに並びます。${friends[wf].nick}も選んだ店は「🍻 2人ともOK」になります。` : '下の店から「＋候補」を押すと、ここに並びます。'));
+  else {
+    const ul=el('ul','plist cands');
+    for (const c of cs){
+      const both=c.by.size>1, li=el('li', both?'both':'');
+      const info=el('button','pinfo'); if (c.shop) info.onclick=()=>openDetail(c.shop.id);
+      if (both) info.appendChild(el('span','both-b','🍻 2人ともOK'));
+      info.appendChild(el('span','pn',c.name||'(名前なし)'));
+      const sub=[c.shop&&genreOf(c.shop), c.shop&&(hoursStatus(c.shop)||{}).t].filter(Boolean).join('　'); if(sub) info.appendChild(el('span','pm',sub));
+      if (wf){ const who=el('span','who-l'); for (const u of c.by) who.appendChild(el('span','who-t'+(u===me?' me':''), (u===me?'あなた':(friends[u]||{}).nick||'飲み友')+' ✓')); info.appendChild(who); }
+      li.appendChild(info);
+      if (!readOnly && me){ const on=c.by.has(me); const g=el('button','sbtn'+(on?'':' on'), on?'外す':'＋ 私も'); g.onclick=()=>togglePick(c.shop,c); li.appendChild(g); }
+      ul.appendChild(li);
+    }
+    top.appendChild(ul);
+    const both=cs.filter(c=>c.by.size>1);
+    if (both.length && both[0].shop){ const sh=el('button','btn btn-line sx-alt','🍻 決まった店をLINEなどで送る'); sh.onclick=()=>shareShop(both[0].shop,''); top.appendChild(sh); }
+  }
+  v.appendChild(top);
+  // 候補を選ぶ
+  const src=el('section','dc-sec');
+  const sh=el('div','dc-h'); sh.appendChild(el('h2','dc-t','候補を選ぶ'));
+  const tg=el('div','dc-tg');
+  for (const [k,l] of [['want','行きたい'],['went','行った']]){ const b=el('button','chip',l); b.type='button'; b.setAttribute('aria-pressed',String(pick[k]));
+    b.onclick=()=>{ pick[k]=!pick[k]; if(!pick.want&&!pick.went) pick[k==='want'?'went':'want']=true; pick.chosen=null; render(); }; tg.appendChild(b); }
+  const on=[pick.at&&(+pick.at.slice(0,2))+'時〜', pick.genre, pick.star&&'★'+pick.star+'〜'].filter(Boolean);
+  const fb=el('button','chip dc-fb'+(on.length?' on':''), '⚙ '+(on.length?on.join('・'):'絞り込み')); fb.type='button'; fb.setAttribute('aria-expanded',String(pick.fopen));
+  fb.onclick=()=>{ pick.fopen=!pick.fopen; render(); }; tg.appendChild(fb);
+  sh.appendChild(tg); src.appendChild(sh);
+  if (pick.fopen) filterBar(src,pick,shops.filter(s=>(pick.want&&inWant(s))||(pick.went&&inWent(s))),()=>render());
+  if (!cands.length) src.appendChild(el('p','dc-empty', shops.length ? '条件に合う店がありません。' : 'まだ店がありません。リストの「＋」から行きたい店を入れてみましょう。'));
+  else {
+    const ul=el('ul','plist');
+    for (const {s} of cands){
+      const li=el('li'); const info=el('button','pinfo'); info.onclick=()=>openDetail(s.id);
+      info.appendChild(el('span','pn',s.name||'(名前なし)'));
+      info.appendChild(el('span','pm',[statusOf(s)==='went'?'行った':'行きたい', genreOf(s), (hoursStatus(s)||{}).t, s.area].filter(Boolean).join('　')));
+      const sl=starLine(s); if(sl) info.appendChild(sl);
+      li.appendChild(info);
+      if (!readOnly && me) li.appendChild(pickBtn(s));
+      ul.appendChild(li);
+    }
+    src.appendChild(ul);
+  }
+  v.appendChild(src);
+}
+function diceRoll(pool){
+  if (!pool.length) return;
+  let s=pool[Math.floor(Math.random()*pool.length)];
+  if (pool.length>1) while (s.id===pick.chosen) s=pool[Math.floor(Math.random()*pool.length)];
+  pick.chosen=s.id; pick.fresh=true; buzz(); render();
+  const r=$('dcRoll'); if (r) r.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
