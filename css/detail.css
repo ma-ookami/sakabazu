@@ -86,3 +86,4 @@ textarea.memo,.field{box-sizing:border-box;max-width:100%}
 .fold > .sec{border:0;padding:8px 0 0}
 .fold > .sec > .sec-h{display:none}
 .fold > div{padding-top:10px}
+#dBody .grid .stamp{width:44px;height:44px;min-width:0;padding:0;aspect-ratio:1;box-sizing:border-box;flex:none}

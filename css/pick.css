@@ -56,3 +56,7 @@
 .who-l{display:flex;gap:6px;margin-top:4px}
 .who-t{font-size:11px;font-weight:700;border-radius:999px;padding:1px 8px;border:1px solid var(--line);color:var(--sub)}
 .who-t.me{border-color:color-mix(in srgb,var(--red) 40%,transparent);color:var(--red)}
+/* 今日どこ行く?: one card per shop */
+#pBody .plist{display:grid;gap:10px;margin-top:4px}
+#pBody .plist li{border:1px solid var(--line);border-radius:var(--r-lg);background:var(--card);padding:12px 14px;box-shadow:var(--shadow-1)}
+#pBody .plist li.both{margin:0;padding:12px 14px;border-radius:var(--r-lg);background:color-mix(in srgb,var(--gold) 14%,var(--card));border-color:color-mix(in srgb,var(--gold) 55%,var(--line))}

@@ -85,7 +85,7 @@ function pickBtn(s){
 function todayBlock(v){
   const wf=activeFriends()[0], cs=todayCands();
   const b=el('button','todaybtn'); b.onclick=()=>openPick(cs.length?'today':'find');
-  b.append(el('span','tb-t', wf ? `${friends[wf].nick}とどこ行く?` : '今日どこ行く?'));
+  b.append(el('span','tb-t', wf ? '飲み友とどこ行く?' : '今日どこ行く?'));
   if (cs.length){
     const both=cs.filter(c=>c.by.size>1);
     b.appendChild(el('span','tb-s', both.length ? `🍻 2人ともOK: ${both.map(c=>c.name).slice(0,2).join('・')}${both.length>2?' ほか':''}` : `今日の候補 ${cs.length}軒`));
@@ -101,7 +101,7 @@ async function shareShop(s,time){
 function openPick(src){
   if (tab!=='home') setTab('home');
   pick.chosen=null; pick.proposing=null; if (src) pick.src = src==='today' ? 'today' : 'find';
-  const wf=activeFriends()[0]; $('pTitle').textContent = wf ? `${friends[wf].nick}とどこ行く?` : '今日どこ行く?';
+  const wf=activeFriends()[0]; $('pTitle').textContent = wf ? '飲み友とどこ行く?' : '今日どこ行く?';
   showSheet('pickSheet'); buildPick(); $('pBack').focus({preventScroll:true});
 }
 function closePick(){ hideSheet('pickSheet'); }
