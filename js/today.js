@@ -135,7 +135,7 @@ function buildPick(){
     const pp=el('div','propose'); pp.id='pProp'; pp.appendChild(el('p','pp-t',`「${ps.name}」を今日の候補にする`));
     const row=el('div','pp-row'); const lab=el('label',null,'集合');
     const t=el('input','dateinput'); t.type='time'; t.value=pick.time; t.oninput=()=>{ pick.time=t.value; }; lab.appendChild(t); row.appendChild(lab);
-    const ok=el('button','btn btn-red','提案する'); ok.onclick=()=>{ propose(ps.id,pick.time); pick.proposing=null; pick.chosen=null; closePick(); setTab('home'); toast(`「${ps.name}」を今日の候補にしました`,'友達に送る',()=>shareShop(ps,pick.time)); };
+    const ok=el('button','btn btn-red','提案する'); ok.onclick=()=>{ propose(ps.id,pick.time); pick.proposing=null; pick.chosen=null; closePick(); setTab('home'); toast(`「${ps.name}」を今日の候補にしました`,'飲み友に送る',()=>shareShop(ps,pick.time)); };
     const cx=el('button','btn btn-line','やめる'); cx.onclick=()=>{ pick.proposing=null; buildPick(); };
     row.append(ok,cx); pp.appendChild(row); b.appendChild(pp);
   }

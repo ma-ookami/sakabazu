@@ -69,7 +69,9 @@ service cloud.firestore {
         && d.createdAt is int;
     }
     function validMember(d) {
-      return d.keys().hasOnly(['nick', 'joinedAt', 'hasPin', 'google', 'photo', 'ic'])
+      return d.keys().hasOnly(['nick', 'joinedAt', 'hasPin', 'google', 'photo', 'ic', 'dm'])
+        // dm: the だるま's parts { body, eye, ... } (shown to 飲み友)
+        && (!('dm' in d) || (d.dm is map && d.dm.size() <= 16))
         && isText(d.nick, 1, 20)
         // icon: { c: color 0-15, s: shape, e: emoji or "" }
         && (!('ic' in d) || (d.ic is map && d.ic.keys().hasOnly(['c', 's', 'e'])

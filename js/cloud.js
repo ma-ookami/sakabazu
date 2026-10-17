@@ -87,8 +87,9 @@ function enterGroup(mid, mine){
   },()=>{}));
   watchFriends();
   cloudSubs.push(db.collection('members').limit(200).onSnapshot(snap=>{
-    const o={}; for(const d of snap.docs){ const v=d.data()||{}; if(typeof v.nick==='string' && v.nick.trim()) o[d.id]={nick:v.nick.trim().slice(0,20),joinedAt:v.joinedAt||0,hasPin:!!v.hasPin,google:!!v.google,photo:v.photo||'',ic:(v.ic&&typeof v.ic==='object')?v.ic:null}; }
+    const o={}; for(const d of snap.docs){ const v=d.data()||{}; if(typeof v.nick==='string' && v.nick.trim()) o[d.id]={nick:v.nick.trim().slice(0,20),joinedAt:v.joinedAt||0,hasPin:!!v.hasPin,google:!!v.google,photo:v.photo||'',ic:(v.ic&&typeof v.ic==='object')?v.ic:null,dm:(v.dm&&typeof v.dm==='object')?v.dm:null}; }
     members=o; membersLoaded=true;
+    if (o[me] && !o[me].dm) saveDm(dmCfg);   // put my だるま on my member doc once, so 飲み友 can see it
     if (!o[me]){ toast('メンバーから外れました'); startGroup(); return; }
     render(); if(openId) patchDetail();
   },()=>{}));

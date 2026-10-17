@@ -23,7 +23,7 @@ function buildDetail(s){
     const w=sec('行きたい人'); const wl=el('div','faces'); wl.id='dWants'; w.appendChild(wl);
     if(!readOnly&&me){ const b=el('button','want-btn'); b.id='dWantBtn'; b.style.marginTop='10px'; b.onclick=()=>toggleWant(s.id); w.appendChild(b); }
     if (groupMode()) body.appendChild(w);
-    const n=sec('気になっている理由・メモ'); memoBox(n,'note','例: 友達のおすすめ、金曜は要予約'); body.appendChild(n);
+    const n=sec('気になっている理由・メモ'); memoBox(n,'note','例: 飲み友のおすすめ、金曜は要予約'); body.appendChild(n);
     if(!readOnly){ const g=el('button','btn btn-red big-went','行った'); g.onclick=()=>markWent(s.id,true); body.appendChild(g); }
   } else {
     const p=sec('行った人'); const wb=el('div','faces'); wb.id='dWentBy'; p.appendChild(wb);

@@ -172,3 +172,9 @@ body.gating .tabs,body.gating .crew,body.gating .modesw{display:none}
 .pinfo .starline .stars{--sz:13px}
 .pinfo .starline .st-v{font-size:13px}
 .code-in::selection{background:transparent}
+/* 飲み友リスト: icon, name, their だるま, 外す */
+.frlist li{display:flex;align-items:center;gap:12px}
+.frlist .ph.av.fr-av{width:40px;height:40px;font-size:17px;display:inline-grid;place-items:center;line-height:1;flex:none;margin:0;border:0;padding:0}
+.fr-dm{width:44px;height:46px;flex:none;color:var(--sub)}
+.fr-dm svg{width:100%;height:100%}
+.fr-err{font-size:13px;color:var(--sub);font-family:inherit;letter-spacing:0}

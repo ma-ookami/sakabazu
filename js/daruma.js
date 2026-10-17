@@ -27,7 +27,8 @@ const cleanDm = c => {
   return o;
 };
 let dmCfg = (()=>{ try{ return cleanDm(JSON.parse(localStorage.getItem('nm-daruma')||'null')); }catch{ return {...DM_DEFAULT}; } })();
-function saveDm(c){ dmCfg=cleanDm(c); try{ localStorage.setItem('nm-daruma',JSON.stringify(dmCfg)); }catch{} }
+function saveDm(c){ dmCfg=cleanDm(c); try{ localStorage.setItem('nm-daruma',JSON.stringify(dmCfg)); }catch{}
+  if (typeof mode!=='undefined' && mode==='db' && me && members[me]){ clearTimeout(saveDm.t); saveDm.t=setTimeout(()=>db.doc('members/'+me).update({dm:dmCfg}).catch(()=>{}),800); } }   // quiet: only for showing to 飲み友
 
 let dmSeq=0;   // each drawing gets its own clipPath id
 function darumaSvg(c){
@@ -119,7 +120,7 @@ const DM_TIPS = [
   '行った店はカードを右にスワイプで記録できるよ',
   '七転び八起き。でも飲みすぎ注意だるま',
   '地図で近くの行きたい店を見てみよう',
-  '友達を招待すると、リストを一緒に作れるよ',
+  '飲み友を招待すると、リストを一緒に作れるよ',
   '会計の前に金額を予想すると、答え合わせできるよ',
   '設定でぼくの見た目を変えられるよ',
 ];

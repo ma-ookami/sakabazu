@@ -61,7 +61,7 @@ async function people(ids){
   ids=[...new Set(ids.filter(Boolean))];
   const o={}; for(const id of ids) o[id]={id,name:(members[id]&&members[id].nick)||(id===me?'あなた':''),avatarUrl:(members[id]&&members[id].photo)||'',isMe:id===me}; return o;
 }
-const nameOf = (ps,id) => id===me ? 'あなた' : ((members[id]&&members[id].nick) || (friendByMid(id)||{}).nick || (ps[id]&&ps[id].name) || '友達');
+const nameOf = (ps,id) => id===me ? 'あなた' : ((members[id]&&members[id].nick) || (friendByMid(id)||{}).nick || (ps[id]&&ps[id].name) || '飲み友');
 // "けん・あなたが行きたい" / "けん・ゆうほか2人が行きたい"
 function whoText(ids,what){
   if (!ids.length) return '';
