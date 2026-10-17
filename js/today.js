@@ -66,7 +66,12 @@ function togglePick(s, c){
   const key = s ? shopKey(s) : c.key, mine=myPickDocs().find(d=>docKey(d)===key);
   buzz();
   if (mine){ const o={...todayDocs}; delete o[mine._id]; todayDocs=o; afterChange();
-    if (mode==='db') enqueue('today:'+mine._id,()=>db.doc('today/'+mine._id).delete()); else saveLocal(); return; }
+    if (mode==='db') enqueue('today:'+mine._id,()=>db.doc('today/'+mine._id).delete()); else saveLocal();
+    // the shop stays in the lists; only today's 候補 changes. say so, and let it be undone
+    const back={...mine}; delete back._id;
+    toast(`「${back.name||'この店'}」を今日の候補から外しました`,'元に戻す',()=>{ todayDocs={...todayDocs,[mine._id]:back}; afterChange();
+      if (mode==='db') enqueue('today:'+mine._id,()=>db.doc('today/'+mine._id).set(back)); else saveLocal(); });
+    return; }
   const shopId = s ? s.id : ('k:'+key).slice(0,60), id=`${today()}_${shopId}`;
   const data={shopId, date:today(), by:me, time:'', createdAt:Date.now(), votes:{}, name:((s&&s.name)||c.name||'').slice(0,60), key:key.slice(0,80)};
   todayDocs={...todayDocs,[id]:data}; afterChange();
@@ -160,7 +165,7 @@ function todayTab(b){
     const sub=[c.shop&&genreOf(c.shop), c.shop&&(hoursStatus(c.shop)||{}).t, c.shop&&c.shop.area].filter(Boolean).join('　'); if(sub) info.appendChild(el('span','pm',sub));
     const who=el('span','who-l'); for (const u of c.by){ const t=el('span','who-t'+(u===me?' me':''), (u===me?'あなた':(friends[u]||{}).nick||'飲み友')+' ✓'); who.appendChild(t); } info.appendChild(who);
     li.appendChild(info);
-    if (!readOnly && me){ const on=c.by.has(me); const g=el('button','sbtn'+(on?'':' on'), on?'✓ 選んだ':'＋ 私も'); g.onclick=()=>togglePick(c.shop,c); li.appendChild(g); }
+    if (!readOnly && me){ const on=c.by.has(me); const g=el('button','sbtn'+(on?'':' on'), on?'候補から外す':'＋ 私も'); g.onclick=()=>togglePick(c.shop,c); li.appendChild(g); }
     ul.appendChild(li);
   }
   b.appendChild(ul);
