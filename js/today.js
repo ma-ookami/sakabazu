@@ -102,16 +102,20 @@ function buildPick(){
   const seg=el('div','seg'); seg.setAttribute('role','group'); seg.setAttribute('aria-label','探す場所');
   for (const [k,l] of [['all','両方'],['want','行きたい'],['went','行った']]){ const x=el('button',null,l); x.setAttribute('aria-pressed',String(pick.src===k)); x.onclick=()=>{ pick.src=k; pick.chosen=null; buildPick(); }; seg.appendChild(x); }
   b.appendChild(seg);
-  // 時間 / ジャンル / 星: one choice each (tap again to clear)
-  const row=(label,items,cur,set)=>{ const r=el('div','pk-row'); r.appendChild(el('span','pk-l',label)); const c=el('div','chips'); c.setAttribute('role','group'); c.setAttribute('aria-label',label);
-    for (const [v,l] of items){ const x=el('button','chip',l); x.setAttribute('aria-pressed',String(cur===v)); x.onclick=()=>{ set(cur===v?items[0][0]:v); pick.chosen=null; buildPick(); }; c.appendChild(x); }
-    r.appendChild(c); b.appendChild(r); };
-  row('時間',[['','いつでも'],...PICK_TIMES.map(t=>[t,(+t.slice(0,2))+'時〜'])],pick.at,v=>{ pick.at=v; });
+  // 時間 / ジャンル / 星: three small pickers in one row (the phone's own list opens)
+  const fl=el('div','pk-bar');
+  const pickSel=(label,items,cur,set)=>{ const w=el('label','pk-sel'+(String(cur)!==String(items[0][0])?' on':''));
+    const sel=el('select'); sel.setAttribute('aria-label',label);
+    for (const [v,l] of items){ const o=el('option',null,l); o.value=String(v); o.selected=String(cur)===String(v); sel.appendChild(o); }
+    sel.onchange=()=>{ set(sel.value); pick.chosen=null; buildPick(); };
+    w.appendChild(sel); fl.appendChild(w); };
+  pickSel('時間',[['','時間'],...PICK_TIMES.map(t=>[t,(+t.slice(0,2))+'時〜'])],pick.at,v=>{ pick.at=v; });
   const base=shops.filter(s=>pick.src==='all'?statusOf(s):pick.src==='want'?inWant(s):inWent(s));
   const genres=[...new Set(base.map(genreOf).filter(Boolean))].sort();
   if (pick.genre && !genres.includes(pick.genre)) pick.genre='';
-  if (genres.length) row('ジャンル',[['','すべて'],...genres.map(g=>[g,g])],pick.genre,v=>{ pick.genre=v; });
-  row('星',[[0,'指定なし'],...PICK_STARS.map(x=>[x,'★'+x+'以上'])],pick.star,v=>{ pick.star=v; });
+  pickSel('ジャンル',[['','ジャンル'],...genres.map(g=>[g,g])],pick.genre,v=>{ pick.genre=v; });
+  pickSel('星',[[0,'星'],...PICK_STARS.map(x=>[x,'★'+x+'〜'])],pick.star,v=>{ pick.star=+v; });
+  b.appendChild(fl);
   const ch=el('div','chips wrapchips');
   if (located().length){ const x=el('button','chip',pick.near?'近い順 ✓':'近い順'); x.setAttribute('aria-pressed',String(pick.near));
     x.onclick=()=>{ if(pick.near){ pick.near=false; buildPick(); return; } x.textContent='現在地を取得中…'; getHere(h=>{ if(h){ pick.here=h; pick.near=true; } buildPick(); }); }; ch.appendChild(x); }
@@ -122,11 +126,10 @@ function buildPick(){
   if (chosen){ slot.classList.add('hit'); if(pick.fresh){ slot.classList.add('fresh'); pick.fresh=false; } slot.append(el('span','sl-k','今日はここ'), el('span','sl-n',chosen.s.name||''));
     const sub=[chosen.s.area, Number.isFinite(chosen.d)?fmtWalk(chosen.d):''].filter(Boolean).join('　'); if(sub) slot.appendChild(el('span','sl-a',sub)); }
   else slot.append(el('span','sl-k',`${cands.length}軒の中から`), el('span','sl-n','おまかせ'));
-  om.appendChild(slot);
   const ob=el('div','sl-btns');
   const spin=el('button','btn btn-ink',chosen?'もう一回':'おまかせで決める'); spin.disabled=!cands.length; spin.onclick=()=>omakase(cands); ob.appendChild(spin);
   if (chosen && !readOnly && me){ const go=el('button','btn btn-red','今日ここにする'); go.onclick=()=>startPropose(chosen.s.id); ob.appendChild(go); }
-  om.appendChild(ob); b.appendChild(om);
+  slot.appendChild(ob); om.appendChild(slot); b.appendChild(om);
   const ps=pick.proposing && shops.find(x=>x.id===pick.proposing);
   if (ps){
     const pp=el('div','propose'); pp.id='pProp'; pp.appendChild(el('p','pp-t',`「${ps.name}」を今日の候補にする`));

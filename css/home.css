@@ -171,3 +171,4 @@ body.gating .tabs,body.gating .crew,body.gating .modesw{display:none}
 .pinfo .starline{margin-top:4px}
 .pinfo .starline .stars{--sz:13px}
 .pinfo .starline .st-v{font-size:13px}
+.code-in::selection{background:transparent}

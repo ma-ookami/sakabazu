@@ -135,7 +135,9 @@ function friendsSec(box){
   const draw=()=>{ const v=cleanCode(i.value).slice(0,7); if(i.value!==v) i.value=v;
     cells.forEach((c,k)=>{ c.textContent=v[k]||''; c.classList.toggle('cur', document.activeElement===i && k===Math.min(v.length,6)); });
     b.disabled=v.length!==7; };
-  i.oninput=draw; i.onfocus=draw; i.onblur=draw;
+  const toEnd=()=>{ const n=i.value.length; try{ i.setSelectionRange(n,n); }catch{} };
+  i.oninput=()=>{ draw(); toEnd(); }; i.onfocus=()=>{ draw(); setTimeout(toEnd,0); }; i.onblur=draw;
+  for (const ev of ['click','keyup','select']) i.addEventListener(ev,toEnd);
   f.append(cb,b);
   f.onsubmit=async e=>{ e.preventDefault(); if(cleanCode(i.value).length!==7){ i.focus(); return; } b.disabled=true;
     const err=await addFriend(i.value); b.disabled=false;

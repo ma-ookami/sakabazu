@@ -24,3 +24,17 @@
 .pn{font-family:var(--serif);font-weight:700;font-size:16px;line-height:1.35}
 .pm{font-size:12px;color:var(--sub)}
 .pk{font-size:12px;opacity:.8}
+/* compact, modern: one row of pickers; the おまかせ button sits inside the card */
+#pickSheet .seg{margin:6px 0 0}
+.pk-bar{display:flex;gap:6px;margin:12px 0 0}
+.pk-sel{position:relative;flex:1;min-width:0;display:flex;align-items:center;height:38px;padding:0 22px 0 12px;border:1px solid var(--line);border-radius:12px;background:var(--card);font-size:13px;color:var(--ink)}
+.pk-sel::after{content:"▾";position:absolute;right:9px;font-size:10px;color:var(--sub);pointer-events:none}
+.pk-sel.on{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.pk-sel.on::after{color:var(--bg)}
+.pk-i{flex:none;font-size:13px}
+.pk-sel select{appearance:none;-webkit-appearance:none;border:0;background:none;font:inherit;color:inherit;width:100%;min-width:0;padding:0;outline:none;text-overflow:ellipsis}
+.omakase{margin:14px 0 16px}
+.slot{min-height:0;padding:18px 18px 16px;gap:4px}
+.slot .sl-btns{margin-top:10px}
+.slot .sl-btns .btn{padding:11px;background:rgba(255,255,255,.14);color:inherit;border:1px solid rgba(255,255,255,.3);box-shadow:none}
+.slot .sl-btns .btn.btn-red{background:var(--on-red);color:var(--red);border-color:var(--on-red)}
