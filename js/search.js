@@ -24,13 +24,13 @@ function buildSearch(){
   ai.oninput=()=>{ sx.areaText=ai.value.trim(); const p=HP_AREAS.find(x=>x.label===sx.areaText); setHpArea(p?p.id:'text'); if(p) sx.areaText=''; markAreas(); };
   r1.appendChild(ai); f.appendChild(r1);
   const r2=el('label','sx-row'); r2.appendChild(el('span','sx-ic','🔍'));
-  const ki=el('input','sx-in'); ki.id='sxKw'; ki.type='search'; ki.placeholder='店名・料理、またはお店のURL'; ki.autocomplete='off'; ki.maxLength=5000; ki.value=sx.kw;
+  const ki=el('input','sx-in'); ki.id='sxKw'; ki.type='search'; ki.placeholder='店名・料理'; ki.autocomplete='off'; ki.maxLength=5000; ki.value=sx.kw;
   ki.oninput=()=>{ sx.kw=ki.value; };
   r2.appendChild(ki); f.appendChild(r2);
   const go=el('button','btn btn-red sx-go','検索'); go.type='submit'; f.appendChild(go);
   f.onsubmit=e=>{ e.preventDefault(); ki.blur(); ai.blur(); runSearch(); };
   body.appendChild(f);
-  body.appendChild(el('p','sx-help','GoogleマップやホットペッパーのURLを貼ると、そのお店をそのまま追加できます。LINEの文面ごと、何件まとめて貼ってもOK。'));
+  { const u=el('button','sx-urlbtn','🔗 URLで登録(LINEで送られたリンクなど)'); u.type='button'; u.onclick=()=>openUrlAdd(); body.appendChild(u); }
 
   body.appendChild(el('h3','sx-h','エリア'));
   const ar=el('div','chips sx-areas'); ar.id='sxAreas'; ar.setAttribute('aria-label','エリア');
@@ -383,4 +383,25 @@ function resultActions(li,ac,name,area,extra,own,redraw){
     row.append(t,dl,u); li.appendChild(row);
   };
   ac.append(w,g);
+}
+
+// URLで登録: paste links (LINE messages and all), then they're read in the search screen
+function openUrlAdd(){
+  const d=el('dialog','ask urladd'); const box=el('div','ask-in');
+  box.appendChild(el('h3','ua-t','URLで登録'));
+  box.appendChild(el('p','hint','ホットペッパーやGoogleマップのお店のURLを貼ってください。LINEの文面ごと、何件まとめてでもOK。'));
+  const ta=el('textarea','ua-in'); ta.rows=4; ta.placeholder='https://…'; ta.setAttribute('aria-label','お店のURL'); box.appendChild(ta);
+  const err=el('p','ua-err'); err.setAttribute('aria-live','polite'); box.appendChild(err);
+  const a=el('div','actions');
+  const paste=el('button','btn btn-line','📋 貼り付け'); paste.type='button';
+  paste.onclick=async()=>{ try{ const t=await navigator.clipboard.readText(); if(t){ ta.value=(ta.value?ta.value+'\n':'')+t; err.textContent=''; } }catch{ err.textContent='貼り付けできませんでした。入力欄を長押しして貼り付けてください。'; ta.focus(); } };
+  const no=el('button','btn btn-line','やめる'); no.type='button';
+  const ok=el('button','btn btn-red','登録'); ok.type='button';
+  a.append(paste,no,ok); box.appendChild(a); d.appendChild(box);
+  if (!navigator.clipboard || !navigator.clipboard.readText) paste.hidden=true;
+  const done=()=>{ if(d.isConnected){ d.close(); d.remove(); } };
+  no.onclick=done; d.addEventListener('click',e=>{ if(e.target===d) done(); });
+  ok.onclick=()=>{ const t=ta.value; if (!urlsIn(t).length){ err.textContent='URLが見つかりません。https:// から始まるリンクを貼ってください。'; return; }
+    done(); sx.kw=''; openSearch(''); runUrls(t); };
+  document.body.appendChild(d); d.showModal(); ta.focus();
 }
