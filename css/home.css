@@ -188,10 +188,6 @@ body.gating .tabs,body.gating .crew,body.gating .modesw{display:none}
 .wc-imp{flex:none;flex-basis:auto;margin:0;padding:3px 10px;font-size:11.5px}
 .wc-pick{height:32px;box-sizing:border-box}
 .wc-sub{height:26px;min-height:0} .wc-imp{height:24px;line-height:1;box-sizing:border-box;display:inline-flex;align-items:center} .wc-head{height:32px;min-height:0}
-/* 飲み友 mode: the bar under the header follows the blue */
-html.fmode .withcap{background:color-mix(in srgb,#3E8EBF 10%,var(--card));border-color:color-mix(in srgb,#3E8EBF 35%,var(--line))}
-html.fmode .wc-pick{border-color:color-mix(in srgb,#3E8EBF 45%,var(--line))}
-html.fmode .wc-imp{color:#2F76A3;border-color:color-mix(in srgb,#3E8EBF 50%,var(--line))}
 /* QR window */
 .qrmodal{position:fixed;inset:0;z-index:40;background:var(--scrim,rgba(0,0,0,.45));display:grid;place-items:center;padding:20px}
 .qr-card{background:var(--card);border-radius:var(--r-xl);padding:20px;display:grid;justify-items:center;gap:10px;width:min(320px,100%);box-shadow:var(--shadow-2)}
@@ -209,3 +205,4 @@ html.fmode .wc-imp{color:#2F76A3;border-color:color-mix(in srgb,#3E8EBF 50%,var(
 .daruma.dm-prev{width:84px;height:87px}
 .wc-sub .wc-s{font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wc-head .wc-imp{margin-left:auto}
+.withcap{background:var(--card);border-color:var(--line)}

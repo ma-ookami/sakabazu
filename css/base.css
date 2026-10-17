@@ -67,17 +67,12 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center;justify-conten
 @media (prefers-reduced-motion:no-preference){ .skel i{animation:shimmer 1.4s linear infinite} }
 @keyframes shimmer{to{background-position:-150% 0}}
 .pagetitle{font-family:var(--serif);font-weight:700;font-size:24px;margin:20px 0 4px;letter-spacing:.04em}
-/* 飲み友 mode: a pond. pale blue water (a little deeper at the bottom) with a few small ripples, like drops */
-html.fmode{--bg:#E3F1F8;--faint:#D6EAF3;--line:#C3DBE7}
-@media (prefers-color-scheme:dark){ :root.fmode:not([data-theme="light"]){--bg:#0F1C26;--faint:#132430;--line:#24394B} }
-:root.fmode[data-theme="dark"]{--bg:#0F1C26;--faint:#132430;--line:#24394B}
-html.fmode body{background:
-    radial-gradient(circle at 82% 14%,transparent 0 26px,rgba(62,142,191,0.16) 27px 28.5px,transparent 29.5px 46.800000000000004px,rgba(62,142,191,0.096) 47.800000000000004px 49.300000000000004px,transparent 50.300000000000004px 70.2px,rgba(62,142,191,0.048) 71.2px 72.4px,transparent 73.4px),
-    radial-gradient(circle at 12% 38%,transparent 0 18px,rgba(62,142,191,0.14) 19px 20.5px,transparent 21.5px 32.4px,rgba(62,142,191,0.084) 33.4px 34.9px,transparent 35.9px 48.6px,rgba(62,142,191,0.042) 49.6px 50.800000000000004px,transparent 51.800000000000004px),
-    radial-gradient(circle at 70% 58%,transparent 0 34px,rgba(62,142,191,0.13) 35px 36.5px,transparent 37.5px 61.2px,rgba(62,142,191,0.078) 62.2px 63.7px,transparent 64.7px 91.80000000000001px,rgba(62,142,191,0.039) 92.80000000000001px 94.00000000000001px,transparent 95.00000000000001px),
-    radial-gradient(circle at 22% 82%,transparent 0 22px,rgba(62,142,191,0.14) 23px 24.5px,transparent 25.5px 39.6px,rgba(62,142,191,0.084) 40.6px 42.1px,transparent 43.1px 59.400000000000006px,rgba(62,142,191,0.042) 60.400000000000006px 61.60000000000001px,transparent 62.60000000000001px),
-    radial-gradient(circle at 90% 92%,transparent 0 16px,rgba(62,142,191,0.12) 17px 18.5px,transparent 19.5px 28.8px,rgba(62,142,191,0.072) 29.8px 31.3px,transparent 32.3px 43.2px,rgba(62,142,191,0.036) 44.2px 45.400000000000006px,transparent 46.400000000000006px),
-    linear-gradient(180deg,#EAF5FA 0%,#DCEEF6 60%,#CFE6F1 100%);
-  background-attachment:fixed}
-@media (prefers-color-scheme:dark){ :root.fmode:not([data-theme="light"]) body{background:linear-gradient(180deg,#112130,#0C1822);background-attachment:fixed} }
-:root.fmode[data-theme="dark"] body{background:linear-gradient(180deg,#112130,#0C1822);background-attachment:fixed}
+/* the page's quiet pattern says whose list it is: 市松 = mine, 鱗 = with a 飲み友 */
+body{background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='44' height='44'><rect width='22' height='22' fill='rgba(39,33,29,.035)'/><rect x='22' y='22' width='22' height='22' fill='rgba(39,33,29,.035)'/></svg>");background-attachment:fixed}
+html.fmode body{background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='36'><path d='M0 18L10 0L20 18ZM20 18L30 0L40 18ZM10 36L20 18L30 36Z' fill='rgba(39,33,29,.045)'/></svg>")}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) body{background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='44' height='44'><rect width='22' height='22' fill='rgba(255,255,255,.03)'/><rect x='22' y='22' width='22' height='22' fill='rgba(255,255,255,.03)'/></svg>")}
+  :root.fmode:not([data-theme="light"]) body{background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='36'><path d='M0 18L10 0L20 18ZM20 18L30 0L40 18ZM10 36L20 18L30 36Z' fill='rgba(255,255,255,.035)'/></svg>")}
+}
+:root[data-theme="dark"] body{background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='44' height='44'><rect width='22' height='22' fill='rgba(255,255,255,.03)'/><rect x='22' y='22' width='22' height='22' fill='rgba(255,255,255,.03)'/></svg>")}
+:root.fmode[data-theme="dark"] body{background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='36'><path d='M0 18L10 0L20 18ZM20 18L30 0L40 18ZM10 36L20 18L30 36Z' fill='rgba(255,255,255,.035)'/></svg>")}
