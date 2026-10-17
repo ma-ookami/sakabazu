@@ -19,13 +19,15 @@ function pinForm(label,onSave){
   f.onsubmit=e=>{ e.preventDefault(); if(!/^\d{4}$/.test(i.value)){ i.focus(); toast('4桁の数字を入れてください'); return; } busyBtn(b,()=>onSave(i.value)); };
   return f;
 }
+let setSub='me';   // 設定 tab: あなた / 友達 / だるま
 async function buildCrew(body){
   body.textContent='';
   if (mode!=='db'){ body.appendChild(el('p','hint','いまは記録をこの端末だけに保存しています(firebase-config.js が未設定)。メンバー機能を使うには、README の手順で Firebase を設定してください。')); return; }
   const mine=members[me]||{};
-  const nk=sec('あなた'); profileSec(nk,mine); body.appendChild(nk);
-  const fr=sec('友達','コードで友達になると、その人とのリストが見られます'); fr.id='secFriends'; friendsSec(fr); body.appendChild(fr);
-  const dm=sec('だるま','ホームにいるだるまの見た目。この端末に保存されます'); dm.id='secDaruma'; darumaMaker(dm); body.appendChild(dm);
+  segBar(body,[['me','あなた'],['friends','友達'],['daruma','だるま']],setSub,k=>{ setSub=k; });
+  if (setSub==='friends'){ const fr=sec('友達','コードで友達になると、その人とのリストが見られます'); fr.id='secFriends'; friendsSec(fr); body.appendChild(fr); }
+  else if (setSub==='daruma'){ const dm=sec('だるま','ホームにいるだるまの見た目。この端末に保存されます'); dm.id='secDaruma'; darumaMaker(dm); body.appendChild(dm); }
+  else { const nk=sec('あなた'); profileSec(nk,mine); body.appendChild(nk); }
 }
 
 /* the screen before you are in a group: start your own, join by invite, or come back as yourself */

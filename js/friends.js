@@ -121,16 +121,26 @@ function friendsSec(box){
   const cp=el('button','sbtn','コピー'); cp.type='button'; cp.disabled=true;
   cp.onclick=async()=>{ try{ await navigator.clipboard.writeText(fmtCode(myCode)); toast('コピーしました'); }catch{ toast(fmtCode(myCode)); } };
   mine.appendChild(cp); box.appendChild(mine);
-  box.appendChild(el('p','hint','友達にこのコードを伝えて、アプリの「友達を追加」に入れてもらうと友達になれます。のれんの名前を押すと、その人とのリスト(2人の行きたい店を合わせたもの)が見られます。'));
+  box.appendChild(el('p','hint','友達にこのコードを伝えて、下の「友達を追加」に入れてもらうと友達になれます。上の「友達と」から、その人とのリスト(2人の店を合わせたもの)が見られます。'));
   ensureCode().then(c=>{ cv.textContent=c?fmtCode(c):'作れませんでした'; cp.disabled=!c; });
 
-  const f=el('form','quick'); f.noValidate=true; f.style.margin='12px 0 6px';
-  const i=el('input','field'); i.placeholder='友達のコード(例: K7Q2-M9P)'; i.autocomplete='off'; i.maxLength=12; i.setAttribute('aria-label','友達のコード'); i.autocapitalize='characters';
-  const b=el('button','btn btn-red','追加'); b.type='submit'; f.append(i,b);
-  f.onsubmit=async e=>{ e.preventDefault(); if(!i.value.trim()){ i.focus(); return; } b.disabled=true;
+  // the code goes in 7 boxes (□□□□-□□□), one letter each; small letters turn capital.
+  // one real input lies over the boxes, so typing, deleting and pasting all just work
+  const f=el('form','codeform'); f.noValidate=true;
+  const cb=el('label','codebox'); const i=el('input','code-in'); i.autocomplete='off'; i.autocapitalize='characters'; i.spellcheck=false; i.maxLength=12;
+  i.setAttribute('aria-label','友達のコード(7文字)'); i.inputMode='text';
+  const cells=[]; for (let k=0;k<7;k++){ if(k===4) cb.appendChild(el('span','code-dash','-')); const c=el('span','code-c'); cells.push(c); cb.appendChild(c); }
+  cb.appendChild(i);
+  const b=el('button','btn btn-red','追加'); b.type='submit'; b.disabled=true;
+  const draw=()=>{ const v=cleanCode(i.value).slice(0,7); if(i.value!==v) i.value=v;
+    cells.forEach((c,k)=>{ c.textContent=v[k]||''; c.classList.toggle('cur', document.activeElement===i && k===Math.min(v.length,6)); });
+    b.disabled=v.length!==7; };
+  i.oninput=draw; i.onfocus=draw; i.onblur=draw;
+  f.append(cb,b);
+  f.onsubmit=async e=>{ e.preventDefault(); if(cleanCode(i.value).length!==7){ i.focus(); return; } b.disabled=true;
     const err=await addFriend(i.value); b.disabled=false;
     if (err){ toast(err); i.focus(); return; }
-    i.value=''; toast('友達になりました。のれんの名前から、2人のリストが見られます'); };
+    i.value=''; draw(); toast('友達になりました。「友達と」から2人のリストが見られます'); };
   box.appendChild(el('h4','fr-h','友達を追加')); box.appendChild(f);
 
   const ids=Object.keys(friends).sort((a,b)=>friends[a].at-friends[b].at);
@@ -196,4 +206,4 @@ function whoBar(v){
   }
   v.appendChild(bar);
 }
-function openFriends(){ setTab('set'); setTimeout(()=>{ const s=$('secFriends'); if(s) s.scrollIntoView({block:'start',behavior:'smooth'}); },80); }
+function openFriends(){ setSub='friends'; setTab('set'); }
