@@ -30,3 +30,27 @@
 .herem{width:16px;height:16px;border-radius:50%;background:#4285F4;border:3px solid #fff;box-shadow:0 0 0 6px rgba(66,133,244,.22),0 1px 3px rgba(0,0,0,.3)}/* long names: cut short on the map (the card below shows the full name) */
 .pinm .pl{max-width:7.5em;overflow:hidden;text-overflow:ellipsis}
 .pinm.sel .pl{max-width:14em}
+
+/* the picked shop's card, over the bottom of the map */
+.mapinfo{position:absolute;left:10px;right:10px;bottom:22px;z-index:3}
+.mapinfo:empty{display:none}
+.mapinfo .mapcard{margin:0;position:relative;padding:12px 14px;box-shadow:var(--shadow-2)}
+.mc-hd{display:grid;gap:2px;width:100%;text-align:left;background:none;border:0;padding:0 28px 0 0;color:inherit;font:inherit}
+.mc-hd .name{margin:0;font-size:17px}
+.mc-sub{font-size:12px;color:var(--sub)}
+.mc-hd .starline{margin-top:2px}
+.mc-hd .starline .stars{--sz:13px}
+.mc-hd .starline .st-v{font-size:13px}
+.mc-x{position:absolute;right:8px;top:6px;width:30px;height:30px;border:0;border-radius:50%;background:transparent;color:var(--sub);font-size:20px;line-height:1}
+.mapcard .acts{flex-wrap:wrap;gap:6px;margin-top:10px}
+.mapcard .acts .sbtn{font-size:12.5px;padding:6px 11px}
+.mc-gm{text-decoration:none;display:inline-flex;align-items:center}
+.mapinfo:not(:empty) ~ .mapattr{display:none}
+/* today's picks: a gold pin */
+.pinm.pick .pm-b{fill:var(--gold,#C9A14A);stroke:#fff;stroke-width:1.8}
+.pinm.pick .pm-d{fill:#fff}
+.pinm.pick{z-index:4}
+.map-pk{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);margin-left:4px}
+.map-pk::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 2px #fff,0 0 0 3px color-mix(in srgb,var(--gold) 50%,transparent)}
+.mapcard .acts{flex-wrap:nowrap}.mapcard .acts .sbtn{white-space:nowrap}
+.mapcard .acts{gap:5px}.mapcard .acts .sbtn{padding:6px 9px;min-width:0}

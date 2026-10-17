@@ -177,3 +177,5 @@ body.gating .tabs{display:none}
 .ua-in{width:100%;box-sizing:border-box;margin-top:8px;padding:10px;border:1px solid var(--line);border-radius:var(--r-md,10px);background:var(--card);color:var(--ink);font:inherit;font-size:14px;resize:vertical}
 .ua-err{margin:6px 0 0;min-height:1em;color:var(--red);font-size:12px}
 .urladd .actions{flex-wrap:wrap}
+/* first visit: the add button gently calls */
+@media (prefers-reduced-motion:no-preference){ .hact.nudge{animation:nudge 2.2s var(--ease-out) infinite} @keyframes nudge{0%,100%{box-shadow:var(--shadow-1),0 0 0 0 color-mix(in srgb,var(--red) 45%,transparent)}50%{box-shadow:var(--shadow-1),0 0 0 10px color-mix(in srgb,var(--red) 0%,transparent)}} }

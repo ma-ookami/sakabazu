@@ -16,7 +16,7 @@ function renderHome(v0){
   if (!readOnly){ const acts=el('div','homeacts'); const b=el('button','hact main'); const t=el('span','tb-t');
     t.innerHTML='<svg class="tb-ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>';
     t.appendChild(document.createTextNode('お店をリストに追加'));
-    b.append(t, el('span','tb-s','エリア・料理から探す')); b.onclick=goAdd; acts.appendChild(b);
+    b.append(t, el('span','tb-s','エリア・料理から探す')); b.onclick=goAdd; if (!myShops.length) b.classList.add('nudge'); acts.appendChild(b);
     const u=el('button','hact url'); u.append(el('span','ha-ic','🔗'), el('span','ha-t','URLで登録'), el('span','ha-s','LINEで送られたリンクなど')); u.onclick=openUrlAdd; acts.appendChild(u);
     v.appendChild(acts); }
 }

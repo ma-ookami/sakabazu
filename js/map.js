@@ -45,6 +45,7 @@ function renderMap(v){
   const all=located();
   const lg=el('div','chips'); lg.style.marginTop='18px';
   for (const [k,l] of [['went','行った'],['want','行きたい']]){ const n=all.filter(s=>statusOf(s)===k).length; const b=el('button','chip',`${l} ${n}`); b.setAttribute('aria-pressed',String(mapV.show[k])); b.onclick=()=>{ mapV.show[k]=!mapV.show[k]; render(); }; lg.appendChild(b); }
+  if (all.some(isPicked)) lg.appendChild(el('span','map-pk','今日の候補'));
   v.appendChild(lg);
   const wrap=el('div','mapwrap');
   if (!mlBox) mlBox=el('div','mlmap');
@@ -58,8 +59,8 @@ function renderMap(v){
   wrap.appendChild(ctl);
   if (!all.length) wrap.appendChild(el('div','mapempty','まだ位置を記録した店がありません。店の詳細の「場所」から記録できます。'));
   const at=el('a','mapattr','© OpenFreeMap © OpenStreetMap'); at.href='https://www.openstreetmap.org/copyright'; at.target='_blank'; at.rel='noopener noreferrer'; wrap.appendChild(at);
+  const info=el('div','mapinfo'); info.id='mapInfo'; wrap.appendChild(info);
   v.appendChild(wrap);
-  const info=el('div'); info.id='mapInfo'; v.appendChild(info);
   const un=shops.filter(s=>inWent(s)&&!s.loc);
   if (un.length){ const u=el('div','unloc'); u.appendChild(el('p','hint',`位置が未登録の行った店(${un.length}軒)`)); const c=el('div','chips'); un.forEach(s=>{ const b=el('button','chip',s.name||'(名前なし)'); b.onclick=()=>openDetail(s.id); c.appendChild(b); }); u.appendChild(c); v.appendChild(u); }
   renderMapInfo();
@@ -83,7 +84,7 @@ function syncPins(){
       m=new maplibregl.Marker({element:e, anchor:'bottom'}).setLngLat([s.loc.lng,s.loc.lat]).addTo(mlMap); mlMarkers.set(s.id,m);
     } else m.setLngLat([s.loc.lng,s.loc.lat]);
     const e=m.getElement(), went=statusOf(s)==='went', sel=s.id===mapV.sel;
-    e.classList.toggle('went',went); e.classList.toggle('sel',sel); e.classList.toggle('nolabel',many && !sel);
+    e.classList.toggle('went',went); e.classList.toggle('sel',sel); e.classList.toggle('pick',isPicked(s)); e.classList.toggle('nolabel',many && !sel);
     e.querySelector('.pl').textContent=s.name||''; e.setAttribute('aria-label',`${s.name||''}(${went?'行った':'行きたい'})`);
     e.style.zIndex = sel ? 3 : went ? 2 : 1;
   }
@@ -105,15 +106,22 @@ function scheduleMap(){ if (mlMap) mlMap.resize(); }
 function renderMapInfo(){
   const box=$('mapInfo'); if(!box) return; box.textContent='';
   const s=shops.find(x=>x.id===mapV.sel && x.loc); if(!s) return;
-  const c=el('article','mapcard'); const row=el('div','row'); const left=el('div');
-  left.appendChild(el('h3','name',s.name||'(名前なし)')); if(s.area) left.appendChild(el('div','area',s.area));
-  row.appendChild(left); row.appendChild(el('span','st',statusOf(s)==='went'?'行った':'行きたい')); c.appendChild(row);
-  { const sl=starLine(s); if(sl) c.appendChild(sl); }
-  if (statusOf(s)==='went'){ const mk=el('div','marks'); for(const it of ITEMS){ const m=avgMark(avg(s,it.k)); if(!m) continue; const sp=el('span',null,it.short); sp.appendChild(el('b',m==='◎'?'top':'',m)); mk.appendChild(sp); } if(mk.children.length) c.appendChild(mk); }
-  const tl=tagLine(s); if(tl) c.appendChild(tl);
-  const acts=el('div','acts'); const d=el('button','btn btn-ink','詳細を見る'); d.onclick=()=>openDetail(s.id);
-  const a=el('a','btn btn-line','地図で開く'); a.href=mapsUrl(s); a.target='_blank'; a.rel='noopener noreferrer';
-  acts.append(d,a); c.appendChild(acts); box.appendChild(c);
+  const went=statusOf(s)==='went';
+  const c=el('article','mapcard');
+  const x=el('button','mc-x','×'); x.type='button'; x.setAttribute('aria-label','閉じる'); x.onclick=()=>{ mapV.sel=null; syncPins(); renderMapInfo(); }; c.appendChild(x);
+  const hd=el('button','mc-hd'); hd.type='button'; hd.onclick=()=>openDetail(s.id);
+  hd.appendChild(el('h3','name',s.name||'(名前なし)'));
+  hd.appendChild(el('span','mc-sub',[went?'行った':'行きたい', genreOf(s), (hoursStatus(s)||{}).t].filter(Boolean).join('　')));
+  { const sl=starLine(s); if(sl) hd.appendChild(sl); }
+  c.appendChild(hd);
+  const acts=el('div','acts');
+  if (!readOnly && me){
+    if (!wentBy(s)[me]){ const g=el('button','sbtn sx-went','✓ 行った'); g.onclick=()=>wentWhen(s.id); acts.appendChild(g); }
+    const on=isPicked(s); const p=el('button','sbtn'+(on?'':' on'), on?'✓ 候補':'＋ 候補'); p.onclick=()=>{ togglePick(s); syncPins(); renderMapInfo(); }; acts.appendChild(p);
+  }
+  const d=el('button','sbtn','詳しく'); d.onclick=()=>openDetail(s.id); acts.appendChild(d);
+  const gm=el('a','sbtn mc-gm','マップ ↗'); gm.href=mapsUrl(s); gm.target='_blank'; gm.rel='noopener noreferrer'; acts.appendChild(gm);
+  c.appendChild(acts); box.appendChild(c);
 }
 function getHere(ok){
   if (!navigator.geolocation){ toast('この環境では位置情報を使えません。GoogleマップのURLを貼る方法を使ってください'); ok(null); return; }
