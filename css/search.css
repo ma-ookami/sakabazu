@@ -48,3 +48,11 @@
 .g-price{color:var(--ink);font-weight:700;margin-left:4px}
 .sx-tx .starline{margin-top:2px}
 .sx-filters[hidden]{display:none}
+/* 貼ったURL: one row per link */
+.sx-urls{list-style:none;margin:0;padding:0}
+.sx-uitem{padding:12px 2px;border-bottom:1px solid var(--line)}
+.sx-uitem p{margin:0}
+.sx-ok{font-weight:700;color:#2E7D4F}
+.sx-ng{font-size:13px;color:var(--red)}
+.sx-uitem .sx-urlu{font-size:11px;margin-top:4px;opacity:.8}
+.sx-uitem .quickadd{margin-top:8px}
