@@ -217,29 +217,18 @@ body.gating .tabs,body.gating .crew,body.gating .modesw{display:none}
 .withcap .wc-seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 .withcap .wc-head{height:auto;min-height:32px}
 .pick-h{font-family:var(--serif);font-weight:700;font-size:24px;margin:6px 0 0;letter-spacing:.04em}
-.pick-inline .seg{display:flex;width:100%;margin:0}
-.pick-inline .seg button{flex:1;padding:7px 4px;font-size:12.5px;white-space:nowrap}
 .subseg{margin:10px 0 2px}
 /* 決める */
-.decide{gap:18px}
 .wholine{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .wholine .wc-q{font-weight:700;font-size:15px}
 .wholine .wc-seg{background:var(--faint);border:1px solid var(--line);padding:3px}
 .wholine .wc-seg button{color:var(--sub);padding:6px 14px}
 .wholine .wc-seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 .wholine .who-av{width:20px;height:20px;font-size:10px}
-.dc-sec{display:grid;gap:8px}
-.dc-h{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
-.dc-t{margin:0;font-family:var(--serif);font-weight:700;font-size:20px;letter-spacing:.03em}
-.dc-dice{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;font-weight:700;color:var(--ink);box-shadow:var(--shadow-1)}
-.dc-tg{display:flex;gap:6px;flex-wrap:wrap}
+.dc-tg{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
 .dc-tg .chip{padding:5px 12px}
 .dc-fb.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.dc-empty{margin:0;padding:14px;border:1.5px dashed var(--line);border-radius:var(--r-lg);color:var(--sub);font-size:13px;line-height:1.6}
-.dc-roll{display:grid;gap:4px;padding:12px 14px;border-radius:var(--r-lg);background:var(--indigo);color:var(--on-indigo)}
-.dc-rk{font-size:12px;opacity:.8}
-.dc-rn{font-family:var(--serif);font-size:20px}
-.dc-rb{display:flex;gap:6px;margin-top:4px}
-.dc-rb .sbtn{box-shadow:none}
-@media (prefers-reduced-motion:no-preference){ .dc-roll.fresh{animation:dcIn .35s var(--ease-spring)} @keyframes dcIn{from{transform:scale(.94);opacity:0}} }
-.decide .pk-bar{margin:0}
+#pBody .pk-seg{display:flex;width:100%;margin:0}
+#pBody .pk-seg button{flex:1;padding:8px 4px}
+#pBody .pk-bar{margin-top:10px}
+#pBody .pk-seg+.hint{margin-top:12px}
