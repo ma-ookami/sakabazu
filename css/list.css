@@ -116,3 +116,12 @@
 .starline{display:flex;align-items:center;gap:8px;margin-top:12px}
 .starline .st-v{font-size:16px;font-variant-numeric:tabular-nums}
 .starline small{font-size:12px;color:var(--sub)}
+/* 「お店を探して追加」: a clear button that opens the search screen */
+.addbar{display:grid;grid-template-columns:auto 1fr auto;grid-template-rows:auto auto;column-gap:12px;align-items:center;width:100%;margin:16px 0 0;padding:12px 16px;
+  border:0;border-radius:var(--r-lg);background:var(--red);color:var(--on-red);text-align:left;font:inherit;box-shadow:var(--shadow-1)}
+.addbar svg{grid-row:1 / span 2;width:24px;height:24px}
+.ab-t{font-family:var(--brush);font-size:19px;letter-spacing:.04em;line-height:1.25}
+.ab-s{grid-column:2;font-size:11.5px;opacity:.8}
+.ab-go{grid-column:3;grid-row:1 / span 2;font-size:26px;line-height:1;opacity:.8}
+@media (prefers-reduced-motion:no-preference){ .addbar:active{transform:scale(.98)} }
+.pk-bar{margin-bottom:12px}

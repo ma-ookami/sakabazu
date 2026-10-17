@@ -2,22 +2,6 @@
 const listF={at:'',genre:'',star:0};   // the lists' 時間 / ジャンル / 星 (same pickers as 今日どこ行く?)
 async function renderWant(v){
   if (!readOnly){
-    // a plain search bar that opens the search screen
-    const sb=el('button','findbar'); sb.type='button';
-    sb.append(el('span','fb-ic','🔍'), el('span','fb-ph','お店を探す(エリア・料理・店名)'));
-    sb.onclick=()=>openSearch('');
-    v.appendChild(sb);
-    // shops the search can't find: type the name or paste a Google Maps link
-    const man=el('details','manual'); man.open=manualOpen; man.ontoggle=()=>{ manualOpen=man.open; if(man.open){ const q=$('quick'); if(q) q.focus(); } };
-    man.appendChild(el('summary',null,'見つからない店は、名前かGoogleマップのURLで追加'));
-    const f=el('form','quick quickadd'); f.noValidate=true;
-    const lab=el('label','sr','店名かGoogleマップのURL'); lab.htmlFor='quick';
-    const i=el('input','field'); i.id='quick'; i.placeholder='店名、またはGoogleマップのURL'; i.maxLength=2000; i.autocomplete='off'; i.value=quickVal; i.oninput=()=>{ quickVal=i.value; };
-    const b=el('button','btn btn-red','追加'); b.type='submit';
-    f.append(lab,i,b);
-    f.onsubmit=async e=>{ e.preventDefault(); const raw=i.value.trim(); if(!raw){ i.focus(); return; }
-      if (await addManual(raw)){ i.value=''; quickVal=''; } $('quick') && $('quick').focus(); };
-    man.appendChild(f); v.appendChild(man);
     v.appendChild(el('p','hint','カードは右にスワイプで「行った」、左で外せます。'));
   }
   let arr=shops.filter(inWant);
@@ -154,4 +138,14 @@ async function addManual(raw){
   }
   const [name,area='']=raw.split(/[@＠]/).map(x=>x.trim()); if(!name) return false;
   return !!(await addOrBump(name,area));
+}
+
+// the list's add button (above 行きたい / 行った): opens the search screen, so it looks like a button, not a text box
+function addBar(v){
+  if (readOnly) return;
+  const b=el('button','addbar'); b.type='button';
+  b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>';
+  b.append(el('span','ab-t','お店を探して追加'), el('span','ab-s','エリア・料理・店名・URL'), el('span','ab-go','›'));
+  b.onclick=()=>openSearch('');
+  v.appendChild(b);
 }

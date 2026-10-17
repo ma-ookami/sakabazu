@@ -24,7 +24,7 @@ function render(){
   if (tab==='set'){ v.appendChild(el('h2','pagetitle','設定')); const b=el('div'); b.id='setBody'; v.appendChild(b); buildCrew(b); return; }
   whoBar(v);
   if (tab==='home') renderHome(v);
-  else if (tab==='list'){ listSeg(v); if(listSub==='want') renderWant(v); else renderWent(v); }
+  else if (tab==='list'){ addBar(v); listSeg(v); if(listSub==='want') renderWant(v); else renderWent(v); }
   else if (tab==='rec'){ recSeg(v); const sub=el('div'); v.appendChild(sub); if(recSub==='cal') renderCal(sub); else if(recSub==='rank') renderRank(sub); else renderScore(sub); }
   else renderMap(v);
   if (keep){ const n=$('quick'); if(n){ n.focus(); try{ n.setSelectionRange(keep.s,keep.e); }catch{} } }
