@@ -67,3 +67,13 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center;justify-conten
 @media (prefers-reduced-motion:no-preference){ .skel i{animation:shimmer 1.4s linear infinite} }
 @keyframes shimmer{to{background-position:-150% 0}}
 .pagetitle{font-family:var(--serif);font-weight:700;font-size:24px;margin:20px 0 4px;letter-spacing:.04em}
+/* 飲み友 mode: pale blue, with big faint ripples behind everything */
+html.fmode{--bg:#E8F2F8;--faint:#DCEAF2;--line:#C9DCE7}
+@media (prefers-color-scheme:dark){ :root.fmode:not([data-theme="light"]){--bg:#0F1A24;--faint:#13212E;--line:#24394B} }
+:root.fmode[data-theme="dark"]{--bg:#0F1A24;--faint:#13212E;--line:#24394B}
+html.fmode body{transition:background-color .4s}
+html.fmode::before,html.fmode body::after{content:"";position:fixed;z-index:-1;pointer-events:none;border-radius:50%;
+  background:repeating-radial-gradient(circle,transparent 0 58px,color-mix(in srgb,#3E8EBF 13%,transparent) 59px 61px,transparent 62px 118px);
+  -webkit-mask:radial-gradient(circle,#000 30%,transparent 70%);mask:radial-gradient(circle,#000 30%,transparent 70%)}
+html.fmode::before{width:1000px;height:1000px;right:-480px;top:80px}
+html.fmode body::after{width:1100px;height:1100px;left:-560px;bottom:-460px}

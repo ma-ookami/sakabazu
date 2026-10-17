@@ -19,6 +19,8 @@ function render(){
   if (tab==='set' && $('setBody') && $('setBody').contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName) && mode==='db') return;
   const ae=document.activeElement; const keep=(ae&&ae.id==='quick')?{s:ae.selectionStart,e:ae.selectionEnd}:null;
   const v=$('view'); v.textContent=''; document.body.classList.toggle('gating', mode==='gate');
+  // looking with a 飲み友: the whole screen turns pale blue (with big faint ripples), so it reads as another mode
+  document.documentElement.classList.toggle('fmode', mode==='db' && friendMode);
   if (mode==='gate'){ renderGate(v); return; }
   if (mode==='loading'){ const k=el('div','skel'); k.setAttribute('role','status'); k.setAttribute('aria-label','読み込み中'); for(const h of [96,132,132,132]){ const i=el('i'); i.style.setProperty('--h',h+'px'); k.appendChild(i); } v.appendChild(k); return; }
   if (tab==='set'){ v.appendChild(el('h2','pagetitle','設定')); const b=el('div'); b.id='setBody'; v.appendChild(b); buildCrew(b); return; }
