@@ -73,8 +73,6 @@ function fetchFriend(f){
     if (v.nick) friends[f].nick=String(v.nick).slice(0,20); if (v.ic && typeof v.ic==='object') friends[f].ic=v.ic; render(); }).catch(()=>{});
 }
 function stopFriendSubs(){ for (const f of Object.keys(fSubs)){ try{ fSubs[f](); }catch{} } fSubs={}; fShops={}; }
-// pick a friend's list (tap the same one again to go back to only mine)
-function toggleMix(f){ mix = mix.has(f) ? new Set() : new Set([f]); saveMix(); syncFriendSubs(); rebuildShops(); buzz(); render(); window.scrollTo({top:0}); }
 
 // my 友達コード: one per device, made the first time it is needed
 async function ensureCode(){
@@ -105,7 +103,7 @@ async function addFriend(raw){
   b.set(fs.doc(`groups/${v.gid}/friends/${uid}`),{gid, mid:me, nick:(members[me]&&members[me].nick)||'', code:c, at:Date.now()});
   b.set(fs.doc(gpath('friends/'+v.mid)),{gid:v.gid, mid:v.mid, nick:String(v.nick||'友達').slice(0,20), at:Date.now()});
   try{ await b.commit(); }catch(e){ console.warn(e); return '追加できませんでした('+(e.code||'error')+')'; }
-  mix=new Set([v.mid]); saveMix();
+  friendMode=true; lastFriend=v.mid; mix=new Set([v.mid]); saveMix(); saveWho();
   return '';
 }
 async function removeFriend(f){
@@ -147,38 +145,55 @@ function friendsSec(box){
   }
 }
 
-// under the logo: two choices, 自分 / 友達と. 友達と opens a small list to pick who (and to add friends),
-// so the header looks the same however many friends there are
+// header: 自分のリスト | 友達と. picking who happens in the bar under the header (whoBar),
+// which is also where you switch friends later. the last friend is remembered
+let friendMode = (()=>{ try{ return localStorage.getItem('nm-fmode')==='1'; }catch{ return false; } })();
+let lastFriend = (()=>{ try{ return localStorage.getItem('nm-lastf')||''; }catch{ return ''; } })();
+let whoOpen=false;
+if (!friendMode) mix.clear(); else if (!mix.size && lastFriend) mix.add(lastFriend);   // start the way it was left
+const saveWho = () => { try{ localStorage.setItem('nm-fmode',friendMode?'1':''); localStorage.setItem('nm-lastf',lastFriend||''); }catch{} };
+function setWho(fm,f){
+  friendMode=fm; if (f) lastFriend=f;
+  mix = (fm && lastFriend && friends[lastFriend]) ? new Set([lastFriend]) : new Set();
+  whoOpen = fm && !mix.size;   // friend mode without a friend yet: show the choices
+  saveMix(); saveWho(); syncFriendSubs(); rebuildShops(); buzz(); render();
+}
 function renderFlaps(){
   const nav=$('flaps'); if(!nav) return; nav.textContent='';
   if (!(mode==='db' && !!me && !!members[me])) return;
-  const wf=mixedFriends()[0];
   const seg=el('div','whoseg'); seg.setAttribute('role','group'); seg.setAttribute('aria-label','見るリスト');
-  const mine=el('button',null,'自分のリスト'); mine.type='button'; mine.setAttribute('aria-pressed',String(!wf));
-  mine.onclick=()=>{ closeWho(); if(!mix.size) return; mix.clear(); saveMix(); syncFriendSubs(); rebuildShops(); buzz(); render(); window.scrollTo({top:0}); };
-  const fr=el('button',null); fr.type='button'; fr.setAttribute('aria-pressed',String(!!wf)); fr.setAttribute('aria-haspopup','listbox');
-  fr.appendChild(document.createTextNode('友達と'));   // who it is shows in the line under the header (「けんとのリスト」)
-  fr.appendChild(el('span','who-c','▾'));
-  fr.onclick=e=>{ e.stopPropagation(); toggleWho(); };
+  const mine=el('button',null,'自分のリスト'); mine.type='button'; mine.setAttribute('aria-pressed',String(!friendMode));
+  mine.onclick=()=>{ if(friendMode) setWho(false); };
+  const fr=el('button',null,'友達と'); fr.type='button'; fr.setAttribute('aria-pressed',String(friendMode));
+  fr.onclick=()=>{ if(!friendMode) setWho(true); else { whoOpen=!whoOpen; render(); } };
   seg.append(mine,fr); nav.appendChild(seg);
-  const menu=el('div','whomenu'); menu.id='whoMenu'; menu.hidden=true; menu.setAttribute('role','listbox'); menu.setAttribute('aria-label','誰とのリストを見るか');
-  nav.appendChild(menu);
 }
-function toggleWho(open){
-  const m=$('whoMenu'); if(!m) return; open = open ?? m.hidden;
-  if (open){
-    m.textContent='';
-    const ids=Object.keys(friends).sort((a,b)=>friends[a].at-friends[b].at);
-    if (!ids.length) m.appendChild(el('p','who-empty','まだ友達がいません。友達コードで追加すると、その人とのリストが見られます。'));
-    for (const f of ids){ const b=el('button','who-i'); b.type='button'; b.setAttribute('role','option'); b.setAttribute('aria-selected',String(mix.has(f)));
-      b.append(avatar({},friends[f].mid,'who-av'), el('span',null,friends[f].nick+'とのリスト'));
-      if (mix.has(f)) b.appendChild(el('span','who-ck','✓'));
-      b.onclick=()=>{ closeWho(); if(!mix.has(f)) toggleMix(f); }; m.appendChild(b); }
-    const add=el('button','who-i who-add','＋ 友達を追加'); add.type='button'; add.onclick=()=>{ closeWho(); openFriends(); }; m.appendChild(add);
+// the bar under the header, on every tab: whose list this is, and (in friend mode) who to look at with
+function whoBar(v){
+  if (!(mode==='db' && !!me && !!members[me])) return;
+  const bar=el('div','withcap'+(friendMode?'':' me'));
+  if (!friendMode){
+    bar.append(el('span','wc-t','👤 自分のリスト'), el('span','wc-s','あなたの行きたい店・行った店'));
+    v.appendChild(bar); return;
   }
-  m.hidden=!open;
+  const ids=Object.keys(friends).sort((a,b)=>friends[a].at-friends[b].at), wf=mixedFriends()[0];
+  const head=el('div','wc-head');
+  if (wf){
+    const pick=el('button','wc-pick'); pick.type='button'; pick.setAttribute('aria-expanded',String(whoOpen));
+    pick.append(avatar({},friends[wf].mid,'who-av'), el('span',null,friends[wf].nick), el('span','who-c','▾'));
+    pick.onclick=()=>{ whoOpen=!whoOpen; render(); };
+    head.append(el('span','wc-t','🤝'), pick, el('span','wc-t','とのリスト'));
+    head.appendChild(el('span','wc-s', fDenied[wf] ? '(相手のリストを読めません)' : '2人の店を合わせて表示'));
+  } else head.appendChild(el('span','wc-t', ids.length ? '🤝 誰とのリストを見る?' : '🤝 友達がまだいません'));
+  bar.appendChild(head);
+  if (whoOpen || !wf){
+    const ch=el('div','wc-list');
+    for (const f of ids){ const b=el('button','chip wc-f'); b.type='button'; b.setAttribute('aria-pressed',String(f===wf));
+      b.append(avatar({},friends[f].mid,'who-av'), el('span',null,friends[f].nick));
+      b.onclick=()=>{ whoOpen=false; setWho(true,f); }; ch.appendChild(b); }
+    const add=el('button','chip wc-add','＋ 友達を追加'); add.type='button'; add.onclick=()=>{ whoOpen=false; openFriends(); }; ch.appendChild(add);
+    bar.appendChild(ch);
+  }
+  v.appendChild(bar);
 }
-function closeWho(){ toggleWho(false); }
-document.addEventListener('click',e=>{ const m=$('whoMenu'); if(m && !m.hidden && !m.contains(e.target)) closeWho(); });
-document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeWho(); });
 function openFriends(){ setTab('set'); setTimeout(()=>{ const s=$('secFriends'); if(s) s.scrollIntoView({block:'start',behavior:'smooth'}); },80); }
