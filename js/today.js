@@ -55,7 +55,7 @@ function todayCands(){
     if (!c){ c={key:k, name:d.name||'', by:new Set(), time:''}; map.set(k,c); }
     c.by.add(who); if (who===me) c.mine=d; if (!c.name && d.name) c.name=d.name; if (d.time && !c.time) c.time=d.time; };
   for (const d of myPickDocs()) add(d,me);
-  const wf=mixedFriends()[0]; if (wf) for (const d of fToday[wf]||[]) add(d,wf);
+  const wf=activeFriends()[0]; if (wf) for (const d of fToday[wf]||[]) add(d,wf);
   for (const c of map.values()){ c.shop=shops.find(s=>shopKey(s)===c.key) || shops.find(s=>c.mine && s.id===c.mine.shopId) || null; if(!c.name && c.shop) c.name=c.shop.name; }
   return [...map.values()].sort((a,b)=>b.by.size-a.by.size || (b.by.has(me)-a.by.has(me)));
 }
@@ -83,7 +83,7 @@ function pickBtn(s){
   b.onclick=e=>{ e.stopPropagation(); togglePick(s); }; return b;
 }
 function todayBlock(v){
-  const wf=mixedFriends()[0], cs=todayCands();
+  const wf=activeFriends()[0], cs=todayCands();
   const b=el('button','todaybtn'); b.onclick=()=>openPick(cs.length?'today':null);
   b.append(el('span','tb-t', wf ? `${friends[wf].nick}とどこ行く?` : '今日どこ行く?'));
   if (cs.length){
@@ -97,7 +97,8 @@ async function shareShop(s,time){
   try{ if(navigator.share){ await navigator.share({text}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
   try{ await navigator.clipboard.writeText(text); toast('メッセージをコピーしました。LINEなどに貼って送れます'); }catch{ toast('コピーできませんでした'); }
 }
-function openPick(src){ pick.chosen=null; pick.proposing=null; if (src) pick.src=src; const wf=mixedFriends()[0]; $('pTitle').textContent = wf ? `${friends[wf].nick}とどこ行く?` : '今日どこ行く?'; showSheet('pickSheet'); buildPick(); $('pBack').focus({preventScroll:true}); }
+// 今日どこ行く? lives on the 決める tab now
+function openPick(src){ pick.chosen=null; pick.proposing=null; if (src) pick.src=src; setTab('home'); }
 function closePick(){ hideSheet('pickSheet'); }
 function omakase(cands){
   if (!cands.length) return;
@@ -118,7 +119,7 @@ function omakase(cands){
     .finished.then(()=>{ if(isOpen('pickSheet')) land(); },()=>{});
 }
 function buildPick(){
-  const b=$('pBody'); if(!b) return;
+  const b = isOpen('pickSheet') ? $('pBody') : $('pickInline'); if(!b) return;
   const ae=document.activeElement; if (ae && b.contains(ae) && ae.tagName==='INPUT') return;
   b.textContent='';
   const seg=el('div','seg'); seg.setAttribute('role','group'); seg.setAttribute('aria-label','探す場所');
@@ -152,7 +153,7 @@ function buildPick(){
 }
 // the 今日の候補 tab: mine and the 飲み友's picks together; shops both picked come first, marked 🍻
 function todayTab(b){
-  const wf=mixedFriends()[0], cs=todayCands();
+  const wf=activeFriends()[0], cs=todayCands();
   b.appendChild(el('p','hint', wf ? `あなたと${friends[wf].nick}が出した今日の候補。いいと思ったら「＋ 私も」。2人とも選んだ店が「🍻 2人ともOK」になります。`
     : '今日の候補。「飲み友と」に切り替えると、相手の候補と合わせて見られます。'));
   if (!cs.length){ b.appendChild(el('p','empty','まだ候補がありません。「両方」「行きたい」「行った」のタブで「＋ 候補」を押して入れてください。')); return; }

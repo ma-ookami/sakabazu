@@ -5,6 +5,8 @@ let myShops=[], friends={}, fShops={}, fDenied={}, fSubs={}, myCode='';
 // the friend whose list I'm looking at together with mine (one at a time: "けんとのリスト")
 let mix = new Set((()=>{ try{ return JSON.parse(localStorage.getItem('nm-mix')||'[]').slice(0,1); }catch{ return []; } })());
 const saveMix = () => { try{ localStorage.setItem('nm-mix',JSON.stringify([...mix])); }catch{} };
+// on screen only on the 決める tab; lists and map always show just mine
+const activeFriends = () => tab==='home' ? mixedFriends() : [];
 const mixedFriends = () => [...mix].filter(f=>friends[f]);
 const friendByMid = mid => Object.values(friends).find(f=>f.mid===mid);
 const isFriendShop = s => !!(s && s._friend);
@@ -14,7 +16,7 @@ const cleanCode = s => (s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
 
 // the list the screens show
 function rebuildShops(){
-  const fr=mixedFriends();
+  const fr=activeFriends();
   if (!fr.length){ shops=myShops; return; }
   const key = s => (s.hp&&s.hp.id) ? 'hp:'+s.hp.id : 'n:'+norm(s.name||'');
   const out=myShops.map(s=>({...s, wants:{...(s.wants||{})}, went:(s.went&&typeof s.went==='object')?{...s.went}:wentBy(s), r:{...(s.r||{})}}));
@@ -207,10 +209,15 @@ function renderFlaps(){
 function whoBar(v){
   if (!(mode==='db' && !!me && !!members[me])) return;
   const bar=el('div','withcap'+(friendMode?'':' me'));
+  // 誰と行く? 1人で / 飲み友と
+  const seg=el('div','whoseg wc-seg'); seg.setAttribute('role','group'); seg.setAttribute('aria-label','誰と行く?');
+  const one=el('button',null,'1人で'); one.type='button'; one.setAttribute('aria-pressed',String(!friendMode)); one.onclick=()=>{ if(friendMode) setWho(false); };
+  const two=el('button',null,'飲み友と'); two.type='button'; two.setAttribute('aria-pressed',String(friendMode)); two.onclick=()=>{ if(!friendMode) setWho(true); else { whoOpen=!whoOpen; render(); } };
+  seg.append(one,two);
+  const top=el('div','wc-top'); top.append(el('span','wc-q','誰と行く?'), seg); bar.appendChild(top);
   if (!friendMode){
-    const h=el('div','wc-head'); h.appendChild(el('span','wc-t','👤 自分のリスト'));
-    const sub=el('div','wc-sub'); sub.appendChild(el('span','wc-s','あなたの店だけを表示'));
-    bar.append(h,sub); v.appendChild(bar); return;
+    const sub=el('div','wc-sub'); sub.appendChild(el('span','wc-s','あなたの行きたい店・行った店から探します'));
+    bar.appendChild(sub); v.appendChild(bar); return;
   }
   const ids=Object.keys(friends).sort((a,b)=>friends[a].at-friends[b].at), wf=mixedFriends()[0];
   const head=el('div','wc-head');
@@ -219,7 +226,7 @@ function whoBar(v){
     pick.append(avatar({},friends[wf].mid,'who-av'), el('span',null,friends[wf].nick), el('span','who-c','▾'));
     pick.onclick=()=>{ whoOpen=!whoOpen; render(); };
     head.append(el('span','wc-t','🤝'), pick, el('span','wc-t','とのリスト'));
-    var sub=el('div','wc-sub'); sub.appendChild(el('span','wc-s', fDenied[wf] ? '(相手のリストを読めません)' : '2人の店を表示。メモやひとことは共有なし'));
+    var sub=el('div','wc-sub'); sub.appendChild(el('span','wc-s', fDenied[wf] ? '(相手のリストを読めません)' : '2人の店から探します。メモやひとことは共有なし'));
     const only=shops.filter(x=>x._friend===wf);
     if (only.length && !readOnly){ const ib=el('button','wc-imp',`取り込む(${only.length})`); ib.title=`${friends[wf].nick}の店を自分のリストへ`; ib.type='button';
       ib.onclick=async()=>{ if(!(await ask(`${friends[wf].nick}の店${only.length}軒を、自分の「行きたい」に入れます。`,'入れる'))) return; importToMine(only.map(x=>x.id)); }; head.appendChild(ib); }

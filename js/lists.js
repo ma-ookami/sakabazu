@@ -42,7 +42,10 @@ async function renderWant(v){
   fillFaces(slots);
 }
 
+let wentView='list';   // 行った: the list, or the calendar of visits
 function renderWent(v){
+  segBar(v,[['list','リスト'],['cal','カレンダー']],wentView,k=>{ wentView=k; },'subseg');
+  if (wentView==='cal'){ const sub=el('div'); v.appendChild(sub); renderCal(sub); return; }
   if (!readOnly) v.appendChild(el('p','hint','カードは右にスワイプで「行きたい」に戻す、左で外せます。'));
   filterBar(v,listF,shops.filter(inWent),render);
   let arr=shops.filter(inWent).filter(s=>fMatch(s,listF));
@@ -94,7 +97,7 @@ async function renderRank(v){
   const ids = groupMode() ? [...new Set([me,...Object.keys(members),...holders.filter(u=>members[u])].filter(Boolean))] : [me].filter(Boolean);
   if (!rankWho || !ids.includes(rankWho)) rankWho = me || ids[0] || null;
   const ps=await people(ids);
-  if (tab!=='rec' || recSub!=='rank' || !v.isConnected) return;
+  if (tab!=='set' || setSub!=='rank' || !v.isConnected) return;
   v.textContent='';
   if (!ids.length){ const e=el('div','empty'); e.appendChild(el('span','mincho','ランキングはまだありません')); v.appendChild(e); return; }
   const row=el('div','people'); row.setAttribute('role','group'); row.setAttribute('aria-label','誰のランキング');

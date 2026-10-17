@@ -209,3 +209,14 @@ body.gating .tabs,body.gating .crew,body.gating .modesw{display:none}
 /* color swatches: wrap again (the one-row rule is for the だるま parts), and never squeeze the circles */
 .dm-prow .chips.dm-colors{flex-wrap:wrap;overflow:visible}
 .dm-sw{flex:none}
+/* 決める: 誰と行く? on top, then 今日どこ行く? on the page */
+.wc-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.wc-q{font-weight:700;font-size:14px}
+.withcap .wc-seg{background:var(--faint);border:1px solid var(--line);padding:3px}
+.withcap .wc-seg button{color:var(--sub);padding:6px 14px}
+.withcap .wc-seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.withcap .wc-head{height:auto;min-height:32px}
+.pick-h{font-family:var(--serif);font-weight:700;font-size:24px;margin:6px 0 0;letter-spacing:.04em}
+.pick-inline .seg{display:flex;width:100%;margin:0}
+.pick-inline .seg button{flex:1;padding:7px 4px;font-size:12.5px;white-space:nowrap}
+.subseg{margin:10px 0 2px}

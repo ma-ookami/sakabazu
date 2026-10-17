@@ -41,7 +41,7 @@ const $ = id => document.getElementById(id);
 const el = (tag, cls, text) => { const e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; };
 
 // whose wants/went count on screen: me, plus the friends I mix in
-function SP(){ if(mode!=='db') return null; const P=new Set([me]); for(const f of mixedFriends()) P.add(friends[f].mid); return P; }
+function SP(){ if(mode!=='db') return null; const P=new Set([me]); for(const f of activeFriends()) P.add(friends[f].mid); return P; }
 function legacyWent(s){ if(s.status==='want') return {}; const o={}; const d=s.wentDate||true; for(const u of new Set([s.createdBy,...recorders(s)].filter(Boolean))) o[u]=d; return o; }
 function wentBy(s){ if(s.went && typeof s.went==='object'){ const o={}; for(const u in s.went) if(s.went[u]) o[u]=s.went[u]; return o; } return legacyWent(s); }
 function wantBy(s){ const w=wentBy(s); return Object.keys(s.wants||{}).filter(u=>s.wants[u] && !w[u]); }

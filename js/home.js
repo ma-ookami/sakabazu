@@ -1,31 +1,21 @@
 /* ---------- structure: mode, home, list, records ---------- */
 // mixed view: at least one friend's list is mixed in (then we show who wants what)
-const groupMode = () => mode==='db' && !!me && mixedFriends().length>0;
+const groupMode = () => mode==='db' && !!me && activeFriends().length>0;
 function segBar(v,items,cur,onPick,cls){
   const seg=el('div','seg topseg'+(cls?' '+cls:'')); seg.setAttribute('role','group');
   for (const [k,l] of items){ const b=el('button',null,l); b.setAttribute('aria-pressed',String(cur===k)); b.onclick=()=>{ if(cur!==k) withTransition(()=>{ onPick(k); render(); window.scrollTo({top:0}); }); }; seg.appendChild(b); }
   v.appendChild(seg);
 }
 function listSeg(v){ segBar(v,[['want',`行きたい ${shops.filter(inWant).length}`],['went',`行った ${shops.filter(inWent).length}`]],listSub,k=>{ listSub=k; }); }
-function recSeg(v){ if(recSub==='score') recSub='cal'; segBar(v,[['cal','カレンダー'],['rank','ランキング']],recSub,k=>{ recSub=k; }); }
 function goAdd(){ listSub='want'; setTab('list'); openSearch(''); }
 function renderHome(v0){
-  // one column with the same gap between every block
   const v=el('div','homestack'); v0.appendChild(v);
   darumaGreet(v);
-  todayBlock(v);
-  hero(v);
-  // what you can do from here
-  const acts=el('div','homeacts');
-  const act=(ic,t,sub,fn,cls)=>{ const b=el('button','hact'+(cls?' '+cls:'')); b.append(el('span','ha-ic',ic), el('span','ha-t',t)); if(sub) b.appendChild(el('span','ha-s',sub)); b.onclick=fn; acts.appendChild(b); };
-  if (!readOnly){ const b=el('button','hact main'); const t=el('span','tb-t');
-    t.innerHTML='<svg class="tb-ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>';
-    t.appendChild(document.createTextNode('お店をリストに追加'));
-    b.append(t, el('span','tb-s','エリア・料理・URLから探す')); b.onclick=goAdd; acts.appendChild(b); }
-  act('🏮','行きたい店',`${shops.filter(inWant).length}軒`,()=>{ listSub='want'; setTab('list'); });
-  act('📒','行った店',`${shops.filter(inWent).length}軒`,()=>{ recSub='cal'; setTab('rec'); });
-  act('🗺️','地図','近くの店',()=>setTab('map'));
-  v.appendChild(acts);
+  whoBar(v);
+  const wf=activeFriends()[0];
+  v.appendChild(el('h2','pick-h', wf ? `${friends[wf].nick}とどこ行く?` : '今日どこ行く?'));
+  const host=el('div','pick-inline'); host.id='pickInline'; v.appendChild(host);
+  buildPick();
 }
 async function renderScore(v){
   const g=groupMode(); const P=SP();

@@ -1,9 +1,10 @@
 /* ---------- render ---------- */
-function setTab(t){ withTransition(()=>{ tab=t; for(const b of document.querySelectorAll('.tab[data-tab]')) b.setAttribute('aria-selected', String(b.dataset.tab===t)); render(); window.scrollTo({top:0}); }); }
+function setTab(t){ withTransition(()=>{ tab=t; rebuildShops(); for(const b of document.querySelectorAll('.tab[data-tab]')) b.setAttribute('aria-selected', String(b.dataset.tab===t)); render(); window.scrollTo({top:0}); }); }
 document.querySelectorAll('.tab[data-tab]').forEach(b => b.onclick = () => setTab(b.dataset.tab));
 
 function counts(){
-  const w=shops.filter(inWant).length, g=shops.filter(inWent).length;
+  // my own counts (the 決める tab may have a 飲み友's shops mixed in)
+  const w=mode==='db'&&me ? myShops.filter(s=>mySt(s)==='want').length : shops.filter(inWant).length, g=mode==='db'&&me ? myShops.filter(s=>mySt(s)==='went').length : shops.filter(inWent).length;
   $('sWant').textContent=w; $('sWent').textContent=g; $('tWant').textContent=w||''; $('tWent').textContent=g||'';
   const mb=$('mbStats'); mb.textContent=''; mb.append('行きたい', el('b',null,String(w)), '・行った', el('b',null,String(g)));
 }
@@ -14,20 +15,18 @@ document.addEventListener('compositionstart',()=>{ imeOn=true; },true);
 document.addEventListener('compositionend',()=>{ imeOn=false; if(renderLater){ renderLater=false; setTimeout(render,0); } },true);
 function render(){
   if (imeOn && $('view').contains(document.activeElement)){ renderLater=true; return; }
-  counts(); renderFlaps();
+  counts(); { const n=$('flaps'); if(n) n.textContent=''; }   // the header no longer switches lists
   // typing in settings: don't rebuild under the cursor (data updates arrive while you type)
   if (tab==='set' && $('setBody') && $('setBody').contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName) && mode==='db') return;
   const ae=document.activeElement; const keep=(ae&&ae.id==='quick')?{s:ae.selectionStart,e:ae.selectionEnd}:null;
   const v=$('view'); v.textContent=''; document.body.classList.toggle('gating', mode==='gate');
   // looking with a 飲み友: the whole screen turns pale blue (with big faint ripples), so it reads as another mode
-  document.documentElement.classList.toggle('fmode', mode==='db' && friendMode);
+  document.documentElement.classList.toggle('fmode', mode==='db' && friendMode && tab==='home');
   if (mode==='gate'){ renderGate(v); return; }
   if (mode==='loading'){ const k=el('div','skel'); k.setAttribute('role','status'); k.setAttribute('aria-label','読み込み中'); for(const h of [96,132,132,132]){ const i=el('i'); i.style.setProperty('--h',h+'px'); k.appendChild(i); } v.appendChild(k); return; }
-  if (tab==='set'){ v.appendChild(el('h2','pagetitle','設定')); const b=el('div'); b.id='setBody'; v.appendChild(b); buildCrew(b); return; }
-  whoBar(v);
+  if (tab==='set'){ v.appendChild(el('h2','pagetitle','自分')); const b=el('div'); b.id='setBody'; v.appendChild(b); buildCrew(b); return; }
   if (tab==='home') renderHome(v);
   else if (tab==='list'){ addBar(v); listSeg(v); if(listSub==='want') renderWant(v); else renderWent(v); }
-  else if (tab==='rec'){ recSeg(v); const sub=el('div'); v.appendChild(sub); if(recSub==='cal') renderCal(sub); else if(recSub==='rank') renderRank(sub); else renderScore(sub); }
   else renderMap(v);
   if (keep){ const n=$('quick'); if(n){ n.focus(); try{ n.setSelectionRange(keep.s,keep.e); }catch{} } }
 }

@@ -24,7 +24,8 @@ async function buildCrew(body){
   body.textContent='';
   if (mode!=='db'){ body.appendChild(el('p','hint','いまは記録をこの端末だけに保存しています(firebase-config.js が未設定)。メンバー機能を使うには、README の手順で Firebase を設定してください。')); return; }
   const mine=members[me]||{};
-  segBar(body,[['me','あなた'],['friends','飲み友'],['daruma','だるま']],setSub,k=>{ setSub=k; });
+  segBar(body,[['me','あなた'],['friends','飲み友'],['daruma','だるま'],['rank','ランキング']],setSub,k=>{ setSub=k; });
+  if (setSub==='rank'){ const sub=el('div'); body.appendChild(sub); renderRank(sub); return; }
   if (setSub==='friends') friendsSec(body);
   else if (setSub==='daruma'){ const dm=sec('だるま','ホームにいるだるまの見た目。この端末に保存されます'); dm.id='secDaruma'; darumaMaker(dm); body.appendChild(dm); }
   else { const nk=sec('あなた'); profileSec(nk,mine); body.appendChild(nk); }
