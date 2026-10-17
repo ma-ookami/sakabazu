@@ -207,3 +207,5 @@ html.fmode .wc-imp{color:#2F76A3;border-color:color-mix(in srgb,#3E8EBF 50%,var(
 .dm-prow .chips::-webkit-scrollbar{display:none}
 .dm-prow .chips .chip{flex:none}
 .daruma.dm-prev{width:84px;height:87px}
+.wc-sub .wc-s{font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wc-head .wc-imp{margin-left:auto}

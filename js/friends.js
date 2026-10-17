@@ -27,12 +27,12 @@ function rebuildShops(){
       let s=byKey.get(key(t));
       if (!s){
         s={id:`f~${f}~${t.id}`, _friend:f, name:t.name, area:t.area||'', createdBy:fm, createdAt:t.createdAt||0, wants:{}, went:{}, r:{}};
-        for (const k of ['loc','hours','tags','links','hp','visits']) if (t[k]) s[k]=JSON.parse(JSON.stringify(t[k]));
+        for (const k of ['loc','hours','tags','links','hp']) if (t[k]) s[k]=JSON.parse(JSON.stringify(t[k]));   // basics only: no visits (prices)
         out.push(s); byKey.set(key(t),s);
       }
       if (want) s.wants[fm]=true;
       if (went) s.went[fm]=went;
-      if (t.r && t.r[fm]) s.r[fm]=t.r[fm];
+      const st=t.r && t.r[fm] && t.r[fm].star; if (typeof st==='number') s.r[fm]={star:st};   // their 星 only: no marks, memos or ひとこと
       if (!s.loc && t.loc) s.loc=t.loc;
     }
   }
@@ -209,7 +209,7 @@ function whoBar(v){
   const bar=el('div','withcap'+(friendMode?'':' me'));
   if (!friendMode){
     const h=el('div','wc-head'); h.appendChild(el('span','wc-t','👤 自分のリスト'));
-    const sub=el('div','wc-sub'); sub.appendChild(el('span','wc-s','あなたの行きたい店・行った店'));
+    const sub=el('div','wc-sub'); sub.appendChild(el('span','wc-s','あなたの店だけを表示'));
     bar.append(h,sub); v.appendChild(bar); return;
   }
   const ids=Object.keys(friends).sort((a,b)=>friends[a].at-friends[b].at), wf=mixedFriends()[0];
@@ -219,10 +219,10 @@ function whoBar(v){
     pick.append(avatar({},friends[wf].mid,'who-av'), el('span',null,friends[wf].nick), el('span','who-c','▾'));
     pick.onclick=()=>{ whoOpen=!whoOpen; render(); };
     head.append(el('span','wc-t','🤝'), pick, el('span','wc-t','とのリスト'));
-    var sub=el('div','wc-sub'); sub.appendChild(el('span','wc-s', fDenied[wf] ? '(相手のリストを読めません)' : '2人の店を合わせて表示'));
+    var sub=el('div','wc-sub'); sub.appendChild(el('span','wc-s', fDenied[wf] ? '(相手のリストを読めません)' : '2人の店を表示。メモやひとことは共有なし'));
     const only=shops.filter(x=>x._friend===wf);
-    if (only.length && !readOnly){ const ib=el('button','wc-imp',`${friends[wf].nick}の店を取り込む(${only.length})`); ib.type='button';
-      ib.onclick=async()=>{ if(!(await ask(`${friends[wf].nick}の店${only.length}軒を、自分の「行きたい」に入れます。`,'入れる'))) return; importToMine(only.map(x=>x.id)); }; sub.appendChild(ib); }
+    if (only.length && !readOnly){ const ib=el('button','wc-imp',`取り込む(${only.length})`); ib.title=`${friends[wf].nick}の店を自分のリストへ`; ib.type='button';
+      ib.onclick=async()=>{ if(!(await ask(`${friends[wf].nick}の店${only.length}軒を、自分の「行きたい」に入れます。`,'入れる'))) return; importToMine(only.map(x=>x.id)); }; head.appendChild(ib); }
   } else head.appendChild(el('span','wc-t', ids.length ? '🤝 誰とのリストを見る?' : '🤝 飲み友がまだいません'));
   bar.appendChild(head); if (sub) bar.appendChild(sub);
   if (whoOpen || !wf){
