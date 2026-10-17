@@ -15,7 +15,7 @@ document.addEventListener('compositionstart',()=>{ imeOn=true; },true);
 document.addEventListener('compositionend',()=>{ imeOn=false; if(renderLater){ renderLater=false; setTimeout(render,0); } },true);
 function render(){
   if (imeOn && $('view').contains(document.activeElement)){ renderLater=true; return; }
-  counts(); { const n=$('flaps'); if(n) n.textContent=''; }   // the header no longer switches lists
+  counts(); meBtn();
   // typing in settings: don't rebuild under the cursor (data updates arrive while you type)
   if (tab==='set' && $('setBody') && $('setBody').contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName) && mode==='db') return;
   const ae=document.activeElement; const keep=(ae&&ae.id==='quick')?{s:ae.selectionStart,e:ae.selectionEnd}:null;
@@ -58,3 +58,12 @@ function parsePlaceUrl(u){
   const l=parseMapUrl(u);
   return {name, loc:l.err?null:{lat:l.lat,lng:l.lng,src:'link'}, short:/goo\.gl|maps\.app/i.test(u)};
 }
+
+// the header's right: my icon -> 自分
+function meBtn(){
+  const b=$('meBtn'); if(!b) return;
+  b.textContent=''; b.setAttribute('aria-pressed',String(tab==='set'));
+  if (me && members[me]) b.appendChild(avatar({},me,'me-av'));
+  else b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.2" r="3.6"/><path d="M4.8 20.2c.9-3.9 3.7-6 7.2-6s6.3 2.1 7.2 6"/></svg>';
+}
+$('meBtn').onclick=()=>setTab('set');
