@@ -2,7 +2,7 @@
 const listF={at:'',genre:'',star:0};   // the lists' 時間 / ジャンル / 星 (same pickers as 今日どこ行く?)
 async function renderWant(v){
   if (!readOnly){
-    v.appendChild(el('p','hint','店の操作はカードの「…」から(右スワイプで「行った」、左で外す、もできます)。'));
+    v.appendChild(el('p','hint','右スワイプで「行った」、左で外す'));
   }
   let arr=shops.filter(inWant);
   filterBar(v,listF,arr,render);
@@ -47,7 +47,7 @@ let wentView='list';   // 行った: the list, or the calendar of visits
 function renderWent(v){
   segBar(v,[['list','リスト'],['cal','カレンダー']],wentView,k=>{ wentView=k; },'subseg');
   if (wentView==='cal'){ const sub=el('div'); v.appendChild(sub); renderCal(sub); return; }
-  if (!readOnly) v.appendChild(el('p','hint','店の操作はカードの「…」から(右スワイプで「行きたい」に戻す、左で外す、もできます)。'));
+  if (!readOnly) v.appendChild(el('p','hint','右スワイプで「行きたい」に戻す、左で外す'));
   filterBar(v,listF,shops.filter(inWent),render);
   let arr=shops.filter(inWent).filter(s=>fMatch(s,listF));
   const key = sort==='again'?'again': sort==='price'?'price':null;
@@ -140,8 +140,6 @@ async function renderRank(v){
 }
 function moveRank(i,d){ const l=rankList(me); const j=i+d; if(j<0||j>=l.length) return; [l[i],l[j]]=[l[j],l[i]]; saveRank(l); }
 
-// add by hand: a name ("店名@エリア" also works) or a link (Google Maps, ホットペッパー, any page). true when handled
-let manualOpen=false;
 async function addManual(raw){
   if (isUrl(raw)){
     const r=await addFromUrl(raw); if (r.added) return true;

@@ -1,16 +1,4 @@
 /* home tab (next-plan ticket, today block, welcome) */
-.ticket{display:grid;grid-template-columns:96px 1fr;width:100%;text-align:left;margin:22px 0 6px;border:0;padding:0;background:transparent;color:inherit;position:relative;filter:drop-shadow(0 6px 16px rgba(70,45,20,.10))}
-.ticket::before,.ticket::after{content:"";position:absolute;left:89px;width:14px;height:14px;border-radius:50%;background:var(--bg);z-index:1}
-.ticket::before{top:-7px}.ticket::after{bottom:-7px}
-.tk-l{background:linear-gradient(160deg,color-mix(in srgb,var(--red) 88%,#fff),var(--red));color:var(--on-red);border-radius:var(--r-lg) 0 0 var(--r-lg);padding:14px 6px;display:grid;justify-items:center;align-content:center;gap:1px;text-align:center}
-.tk-k{font-size:11px;opacity:.9}
-.tk-d{font-family:var(--brush);font-size:32px;line-height:1.15}
-.tk-w{font-size:11px;opacity:.9}
-.tk-r{background:var(--card);border:1px solid var(--line);border-left:2px dashed var(--line);border-radius:0 var(--r-lg) var(--r-lg) 0;padding:14px 16px;display:grid;align-content:center;gap:2px;min-width:0}
-.tk-n{font-family:var(--serif);font-weight:700;font-size:20px;line-height:1.3;word-break:break-word}
-.tk-a{font-size:12px;color:var(--sub)}
-.tk-r .stack{margin-top:6px}
-.tk-r .stack img,.tk-r .stack .ph{border-color:var(--card)}
 .todaybtn{display:grid;gap:2px;width:100%;margin:22px 0 4px;padding:22px 52px 22px 22px;border:0;border-radius:var(--r-xl);text-align:left;color:var(--on-indigo);position:relative;overflow:hidden;
   background:radial-gradient(220px 160px at 88% 50%,color-mix(in srgb,var(--glow) 45%,transparent),transparent 70%),var(--indigo);box-shadow:var(--shadow-2)}
 .todaybtn::before{content:"›";position:absolute;right:20px;top:50%;transform:translateY(-52%);font-size:30px;line-height:1;opacity:.75;z-index:1}
@@ -18,30 +6,13 @@
 .tb-t{font-family:var(--brush);font-size:25px;letter-spacing:.06em;line-height:1.3}
 .tb-s{font-size:12px;opacity:.8}
 .today{margin:24px 0 4px}
-.today-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.today-t{font-family:var(--serif);font-weight:700;font-size:20px;margin:0;letter-spacing:.04em;display:flex;align-items:center;gap:10px}
-.today-t::before{content:"";width:6px;height:18px;border-radius:3px;background:var(--red);box-shadow:0 0 10px var(--glow)}
-.tcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow-1)}
-.tcard.lead{border-color:color-mix(in srgb,var(--red) 55%,var(--line));box-shadow:0 0 0 1px color-mix(in srgb,var(--red) 30%,transparent),0 10px 26px color-mix(in srgb,var(--red) 16%,transparent)}
-.tname{background:none;border:0;padding:0;text-align:left;color:inherit}
-.tbtns{display:flex;gap:6px;flex:none}
-.tbtns .sbtn{padding:7px 14px;font-size:13px}
-.wrapchips{flex-wrap:wrap}
-.scopeseg{margin:20px 0 0}
-.scopeseg button{padding:7px 18px}
-.scopenote{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:18px 0 0;font-size:12px;color:var(--sub)}
 .topseg{display:flex;margin:18px 0 4px}
 .topseg button{flex:1;padding:8px 6px}
-.addlink{display:block;width:100%;margin:14px 0 0;padding:13px;border:1.5px dashed var(--line);border-radius:var(--r-lg);background:transparent;color:var(--sub);font-size:14px;transition:border-color .2s,color .2s}
-.addlink:hover{border-color:var(--red);color:var(--red)}
-.recent{margin-top:28px}
-.recent .plist{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:0 16px;box-shadow:var(--shadow-1)}
-.recent .plist li:first-child{border-top:0}
 .welcome{text-align:center;padding:30px 12px 10px}
 .welcome h2{font-size:21px;margin:0 0 6px}
 .welcome p{color:var(--sub);font-size:13px;margin:0 0 16px}
 /* before joining: start, invited, or come back */
-body.gating .tabs,body.gating .crew,body.gating .modesw{display:none}
+body.gating .tabs{display:none}
 .gate{margin:26px 0 0;display:grid;gap:16px}
 .gate-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-xl);padding:22px 20px;box-shadow:var(--shadow-1)}
 .gate-t{font-family:var(--serif);font-weight:700;font-size:21px;line-height:1.4;margin:0 0 8px}
@@ -53,10 +24,6 @@ body.gating .tabs,body.gating .crew,body.gating .modesw{display:none}
 .gate-google .hint{margin-bottom:10px}
 .gate-join{width:100%;padding:14px}
 /* scope strip under the noren: 自分 / グループ */
-.scopestrip{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0 2px}
-.scopestrip .scopeseg{margin:0}
-.scopestrip .scopeseg button{padding:7px 16px;font-size:14px}
-.scopestrip .scopeseg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 .sc-cap{font-size:12px;color:var(--sub)}
 .sc-now{font-size:14px;font-weight:700;color:var(--ink)}
 .sc-inv{margin-left:auto;border:0;background:none;color:var(--red);font-size:13px;padding:6px 0}
@@ -111,8 +78,6 @@ body.gating .tabs,body.gating .crew,body.gating .modesw{display:none}
 .dm-mbody[hidden]{display:none}
 .dm-pre{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 12px}
 /* "けんとのリスト" caption when a friend's flap is up */
-.withcap{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin:14px 0 0;padding:8px 14px;border-radius:12px;background:color-mix(in srgb,var(--red) 10%,var(--card));border:1px solid color-mix(in srgb,var(--red) 25%,var(--line));font-size:14px;font-weight:700;color:var(--ink)}
-.withcap .wc-s{font-size:12px;font-weight:400;color:var(--sub)}
 /* member icons: color + shape (shapes from ますせん) + letter or emoji */
 .ph.av{border-radius:50%;background:var(--avbg)!important;color:var(--avfg)!important;display:inline-grid;place-items:center;font-weight:800;line-height:1}
 .av.shape-badge{border-radius:0;clip-path:polygon(100.0% 50.0%,99.6% 52.2%,98.6% 54.2%,97.1% 56.2%,95.5% 58.0%,94.3% 59.8%,93.5% 61.6%,93.2% 63.6%,93.5% 65.8%,93.9% 68.2%,94.2% 70.6%,94.1% 72.9%,93.3% 75.0%,91.9% 76.7%,89.9% 78.0%,87.7% 78.9%,85.4% 79.7%,83.4% 80.6%,81.8% 81.8%,80.6% 83.4%,79.7% 85.4%,78.9% 87.7%,78.0% 89.9%,76.7% 91.9%,75.0% 93.3%,72.9% 94.1%,70.6% 94.2%,68.2% 93.9%,65.8% 93.5%,63.6% 93.2%,61.6% 93.5%,59.8% 94.3%,58.0% 95.5%,56.2% 97.1%,54.2% 98.6%,52.2% 99.6%,50.0% 100.0%,47.8% 99.6%,45.8% 98.6%,43.8% 97.1%,42.0% 95.5%,40.2% 94.3%,38.4% 93.5%,36.4% 93.2%,34.2% 93.5%,31.8% 93.9%,29.4% 94.2%,27.1% 94.1%,25.0% 93.3%,23.3% 91.9%,22.0% 89.9%,21.1% 87.7%,20.3% 85.4%,19.4% 83.4%,18.2% 81.8%,16.6% 80.6%,14.6% 79.7%,12.3% 78.9%,10.1% 78.0%,8.1% 76.7%,6.7% 75.0%,5.9% 72.9%,5.8% 70.6%,6.1% 68.2%,6.5% 65.8%,6.8% 63.6%,6.5% 61.6%,5.7% 59.8%,4.5% 58.0%,2.9% 56.2%,1.4% 54.2%,0.4% 52.2%,0.0% 50.0%,0.4% 47.8%,1.4% 45.8%,2.9% 43.8%,4.5% 42.0%,5.7% 40.2%,6.5% 38.4%,6.8% 36.4%,6.5% 34.2%,6.1% 31.8%,5.8% 29.4%,5.9% 27.1%,6.7% 25.0%,8.1% 23.3%,10.1% 22.0%,12.3% 21.1%,14.6% 20.3%,16.6% 19.4%,18.2% 18.2%,19.4% 16.6%,20.3% 14.6%,21.1% 12.3%,22.0% 10.1%,23.3% 8.1%,25.0% 6.7%,27.1% 5.9%,29.4% 5.8%,31.8% 6.1%,34.2% 6.5%,36.4% 6.8%,38.4% 6.5%,40.2% 5.7%,42.0% 4.5%,43.8% 2.9%,45.8% 1.4%,47.8% 0.4%,50.0% 0.0%,52.2% 0.4%,54.2% 1.4%,56.2% 2.9%,58.0% 4.5%,59.8% 5.7%,61.6% 6.5%,63.6% 6.8%,65.8% 6.5%,68.2% 6.1%,70.6% 5.8%,72.9% 5.9%,75.0% 6.7%,76.7% 8.1%,78.0% 10.1%,78.9% 12.3%,79.7% 14.6%,80.6% 16.6%,81.8% 18.2%,83.4% 19.4%,85.4% 20.3%,87.7% 21.1%,89.9% 22.0%,91.9% 23.3%,93.3% 25.0%,94.1% 27.1%,94.2% 29.4%,93.9% 31.8%,93.5% 34.2%,93.2% 36.4%,93.5% 38.4%,94.3% 40.2%,95.5% 42.0%,97.1% 43.8%,98.6% 45.8%,99.6% 47.8%)}
@@ -126,12 +91,10 @@ body.gating .tabs,body.gating .crew,body.gating .modesw{display:none}
 .shape-opt{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;padding:8px 2px 6px;border-radius:12px;border:2px solid var(--line);background:var(--card);font:inherit;font-size:11px;font-weight:700;color:var(--sub);white-space:nowrap}
 .shape-opt .av{width:34px;height:34px;font-size:15px}
 .shape-opt[aria-checked="true"]{border-color:var(--ink);color:var(--ink)}
-.av-emoji{display:flex;flex-wrap:wrap;gap:6px}
-.av-emoji .chip{font-size:16px;padding:4px 10px}
 #setBody .dm-prow{margin-top:12px}
 /* home: every block in one column with the same gap */
 .homestack{display:grid;gap:14px;margin-top:16px}
-.homestack .dm-row,.homestack .todaybtn,.homestack .ticket,.homestack .today,.homestack .homeacts,.homestack .welcome,.homestack .withcap{margin:0}
+.homestack .dm-row,.homestack .todaybtn,.homestack .today,.homestack .homeacts,.homestack .welcome{margin:0}
 .homestack .homeacts{gap:14px}
 .homestack .hact{border-radius:var(--r-xl)}
 .homestack .hact.main{padding:18px 20px}
@@ -145,15 +108,9 @@ body.gating .tabs,body.gating .crew,body.gating .modesw{display:none}
 .hact.main .tb-t{display:flex;align-items:center;gap:10px}
 .tb-ic{width:24px;height:24px;flex:none}
 /* the bar under the header: 自分のリスト, or 🤝 [けん ▾] とのリスト with the friend picker */
-.withcap{display:grid;gap:8px}
-.withcap.me{background:var(--card);border-color:var(--line)}
-.wc-head{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.wc-t{font-weight:700}
-.wc-pick{display:inline-flex;align-items:center;gap:6px;border:1px solid color-mix(in srgb,var(--red) 35%,var(--line));background:var(--card);border-radius:999px;padding:3px 10px 3px 3px;font:inherit;font-weight:700;color:var(--ink)}
 .wc-list{display:flex;flex-wrap:wrap;gap:6px}
 .wc-f{display:inline-flex;align-items:center;gap:6px;padding:3px 12px 3px 3px}
 .wc-add{color:var(--red);border-style:dashed}
-.withcap .who-av{width:24px;height:24px;font-size:11px}
 /* 友達コード: 7 boxes, one letter each (□□□□-□□□); the real input lies invisibly on top */
 .codeform{display:flex;align-items:center;gap:10px;margin:10px 0 6px;flex-wrap:wrap}
 .codebox{position:relative;display:flex;align-items:center;gap:5px;cursor:text}
@@ -165,9 +122,6 @@ body.gating .tabs,body.gating .crew,body.gating .modesw{display:none}
 .codeform .btn{height:44px;padding:0 20px}
 @media (max-width:359px){ .code-c{width:28px;height:40px;font-size:18px} .codebox{gap:3px} }
 /* 今日どこ行く?: 時間 / ジャンル / 星 */
-.pk-row{display:grid;gap:4px;margin-top:12px}
-.pk-l{font-size:12px;font-weight:700;color:var(--sub)}
-.pk-row .chips{margin:0}
 .pinfo .starline{margin-top:4px}
 .pinfo .starline .stars{--sz:13px}
 .pinfo .starline .st-v{font-size:13px}
@@ -179,15 +133,7 @@ body.gating .tabs,body.gating .crew,body.gating .modesw{display:none}
 .fr-dm svg{width:100%;height:100%}
 .fr-err{font-size:13px;color:var(--sub);font-family:inherit;letter-spacing:0}
 .fr-own{display:inline-block;margin-top:4px;font-size:11px;font-weight:700;color:var(--red);border:1px solid color-mix(in srgb,var(--red) 40%,transparent);border-radius:999px;padding:1px 8px}
-.wc-imp{flex-basis:100%;justify-self:start;margin-top:4px;border:1px dashed color-mix(in srgb,var(--red) 50%,var(--line));background:var(--card);color:var(--red);border-radius:999px;padding:6px 12px;font:inherit;font-size:12px;font-weight:700;text-align:left}
 /* both bars: a 32px title row and one small line, so switching doesn't shift anything */
-.withcap{gap:4px;padding:10px 14px}
-.wc-head{min-height:32px}
-.wc-sub{display:flex;align-items:center;gap:8px;min-height:24px}
-.wc-sub .wc-s{flex:1;min-width:0}
-.wc-imp{flex:none;flex-basis:auto;margin:0;padding:3px 10px;font-size:11.5px}
-.wc-pick{height:32px;box-sizing:border-box}
-.wc-sub{height:26px;min-height:0} .wc-imp{height:24px;line-height:1;box-sizing:border-box;display:inline-flex;align-items:center} .wc-head{height:32px;min-height:0}
 /* QR window */
 .qrmodal{position:fixed;inset:0;z-index:40;background:var(--scrim,rgba(0,0,0,.45));display:grid;place-items:center;padding:20px}
 .qr-card{background:var(--card);border-radius:var(--r-xl);padding:20px;display:grid;justify-items:center;gap:10px;width:min(320px,100%);box-shadow:var(--shadow-2)}
@@ -203,20 +149,11 @@ body.gating .tabs,body.gating .crew,body.gating .modesw{display:none}
 .dm-prow .chips::-webkit-scrollbar{display:none}
 .dm-prow .chips .chip{flex:none}
 .daruma.dm-prev{width:84px;height:87px}
-.wc-sub .wc-s{font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wc-head .wc-imp{margin-left:auto}
-.withcap{background:var(--card);border-color:var(--line)}
 /* color swatches: wrap again (the one-row rule is for the だるま parts), and never squeeze the circles */
 .dm-prow .chips.dm-colors{flex-wrap:wrap;overflow:visible}
 .dm-sw{flex:none}
 /* 決める: 誰と行く? on top, then 今日どこ行く? on the page */
-.wc-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .wc-q{font-weight:700;font-size:14px}
-.withcap .wc-seg{background:var(--faint);border:1px solid var(--line);padding:3px}
-.withcap .wc-seg button{color:var(--sub);padding:6px 14px}
-.withcap .wc-seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
-.withcap .wc-head{height:auto;min-height:32px}
-.pick-h{font-family:var(--serif);font-weight:700;font-size:24px;margin:6px 0 0;letter-spacing:.04em}
 .subseg{margin:10px 0 2px}
 /* 決める */
 .wholine{display:flex;align-items:center;justify-content:space-between;gap:10px}

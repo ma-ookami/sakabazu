@@ -32,23 +32,7 @@ function render(){
 }
 function matches(s){ if (tagFilter && !(s.tags && s.tags[tagFilter])) return false; const q=query.trim().toLowerCase(); return !q || (s.name||'').toLowerCase().includes(q) || (s.area||'').toLowerCase().includes(q); }
 
-function searchBox(v){
-  const lab=el('label','sr','店名やエリアで探す'); lab.htmlFor='q';
-  const q=el('input','field'); q.id='q'; q.type='search'; q.placeholder='リストの中から絞り込む'; q.value=query;
-  const apply=()=>{ query=q.value; const pos=q.selectionStart; render(); const n=$('q'); if(n){ n.focus(); try{ n.setSelectionRange(pos,pos); }catch{} } };
-  q.oninput=e=>{ if (e.isComposing || imeOn) return; apply(); };   // while composing: wait for the word
-  q.addEventListener('compositionend',()=>setTimeout(apply,0));
-  v.appendChild(lab); return q;
-}
-// nothing in my lists matched: offer to look for new shops with the same words
-function searchInstead(box){
-  const w=query.trim(); if(!w || !hpOn() || readOnly) return;
-  const b=el('button','btn btn-line',`「${w}」を新しいお店から探す`); b.style.marginTop='12px';
-  b.onclick=()=>{ query=''; render(); openSearch(w); };
-  box.appendChild(b);
-}
 
-let quickVal='';
 async function addOrBump(name,area,extra){
   const hid=extra&&extra.hp&&extra.hp.id;
   const dup=myShops.find(   // only my own list: a friend's shop gets copied in, not bumped
@@ -73,19 +57,4 @@ function parsePlaceUrl(u){
   const m=s.match(/\/maps\/place\/([^/@?]+)/); const name=m?m[1].replace(/\+/g,' ').trim():'';
   const l=parseMapUrl(u);
   return {name, loc:l.err?null:{lat:l.lat,lng:l.lng,src:'link'}, short:/goo\.gl|maps\.app/i.test(u)};
-}
-function hero(v){
-  const t=today(); const wants=shops.filter(inWant);
-  const next=wants.filter(s=>s.planDate&&s.planDate>=t).sort((a,b)=>a.planDate<b.planDate?-1:1)[0];
-  const top=next?null:wants.filter(s=>wantIds(s).length>=2).sort((a,b)=>wantIds(b).length-wantIds(a).length)[0];
-  const s=next||top; if(!s) return;
-  const c=el('button','ticket'); c.setAttribute('aria-label',(s.name||'')+'の詳細'); c.onclick=()=>openDetail(s.id);
-  const l=el('div','tk-l');
-  if (next){ const [y,m,d]=s.planDate.split('-').map(Number); const dt=new Date(y,m-1,d); const t0=new Date(); t0.setHours(0,0,0,0);
-    const diff=Math.round((dt-t0)/864e5);
-    l.append(el('span','tk-k','次の飲み'), el('span','tk-d',`${m}/${d}`), el('span','tk-w', '日月火水木金土'[dt.getDay()]+'曜日'), el('span','tk-w', diff===0?'今日':diff===1?'明日':`あと${diff}日`)); }
-  else l.append(el('span','tk-k','いちばん人気'), el('span','tk-d',String(wantIds(s).length)), el('span','tk-w','人が行きたい'));
-  const r=el('div','tk-r'); r.appendChild(el('span','tk-n',s.name||'(名前なし)')); if(s.area) r.appendChild(el('span','tk-a',s.area));
-  const ids=wantIds(s); if(ids.length){ const st=el('span','stack'); r.appendChild(st); fillFaces([[st,ids.slice(0,6)]]); }
-  c.append(l,r); v.appendChild(c);
 }

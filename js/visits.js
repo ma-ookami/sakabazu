@@ -10,7 +10,6 @@ function ensureVisit(s,date){
 function guessPairs(s){ const out=[]; for(const v of visitList(s)) if(v.actual>0 && v.guesses) for(const u in v.guesses){ const g=Number(v.guesses[u]); if(g>0) out.push({u,g,a:v.actual}); } return out; }
 const accOf=(g,a)=>Math.max(0,Math.round(100-Math.abs(g-a)/a*100));
 function senseScore(s){ const p=guessPairs(s); return p.length ? Math.round(p.reduce((x,y)=>x+accOf(y.g,y.a),0)/p.length) : null; }
-function guessSec(s){ const box=sec('料金予想','次に行ったら、1人いくら?'); const d=el('div'); d.id='dGuess'; box.appendChild(d); return box; }
 function visitSec(s){ const box=sec('来店記録と料金予想','食べ終わったら、会計の前に予想'); box.id='dVisitSec'; const d=el('div'); d.id='dVisits'; box.appendChild(d); return box; }
 const busy = d => d && d.contains(document.activeElement) && document.activeElement.tagName==='INPUT';
 async function fillGuess(s){

@@ -195,16 +195,6 @@ function setWho(fm,f){
   whoOpen = fm && !mix.size;   // friend mode without a friend yet: show the choices
   saveMix(); saveWho(); syncFriendSubs(); rebuildShops(); buzz(); render();
 }
-function renderFlaps(){
-  const nav=$('flaps'); if(!nav) return; nav.textContent='';
-  if (!(mode==='db' && !!me && !!members[me])) return;
-  const seg=el('div','whoseg'); seg.setAttribute('role','group'); seg.setAttribute('aria-label','見るリスト');
-  const mine=el('button',null,'自分のリスト'); mine.type='button'; mine.setAttribute('aria-pressed',String(!friendMode));
-  mine.onclick=()=>{ if(friendMode) setWho(false); };
-  const fr=el('button',null,'飲み友と'); fr.type='button'; fr.setAttribute('aria-pressed',String(friendMode));
-  fr.onclick=()=>{ if(!friendMode) setWho(true); else { whoOpen=!whoOpen; render(); } };
-  seg.append(mine,fr); nav.appendChild(seg);
-}
 // the bar under the header, on every tab: whose list this is, and (in friend mode) who to look at with
 function whoBar(v){
   if (!(mode==='db' && !!me && !!members[me])) return;

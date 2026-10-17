@@ -3,18 +3,7 @@
 .quickadd:focus-within{border-color:var(--red);box-shadow:var(--shadow-1),0 0 0 3px color-mix(in srgb,var(--red) 14%,transparent)}
 .quickadd .field{background:transparent;border:0;border-radius:0;padding:8px 6px;font-family:var(--serif);font-size:17px}
 .quickadd .field:focus-visible{outline:none;box-shadow:none}
-.spanel{margin:10px 0 10px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:10px 16px 14px;box-shadow:var(--shadow-1)}
-.spanel-h{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--sub)}
 .smsg{margin:6px 0 4px;font-size:14px;color:var(--sub)}
-.sres{list-style:none;margin:4px 0 0;padding:0}
-.sres li{padding:12px 0;border-top:1px solid var(--line);display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:2px 12px;align-items:start}
-.sph{width:56px;height:56px;border-radius:12px;object-fit:cover;background:var(--faint);display:block}
-.stx{display:grid;gap:1px;min-width:0}
-.sres .nm{font-family:var(--serif);font-weight:700;font-size:16px;line-height:1.35;grid-column:1}
-.sres .ar,.sres .ds{grid-column:1;font-size:12px;color:var(--sub)}
-.sres .ds{color:var(--ink);opacity:.8}
-.sres .ac{display:grid;gap:6px;justify-items:stretch}
-.sres .ds{font-size:12px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .caution{font-size:11px;color:var(--sub);margin:10px 0 0;display:grid;gap:4px}
 .caution a{color:var(--red);font-size:13px}
 .caution a.credit{color:var(--sub);font-size:11px}
@@ -42,7 +31,6 @@
   box-shadow:inset 0 0 0 3px var(--card),inset 0 0 0 4px color-mix(in srgb,var(--red) 45%,transparent);
   font-size:13px;font-weight:700;line-height:1;letter-spacing:.02em;white-space:nowrap;display:grid;place-items:center;transform:rotate(-8deg)}
 .went-btn:hover{background:color-mix(in srgb,var(--red) 8%,transparent)}
-@media (prefers-reduced-motion:no-preference){.went-btn.pop{animation:pop .4s var(--ease-spring)}}
 @keyframes pop{0%{transform:rotate(-8deg) scale(1)}35%{transform:rotate(-14deg) scale(.82);background:var(--red);color:var(--on-red)}100%{transform:rotate(-8deg) scale(1);background:var(--red);color:var(--on-red)}}
 .marks{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:10px;font-size:12px;color:var(--sub)}
 .marks span b{font-size:15px;color:var(--ink);font-weight:500;margin-left:3px}
@@ -68,12 +56,6 @@
 .pill.yen{color:var(--ink);font-family:var(--serif);font-weight:700}
 .pill.sense{color:var(--c);border-color:color-mix(in srgb,var(--c) 40%,transparent)}
 .pill.deal{color:var(--red);border-color:color-mix(in srgb,var(--red) 40%,transparent);font-weight:700}
-.mk2{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
-.mkc{display:grid;justify-items:center;min-width:46px;padding:4px 6px 3px;border-radius:12px;background:color-mix(in srgb,var(--c) 8%,var(--faint))}
-.mkc b{font-size:17px;font-weight:500;line-height:1.25}
-.mkc small{font-size:10px;color:var(--sub)}
-.mkc.top{background:color-mix(in srgb,var(--c) 16%,transparent)}
-.mkc.top b{color:var(--c)}
 .shop2 .date{align-self:start;font-size:12px}
 
 /* swipe: the card slides over two action labels */
@@ -94,16 +76,6 @@
 .person .ph{font-size:18px}
 .otable td.who .ph{font-size:10px}
 /* the search bar on 行きたい (opens the search screen) and the hand-add fold under it */
-.findbar{display:flex;align-items:center;gap:10px;width:100%;margin:18px 0 6px;padding:13px 16px;border:1px solid var(--line);border-radius:999px;background:var(--card);box-shadow:var(--shadow-1);text-align:left;font:inherit;cursor:text}
-.findbar:hover{border-color:color-mix(in srgb,var(--red) 50%,var(--line))}
-.fb-ic{font-size:16px}
-.fb-ph{color:var(--sub);font-size:15px}
-.manual{margin:4px 2px 2px}
-.manual summary{cursor:pointer;font-size:13px;color:var(--red);padding:6px 0;list-style:none}
-.manual summary::-webkit-details-marker{display:none}
-.manual summary::before{content:"＋ "}
-.manual[open] summary::before{content:"－ "}
-.manual .quickadd{margin:6px 0 4px}
 /* card pills: one height and one line, whatever the font (the ¥ pill uses the serif) */
 .sc-chips{justify-content:flex-start}
 .sc-chips .pill{height:26px;line-height:1;box-sizing:border-box;padding:0 10px;margin:0}   /* .sense also styles a block in 詳細 */
@@ -117,13 +89,6 @@
 .starline .st-v{font-size:16px;font-variant-numeric:tabular-nums}
 .starline small{font-size:12px;color:var(--sub)}
 /* 「お店を探して追加」: a clear button that opens the search screen */
-.addbar{display:grid;grid-template-columns:auto 1fr auto;grid-template-rows:auto auto;column-gap:12px;align-items:center;width:100%;margin:16px 0 0;padding:12px 16px;
-  border:0;border-radius:var(--r-lg);background:var(--red);color:var(--on-red);text-align:left;font:inherit;box-shadow:var(--shadow-1)}
-.addbar svg{grid-row:1 / span 2;width:24px;height:24px}
-.ab-t{font-family:var(--brush);font-size:19px;letter-spacing:.04em;line-height:1.25}
-.ab-s{grid-column:2;font-size:11.5px;opacity:.8}
-.ab-go{grid-column:3;grid-row:1 / span 2;font-size:26px;line-height:1;opacity:.8}
-@media (prefers-reduced-motion:no-preference){ .addbar:active{transform:scale(.98)} }
 .pk-bar{margin-bottom:12px}
 /* "…" on cards */
 .sc-top{grid-template-columns:auto minmax(0,1fr) auto auto}

@@ -37,11 +37,6 @@
 .daylist{margin-top:18px}
 .dl-h{font-family:var(--serif);font-size:18px;margin:0 0 6px}
 .daylist .faces{margin-top:4px}
-.scorecard{margin:18px 0 6px;padding:22px 20px;border-radius:var(--r-xl);background:radial-gradient(200px 140px at 50% 0%,color-mix(in srgb,var(--glow) 40%,transparent),transparent 70%),var(--indigo);box-shadow:var(--shadow-2);color:var(--on-indigo);display:grid;justify-items:center;text-align:center;gap:2px;position:relative;overflow:hidden}
-.scorecard::after{content:"";position:absolute;left:-50px;top:50%;width:180px;height:180px;transform:translateY(-50%);border-radius:50%;background:repeating-radial-gradient(circle,transparent 0 13px,color-mix(in srgb,var(--on-indigo) 14%,transparent) 13px 14px);pointer-events:none}
-.scorecard .sk{font-size:12px;opacity:.85}
-.scorecard .sv{font-family:var(--brush);font-weight:400;font-size:48px;line-height:1.1}
-.scorecard .sb{margin:8px 0 0;font-size:13px}
 .rank .yen{font-size:18px}
 .day.today{margin:0}   /* .today (home section) must not push the cell down */
 /* 1st–3rd: a seal-like double ring in gold / silver / copper, the brush number in the same color */

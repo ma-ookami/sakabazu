@@ -10,7 +10,7 @@ button{cursor:pointer}
 :focus-visible{outline:2px solid var(--red);outline-offset:2px}
 .wrap{max-width:640px;margin:0 auto;padding:0 18px calc(120px + env(safe-area-inset-bottom,0px));position:relative;z-index:1}
 .mincho{font-family:var(--serif)}
-.yen,.pill.yen,.noren .stats b,.tk-d,.sv{font-variant-numeric:tabular-nums}
+.yen,.pill.yen,.noren .stats b{font-variant-numeric:tabular-nums}
 
 .sbtn{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 13px;font-size:12px;font-weight:500;color:var(--ink);text-decoration:none;text-align:center;white-space:nowrap;box-shadow:var(--shadow-1)}
 .sbtn.on{background:var(--red);border-color:var(--red);color:var(--on-red);font-weight:700}
@@ -18,10 +18,10 @@ button{cursor:pointer}
 *{-webkit-tap-highlight-color:transparent}
 button,a,.chip{touch-action:manipulation}
 button{-webkit-user-select:none;user-select:none}
-input.field,textarea.memo,input.dateinput,.addrank select,.linkbox input{font-size:16px}
+input.field,textarea.memo,input.dateinput,.addrank select{font-size:16px}
 @media (prefers-reduced-motion:no-preference){
-  .card,.ticket,.sbtn,.btn,.chip,.tcard,.todaybtn{transition:transform .16s var(--ease-out),box-shadow .2s,background-color .2s,border-color .2s,color .2s}
-  .card:active,.ticket:active,.tcard:active,.todaybtn:active{transform:scale(.985)}
+  .card,.sbtn,.btn,.chip,.todaybtn{transition:transform .16s var(--ease-out),box-shadow .2s,background-color .2s,border-color .2s,color .2s}
+  .card:active,.todaybtn:active{transform:scale(.985)}
   .btn:active,.chip:active,.sbtn:active{transform:scale(.95)}
 }
 .notice{font-size:13px;color:var(--sub);background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);padding:10px 14px 10px 36px;margin:16px 0 0;position:relative;box-shadow:var(--shadow-1)}
@@ -36,7 +36,6 @@ input.field,textarea.memo,input.dateinput,.addrank select,.linkbox input{font-si
 .btn-red{background:var(--red);color:var(--on-red);box-shadow:0 4px 14px color-mix(in srgb,var(--red) 28%,transparent)}
 .btn-ink{background:var(--ink);color:var(--bg)}
 .btn-line{background:var(--card);border:1px solid var(--line);font-weight:500;color:var(--ink)}
-.tools{display:flex;gap:8px;margin:20px 0 10px}
 .chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;margin-bottom:6px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
 .chip{flex:none;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 13px;font-size:13px;color:var(--sub)}

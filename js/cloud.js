@@ -6,7 +6,6 @@ let fs=null, auth=null, uid=null, gid=null, group=null, cloudSubs=[], gate=null;
 const useEmu = () => /[?&]emu\b/.test(location.search) && /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 const cloudOn = () => !!(window.firebase && (useEmu() || (window.FIREBASE_CONFIG && Object.keys(window.FIREBASE_CONFIG).length)));
 const gpath = p => `groups/${gid}/${p}`;
-const inviteUrl = () => location.origin + location.pathname.replace(/index\.html$/,'') + (gid ? '#g=' + gid : '');
 const FV = () => firebase.firestore.FieldValue;
 
 // nulls in a patch mean "remove this field" (as with the old store); merge keeps everything else
@@ -133,7 +132,6 @@ async function joinGroup(nick){
   await b.commit();
   enterGroup(uid,{gid});
 }
-async function sha(s){ const h=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)); return [...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
 // become an existing member on this device. Returns false when the passcode is wrong.
 async function claimMember(mid, pin){
   const ref=fs.doc(gpath('links/'+uid));
@@ -144,25 +142,6 @@ async function claimMember(mid, pin){
   await fs.doc('users/'+uid).set({gid},{merge:true});
   enterGroup(mid,{gid});
   return true;
-}
-async function setPin(pin){
-  await fs.doc(gpath('pins/'+me)).set({hash:await sha(`${gid}:${me}:${pin}`)});
-  // this device stays "verified" as the member if it entered through a link
-  if (me!==uid) await fs.doc(gpath('links/'+uid)).set({mid:me, at:Date.now(), pin, verified:true}).then(()=>fs.doc(gpath('links/'+uid)).set({mid:me, at:Date.now(), verified:true}));
-  await groupDb.doc('members/'+me).update({hasPin:true});
-}
-async function clearPin(){ await fs.doc(gpath('pins/'+me)).delete(); await groupDb.doc('members/'+me).update({hasPin:false}); }
-async function leaveCloud(){
-  stopSubs();
-  if (me===uid){ await fs.doc(gpath('pins/'+me)).delete().catch(()=>{}); await fs.doc(gpath('members/'+me)).delete(); }
-  else await fs.doc(gpath('links/'+uid)).delete();
-  await fs.doc('users/'+uid).set({gid:''},{merge:true});
-  try{ localStorage.removeItem('nm-gid'); }catch{}
-  gid=null; autoStart();
-}
-async function removeMember(mid){
-  await fs.doc(gpath('pins/'+mid)).delete().catch(()=>{});
-  await fs.doc(gpath('members/'+mid)).delete();
 }
 
 // Google: the member's own device links Google to its anonymous account (uid stays the same).
@@ -199,5 +178,3 @@ async function afterGoogle(u){
   await groupDb.doc('members/'+me).update(patch).catch(console.warn);
   toast('Googleと連携しました。ほかの端末でもGoogleでログインすれば、同じあなたとして使えます');
 }
-async function googleSignOut(){ await auth.signOut(); }   // onAuthStateChanged signs in anonymously again
-const googleEmail = () => { const u=auth&&auth.currentUser, gp=u&&u.providerData.find(p=>p.providerId==='google.com'); return gp ? (gp.email||'Google') : ''; };

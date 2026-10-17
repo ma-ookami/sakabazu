@@ -34,8 +34,6 @@ function openAt(s,t){
   if (o==null || c==null) return null;
   return c>o ? (m>=o && m<c) : (m>=o || m<c);
 }
-function distM(a,b){ const R=6371000, r=x=>x*Math.PI/180; const dLat=r(b.lat-a.lat), dLng=r(b.lng-a.lng); const h=Math.sin(dLat/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dLng/2)**2; return 2*R*Math.asin(Math.sqrt(h)); }
-const fmtWalk=m=> m<1500 ? `徒歩${Math.max(1,Math.round(m/80))}分` : `${(m/1000).toFixed(1)}km`;
 function candidates(){
   let arr=shops.filter(s=>(pick.want&&inWant(s)) || (pick.went&&inWent(s)));
   arr=arr.filter(s=>fMatch(s,pick));

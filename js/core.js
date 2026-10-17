@@ -29,14 +29,6 @@ const TAGS=[
 const tagsOf = s => TAGS.filter(t => s.tags && s.tags[t.k]);
 const norm = x => (x||'').normalize('NFKC').toLowerCase().replace(/\s+/g,'');
 function tagLine(s){ const ts=tagsOf(s); if(!ts.length) return null; const d=el('div','tags'); ts.forEach(t=>d.appendChild(el('span',null,t.l))); return d; }
-function tagChips(v,st){
-  const used=TAGS.filter(t=>shops.some(s=>(st==='want'?inWant(s):inWent(s)) && s.tags && s.tags[t.k]));
-  if (tagFilter && !used.some(t=>t.k===tagFilter)) tagFilter=null;
-  if (!used.length) return;
-  const c=el('div','chips'); c.setAttribute('role','group'); c.setAttribute('aria-label','特徴で絞り込み');
-  for (const t of used){ const b=el('button','chip',t.l); b.setAttribute('aria-pressed',String(tagFilter===t.k)); b.onclick=()=>{ tagFilter = tagFilter===t.k ? null : t.k; render(); }; c.appendChild(b); }
-  v.appendChild(c);
-}
 const $ = id => document.getElementById(id);
 const el = (tag, cls, text) => { const e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; };
 
