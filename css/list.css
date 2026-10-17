@@ -113,3 +113,4 @@ body:has(.toast:not([hidden])) .fab{transform:translateY(-68px)}
 .shop2 .badges{margin-top:6px}
 .sc-side{flex-direction:row;gap:8px}
 .shop2 .sc-side .went-btn{width:44px;height:44px;font-size:11px;letter-spacing:0;padding:0}
+.sc-side .out-btn{white-space:nowrap}

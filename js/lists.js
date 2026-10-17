@@ -58,7 +58,7 @@ function renderWent(v){
   for (const s of arr){
     const {c,top,chips}=cardShell(s);
     if (!readOnly && me && wentBy(s)[me]){
-      const bk=el('button','out-btn','行きたいに戻す'); bk.type='button'; bk.setAttribute('aria-label',(s.name||'')+'を行きたいに戻す'); bk.onclick=e=>{ e.stopPropagation(); backToWant(s.id); };
+      const bk=el('button','out-btn','↩ 行きたい'); bk.type='button'; bk.setAttribute('aria-label',(s.name||'')+'を行きたいに戻す'); bk.onclick=e=>{ e.stopPropagation(); backToWant(s.id); };
       const x=el('button','out-btn','外す'); x.type='button'; x.setAttribute('aria-label',(s.name||'')+'をリストから外す'); x.onclick=e=>{ e.stopPropagation(); removeMine(s.id); };
       top.append(bk,x); }
     hoursPill(chips,s);
