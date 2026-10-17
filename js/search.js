@@ -3,7 +3,7 @@ const HP_GENRES = ['居酒屋','焼き鳥','海鮮','ジンギスカン','焼肉
 // budget codes of the API (dinner budget)
 const HP_BUDGETS = [['','予算 指定なし'],['B001','〜2000円'],['B002','2001〜3000円'],['B003','3001〜4000円'],['B008','4001〜5000円'],['B004','5001〜7000円'],['B005','7001〜10000円']];
 const HP_FLAGS = [['free_drink','飲み放題'],['private_room','個室'],['non_smoking','禁煙'],['midnight','23時以降も営業'],['card','カード可']];
-const sx = {kw:'', areaText:'', budget:'', flags:{}, near:true, state:'idle', results:[], total:0, mainN:0, msg:'', seq:0, more:false, url:''};
+const sx = {src:'g', gres:[], gnext:'',kw:'', areaText:'', budget:'', flags:{}, near:true, state:'idle', results:[], total:0, mainN:0, msg:'', seq:0, more:false, url:''};
 
 function openSearch(kw){
   if (typeof kw==='string') sx.kw=kw;
@@ -43,8 +43,13 @@ function buildSearch(){
   for (const g of HP_GENRES){ const c=el('button','sx-genre',g); c.type='button'; c.onclick=()=>{ sx.kw=g; ki.value=g; runSearch(); }; gs.appendChild(c); }
   body.appendChild(gs);
 
-  body.appendChild(el('h3','sx-h','こだわり条件'));
-  const fl=el('div','chips sx-filters'); fl.setAttribute('aria-label','こだわり条件');
+  // where to search: Google (most shops) or ホットペッパー (budget / 飲み放題 filters)
+  const srcSeg=el('div','seg sx-src'); srcSeg.setAttribute('role','group'); srcSeg.setAttribute('aria-label','検索先');
+  for (const [k,l] of [['g','Google'],['hp','ホットペッパー']]){ const x=el('button',null,l); x.type='button'; x.setAttribute('aria-pressed',String(sx.src===k));
+    x.onclick=()=>{ if(sx.src===k) return; sx.src=k; buildSearch(); if(sx.state!=='idle') runSearch(); }; srcSeg.appendChild(x); }
+  body.appendChild(srcSeg);
+  if (sx.src==='hp') body.appendChild(el('h3','sx-h','こだわり条件(ホットペッパー)'));
+  const fl=el('div','chips sx-filters'); fl.setAttribute('aria-label','こだわり条件'); if (sx.src!=='hp') fl.hidden=true;
   const bs=el('select','sx-budget'); bs.setAttribute('aria-label','予算(夜)');
   for (const [v,l] of HP_BUDGETS){ const o=el('option',null,l); o.value=v; o.selected=sx.budget===v; bs.appendChild(o); }
   bs.classList.toggle('on',!!sx.budget);
@@ -88,6 +93,7 @@ function sxQuery(){
   return {q,nameQ,label,usedSa};
 }
 async function runSearch(more){
+  if (sx.src==='g' && !isUrl(sx.kw)) return runGoogle(more);
   if (isUrl(sx.kw)) return runUrl(sx.kw.trim());
   const {q,nameQ,label,usedSa}=sxQuery();
   if (!q.keyword && !q.lat && !q.here && !q.small_area){ sx.state='error'; sx.msg='エリアかキーワードを入れてください。'; renderResults(); return; }
@@ -164,6 +170,7 @@ async function addFromUrl(u){
 
 const hpYes = v => typeof v==='string' && /^(あり|営業している|全面禁煙|利用可)/.test(v);
 function renderResults(){
+  if (sx.src==='g' && sx.state==='done') return renderGoogle();
   const box=$('sxRes'); if(!box) return; box.textContent='';
   if (sx.state==='idle') return;
   if (sx.state==='loading'){ box.appendChild(el('p','smsg', sx.label==='URL' ? 'URLを読み取っています…' : '探しています…')); return; }
@@ -231,4 +238,81 @@ function renderResults(){
   const gq=(sx.label||'札幌').replace(/ × /g,' ')+(/居酒屋|飲み|バー|酒場/.test(sx.label||'')?'':' 居酒屋');
   const g=el('a',null,`Googleマップで「${gq}」を探す`); g.href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(gq); g.target='_blank'; g.rel='noopener noreferrer';
   ft.appendChild(g); box.appendChild(ft);
+}
+
+/* ---------- Google (Places API through the same Worker) ---------- */
+const G_PRICE={PRICE_LEVEL_INEXPENSIVE:'¥',PRICE_LEVEL_MODERATE:'¥¥',PRICE_LEVEL_EXPENSIVE:'¥¥¥',PRICE_LEVEL_VERY_EXPENSIVE:'¥¥¥¥'};
+// where to look: a chosen area as a box (only inside it), a typed place as a nudge toward 札幌, or anywhere
+function gQuery(){
+  const a=hpAreaOf(), kw=sxWords(sx.kw), place=sxWords(sx.areaText);
+  const near = place || (a.id!=='any' && !a.here && a.id!=='sapporo' ? a.label : '');
+  const q={gq:[near, kw||'居酒屋'].filter(Boolean).join(' ')};
+  if (place) Object.assign(q,{lat:SAPPORO.lat,lng:SAPPORO.lng,r:30000});
+  else if (a.id==='sapporo') Object.assign(q,{lat:SAPPORO.lat,lng:SAPPORO.lng,r:12000,rect:1});
+  else if (a.at) Object.assign(q,{lat:a.at.lat,lng:a.at.lng,r:1000,rect:1});
+  else if (a.here) Object.assign(q,{here:1,r:1500,rect:1});
+  const label=[place||(a.id!=='any'?a.label:''), kw].filter(Boolean).join(' × ');
+  return {q,label};
+}
+async function runGoogle(more){
+  const {q,label}=gQuery(); const seq=++sx.seq;
+  if (!more){ sx.state='loading'; sx.gres=[]; sx.gnext=''; sx.label=label; renderResults(); } else { sx.more=true; renderGoogle(); }
+  if (q.here){ const here=await new Promise(r=>getHere(r)); if(seq!==sx.seq) return;
+    if (!here){ sx.state='error'; sx.more=false; sx.msg='現在地を取得できませんでした。エリアを選ぶか、地名や駅名を入れて探してください。'; renderResults(); return; }
+    delete q.here; q.lat=here.lat; q.lng=here.lng; }
+  if (more && sx.gnext) q.pt=sx.gnext;
+  try{
+    const d=await hpCall(q); if(seq!==sx.seq) return;
+    if (d.error || !Array.isArray(d.places)) throw Object.assign(new Error(d.error||'bad'),{code: d.error ? 'api' : 'old'});
+    sx.gres = more ? sx.gres.concat(d.places) : d.places; sx.gnext=d.next||''; sx.state='done';
+  }catch(e){
+    if (seq!==sx.seq) return; console.warn(e);
+    sx.state='error'; sx.msg = (e.code==='old'||e.code==='nogkey') ? 'Google検索はまだ準備中です(Worker の更新と Google のキーの設定が必要です)。上で「ホットペッパー」に切り替えると探せます。'
+      : e.code==='api' ? 'Google検索でエラーが出ました: '+e.message : 'お店を探せませんでした。通信状態を確認して、もう一度どうぞ。';
+  }
+  sx.more=false; renderResults();
+}
+// opening hours from Google's periods -> ours: the usual open/close, and the days with no hours as 定休日
+function gHours(p){
+  const ps=(p.regularOpeningHours&&p.regularOpeningHours.periods)||[]; if(!ps.length) return null;
+  const f=t=>t ? String(t.hour).padStart(2,'0')+':'+String(t.minute||0).padStart(2,'0') : '';
+  const cnt={}; for (const x of ps){ if(!x.open||!x.close) continue; const k=f(x.open)+'-'+f(x.close); cnt[k]=(cnt[k]||0)+1; }
+  const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0]; if(!top) return null;
+  const [open,close]=top[0].split('-'); const days=new Set(ps.map(x=>x.open&&x.open.day));
+  return {open, close: close==='00:00' ? '24:00' : close, closed:[0,1,2,3,4,5,6].filter(d=>!days.has(d))};
+}
+function gExtra(p){
+  const ex={}; if (p.location) ex.loc={lat:p.location.latitude, lng:p.location.longitude, src:'g'};
+  if (p.googleMapsUri) ex.links=[p.googleMapsUri];
+  const g=p.primaryTypeDisplayName&&p.primaryTypeDisplayName.text; if (g) ex.hp={genre:g};
+  const h=gHours(p); if (h) ex.hours=h;
+  return ex;
+}
+const gArea = p => (p.shortFormattedAddress||'').replace(/^日本、?/,'').replace(/^〒?\d{3}-\d{4}\s*/,'').slice(0,40);
+function renderGoogle(){
+  const box=$('sxRes'); if(!box) return; box.textContent='';
+  const h=el('div','sx-head'); h.appendChild(el('span','sx-lab',sx.label||'検索結果')); h.appendChild(el('span','sx-n',`${sx.gres.length}${sx.gnext?'+':''}件`)); box.appendChild(h);
+  if (!sx.gres.length) box.appendChild(el('p','smsg','見つかりませんでした。言い方を変えるか、エリアを広げてみてください。'));
+  const ul=el('ul','sx-list'), wd=(new Date().getDay()+6)%7;
+  for (const p of sx.gres){
+    const name=(p.displayName&&p.displayName.text)||''; if(!name) continue;
+    const li=el('li','sx-card'), tx=el('div','sx-tx');
+    const nm=el('a','sx-nm',name); if(p.googleMapsUri){ nm.href=p.googleMapsUri; nm.target='_blank'; nm.rel='noopener noreferrer'; } tx.appendChild(nm);
+    const sub=[p.primaryTypeDisplayName&&p.primaryTypeDisplayName.text, gArea(p)].filter(Boolean).join(' / '); if(sub) tx.appendChild(el('span','sx-sub',sub));
+    if (p.rating){ const r=el('div','starline'); r.append(starsView(p.rating), el('b','st-v',p.rating.toFixed(1)), el('small',null,`(${(p.userRatingCount||0).toLocaleString()}件)`)); if(G_PRICE[p.priceLevel]) r.appendChild(el('small','g-price',G_PRICE[p.priceLevel])); tx.appendChild(r); }
+    const wds=p.regularOpeningHours&&p.regularOpeningHours.weekdayDescriptions; if (wds&&wds[wd]) tx.appendChild(el('span','sx-acc','今日 '+wds[wd].replace(/^[^:：]+[:：]\s*/,'')));
+    li.appendChild(tx);
+    const ac=el('div','sx-ac');
+    const exists=myShops.some(s=>norm(s.name)===norm(name) || (Array.isArray(s.links)&&p.googleMapsUri&&s.links.includes(p.googleMapsUri)));
+    const add=el('button','sbtn'+(exists?'':' on'), exists?'リストにあり':'＋ 行きたい'); add.disabled=exists||readOnly;
+    add.onclick=async()=>{ add.disabled=true; const id=await addOrBump(name,gArea(p),gExtra(p)); if(id){ toast(`「${name}」を行きたいに追加しました`); add.textContent='リストにあり'; add.classList.remove('on'); render(); } else add.disabled=false; };
+    ac.appendChild(add);
+    if (p.googleMapsUri){ const a=el('a','sbtn','Googleマップ'); a.href=p.googleMapsUri; a.target='_blank'; a.rel='noopener noreferrer'; ac.appendChild(a); }
+    li.appendChild(ac); ul.appendChild(li);
+  }
+  box.appendChild(ul);
+  if (sx.gnext){ const m=el('button','btn btn-line sx-more', sx.more?'読み込んでいます…':'もっと見る'); m.disabled=sx.more; m.onclick=()=>runGoogle(true); box.appendChild(m); }
+  const kw=sxWords(sx.kw);
+  if (kw && !readOnly){ const m=el('button','btn btn-line sx-alt',`「${kw}」をこの名前で行きたいに追加`); m.onclick=async()=>{ m.disabled=true; if(await addManual(kw)){ closeSearch(); listSub='want'; setTab('list'); } else m.disabled=false; }; box.appendChild(m); }
+  box.appendChild(el('p','caution','検索: Google マップ'));
 }

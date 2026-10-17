@@ -3,7 +3,8 @@
 // - 呼べるのは ALLOWED に書いたページからだけ(ブラウザの Origin で判断)
 // - 渡すのは検索に使う項目だけ。結果は10分キャッシュして、APIの呼び出し回数を減らす
 // - ?resolve=<Googleマップの短縮URL> は、転送先の長いURLを返す(店名と位置を読み取るため)
-const VERSION = 2;
+// - ?gq=<検索語> は Google のお店検索(Places API)。キーは Worker のシークレット GOOGLE_PLACES_KEY
+const VERSION = 3;
 const ALLOWED = [
   'https://ma-ookami.github.io',
   /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/,
@@ -35,6 +36,34 @@ async function resolve(u) {
   return u;
 }
 
+// Google: only the fields the app shows (each field decides the price tier). results are cached 10 minutes
+const G_FIELDS = ['id', 'displayName', 'shortFormattedAddress', 'formattedAddress', 'location', 'rating', 'userRatingCount',
+  'priceLevel', 'googleMapsUri', 'primaryTypeDisplayName', 'regularOpeningHours'].map(f => 'places.' + f).join(',') + ',nextPageToken';
+async function google(env, inq, gq) {
+  const body = { textQuery: gq.slice(0, 120), languageCode: 'ja', regionCode: 'JP', pageSize: 20 };
+  const lat = +inq.get('lat'), lng = +inq.get('lng'), r = Math.min(50000, Math.max(200, +inq.get('r') || 1000));
+  if (Number.isFinite(lat) && Number.isFinite(lng) && inq.get('lat')) {
+    if (inq.get('rect')) {   // only inside this box (the chosen area)
+      const dLat = r / 111000, dLng = r / (111000 * Math.cos(lat * Math.PI / 180));
+      body.locationRestriction = { rectangle: { low: { latitude: lat - dLat, longitude: lng - dLng }, high: { latitude: lat + dLat, longitude: lng + dLng } } };
+    } else body.locationBias = { circle: { center: { latitude: lat, longitude: lng }, radius: r } };
+  }
+  const pt = inq.get('pt'); if (pt) body.pageToken = pt.slice(0, 1000);
+  const key = new Request('https://cache.sakabazu/g?' + encodeURIComponent(JSON.stringify(body)));
+  const cache = caches.default, hit = await cache.match(key);
+  if (hit) return hit.json();
+  const res = await fetch('https://places.googleapis.com/v1/places:searchText', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'X-Goog-Api-Key': env.GOOGLE_PLACES_KEY, 'X-Goog-FieldMask': G_FIELDS },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) return { error: (data.error && data.error.message) || ('google ' + res.status) };
+  const out = { places: data.places || [], next: data.nextPageToken || '' };
+  await cache.put(key, new Response(JSON.stringify(out), { headers: { 'cache-control': 'max-age=600', 'content-type': 'application/json' } }));
+  return out;
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get('Origin');
@@ -49,6 +78,13 @@ export default {
       if (!SHORT.test(short)) return reply({ error: 'not a short map link', _v: VERSION }, 400, origin);
       try { return reply({ url: await resolve(short), _v: VERSION }, 200, origin); }
       catch { return reply({ error: 'resolve failed', _v: VERSION }, 502, origin); }
+    }
+
+    // Google Places (New) text search: ?gq=<words>[&lat&lng&r=<m>][&rect=1][&pt=<page token>]
+    const gq = inq.get('gq');
+    if (gq) {
+      if (!env.GOOGLE_PLACES_KEY) return reply({ error: 'no google key', _v: VERSION }, 501, origin);
+      return reply({ ...(await google(env, inq, gq)), _v: VERSION }, 200, origin);
     }
 
     if (!env.HOTPEPPER_KEY) return reply({ error: 'no key' }, 500, origin);

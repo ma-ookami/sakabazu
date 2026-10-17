@@ -23,7 +23,7 @@ async function hpCall(params){
   const q=new URLSearchParams(params);
   const ctl=new AbortController(), t=setTimeout(()=>ctl.abort(),10000);
   let r; try{ r=await fetch(window.HOTPEPPER_PROXY.replace(/\/?$/,'/')+'?'+q,{signal:ctl.signal}); }finally{ clearTimeout(t); }
-  if (!r.ok) throw Object.assign(new Error('proxy '+r.status),{code: r.status===403||r.status===500 ? 'api' : r.status===400 ? 'old' : 'net'});
+  if (!r.ok) throw Object.assign(new Error('proxy '+r.status),{code: r.status===403||r.status===500 ? 'api' : r.status===400 ? 'old' : r.status===501 ? 'nogkey' : 'net'});
   const d=await r.json(); hpVer = (d && d._v) || 1; return d;
 }
 async function hpSearch(params){

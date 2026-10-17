@@ -44,3 +44,7 @@
 .sx-urlcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px 16px;box-shadow:var(--shadow-1)}
 .sx-urlt{margin:0;font-weight:700}
 .sx-urlu{margin:4px 0 8px;font-size:12px;color:var(--sub);word-break:break-all}
+.sx-src{margin:16px 0 0}
+.g-price{color:var(--ink);font-weight:700;margin-left:4px}
+.sx-tx .starline{margin-top:2px}
+.sx-filters[hidden]{display:none}
