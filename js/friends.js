@@ -54,6 +54,7 @@ function watchFriends(){
     const o={}; for (const d of snap.docs){ const v=d.data()||{}; if(typeof v.gid==='string' && typeof v.mid==='string') o[d.id]={gid:v.gid, mid:v.mid, nick:String(v.nick||'飲み友').slice(0,20), at:v.at||0}; }
     for (const f in o){ const was=friends[f]; if (was && was.fetched){ o[f].nick=was.nick; o[f].ic=was.ic; o[f].dm=was.dm; o[f].fetched=true; } }
     friends=o; for (const f in o) if (!o[f].fetched) fetchFriend(f);
+    if (!addChecked) setTimeout(checkAddLink,300);
     syncFriendSubs(); rebuildShops(); render();
   },()=>{}));
 }
@@ -125,14 +126,15 @@ async function removeFriend(f){
 // 設定 → 飲み友: two blocks, 「飲み友を追加」(my code + enter theirs) and 「飲み友リスト」
 function friendsSec(root){
   const box=sec('飲み友を追加','コードを教え合うと、2人のリストが見られます'); box.id='secFriends'; root.appendChild(box);
+  const qrBox=el('div','fr-qr');
   const mine=el('div','fr-code'); mine.appendChild(el('span','fr-cl','あなたの飲み友コード'));
   const cv=el('b','fr-cv','…'); mine.appendChild(cv);
   const cp=el('button','sbtn','コピー'); cp.type='button'; cp.disabled=true;
   cp.onclick=async()=>{ try{ await navigator.clipboard.writeText(fmtCode(myCode)); toast('コピーしました'); }catch{ toast(fmtCode(myCode)); } };
-  mine.appendChild(cp); box.appendChild(mine);
+  mine.appendChild(cp); box.appendChild(mine); box.appendChild(qrBox);
   box.appendChild(el('p','hint','このコードを相手の「飲み友のコードを入れる」に入れてもらうか、相手のコードを下に入れると飲み友になれます。上の「飲み友と」から、2人の店を合わせたリストが見られます。'));
-  const showCode=()=>{ if(myCode){ cv.textContent=fmtCode(myCode); cp.disabled=false; return; } cv.textContent='…';
-    ensureCode().then(c=>{ if(c){ cv.textContent=fmtCode(c); cp.disabled=false; return; }
+  const showCode=()=>{ if(myCode){ cv.textContent=fmtCode(myCode); cp.disabled=false; drawQr(qrBox); return; } cv.textContent='…';
+    ensureCode().then(c=>{ if(c){ cv.textContent=fmtCode(c); cp.disabled=false; drawQr(qrBox); return; }
       cv.textContent=''; const r=el('button','sbtn','もう一度'); r.type='button'; r.onclick=showCode; cv.append(el('span','fr-err','作れませんでした '),r); }); };
   showCode();
 
@@ -140,21 +142,20 @@ function friendsSec(root){
   // one real input lies over the boxes, so typing, deleting and pasting all just work
   const f=el('form','codeform'); f.noValidate=true;
   const cb=el('label','codebox'); const i=el('input','code-in'); i.autocomplete='off'; i.autocapitalize='characters'; i.spellcheck=false; i.maxLength=12;
-  i.inputMode='url'; i.setAttribute('autocorrect','off');   // url keyboard: plain a-z first (no kana composing); type stays text so the caret can be moved
+  i.setAttribute('autocorrect','off'); i.inputMode='text';
   i.setAttribute('aria-label','飲み友のコード(7文字)');
   const cells=[]; for (let k=0;k<7;k++){ if(k===4) cb.appendChild(el('span','code-dash','-')); const c=el('span','code-c'); cells.push(c); cb.appendChild(c); }
   cb.appendChild(i);
   const b=el('button','btn btn-red','追加'); b.type='submit'; b.disabled=true;
-  // while a Japanese keyboard is still composing, leave the text alone (rewriting it then doubles letters)
-  let composing=false;
-  i.addEventListener('compositionstart',()=>{ composing=true; });
-  i.addEventListener('compositionend',()=>{ composing=false; draw(); toEnd(); });
-  const draw=()=>{ const v=cleanCode(i.value).slice(0,7); if(!composing && i.value!==v) i.value=v;
+  // never rewrite what the keyboard typed: phone keyboards keep the word they are typing, and changing the
+  // text under them makes them type it again (doubled letters). the boxes just show it in capitals
+  const draw=()=>{ const v=cleanCode(i.value).slice(0,7);
     cells.forEach((c,k)=>{ c.textContent=v[k]||''; c.classList.toggle('cur', document.activeElement===i && k===Math.min(v.length,6)); });
     b.disabled=v.length!==7; };
-  const toEnd=()=>{ const n=i.value.length; try{ i.setSelectionRange(n,n); }catch{} };
-  i.oninput=()=>{ draw(); toEnd(); }; i.onfocus=()=>{ draw(); setTimeout(toEnd,0); }; i.onblur=draw;
-  for (const ev of ['click','keyup','select']) i.addEventListener(ev,toEnd);
+  // a tap on the boxes puts the caret at the end (not while typing: that also upsets phone keyboards)
+  const toEnd=()=>{ const n=i.value.length; try{ if(i.selectionStart!==n) i.setSelectionRange(n,n); }catch{} };
+  i.oninput=draw; i.onfocus=()=>{ draw(); setTimeout(toEnd,0); }; i.onblur=draw;
+  i.addEventListener('click',toEnd);
   f.append(cb,b);
   f.onsubmit=async e=>{ e.preventDefault(); if(cleanCode(i.value).length!==7){ i.focus(); return; } b.disabled=true;
     const err=await addFriend(i.value); b.disabled=false;
@@ -239,4 +240,35 @@ function openFriends(){ setSub='friends'; setTab('set'); }
 async function importToMine(ids){
   let n=0; for (const id of ids){ const s=shops.find(x=>x.id===id); if(!s || !isFriendShop(s)) continue; const nid=await importShop(id); if(nid && !String(nid).startsWith('f~')) n++; }
   if (n) toast(n===1 ? '自分のリストに入れました' : `${n}軒を自分のリストに入れました`);
+}
+
+// ---------- QR: my code as a link (…#add=CODE). the other phone's camera opens it and we ask "add as 飲み友?" ----------
+const addLink = c => location.origin+location.pathname+'#add='+c;
+function loadQr(){
+  if (window.qrcode) return Promise.resolve();
+  if (!loadQr.p) loadQr.p=new Promise((ok,ng)=>{ const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js'; s.onload=ok; s.onerror=()=>{ loadQr.p=null; ng(); }; document.head.appendChild(s); });
+  return loadQr.p;
+}
+function drawQr(box){
+  if (!myCode) return;
+  loadQr().then(()=>{
+    const q=qrcode(0,'M'); q.addData(addLink(myCode)); q.make();
+    box.innerHTML=q.createSvgTag({cellSize:4,margin:2,scalable:true});
+    box.appendChild(el('p','hint','相手のスマホのカメラでこのQRを読み取ると、アプリが開いて飲み友に追加できます。'));
+  }).catch(()=>{ box.textContent=''; });
+}
+// opened from a QR / link with #add=CODE: ask, then add
+let addChecked=false;
+async function checkAddLink(){
+  if (addChecked) return; addChecked=true;
+  const m=/[#&]add=([A-Za-z0-9-]{7,9})/.exec(location.hash); if (!m) return;
+  history.replaceState(null,'',location.pathname+location.search);
+  const c=cleanCode(m[1]); let d=null; try{ d=await fs.doc('codes/'+c).get(); }catch(e){ console.warn(e); }
+  if (!d || !d.exists){ toast('その飲み友コードは見つかりませんでした'); return; }
+  const v=d.data();
+  if (v.gid===gid){ toast('これはあなたの飲み友コードです'); return; }
+  if (friends[v.mid]){ toast(`「${v.nick||'飲み友'}」はもう飲み友です`); setWho(true,v.mid); return; }
+  if (!(await ask(`「${v.nick||'この人'}」を飲み友に追加しますか? お互いのリストが見られるようになります。`,'追加する'))) return;
+  const err=await addFriend(c); if (err){ toast(err); return; }
+  toast(`「${v.nick||'飲み友'}」と飲み友になりました`); setWho(true,v.mid);
 }

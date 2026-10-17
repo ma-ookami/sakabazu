@@ -192,3 +192,6 @@ body.gating .tabs,body.gating .crew,body.gating .modesw{display:none}
 html.fmode .withcap{background:color-mix(in srgb,#3E8EBF 10%,var(--card));border-color:color-mix(in srgb,#3E8EBF 35%,var(--line))}
 html.fmode .wc-pick{border-color:color-mix(in srgb,#3E8EBF 45%,var(--line))}
 html.fmode .wc-imp{color:#2F76A3;border-color:color-mix(in srgb,#3E8EBF 50%,var(--line))}
+.fr-qr{display:grid;justify-items:center;gap:6px;margin:12px 0 4px}
+.fr-qr svg{width:180px;height:180px;background:#fff;border-radius:12px;padding:6px;box-shadow:var(--shadow-1)}
+.fr-qr .hint{text-align:center;margin:0}
