@@ -2,7 +2,7 @@
 /* masthead: navy with a quiet 青海波 (wave) pattern, a retro-modern logo, the lantern menu on the right,
    and pills to pick whose list you see: 自分 / each friend / ＋ */
 .sign{position:relative}
-.mast{position:relative;margin:0 -18px;padding:22px 20px 14px;color:var(--on-indigo);overflow:hidden;
+.mast{position:relative;z-index:5;margin:0 -18px;padding:22px 20px 14px;color:var(--on-indigo);
   background:linear-gradient(180deg,rgba(23,36,64,0) 40%,rgba(23,36,64,.85)),url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='20' viewBox='0 0 40 20'><circle cx='0' cy='0' r='19' fill='%23172440'/><circle cx='0' cy='0' r='19' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='0' cy='0' r='14' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='0' cy='0' r='9' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='0' cy='0' r='4' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='40' cy='0' r='19' fill='%23172440'/><circle cx='40' cy='0' r='19' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='40' cy='0' r='14' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='40' cy='0' r='9' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='40' cy='0' r='4' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='20' cy='10' r='19' fill='%23172440'/><circle cx='20' cy='10' r='19' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='20' cy='10' r='14' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='20' cy='10' r='9' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='20' cy='10' r='4' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='0' cy='20' r='19' fill='%23172440'/><circle cx='0' cy='20' r='19' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='0' cy='20' r='14' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='0' cy='20' r='9' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='0' cy='20' r='4' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='40' cy='20' r='19' fill='%23172440'/><circle cx='40' cy='20' r='19' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='40' cy='20' r='14' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='40' cy='20' r='9' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='40' cy='20' r='4' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/></svg>") 0 0/40px 20px,#172440;
   border-bottom:3px solid var(--red);box-shadow:0 2px 0 #C9A253 inset}
 .logo{margin:0;display:flex;flex-direction:column;align-items:flex-start;gap:8px;line-height:1;color:#F6EBD6}
@@ -10,7 +10,7 @@
 .lg-r{display:flex;align-items:center;gap:8px;font-family:"Josefin Sans",sans-serif;font-weight:600;font-size:11px;letter-spacing:.5em;opacity:.75;padding-left:2px}
 .lg-r::before,.lg-r::after{content:"";width:18px;height:1px;background:currentColor;opacity:.7}
 .mast .stats{display:none}
-.flaps{display:flex;gap:6px;margin-top:16px;overflow-x:auto;scrollbar-width:none;padding:2px 0}
+.flaps{position:relative;display:flex;margin-top:16px}
 .flaps::-webkit-scrollbar{display:none}
 .flap{flex:none;border:1px solid rgba(242,234,219,.28);background:rgba(242,234,219,.06);color:var(--on-indigo);border-radius:999px;padding:6px 14px;
   font:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;white-space:nowrap;transition:background-color .2s,color .2s,border-color .2s;-webkit-tap-highlight-color:transparent}
@@ -59,3 +59,18 @@ body.scrolled .minibar{transform:none;opacity:1;pointer-events:auto}
 .sheet .modesw button{color:var(--ink)}
 .sheet .modesw button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 .fl-lab{flex:none;align-self:center;font-size:11px;letter-spacing:.08em;color:#D9B66A;opacity:.9;margin-right:2px}
+
+/* 自分のリスト / 友達と ▾ */
+.whoseg{display:inline-flex;background:rgba(242,234,219,.08);border:1px solid rgba(242,234,219,.25);border-radius:999px;padding:3px}
+.whoseg button{border:0;background:none;color:var(--on-indigo);border-radius:999px;padding:7px 16px;font:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.whoseg button[aria-pressed="true"]{background:#F6EBD6;color:#172440}
+.who-c{font-size:10px;opacity:.7}
+.who-av{width:22px;height:22px;font-size:11px;border-radius:50%}
+.whomenu{position:absolute;left:0;top:calc(100% + 8px);z-index:20;min-width:250px;max-height:60vh;overflow-y:auto;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-2);padding:6px;display:grid}
+.whomenu[hidden]{display:none}
+.who-i{display:flex;align-items:center;gap:10px;border:0;background:none;padding:10px 12px;border-radius:10px;font:inherit;font-size:14px;color:var(--ink);text-align:left}
+.who-i:hover{background:var(--faint)}
+.who-i .who-av{width:28px;height:28px;font-size:13px}
+.who-ck{margin-left:auto;color:var(--red);font-weight:800}
+.who-add{color:var(--red);font-weight:700;border-top:1px solid var(--line);border-radius:0 0 10px 10px;margin-top:4px}
+.who-empty{font-size:12px;color:var(--sub);margin:8px 10px;line-height:1.6}

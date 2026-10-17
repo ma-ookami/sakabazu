@@ -32,7 +32,8 @@ function markWent(id,stayOpen){
   const s=shops.find(x=>x.id===id); if(!s) return;
   darumaCheer(`「${s.name}」おつかれさま!`);
   { const d=today(); const ev=ensureVisit(s,d); patchShop(id,Object.assign({went:wentPatch(s,me,d), wants:{[me]:false}}, ev.patch)); }
-  if (!stayOpen){ openDetail(id); toast('おつかれさまでした。会計を見る前に、いくらか予想してみましょう'); setTimeout(()=>{ const x=$('dVisitSec'); if(x) x.scrollIntoView({block:'start',behavior:'smooth'}); },350); }
+  // from the list: stay there so you can mark several in a row; the toast opens the shop if you want to add more
+  if (!stayOpen){ buzz(); toast(`「${s.name}」を行ったに記録しました`,'詳しく',()=>{ const t=myShops.find(x=>x.id===id) || myShops.find(x=>norm(x.name)===norm(s.name)); openDetail(t?t.id:id); }); }
 }
 function markWant(id){ const s=shops.find(x=>x.id===id); if(!s||!me) return; patchShop(id,{wants:{[me]:true}, went:wentPatch(s,me,null)}); }
 function removeMine(id){ const s=shops.find(x=>x.id===id); if(!s||!me||isFriendShop(s)) return; const was={want:!!(s.wants&&s.wants[me]), went:wentBy(s)[me]||null};

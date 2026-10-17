@@ -147,23 +147,39 @@ function friendsSec(box){
   }
 }
 
-// the pills under the logo: 自分 / one per friend / ＋. the pressed one is the list on screen: mine, or mine together with that friend
+// under the logo: two choices, 自分 / 友達と. 友達と opens a small list to pick who (and to add friends),
+// so the header looks the same however many friends there are
 function renderFlaps(){
   const nav=$('flaps'); if(!nav) return; nav.textContent='';
-  const live = mode==='db' && !!me && !!members[me];
-  const flap=(cls,label,sub)=>{ const b=el('button','flap '+cls); b.type='button'; b.appendChild(document.createTextNode(label)); if(sub) b.appendChild(el('span','fi',sub)); nav.appendChild(b); return b; };
-  let n=0;
-  if (live){
-    nav.appendChild(el('span','fl-lab','見るリスト'));
-    const m=flap('me','自分だけ'); m.setAttribute('aria-pressed',String(!mixedFriends().length)); n++;
-    m.setAttribute('aria-label','自分のリスト');
-    m.onclick=()=>{ if(!mix.size) return; mix.clear(); saveMix(); syncFriendSubs(); rebuildShops(); buzz(); render(); window.scrollTo({top:0}); };
-    for (const f of Object.keys(friends).sort((a,b)=>friends[a].at-friends[b].at)){
-      const on=mix.has(f), b=flap('',friends[f].nick+'と'); n++;
-      b.setAttribute('aria-pressed',String(on)); b.setAttribute('aria-label',`${friends[f].nick}とのリスト`);
-      b.onclick=()=>toggleMix(f);
-    }
-    if (!readOnly){ const a=flap('add', Object.keys(friends).length?'＋':'＋ 友達を追加'); a.setAttribute('aria-label','友達を追加'); a.onclick=openFriends; n++; }
-  }
+  if (!(mode==='db' && !!me && !!members[me])) return;
+  const wf=mixedFriends()[0];
+  const seg=el('div','whoseg'); seg.setAttribute('role','group'); seg.setAttribute('aria-label','見るリスト');
+  const mine=el('button',null,'自分のリスト'); mine.type='button'; mine.setAttribute('aria-pressed',String(!wf));
+  mine.onclick=()=>{ closeWho(); if(!mix.size) return; mix.clear(); saveMix(); syncFriendSubs(); rebuildShops(); buzz(); render(); window.scrollTo({top:0}); };
+  const fr=el('button',null); fr.type='button'; fr.setAttribute('aria-pressed',String(!!wf)); fr.setAttribute('aria-haspopup','listbox');
+  if (wf) fr.append(avatar({},friends[wf].mid,'who-av'), document.createTextNode(friends[wf].nick+'と'));
+  else fr.appendChild(document.createTextNode('友達と'));
+  fr.appendChild(el('span','who-c','▾'));
+  fr.onclick=e=>{ e.stopPropagation(); toggleWho(); };
+  seg.append(mine,fr); nav.appendChild(seg);
+  const menu=el('div','whomenu'); menu.id='whoMenu'; menu.hidden=true; menu.setAttribute('role','listbox'); menu.setAttribute('aria-label','誰とのリストを見るか');
+  nav.appendChild(menu);
 }
+function toggleWho(open){
+  const m=$('whoMenu'); if(!m) return; open = open ?? m.hidden;
+  if (open){
+    m.textContent='';
+    const ids=Object.keys(friends).sort((a,b)=>friends[a].at-friends[b].at);
+    if (!ids.length) m.appendChild(el('p','who-empty','まだ友達がいません。友達コードで追加すると、その人とのリストが見られます。'));
+    for (const f of ids){ const b=el('button','who-i'); b.type='button'; b.setAttribute('role','option'); b.setAttribute('aria-selected',String(mix.has(f)));
+      b.append(avatar({},friends[f].mid,'who-av'), el('span',null,friends[f].nick+'とのリスト'));
+      if (mix.has(f)) b.appendChild(el('span','who-ck','✓'));
+      b.onclick=()=>{ closeWho(); if(!mix.has(f)) toggleMix(f); }; m.appendChild(b); }
+    const add=el('button','who-i who-add','＋ 友達を追加'); add.type='button'; add.onclick=()=>{ closeWho(); openFriends(); }; m.appendChild(add);
+  }
+  m.hidden=!open;
+}
+function closeWho(){ toggleWho(false); }
+document.addEventListener('click',e=>{ const m=$('whoMenu'); if(m && !m.hidden && !m.contains(e.target)) closeWho(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeWho(); });
 function openFriends(){ setTab('set'); setTimeout(()=>{ const s=$('secFriends'); if(s) s.scrollIntoView({block:'start',behavior:'smooth'}); },80); }
