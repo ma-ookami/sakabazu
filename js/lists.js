@@ -1,4 +1,5 @@
 /* ---------- want / went lists and ranking ---------- */
+const listF={at:'',genre:'',star:0};   // the lists' 時間 / ジャンル / 星 (same pickers as 今日どこ行く?)
 async function renderWant(v){
   if (!readOnly){
     // a plain search bar that opens the search screen
@@ -20,9 +21,8 @@ async function renderWant(v){
     v.appendChild(el('p','hint','カードは右にスワイプで「行った」、左で外せます。'));
   }
   let arr=shops.filter(inWant);
-  if (arr.length>5){ const t=el('div','tools'); t.appendChild(searchBox(v)); v.appendChild(t); }
-  tagChips(v,'want');
-  arr=arr.filter(matches).sort((a,b)=>{
+  filterBar(v,listF,arr,render);
+  arr=arr.filter(s=>fMatch(s,listF)).sort((a,b)=>{
     const pa=a.planDate||'', pb=b.planDate||'';
     if (pa&&!pb) return -1; if (pb&&!pa) return 1; if (pa!==pb) return pa<pb?-1:1;
     const wa=wantIds(a).length, wb=wantIds(b).length; if(wa!==wb) return wb-wa;
@@ -30,8 +30,8 @@ async function renderWant(v){
   });
   const list=el('div','list'); v.appendChild(list);
   if (!arr.length){
-    const e=el('div','empty'); e.appendChild(el('span','mincho', query?'該当する店がありません':groupMode()?'グループの行きたい店はまだありません':'行きたい店はまだありません'));
-    if(!query) e.appendChild(document.createTextNode('気になる店を上の欄にポンポン入れていきましょう。')); searchInstead(e); list.appendChild(e); return;
+    const e=el('div','empty'); e.appendChild(el('span','mincho', fOn(listF)?'条件に合う店がありません':'行きたい店はまだありません'));
+    if(!fOn(listF)) e.appendChild(document.createTextNode('気になる店を上の「お店を探す」から入れていきましょう。')); list.appendChild(e); return;
   }
   const slots=[];
   for (const s of arr){
@@ -58,15 +58,8 @@ async function renderWant(v){
 }
 
 function renderWent(v){
-  const t=el('div','tools'); t.appendChild(searchBox(v)); v.appendChild(t);
-  const chips=el('div','chips'); chips.setAttribute('role','group'); chips.setAttribute('aria-label','絞り込み');
-  for (const o of [{k:'all',label:'すべて'},...ITEMS.map(i=>({k:i.k,label:i.label+'が◎○'}))]){
-    const b=el('button','chip',o.label); b.setAttribute('aria-pressed',String(filter===o.k)); b.onclick=()=>{filter=o.k; render();}; chips.appendChild(b);
-  }
-  v.appendChild(chips);
-  tagChips(v,'went');
-  let arr=shops.filter(inWent).filter(matches);
-  if (filter!=='all') arr=arr.filter(s=>{ const x=avg(s,filter); return x!=null && x>=1.5; });
+  filterBar(v,listF,shops.filter(inWent),render);
+  let arr=shops.filter(inWent).filter(s=>fMatch(s,listF));
   const key = sort==='again'?'again': sort==='price'?'price':null;
   arr.sort((a,b)=>{ if(sort==='star'){ const x=(starAvg(a)||{}).v, y=(starAvg(b)||{}).v; if(x!==y) return (y??-1)-(x??-1); } if(sort==='deal'){ const x=dealScore(a), y=dealScore(b); if(x!==y) return (y??-999)-(x??-999); } if(sort==='sense'){ const x=senseScore(a), y=senseScore(b); if(x!==y) return (y??-1)-(x??-1); } if(key){ const x=avg(a,key), y=avg(b,key); if(x!==y) return (y??-1)-(x??-1); }
     return lastWent(b).localeCompare(lastWent(a)) || (b.createdAt||0)-(a.createdAt||0); });
@@ -77,7 +70,6 @@ function renderWent(v){
   const list=el('div','list'); v.appendChild(list);
   if (!arr.length){ const e=el('div','empty'); e.appendChild(el('span','mincho', shops.some(inWent)?'条件に合う店がありません':'まだ記録がありません'));
     if(!shops.some(inWent)) e.appendChild(document.createTextNode('行きたいリストの店で「行った」を押すと、ここに溜まっていきます。'));
-    searchInstead(e);
     list.appendChild(e); return; }
   const slots=[], badgeSlots=[];
   for (const s of arr){

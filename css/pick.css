@@ -38,3 +38,13 @@
 .slot .sl-btns{margin-top:10px}
 .slot .sl-btns .btn{padding:11px;background:rgba(255,255,255,.14);color:inherit;border:1px solid rgba(255,255,255,.3);box-shadow:none}
 .slot .sl-btns .btn.btn-red{background:var(--on-red);color:var(--red);border-color:var(--on-red)}
+/* おまかせ: a small, playful strip (text on the left, buttons on the right) */
+.omakase{margin:12px 0 14px}
+.slot{--rh:26px;display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:10px;row-gap:1px;align-items:center;text-align:left;min-height:0;padding:10px 10px 10px 16px;border-radius:16px}
+.slot::after{display:none}
+.slot .sl-k,.slot .sl-n,.slot .sl-a,.slot .reel{grid-column:1}
+.slot .sl-k{font-size:11px}
+.slot .sl-n{font-size:16px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slot .reel-s span{justify-content:start;padding:0}
+.slot .sl-btns{grid-column:2;grid-row:1 / span 3;margin:0;display:flex;gap:6px}
+.slot .sl-btns .btn{flex:none;padding:8px 12px;font-size:12px;border-radius:999px}
