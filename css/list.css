@@ -104,3 +104,15 @@
 .manual summary::before{content:"＋ "}
 .manual[open] summary::before{content:"－ "}
 .manual .quickadd{margin:6px 0 4px}
+/* card pills: one height and one line, whatever the font (the ¥ pill uses the serif) */
+.sc-chips{justify-content:flex-start}
+.sc-chips .pill{height:26px;line-height:1;box-sizing:border-box;padding:0 10px;margin:0}   /* .sense also styles a block in 詳細 */
+/* stars */
+.stars{--sz:16px;display:inline-block;width:calc(var(--sz)*5);height:var(--sz);flex:none;
+  background:linear-gradient(90deg,#E8A33C calc(var(--v)/5*100%),color-mix(in srgb,var(--ink) 14%,transparent) 0);
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.2l2.9 6.2 6.8.8-5 4.6 1.3 6.7L12 17.2l-6 3.3 1.3-6.7-5-4.6 6.8-.8z'/%3E%3C/svg%3E") 0 0/var(--sz) var(--sz) repeat-x;
+          mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.2l2.9 6.2 6.8.8-5 4.6 1.3 6.7L12 17.2l-6 3.3 1.3-6.7-5-4.6 6.8-.8z'/%3E%3C/svg%3E") 0 0/var(--sz) var(--sz) repeat-x}
+.stars.big{--sz:40px;touch-action:none;cursor:pointer}
+.starline{display:flex;align-items:center;gap:8px;margin-top:12px}
+.starline .st-v{font-size:16px;font-variant-numeric:tabular-nums}
+.starline small{font-size:12px;color:var(--sub)}

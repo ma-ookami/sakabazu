@@ -33,7 +33,7 @@
 .sec-h h3{margin:0;font-size:15px;font-weight:700}
 .sec-h small{color:var(--sub);font-size:11px}
 .big-went{width:100%;margin-top:22px;padding:16px;border-radius:var(--r-lg);font-family:var(--brush);font-size:20px;letter-spacing:.1em;font-weight:400}
-.danger{background:none;border:0;color:var(--sub);padding:14px 0;margin-top:20px;font-size:13px;text-decoration:underline;text-underline-offset:3px}
+.danger{display:block;width:100%;margin-top:20px;padding:13px;border-radius:var(--r-lg);border:1.5px solid var(--red);background:color-mix(in srgb,var(--red) 8%,var(--card));color:var(--red);font:inherit;font-size:15px;font-weight:700}
 .form label{display:block;font-weight:700;margin:18px 0 6px;font-size:14px}
 .form input{width:100%}
 .form .actions{display:flex;gap:8px;margin-top:24px}

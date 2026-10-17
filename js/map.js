@@ -108,6 +108,7 @@ function renderMapInfo(){
   const c=el('article','mapcard'); const row=el('div','row'); const left=el('div');
   left.appendChild(el('h3','name',s.name||'(名前なし)')); if(s.area) left.appendChild(el('div','area',s.area));
   row.appendChild(left); row.appendChild(el('span','st',statusOf(s)==='went'?'行った':'行きたい')); c.appendChild(row);
+  { const sl=starLine(s); if(sl) c.appendChild(sl); }
   if (statusOf(s)==='went'){ const mk=el('div','marks'); for(const it of ITEMS){ const m=avgMark(avg(s,it.k)); if(!m) continue; const sp=el('span',null,it.short); sp.appendChild(el('b',m==='◎'?'top':'',m)); mk.appendChild(sp); } if(mk.children.length) c.appendChild(mk); }
   const tl=tagLine(s); if(tl) c.appendChild(tl);
   const acts=el('div','acts'); const d=el('button','btn btn-ink','詳細を見る'); d.onclick=()=>openDetail(s.id);

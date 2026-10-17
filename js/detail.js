@@ -33,7 +33,9 @@ function buildDetail(s){
     body.appendChild(p);
     body.appendChild(visitSec(s));
     body.appendChild(locSec(s));
-    const rs=sec('評価', me&&!readOnly ? 'タップで付ける・もう一度で取り消し' : '');
+    const rs=sec('評価', me&&!readOnly ? '星はなぞって0.1刻みで' : '');
+    rs.appendChild(starInput(s));
+    rs.appendChild(el('h4','tg-cat','項目ごと(タップで付ける・もう一度で取り消し)'));
     const grid=el('div','grid');
     for (const it of ITEMS){
       const lb=el('div','lb',it.label); lb.appendChild(el('small',null,it.hint)); grid.appendChild(lb);

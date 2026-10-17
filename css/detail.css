@@ -66,3 +66,13 @@
 .tg-cat{font-size:12px;font-weight:700;color:var(--sub);margin:12px 0 6px;letter-spacing:.04em}
 .tg-cat:first-of-type{margin-top:2px}
 textarea.memo,.field{box-sizing:border-box;max-width:100%}
+.starin{margin:4px 0 6px}
+.st-lab{font-size:12px;font-weight:700;color:var(--sub);margin-bottom:6px}
+.st-row{display:flex;align-items:center;gap:14px}
+.st-num{font-size:28px;font-variant-numeric:tabular-nums;min-width:2.2em}
+.st-adj{display:flex;align-items:center;gap:8px;margin-top:10px}
+.st-step{width:40px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-size:18px;line-height:1}
+/* memo blocks: no big gaps between 項目ごとのメモ and ひとこと */
+.memos.sec{padding:6px 0}
+.memos summary{padding:10px 0}
+.memos + .sec{padding-top:12px}

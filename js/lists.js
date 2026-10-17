@@ -68,11 +68,11 @@ function renderWent(v){
   let arr=shops.filter(inWent).filter(matches);
   if (filter!=='all') arr=arr.filter(s=>{ const x=avg(s,filter); return x!=null && x>=1.5; });
   const key = sort==='again'?'again': sort==='price'?'price':null;
-  arr.sort((a,b)=>{ if(sort==='deal'){ const x=dealScore(a), y=dealScore(b); if(x!==y) return (y??-999)-(x??-999); } if(sort==='sense'){ const x=senseScore(a), y=senseScore(b); if(x!==y) return (y??-1)-(x??-1); } if(key){ const x=avg(a,key), y=avg(b,key); if(x!==y) return (y??-1)-(x??-1); }
+  arr.sort((a,b)=>{ if(sort==='star'){ const x=(starAvg(a)||{}).v, y=(starAvg(b)||{}).v; if(x!==y) return (y??-1)-(x??-1); } if(sort==='deal'){ const x=dealScore(a), y=dealScore(b); if(x!==y) return (y??-999)-(x??-999); } if(sort==='sense'){ const x=senseScore(a), y=senseScore(b); if(x!==y) return (y??-1)-(x??-1); } if(key){ const x=avg(a,key), y=avg(b,key); if(x!==y) return (y??-1)-(x??-1); }
     return lastWent(b).localeCompare(lastWent(a)) || (b.createdAt||0)-(a.createdAt||0); });
   const meta=el('div','meta'); meta.appendChild(el('span',null,`${arr.length} 軒`));
   const lab=el('label',null,'並び順 '); const sel=el('select');
-  for (const [val,txt] of [['new','行った日が新しい順'],['again','また行きたい順'],['price','安い順'],['sense','感覚に合う順'],['deal','感覚より安い順']]){ const o=el('option',null,txt); o.value=val; o.selected=sort===val; sel.appendChild(o); }
+  for (const [val,txt] of [['new','行った日が新しい順'],['star','星が高い順'],['again','また行きたい順'],['price','安い順'],['sense','感覚に合う順'],['deal','感覚より安い順']]){ const o=el('option',null,txt); o.value=val; o.selected=sort===val; sel.appendChild(o); }
   sel.onchange=()=>{sort=sel.value; render();}; lab.appendChild(sel); meta.appendChild(lab); v.appendChild(meta);
   const list=el('div','list'); v.appendChild(list);
   if (!arr.length){ const e=el('div','empty'); e.appendChild(el('span','mincho', shops.some(inWent)?'条件に合う店がありません':'まだ記録がありません'));
@@ -87,9 +87,7 @@ function renderWent(v){
     { const last=visitList(s).find(x=>x.actual>0); if(last) pill(chips,'yen',`1人 ${yen(last.actual)}`); const sc=senseScore(s); if(sc!=null) pill(chips,'sense',`感覚一致 ${sc}%`); const dl=dealLabel(dealScore(s)); if(dl) pill(chips,dl==='感覚より安い'?'deal':'tag',dl); }
     tagPills(chips,s,2);
     if (chips.children.length) c.appendChild(chips);
-    const mk=el('div','mk2');
-    for (const it of ITEMS){ const m=avgMark(avg(s,it.k)); if(!m) continue; const d=el('span','mkc'+(m==='◎'?' top':'')); d.appendChild(el('b',null,m)); d.appendChild(el('small',null,it.short)); mk.appendChild(d); }
-    if (mk.children.length) c.appendChild(mk); else c.appendChild(el('div','marks','まだ評価がありません'));
+    const sl=starLine(s); c.appendChild(sl || el('div','marks','まだ星がついていません'));
     const bd=el('div','badges'); c.appendChild(bd); badgeSlots.push([bd,s.id]);
     const ids=recorders(s); if (ids.length){ const f=el('div','foot'); const fc=el('div','faces'); const st=el('span','stack'); fc.append(st, el('span',null,`${ids.length}人が記録`)); f.appendChild(fc); c.appendChild(f); slots.push([st,ids.slice(0,5)]); }
     list.appendChild(c);

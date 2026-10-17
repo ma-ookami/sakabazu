@@ -102,7 +102,7 @@
 | `createdBy`, `createdAt`, `updatedAt` | 作成者のメンバーID、作成・更新時刻(ミリ秒) |
 | `wants` | `{mid: true/false}` 行きたい人 |
 | `went` | `{mid: "YYYY-MM-DD" / true}` 行った人と最後に行った日 |
-| `r` | `{mid: {price, vibe, food, nomi, again: {m: "◎", t: "メモ"}, note: {t}}}` 評価とメモ |
+| `r` | `{mid: {star: 0〜5(0.1刻み), price, vibe, food, nomi, again: {m: "◎", t: "メモ"}, note: {t}}}` 星・項目ごとの評価とメモ |
 | `tags` | `{タグキー: true/false}` 特徴タグ(店ごとに共有) |
 | `loc` | `{lat, lng, src: "gps" / "link" / "hp", acc}` 位置 |
 | `planDate` | 行く予定日 `"YYYY-MM-DD"` |
