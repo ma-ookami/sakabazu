@@ -206,3 +206,6 @@ body.gating .tabs,body.gating .crew,body.gating .modesw{display:none}
 .wc-sub .wc-s{font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wc-head .wc-imp{margin-left:auto}
 .withcap{background:var(--card);border-color:var(--line)}
+/* color swatches: wrap again (the one-row rule is for the だるま parts), and never squeeze the circles */
+.dm-prow .chips.dm-colors{flex-wrap:wrap;overflow:visible}
+.dm-sw{flex:none}
