@@ -55,20 +55,12 @@
 .pill.plan{color:var(--on-red);background:var(--red);border-color:var(--red);font-weight:700}
 .pill.yen{color:var(--ink);font-family:var(--serif);font-weight:700}
 .pill.sense{color:var(--c);border-color:color-mix(in srgb,var(--c) 40%,transparent)}
-.pill.deal{color:var(--red);border-color:color-mix(in srgb,var(--red) 40%,transparent);font-weight:700}
 .shop2 .date{align-self:start;font-size:12px}
 
 /* swipe: the card slides over two action labels */
 .swipe{position:relative;border-radius:var(--r-lg)}
-.swipe-act{position:absolute;inset:0;border-radius:var(--r-lg);display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-weight:700;font-size:14px;opacity:0;transition:opacity .15s}
-.swipe-act span{display:flex;align-items:center;gap:8px;transition:transform .2s var(--ease-spring)}
-.swipe.r .swipe-act{opacity:1;background:var(--red);color:var(--on-red)}
-.swipe.l .swipe-act{opacity:1;background:var(--ink);color:var(--bg);justify-content:flex-end}
-.swipe.r .swipe-act .sa-l,.swipe.l .swipe-act .sa-r{display:none}
-.swipe.armed .swipe-act span{transform:scale(1.12)}
 .swipe > .card{touch-action:pan-y}
 .swipe.drag > .card{transition:none;box-shadow:var(--shadow-2)}
-.swipe > .card.settle{transition:transform .32s var(--ease-out)}
 /* member initials when there is no photo */
 .stack .ph{width:22px;height:22px;border-radius:50%;border:2px solid var(--card);margin-left:-6px;background:color-mix(in srgb,var(--red) 16%,var(--card));color:var(--ink);display:inline-grid;place-items:center;font-size:10px;font-weight:700;line-height:1}
 .stack .ph:first-child{margin-left:0}
@@ -92,14 +84,11 @@
 .pk-bar{margin-bottom:12px}
 /* "…" on cards */
 .sc-top{grid-template-columns:auto minmax(0,1fr) auto auto}
-.more-btn{position:relative;z-index:2;flex:none;width:34px;height:34px;border-radius:50%;border:0;background:transparent;color:var(--sub);font-size:20px;line-height:1;letter-spacing:.05em;padding:0 0 6px}
-.more-btn:hover{background:var(--faint)}
 /* the floating ＋ on the list */
 .fab{position:fixed;right:max(16px,calc(50% - 320px + 16px));bottom:calc(92px + env(safe-area-inset-bottom,0px));z-index:14;width:58px;height:58px;border-radius:50%;border:0;
   background:var(--red);color:var(--on-red);font-size:32px;font-weight:300;line-height:1;box-shadow:0 6px 18px color-mix(in srgb,var(--red) 40%,transparent),var(--shadow-2)}
 @media (prefers-reduced-motion:no-preference){ .fab:active{transform:scale(.92)} }
 #view:has(.fab){padding-bottom:70px}
-.card .more-btn{pointer-events:auto}
 body:has(.toast:not([hidden])) .fab{transform:translateY(-68px)}
 .fab{transition:transform .25s var(--ease-out)}
 /* "…" sits at the card's bottom right */
@@ -120,7 +109,6 @@ body:has(.toast:not([hidden])) .fab{transform:translateY(-68px)}
 .shop2 .went-btn{width:44px;height:44px;font-size:12px}
 .sc-side .out-btn{pointer-events:auto;border:1px solid var(--line);background:transparent;color:var(--sub);border-radius:999px;padding:0 9px;font:inherit;font-size:11px;line-height:20px}
 .sc-side .out-btn:hover{color:var(--red);border-color:color-mix(in srgb,var(--red) 40%,var(--line))}
-.sc-side .more-btn{width:36px;height:24px;padding:0 0 6px}
 .shop2 .foot{margin-top:8px}
 .shop2 .badges{margin-top:6px}
 .sc-side{flex-direction:row;gap:8px}

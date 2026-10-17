@@ -40,15 +40,15 @@ let wentView='list';   // 行った: the list, or the calendar of visits
 function renderWent(v){
   segBar(v,[['list','リスト'],['cal','カレンダー']],wentView,k=>{ wentView=k; },'subseg');
   if (wentView==='cal'){ const sub=el('div'); v.appendChild(sub); renderCal(sub); return; }
-  if (!readOnly) v.appendChild(el('p','hint','右スワイプで「行きたい」に戻す、左で外す'));
   filterBar(v,listF,shops.filter(inWent),render);
   let arr=shops.filter(inWent).filter(s=>fMatch(s,listF));
-  const key = sort==='again'?'again': sort==='price'?'price':null;
-  arr.sort((a,b)=>{ if(sort==='star'){ const x=(starAvg(a)||{}).v, y=(starAvg(b)||{}).v; if(x!==y) return (y??-1)-(x??-1); } if(sort==='deal'){ const x=dealScore(a), y=dealScore(b); if(x!==y) return (y??-999)-(x??-999); } if(sort==='sense'){ const x=senseScore(a), y=senseScore(b); if(x!==y) return (y??-1)-(x??-1); } if(key){ const x=avg(a,key), y=avg(b,key); if(x!==y) return (y??-1)-(x??-1); }
+  if (!['new','star','price'].includes(sort)) sort='new';
+  const key = sort==='price'?'price':null;
+  arr.sort((a,b)=>{ if(sort==='star'){ const x=(starAvg(a)||{}).v, y=(starAvg(b)||{}).v; if(x!==y) return (y??-1)-(x??-1); } if(key){ const x=avg(a,key), y=avg(b,key); if(x!==y) return (y??-1)-(x??-1); }
     return lastWent(b).localeCompare(lastWent(a)) || (b.createdAt||0)-(a.createdAt||0); });
   const meta=el('div','meta'); meta.appendChild(el('span',null,`${arr.length} 軒`));
   const lab=el('label',null,'並び順 '); const sel=el('select');
-  for (const [val,txt] of [['new','行った日が新しい順'],['star','星が高い順'],['again','また行きたい順'],['price','安い順'],['sense','感覚に合う順'],['deal','感覚より安い順']]){ const o=el('option',null,txt); o.value=val; o.selected=sort===val; sel.appendChild(o); }
+  for (const [val,txt] of [['new','新しい順'],['star','星が高い順'],['price','安い順']]){ const o=el('option',null,txt); o.value=val; o.selected=sort===val; sel.appendChild(o); }
   sel.onchange=()=>{sort=sel.value; render();}; lab.appendChild(sel); meta.appendChild(lab); v.appendChild(meta);
   const list=el('div','list'); v.appendChild(list);
   if (!arr.length){ const e=el('div','empty'); e.appendChild(el('span','mincho', shops.some(inWent)?'条件に合う店がありません':'まだ記録がありません'));
@@ -57,20 +57,18 @@ function renderWent(v){
   const slots=[], badgeSlots=[];
   for (const s of arr){
     const {c,top,chips}=cardShell(s);
-    moreBtn(top,s);
+    if (!readOnly && me && wentBy(s)[me]){
+      const bk=el('button','out-btn','行きたいに戻す'); bk.type='button'; bk.setAttribute('aria-label',(s.name||'')+'を行きたいに戻す'); bk.onclick=e=>{ e.stopPropagation(); backToWant(s.id); };
+      const x=el('button','out-btn','外す'); x.type='button'; x.setAttribute('aria-label',(s.name||'')+'をリストから外す'); x.onclick=e=>{ e.stopPropagation(); removeMine(s.id); };
+      top.append(bk,x); }
     hoursPill(chips,s);
-    { const last=visitList(s).find(x=>x.actual>0); if(last) pill(chips,'yen',`1人 ${yen(last.actual)}`); const sc=senseScore(s); if(sc!=null) pill(chips,'sense',`感覚一致 ${sc}%`); const dl=dealLabel(dealScore(s)); if(dl) pill(chips,dl==='感覚より安い'?'deal':'tag',dl); }
+    { const last=visitList(s).find(x=>x.actual>0); if(last) pill(chips,'yen',`1人 ${yen(last.actual)}`); }
     { const sl=starLine(s); if(sl) chips.insertBefore(sl, chips.children[1]||null); }
     const bd=el('div','badges'); c.appendChild(bd); badgeSlots.push([bd,s.id]);
     const ids=recorders(s); if (ids.length || (isFriendShop(s) && !readOnly && me)){ const f=el('div','foot'); const fc=el('div','faces'); const st=el('span','stack'); fc.append(st, el('span',null,ids.length?`${ids.length}人が記録`:'')); f.appendChild(fc);
       if (isFriendShop(s) && !readOnly && me){ const ib=el('button','want-btn live','＋ 自分のリストに入れる'); ib.onclick=()=>importToMine([s.id]); f.appendChild(ib); }
       c.appendChild(f); slots.push([st,ids.slice(0,5)]); }
-    // swipe: right = back to 行きたい, left = 外す (only my own record; a 飲み友-only shop has nothing of mine to move)
-    if (!readOnly && me && wentBy(s)[me]){
-      const right={label:'↩ 行きたいに戻す', run:()=>backToWant(s.id)};
-      const left={label:'外す', run:()=>removeMine(s.id)};
-      list.appendChild(swipeable(c,right,left));
-    } else list.appendChild(c);
+    list.appendChild(c);
   }
   fillFaces(slots); fillBadges(badgeSlots);
 }
@@ -141,21 +139,6 @@ async function addManual(raw){
 }
 
 
-// "…" on a card: what you can do to this shop
-function moreBtn(card,s){
-  if (readOnly || !me || isFriendShop(s)) return;
-  const b=el('button','more-btn','…'); b.type='button'; b.setAttribute('aria-label',(s.name||'')+'の操作');
-  b.onclick=e=>{ e.stopPropagation(); shopMenu(s); }; card.appendChild(b);
-}
-function shopMenu(s){
-  const st=mySt(s), items=[];
-  if (st!=='went') items.push({label:'✓ 行った', run:()=>wentWhen(s.id)});
-  if (st==='went') items.push({label:'↩ 行きたいに戻す', run:()=>backToWant(s.id)});
-  items.push(isPicked(s) ? {label:'今日の候補から外す', run:()=>togglePick(s)} : {label:'＋ 今日の候補に入れる', run:()=>{ togglePick(s); toast(`「${s.name}」を今日の候補に入れました`,'決めるで見る',()=>openPick('today')); }});
-  items.push({label:'詳しく見る・評価する', run:()=>openDetail(s.id)});
-  items.push({label:'自分のリストから外す', run:()=>removeMine(s.id), danger:true});
-  actionSheet(s.name||'このお店', items);
-}
 // the list's floating ＋ (search, URL, name: all in the search screen)
 function addFab(v){
   if (readOnly) return;
