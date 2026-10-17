@@ -164,3 +164,10 @@ body.gating .tabs,body.gating .crew,body.gating .modesw{display:none}
 .code-in{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;font-size:16px;color:transparent;caret-color:transparent;background:none}
 .codeform .btn{height:44px;padding:0 20px}
 @media (max-width:359px){ .code-c{width:28px;height:40px;font-size:18px} .codebox{gap:3px} }
+/* 今日どこ行く?: 時間 / ジャンル / 星 */
+.pk-row{display:grid;gap:4px;margin-top:12px}
+.pk-l{font-size:12px;font-weight:700;color:var(--sub)}
+.pk-row .chips{margin:0}
+.pinfo .starline{margin-top:4px}
+.pinfo .starline .stars{--sz:13px}
+.pinfo .starline .st-v{font-size:13px}

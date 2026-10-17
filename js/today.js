@@ -1,7 +1,17 @@
 /* ---------- today ---------- */
 let todayDocs={}; const cleaned=new Set();
-const pick={src:'all',conds:[],near:false,here:null,chosen:null,proposing:null,time:'19:00'};
-const COND=[{k:'price',l:'安い'},{k:'food',l:'料理◎○'},{k:'vibe',l:'雰囲気◎○'},{k:'nomi',l:'飲み放題あり'},{k:'again',l:'また行きたい'}];
+const pick={src:'all',at:'',genre:'',star:0,near:false,here:null,chosen:null,proposing:null,time:'19:00'};
+// 今日どこ行く? narrows by: the time you'd go (open then), the genre, and the stars
+const PICK_TIMES=['15:00','17:00','18:00','19:00','21:00','23:00'];
+const PICK_STARS=[3,3.5,4];
+const genreOf = s => (s.hp && s.hp.genre) || '';
+// open at "HH:MM" today? null when the hours are unknown
+function openAt(s,t){
+  const h=s.hours; if(!h) return null; const o=toMin(h.open), c=toMin(h.close), m=toMin(t), wd=new Date().getDay();
+  const closed=Array.isArray(h.closed)?h.closed:[]; if (closed.includes(wd)) return false;
+  if (o==null || c==null) return null;
+  return c>o ? (m>=o && m<c) : (m>=o || m<c);
+}
 function todayList(){ const t=today(); const P=SP(); return Object.entries(todayDocs).filter(([,d])=>d.date===t && shops.some(s=>s.id===d.shopId) && (!P || P.has(d.by) || Object.keys(d.votes||{}).some(u=>d.votes[u]&&P.has(u))))
   .map(([id,d])=>({id,...d,yes:Object.keys(d.votes||{}).filter(u=>d.votes[u])}))
   .sort((a,b)=>b.yes.length-a.yes.length || (a.createdAt||0)-(b.createdAt||0)); }
@@ -9,7 +19,9 @@ function distM(a,b){ const R=6371000, r=x=>x*Math.PI/180; const dLat=r(b.lat-a.l
 const fmtWalk=m=> m<1500 ? `徒歩${Math.max(1,Math.round(m/80))}分` : `${(m/1000).toFixed(1)}km`;
 function candidates(){
   let arr=shops.filter(s=>pick.src==='all'?statusOf(s):pick.src==='want'?inWant(s):inWent(s));
-  for (const c of pick.conds){ if(c.startsWith('tag:')){ const k=c.slice(4); arr=arr.filter(s=>s.tags&&s.tags[k]); } else arr=arr.filter(s=>{ const v=avg(s,c); return v!=null&&v>=1.5; }); }
+  if (pick.at) arr=arr.filter(s=>openAt(s,pick.at)!==false);   // unknown hours stay in
+  if (pick.genre) arr=arr.filter(s=>genreOf(s)===pick.genre);
+  if (pick.star) arr=arr.filter(s=>{ const a=starAvg(s); return a && a.v>=pick.star; });
   const score=s=>(avg(s,'again')??1.2)*2 + wantIds(s).length*0.6 + (statusOf(s)==='want'?0.8:0);
   let out=arr.map(s=>({s,d:(pick.near&&pick.here&&s.loc)?distM(pick.here,s.loc):Infinity}));
   if (pick.near&&pick.here) out.sort((a,b)=>a.d-b.d); else out.sort((a,b)=>score(b.s)-score(a.s));
@@ -90,10 +102,17 @@ function buildPick(){
   const seg=el('div','seg'); seg.setAttribute('role','group'); seg.setAttribute('aria-label','探す場所');
   for (const [k,l] of [['all','両方'],['want','行きたい'],['went','行った']]){ const x=el('button',null,l); x.setAttribute('aria-pressed',String(pick.src===k)); x.onclick=()=>{ pick.src=k; pick.chosen=null; buildPick(); }; seg.appendChild(x); }
   b.appendChild(seg);
-  const ch=el('div','chips wrapchips'); ch.setAttribute('role','group'); ch.setAttribute('aria-label','条件');
-  const used=TAGS.filter(t=>shops.some(s=>s.tags&&s.tags[t.k]));
-  for (const c of [...COND, ...used.map(t=>({k:'tag:'+t.k,l:t.l}))]){ const on=pick.conds.includes(c.k); const x=el('button','chip',c.l); x.setAttribute('aria-pressed',String(on));
-    x.onclick=()=>{ pick.conds=on?pick.conds.filter(z=>z!==c.k):[...pick.conds,c.k]; pick.chosen=null; buildPick(); }; ch.appendChild(x); }
+  // 時間 / ジャンル / 星: one choice each (tap again to clear)
+  const row=(label,items,cur,set)=>{ const r=el('div','pk-row'); r.appendChild(el('span','pk-l',label)); const c=el('div','chips'); c.setAttribute('role','group'); c.setAttribute('aria-label',label);
+    for (const [v,l] of items){ const x=el('button','chip',l); x.setAttribute('aria-pressed',String(cur===v)); x.onclick=()=>{ set(cur===v?items[0][0]:v); pick.chosen=null; buildPick(); }; c.appendChild(x); }
+    r.appendChild(c); b.appendChild(r); };
+  row('時間',[['','いつでも'],...PICK_TIMES.map(t=>[t,(+t.slice(0,2))+'時〜'])],pick.at,v=>{ pick.at=v; });
+  const base=shops.filter(s=>pick.src==='all'?statusOf(s):pick.src==='want'?inWant(s):inWent(s));
+  const genres=[...new Set(base.map(genreOf).filter(Boolean))].sort();
+  if (pick.genre && !genres.includes(pick.genre)) pick.genre='';
+  if (genres.length) row('ジャンル',[['','すべて'],...genres.map(g=>[g,g])],pick.genre,v=>{ pick.genre=v; });
+  row('星',[[0,'指定なし'],...PICK_STARS.map(x=>[x,'★'+x+'以上'])],pick.star,v=>{ pick.star=v; });
+  const ch=el('div','chips wrapchips');
   if (located().length){ const x=el('button','chip',pick.near?'近い順 ✓':'近い順'); x.setAttribute('aria-pressed',String(pick.near));
     x.onclick=()=>{ if(pick.near){ pick.near=false; buildPick(); return; } x.textContent='現在地を取得中…'; getHere(h=>{ if(h){ pick.here=h; pick.near=true; } buildPick(); }); }; ch.appendChild(x); }
   b.appendChild(ch);
@@ -122,8 +141,8 @@ function buildPick(){
   for (const {s,d} of cands){
     const li=el('li'); const info=el('button','pinfo'); info.onclick=()=>openDetail(s.id);
     info.appendChild(el('span','pn',s.name||'(名前なし)'));
-    info.appendChild(el('span','pm',[statusOf(s)==='went'?'行った':'行きたい', (hoursStatus(s)||{}).t, s.area, Number.isFinite(d)?fmtWalk(d):''].filter(Boolean).join('　')));
-    const mk=ITEMS.map(it=>{ const m=avgMark(avg(s,it.k)); return m?it.short+m:null; }).filter(Boolean).join('　'); if(mk) info.appendChild(el('span','pk',mk));
+    info.appendChild(el('span','pm',[statusOf(s)==='went'?'行った':'行きたい', genreOf(s), (hoursStatus(s)||{}).t, s.area, Number.isFinite(d)?fmtWalk(d):''].filter(Boolean).join('　')));
+    const sl=starLine(s); if(sl) info.appendChild(sl);
     li.appendChild(info);
     if (!readOnly && me){ const g=el('button','sbtn on','今日ここ'); g.onclick=()=>startPropose(s.id); li.appendChild(g); }
     ul.appendChild(li);
