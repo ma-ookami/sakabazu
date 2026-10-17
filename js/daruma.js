@@ -11,7 +11,7 @@ const DM_PARTS = {
   mouth: { label:'口', opts:{ niko:'にこ', han:'あーん', omega:'ω', pokan:'ぽかん', bero:'べー', puha:'ぷはー', he:'への字' } },
   kaoiro:{ label:'顔色', opts:{ nashi:'ふつう', horo:'ほろ酔い' } },
   hoho:  { label:'ほっぺ', opts:{ nashi:'なし', ari:'あり' } },
-  moji:  { label:'お腹の字', opts:{ '':'なし', '福':'福', '酒':'酒', '呑':'呑', '吉':'吉', '勝':'勝', '神':'神', '雅':'雅' } },
+  moji:  { label:'お腹の字', opts:{ '':'なし', '福':'福', '酒':'酒', '呑':'呑', '吉':'吉', '勝':'勝', '神':'神', '雅':'雅', '狼':'狼' } },
   head:  { label:'あたま', opts:{ nashi:'なし', neko:'ねこ耳', hachi:'はちまき' } },
   kao:   { label:'顔の小物', opts:{ nashi:'なし', megane:'メガネ', sangura:'サングラス' } },
   item:  { label:'もちもの', opts:{ nashi:'なし', jokki:'ジョッキ', kanpai:'乾杯', highball:'ハイボール', wine:'ワイン', tokkuri:'とっくり', choko:'おちょこ',
