@@ -201,8 +201,9 @@ function whoBar(v){
   if (!(mode==='db' && !!me && !!members[me])) return;
   const bar=el('div','withcap'+(friendMode?'':' me'));
   if (!friendMode){
-    bar.append(el('span','wc-t','👤 自分のリスト'), el('span','wc-s','あなたの行きたい店・行った店'));
-    v.appendChild(bar); return;
+    const h=el('div','wc-head'); h.appendChild(el('span','wc-t','👤 自分のリスト'));
+    const sub=el('div','wc-sub'); sub.appendChild(el('span','wc-s','あなたの行きたい店・行った店'));
+    bar.append(h,sub); v.appendChild(bar); return;
   }
   const ids=Object.keys(friends).sort((a,b)=>friends[a].at-friends[b].at), wf=mixedFriends()[0];
   const head=el('div','wc-head');
@@ -211,12 +212,12 @@ function whoBar(v){
     pick.append(avatar({},friends[wf].mid,'who-av'), el('span',null,friends[wf].nick), el('span','who-c','▾'));
     pick.onclick=()=>{ whoOpen=!whoOpen; render(); };
     head.append(el('span','wc-t','🤝'), pick, el('span','wc-t','とのリスト'));
-    head.appendChild(el('span','wc-s', fDenied[wf] ? '(相手のリストを読めません)' : '2人の店を合わせて表示'));
+    var sub=el('div','wc-sub'); sub.appendChild(el('span','wc-s', fDenied[wf] ? '(相手のリストを読めません)' : '2人の店を合わせて表示'));
     const only=shops.filter(x=>x._friend===wf);
-    if (only.length && !readOnly){ const ib=el('button','wc-imp',`${friends[wf].nick}の店をまとめて自分のリストへ(${only.length}軒)`); ib.type='button';
-      ib.onclick=async()=>{ if(!(await ask(`${friends[wf].nick}の店${only.length}軒を、自分の「行きたい」に入れます。`,'入れる'))) return; importToMine(only.map(x=>x.id)); }; head.appendChild(ib); }
+    if (only.length && !readOnly){ const ib=el('button','wc-imp',`${friends[wf].nick}の店を取り込む(${only.length})`); ib.type='button';
+      ib.onclick=async()=>{ if(!(await ask(`${friends[wf].nick}の店${only.length}軒を、自分の「行きたい」に入れます。`,'入れる'))) return; importToMine(only.map(x=>x.id)); }; sub.appendChild(ib); }
   } else head.appendChild(el('span','wc-t', ids.length ? '🤝 誰とのリストを見る?' : '🤝 飲み友がまだいません'));
-  bar.appendChild(head);
+  bar.appendChild(head); if (sub) bar.appendChild(sub);
   if (whoOpen || !wf){
     const ch=el('div','wc-list');
     for (const f of ids){ const b=el('button','chip wc-f'); b.type='button'; b.setAttribute('aria-pressed',String(f===wf));

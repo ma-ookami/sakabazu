@@ -180,3 +180,11 @@ body.gating .tabs,body.gating .crew,body.gating .modesw{display:none}
 .fr-err{font-size:13px;color:var(--sub);font-family:inherit;letter-spacing:0}
 .fr-own{display:inline-block;margin-top:4px;font-size:11px;font-weight:700;color:var(--red);border:1px solid color-mix(in srgb,var(--red) 40%,transparent);border-radius:999px;padding:1px 8px}
 .wc-imp{flex-basis:100%;justify-self:start;margin-top:4px;border:1px dashed color-mix(in srgb,var(--red) 50%,var(--line));background:var(--card);color:var(--red);border-radius:999px;padding:6px 12px;font:inherit;font-size:12px;font-weight:700;text-align:left}
+/* both bars: a 32px title row and one small line, so switching doesn't shift anything */
+.withcap{gap:4px;padding:10px 14px}
+.wc-head{min-height:32px}
+.wc-sub{display:flex;align-items:center;gap:8px;min-height:24px}
+.wc-sub .wc-s{flex:1;min-width:0}
+.wc-imp{flex:none;flex-basis:auto;margin:0;padding:3px 10px;font-size:11.5px}
+.wc-pick{height:32px;box-sizing:border-box}
+.wc-sub{height:26px;min-height:0} .wc-imp{height:24px;line-height:1;box-sizing:border-box;display:inline-flex;align-items:center} .wc-head{height:32px;min-height:0}
