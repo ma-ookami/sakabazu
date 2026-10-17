@@ -126,15 +126,16 @@ async function removeFriend(f){
 // 設定 → 飲み友: two blocks, 「飲み友を追加」(my code + enter theirs) and 「飲み友リスト」
 function friendsSec(root){
   const box=sec('飲み友を追加','コードを教え合うと、2人のリストが見られます'); box.id='secFriends'; root.appendChild(box);
-  const qrBox=el('div','fr-qr');
   const mine=el('div','fr-code'); mine.appendChild(el('span','fr-cl','あなたの飲み友コード'));
   const cv=el('b','fr-cv','…'); mine.appendChild(cv);
   const cp=el('button','sbtn','コピー'); cp.type='button'; cp.disabled=true;
   cp.onclick=async()=>{ try{ await navigator.clipboard.writeText(fmtCode(myCode)); toast('コピーしました'); }catch{ toast(fmtCode(myCode)); } };
-  mine.appendChild(cp); box.appendChild(mine); box.appendChild(qrBox);
+  // QR: a small button next to コピー; the code opens big in a window
+  const qb=el('button','sbtn fr-qrb','QR'); qb.type='button'; qb.disabled=true; qb.setAttribute('aria-label','QRコードを表示'); qb.onclick=showQr;
+  mine.append(qb,cp); box.appendChild(mine);
   box.appendChild(el('p','hint','このコードを相手の「飲み友のコードを入れる」に入れてもらうか、相手のコードを下に入れると飲み友になれます。上の「飲み友と」から、2人の店を合わせたリストが見られます。'));
-  const showCode=()=>{ if(myCode){ cv.textContent=fmtCode(myCode); cp.disabled=false; drawQr(qrBox); return; } cv.textContent='…';
-    ensureCode().then(c=>{ if(c){ cv.textContent=fmtCode(c); cp.disabled=false; drawQr(qrBox); return; }
+  const showCode=()=>{ if(myCode){ cv.textContent=fmtCode(myCode); cp.disabled=false; qb.disabled=false; return; } cv.textContent='…';
+    ensureCode().then(c=>{ if(c){ cv.textContent=fmtCode(c); cp.disabled=false; qb.disabled=false; return; }
       cv.textContent=''; const r=el('button','sbtn','もう一度'); r.type='button'; r.onclick=showCode; cv.append(el('span','fr-err','作れませんでした '),r); }); };
   showCode();
 
@@ -249,13 +250,17 @@ function loadQr(){
   if (!loadQr.p) loadQr.p=new Promise((ok,ng)=>{ const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js'; s.onload=ok; s.onerror=()=>{ loadQr.p=null; ng(); }; document.head.appendChild(s); });
   return loadQr.p;
 }
-function drawQr(box){
+function showQr(){
   if (!myCode) return;
-  loadQr().then(()=>{
-    const q=qrcode(0,'M'); q.addData(addLink(myCode)); q.make();
-    box.innerHTML=q.createSvgTag({cellSize:4,margin:2,scalable:true});
-    box.appendChild(el('p','hint','相手のスマホのカメラでこのQRを読み取ると、アプリが開いて飲み友に追加できます。'));
-  }).catch(()=>{ box.textContent=''; });
+  const bg=el('div','qrmodal'); bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true'); bg.setAttribute('aria-label','飲み友コードのQR');
+  const card=el('div','qr-card'); const q=el('div','qr-img','…');
+  card.append(el('p','qr-t','飲み友コード '+fmtCode(myCode)), q, el('p','hint','相手のスマホのカメラで読み取ると、アプリが開いて飲み友に追加できます。'));
+  const x=el('button','btn btn-line','閉じる'); x.type='button'; card.appendChild(x);
+  const close=()=>{ bg.remove(); document.removeEventListener('keydown',esc); }; const esc=e=>{ if(e.key==='Escape') close(); };
+  x.onclick=close; bg.onclick=e=>{ if(e.target===bg) close(); }; document.addEventListener('keydown',esc);
+  bg.appendChild(card); document.body.appendChild(bg); x.focus();
+  loadQr().then(()=>{ const r=qrcode(0,'M'); r.addData(addLink(myCode)); r.make(); q.innerHTML=r.createSvgTag({cellSize:4,margin:2,scalable:true}); })
+    .catch(()=>{ q.textContent='QRを表示できませんでした'; });
 }
 // opened from a QR / link with #add=CODE: ask, then add
 let addChecked=false;

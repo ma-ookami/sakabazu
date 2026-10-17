@@ -192,6 +192,18 @@ body.gating .tabs,body.gating .crew,body.gating .modesw{display:none}
 html.fmode .withcap{background:color-mix(in srgb,#3E8EBF 10%,var(--card));border-color:color-mix(in srgb,#3E8EBF 35%,var(--line))}
 html.fmode .wc-pick{border-color:color-mix(in srgb,#3E8EBF 45%,var(--line))}
 html.fmode .wc-imp{color:#2F76A3;border-color:color-mix(in srgb,#3E8EBF 50%,var(--line))}
-.fr-qr{display:grid;justify-items:center;gap:6px;margin:12px 0 4px}
-.fr-qr svg{width:180px;height:180px;background:#fff;border-radius:12px;padding:6px;box-shadow:var(--shadow-1)}
-.fr-qr .hint{text-align:center;margin:0}
+/* QR window */
+.qrmodal{position:fixed;inset:0;z-index:40;background:var(--scrim,rgba(0,0,0,.45));display:grid;place-items:center;padding:20px}
+.qr-card{background:var(--card);border-radius:var(--r-xl);padding:20px;display:grid;justify-items:center;gap:10px;width:min(320px,100%);box-shadow:var(--shadow-2)}
+.qr-t{margin:0;font-weight:700;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.06em}
+.qr-img{width:240px;height:240px;display:grid;place-items:center;background:#fff;border-radius:12px;padding:8px;box-sizing:border-box}
+.qr-img svg{width:100%;height:100%}
+.qr-card .hint{text-align:center;margin:0}
+.qr-card .btn{width:100%}
+.fr-qrb{font-weight:800;letter-spacing:.04em}
+/* だるま maker: the preview stays on screen while you scroll the parts; each part is one sideways row */
+.dm-mtop{position:sticky;top:calc(env(safe-area-inset-top,0px) + 58px);z-index:4;background:var(--bg);padding:8px 0;margin:0 0 6px;box-shadow:0 8px 10px -8px rgba(0,0,0,.15)}
+.dm-prow .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.dm-prow .chips::-webkit-scrollbar{display:none}
+.dm-prow .chips .chip{flex:none}
+.daruma.dm-prev{width:84px;height:87px}
