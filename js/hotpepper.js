@@ -53,7 +53,6 @@ function hpTags(h){
   if (h.non_smoking==='全面禁煙') t.nosmoke=true;
   if (h.non_smoking==='禁煙席なし') t.smoke=true;
   if (h.card==='利用可') t.card=true;
-  if (h.midnight==='営業している') t.late=true;
   if (+h.capacity>=40) t.group=true;
   return t;
 }
