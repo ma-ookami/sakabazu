@@ -30,7 +30,8 @@ async function renderWant(v){
     const faces=el('div','faces'); const st=el('span','stack'); faces.appendChild(st);
     faces.appendChild(el('span',null, whoText(ids,'行きたい')));
     foot.appendChild(faces); slots.push([st,ids.slice(0,5)]);
-    if (!readOnly && me && groupMode()){ const mine=!!(s.wants&&s.wants[me]); const wb=el('button','want-btn live', mine?'行きたい ✓':isFriendShop(s)?'＋ 自分のリストに入れる':'私も行きたい'); wb.setAttribute('aria-pressed',String(mine)); wb.onclick=()=>toggleWant(s.id); foot.appendChild(wb); }
+    // only for shops the 飲み友 wants and I don't yet (whether I want it already shows in the faces line)
+    if (!readOnly && me && groupMode() && !(s.wants&&s.wants[me])){ const wb=el('button','want-btn live', isFriendShop(s)?'＋ 自分のリストに入れる':'私も行きたい'); wb.onclick=()=>toggleWant(s.id); foot.appendChild(wb); }
     c.appendChild(foot); }
     if (!readOnly && me){
       const right = !wentBy(s)[me] ? {label:'✓ 行った', run:()=>markWent(s.id)} : null;
