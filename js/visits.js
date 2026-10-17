@@ -108,7 +108,7 @@ function calEntries(){
   const P=SP(); const out=[];
   for (const s of shops){
     const seen=new Set();
-    for (const v of visitList(s)){ const ppl=Object.keys(v.people||{}).filter(u=>v.people[u] && (!P||P.has(u))); if(!ppl.length) continue; out.push({date:v.date,s,ppl,actual:v.actual}); seen.add(v.date); }
+    for (const v of visitList(s)){ const ppl=Object.keys(v.people||{}).filter(u=>v.people[u] && (!P||P.has(u))); if(!ppl.length) continue; out.push({date:v.date,s,ppl,actual:v.actual,vid:v.vid}); seen.add(v.date); }
     const wb=wentBy(s); const byD={};
     for (const u of wentIds(s)){ const d=wb[u]; if(typeof d==='string' && /^\d{4}-\d{2}-\d{2}$/.test(d) && !seen.has(d)) (byD[d]=byD[d]||[]).push(u); }
     for (const d in byD) out.push({date:d,s,ppl:byD[d],actual:null});
@@ -151,7 +151,9 @@ function renderCal(v){
         info.appendChild(el('span','pn',e.s.name||'(名前なし)'));
         const meta=[e.s.area, e.actual>0?`1人 ${yen(e.actual)}`:''].filter(Boolean).join('　'); if(meta) info.appendChild(el('span','pm',meta));
         const f=el('span','faces'); const st=el('span','stack'); f.appendChild(st); info.appendChild(f); slots.push([st,e.ppl.slice(0,6)]);
-        li.appendChild(info); ul.appendChild(li); }
+        li.appendChild(info);
+        if (!readOnly && me && e.ppl.includes(me) && !isFriendShop(e.s)){ const x=el('button','sbtn cal-del','消す'); x.setAttribute('aria-label',`${e.s.name}の${fmtDate(cal.sel)}の記録を消す`); x.onclick=()=>unvisit(e.s.id,cal.sel,e.vid); li.appendChild(x); }
+        ul.appendChild(li); }
       box.appendChild(ul); fillFaces(slots); }
     v.appendChild(box);
   }

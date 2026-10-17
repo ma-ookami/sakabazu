@@ -134,8 +134,9 @@ function buildPick(){
   if (pick.src==='today'){ todayTab(b); return; }
   // 行きたい / 行った and a ⚙ that opens the filters
   const tg=el('div','dc-tg');
-  for (const [k,l] of [['want','行きたい'],['went','行った']]){ const x=el('button','chip',l); x.type='button'; x.setAttribute('aria-pressed',String(pick[k]));
-    x.onclick=()=>{ pick[k]=!pick[k]; if(!pick.want&&!pick.went) pick[k==='want'?'went':'want']=true; pick.chosen=null; buildPick(); }; tg.appendChild(x); }
+  const cur = pick.want&&pick.went ? 'all' : pick.want ? 'want' : 'went';
+  for (const [k,l] of [['all','すべて'],['want','行きたい'],['went','行った']]){ const x=el('button','chip',l); x.type='button'; x.setAttribute('aria-pressed',String(cur===k));
+    x.onclick=()=>{ pick.want=k!=='went'; pick.went=k!=='want'; pick.chosen=null; buildPick(); }; tg.appendChild(x); }
   const on=[pick.at&&(+pick.at.slice(0,2))+'時〜', pick.genre, pick.star&&'★'+pick.star+'〜'].filter(Boolean);
   const fb=el('button','chip dc-fb'+(on.length?' on':''), '⚙ '+(on.length?on.join('・'):'絞り込み')); fb.type='button'; fb.setAttribute('aria-expanded',String(pick.fopen));
   fb.onclick=()=>{ pick.fopen=!pick.fopen; buildPick(); }; tg.appendChild(fb);

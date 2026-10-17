@@ -41,8 +41,19 @@ function markWent(id,stayOpen){
 }
 // 行った -> back to 行きたい (the visits stay), with undo
 function backToWant(id){ const s=shops.find(x=>x.id===id); if(!s||!me) return; const was=wentBy(s)[me]||true;
-  patchShop(id,{wants:{[me]:true}, went:wentPatch(s,me,null)});
-  toast(`「${s.name}」を行きたいに戻しました`,'元に戻す',()=>{ const cur=shops.find(x=>x.id===id); if(cur) patchShop(id,{wants:{[me]:false}, went:wentPatch(cur,me,was)}); }); }
+  const mine=visitList(s).filter(v=>v.people&&v.people[me]).map(v=>v.vid);
+  const vis=on=>Object.fromEntries(mine.map(vid=>[vid,{people:{[me]:on}}]));
+  patchShop(id,{wants:{[me]:true}, went:wentPatch(s,me,null), ...(mine.length?{visits:vis(false)}:{})});
+  toast(`「${s.name}」を行きたいに戻しました`,'元に戻す',()=>{ const cur=shops.find(x=>x.id===id); if(cur) patchShop(id,{wants:{[me]:false}, went:wentPatch(cur,me,was), ...(mine.length?{visits:vis(true)}:{})}); }); }
+// カレンダーから1日の記録を消す. if it was your only visit, the shop goes back to 行きたい
+function unvisit(id,date,vid){ const s=shops.find(x=>x.id===id); if(!s||!me) return;
+  const wd=wentBy(s)[me], wasWant=!!(s.wants&&s.wants[me]);
+  const rest=visitList(s).filter(v=>v.vid!==vid && v.date!==date && v.people&&v.people[me]).map(v=>v.date);
+  const p={}; if (vid) p.visits={[vid]:{people:{[me]:false}}};
+  if (wd){ if (rest.length){ if (wd===date || wd===true) p.went=wentPatch(s,me,rest[0]); } else { p.went=wentPatch(s,me,null); p.wants={[me]:true}; } }
+  patchShop(id,p);
+  toast(rest.length||!wd ? `${fmtDate(date)}の「${s.name}」を消しました` : `「${s.name}」を消して、行きたいに戻しました`,'元に戻す',()=>{ const cur=shops.find(x=>x.id===id); if(!cur) return;
+    const u={}; if (vid) u.visits={[vid]:{people:{[me]:true}}}; if (wd){ u.went=wentPatch(cur,me,wd); u.wants={[me]:wasWant}; } patchShop(id,u); }); }
 function markWant(id){ const s=shops.find(x=>x.id===id); if(!s||!me) return; patchShop(id,{wants:{[me]:true}, went:wentPatch(s,me,null)}); }
 function removeMine(id){ const s=shops.find(x=>x.id===id); if(!s||!me||isFriendShop(s)) return; const was={want:!!(s.wants&&s.wants[me]), went:wentBy(s)[me]||null};
   patchShop(id,{wants:{[me]:false}, went:wentPatch(s,me,null)});

@@ -51,3 +51,4 @@
 .rank li:nth-child(1) .num{--m:#B8892B}
 .rank li:nth-child(2) .num{--m:#8A8F98}
 .rank li:nth-child(3) .num{--m:#A8653A}
+.daylist .cal-del{color:var(--red);border-color:color-mix(in srgb,var(--red) 35%,var(--line))}
