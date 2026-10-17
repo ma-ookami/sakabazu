@@ -16,28 +16,24 @@ function closeSearch(){ hideSheet('searchSheet'); }
 function buildSearch(){
   const body=$('sBody'); body.textContent='';
   if (!hpOn()){ body.appendChild(el('p','hint','お店検索はまだ設定されていません(firebase-config.js の HOTPEPPER_PROXY)。')); return; }
-  // the two boxes: エリア・駅 / キーワード
+  // エリア (chips) first, then the keyword box
+  if (!HP_AREAS.some(p=>p.id===hpArea_)){ setHpArea(hpAreaOf().id); }
+  sx.areaText='';
+  body.appendChild(el('h3','sx-h sx-h1','エリア'));
+  const ar=el('div','chips sx-areas'); ar.id='sxAreas'; ar.setAttribute('aria-label','エリア');
+  for (const p of HP_AREAS){ const c=el('button','chip',p.label); c.type='button'; c.dataset.id=p.id;
+    c.onclick=()=>{ setHpArea(p.id); markAreas(); if(sx.state==='done'||sx.state==='error') runSearch(); };
+    ar.appendChild(c); }
+  body.appendChild(ar); markAreas();
   const f=el('form','sx-box'); f.noValidate=true;
-  const r1=el('label','sx-row'); r1.appendChild(el('span','sx-ic','📍'));
-  const ai=el('input','sx-in'); ai.id='sxArea'; ai.placeholder='エリア・駅(例: 狸小路)'; ai.autocomplete='off'; ai.maxLength=30;
-  const a=hpAreaOf(); ai.value = sx.areaText || (a.id!=='any' ? a.label : '');
-  ai.oninput=()=>{ sx.areaText=ai.value.trim(); const p=HP_AREAS.find(x=>x.label===sx.areaText); setHpArea(p?p.id:'text'); if(p) sx.areaText=''; markAreas(); };
-  r1.appendChild(ai); f.appendChild(r1);
   const r2=el('label','sx-row'); r2.appendChild(el('span','sx-ic','🔍'));
   const ki=el('input','sx-in'); ki.id='sxKw'; ki.type='search'; ki.placeholder='店名・料理'; ki.autocomplete='off'; ki.maxLength=5000; ki.value=sx.kw;
   ki.oninput=()=>{ sx.kw=ki.value; };
   r2.appendChild(ki); f.appendChild(r2);
   const go=el('button','btn btn-red sx-go','検索'); go.type='submit'; f.appendChild(go);
-  f.onsubmit=e=>{ e.preventDefault(); ki.blur(); ai.blur(); runSearch(); };
+  f.onsubmit=e=>{ e.preventDefault(); ki.blur(); runSearch(); };
   body.appendChild(f);
   { const u=el('button','sx-urlbtn','🔗 URLで登録(LINEで送られたリンクなど)'); u.type='button'; u.onclick=()=>openUrlAdd(); body.appendChild(u); }
-
-  body.appendChild(el('h3','sx-h','エリア'));
-  const ar=el('div','chips sx-areas'); ar.id='sxAreas'; ar.setAttribute('aria-label','エリア');
-  for (const p of HP_AREAS){ const c=el('button','chip',p.label); c.type='button'; c.dataset.id=p.id;
-    c.onclick=()=>{ setHpArea(p.id); sx.areaText=''; ai.value=p.id!=='any'?p.label:''; markAreas(); if(sx.state==='done'||sx.state==='error') runSearch(); };
-    ar.appendChild(c); }
-  body.appendChild(ar); markAreas();
 
   body.appendChild(el('h3','sx-h','ジャンルから探す'));
   const gs=el('div','sx-genres');
