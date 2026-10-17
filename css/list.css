@@ -137,3 +137,6 @@
 .card .more-btn{pointer-events:auto}
 body:has(.toast:not([hidden])) .fab{transform:translateY(-68px)}
 .fab{transition:transform .25s var(--ease-out)}
+/* "…" sits at the card's bottom right */
+.card:has(> .more-btn){position:relative;padding-bottom:24px}
+.card > .more-btn{position:absolute;right:8px;bottom:2px;width:40px;height:28px;border-radius:14px}

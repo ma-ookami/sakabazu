@@ -21,7 +21,7 @@ async function renderWant(v){
   for (const s of arr){
     const {c,top,chips}=cardShell(s);
     if (!readOnly && me && !wentBy(s)[me]){ const w=el('button','went-btn live','行った'); w.setAttribute('aria-label',(s.name||'')+'に行った'); w.onclick=()=>wentWhen(s.id); top.appendChild(w); }
-    moreBtn(top,s);
+    moreBtn(c,s);
     if (s.planDate) pill(chips,'plan',fmtDate(s.planDate)+' に行く予定');
     hoursPill(chips,s); tagPills(chips,s,3);
     if (chips.children.length) c.appendChild(chips);
@@ -65,7 +65,7 @@ function renderWent(v){
   for (const s of arr){
     const {c,top,chips}=cardShell(s);
     if (lastWent(s)) top.appendChild(el('span','date',fmtDate(lastWent(s))));
-    moreBtn(top,s);
+    moreBtn(c,s);
     hoursPill(chips,s);
     { const last=visitList(s).find(x=>x.actual>0); if(last) pill(chips,'yen',`1人 ${yen(last.actual)}`); const sc=senseScore(s); if(sc!=null) pill(chips,'sense',`感覚一致 ${sc}%`); const dl=dealLabel(dealScore(s)); if(dl) pill(chips,dl==='感覚より安い'?'deal':'tag',dl); }
     tagPills(chips,s,2);
@@ -154,10 +154,10 @@ async function addManual(raw){
 
 
 // "…" on a card: what you can do to this shop
-function moreBtn(top,s){
+function moreBtn(card,s){
   if (readOnly || !me || isFriendShop(s)) return;
   const b=el('button','more-btn','…'); b.type='button'; b.setAttribute('aria-label',(s.name||'')+'の操作');
-  b.onclick=e=>{ e.stopPropagation(); shopMenu(s); }; top.appendChild(b);
+  b.onclick=e=>{ e.stopPropagation(); shopMenu(s); }; card.appendChild(b);
 }
 function shopMenu(s){
   const st=mySt(s), items=[];
