@@ -128,6 +128,8 @@ function darumaLine(){
   const h=new Date().getHours(), nw=shops.filter(inWant).length;
   const td=Object.values(todayDocs||{}).find(d=>d.date===today());
   if (td){ const s=shops.find(x=>x.id===td.shopId); if(s) return `今日は「${s.name}」だね。楽しんで!`; }
+  const wf=mixedFriends()[0];
+  if (wf) return nw ? `${friends[wf].nick}と行きたい店が${nw}軒あるよ。どこにする?` : `${friends[wf].nick}とのリストはまだ空っぽ。行きたい店を入れてみよう`;
   if (!nw) return 'まずは行きたい店を1軒、リストに入れてみよう';
   if (h>=4 && h<11) return 'おはよう。今夜はどこにする?';
   if (h>=11 && h<16) return `行きたい店が${nw}軒あるよ。今日はどこ行く?`;

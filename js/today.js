@@ -19,7 +19,8 @@ function todayBlock(v){
   const list=todayList();
   if (!list.length){
     const b=el('button','todaybtn'); b.onclick=openPick;
-    b.append(el('span','tb-t','今日どこ行く?'), el('span','tb-s','行きたい店と行った店から探す'));
+    const wf=mixedFriends()[0];   // with a friend's list on: deciding where to go together
+    b.append(el('span','tb-t', wf ? `${friends[wf].nick}とどこ行く?` : '今日どこ行く?'), el('span','tb-s', wf ? '2人の行きたい店と行った店から探す' : '行きたい店と行った店から探す'));
     v.appendChild(b); return;
   }
   const box=el('section','today'); const h=el('div','today-h'); h.appendChild(el('h2','today-t','今日の飲み'));
@@ -61,7 +62,7 @@ async function shareShop(s,time){
   try{ if(navigator.share){ await navigator.share({text}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
   try{ await navigator.clipboard.writeText(text); toast('メッセージをコピーしました。LINEなどに貼って送れます'); }catch{ toast('コピーできませんでした'); }
 }
-function openPick(){ pick.chosen=null; pick.proposing=null; showSheet('pickSheet'); buildPick(); $('pBack').focus({preventScroll:true}); }
+function openPick(){ pick.chosen=null; pick.proposing=null; const wf=mixedFriends()[0]; $('pTitle').textContent = wf ? `${friends[wf].nick}とどこ行く?` : '今日どこ行く?'; showSheet('pickSheet'); buildPick(); $('pBack').focus({preventScroll:true}); }
 function closePick(){ hideSheet('pickSheet'); }
 function startPropose(id){ pick.proposing=id; buildPick(); const p=$('pProp'); if(p) requestAnimationFrame(()=>p.scrollIntoView({block:'center',behavior:'smooth'})); }
 function omakase(cands){

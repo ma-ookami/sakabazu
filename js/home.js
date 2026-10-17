@@ -18,7 +18,10 @@ function renderHome(v0){
   // what you can do from here
   const acts=el('div','homeacts');
   const act=(ic,t,sub,fn,cls)=>{ const b=el('button','hact'+(cls?' '+cls:'')); b.append(el('span','ha-ic',ic), el('span','ha-t',t)); if(sub) b.appendChild(el('span','ha-s',sub)); b.onclick=fn; acts.appendChild(b); };
-  if (!readOnly) act('🔍','お店をリストに追加','エリア・料理・URLから',goAdd,'main');
+  if (!readOnly){ const b=el('button','hact main'); const t=el('span','tb-t');
+    t.innerHTML='<svg class="tb-ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>';
+    t.appendChild(document.createTextNode('お店をリストに追加'));
+    b.append(t, el('span','tb-s','エリア・料理・URLから探す')); b.onclick=goAdd; acts.appendChild(b); }
   act('🏮','行きたい店',`${shops.filter(inWant).length}軒`,()=>{ listSub='want'; setTab('list'); });
   act('📒','行った店',`${shops.filter(inWent).length}軒`,()=>{ recSub='cal'; setTab('rec'); });
   act('🗺️','地図','近くの店',()=>setTab('map'));

@@ -140,3 +140,7 @@ body.gating .tabs,body.gating .crew,body.gating .modesw{display:none}
 .hact.main > *{position:relative;z-index:1}
 .hact.main::after{content:"";position:absolute;right:-20px;top:-75px;width:170px;height:170px;border-radius:50%;
   background:repeating-radial-gradient(circle,transparent 0 13px,color-mix(in srgb,var(--on-red) 11%,transparent) 13px 14px);pointer-events:none}
+/* the add button reads like 今日どこ行く?: big brush title (search mark in front) + small line */
+.homestack .hact.main{padding:22px;gap:2px}
+.hact.main .tb-t{display:flex;align-items:center;gap:10px}
+.tb-ic{width:24px;height:24px;flex:none}
