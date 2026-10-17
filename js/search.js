@@ -3,7 +3,8 @@ const HP_GENRES = ['居酒屋','焼き鳥','海鮮','ジンギスカン','焼肉
 // budget codes of the API (dinner budget)
 const HP_BUDGETS = [['','予算 指定なし'],['B001','〜2000円'],['B002','2001〜3000円'],['B003','3001〜4000円'],['B008','4001〜5000円'],['B004','5001〜7000円'],['B005','7001〜10000円']];
 const HP_FLAGS = [['free_drink','飲み放題'],['private_room','個室'],['non_smoking','禁煙'],['midnight','23時以降も営業'],['card','カード可']];
-const sx = {src:'g', gres:[], gnext:'',kw:'', areaText:'', budget:'', flags:{}, near:true, state:'idle', results:[], total:0, mainN:0, msg:'', seq:0, more:false, url:''};
+const sx = {src:'hp', gres:[], gnext:'',kw:'',   // ホットペッパー first for now (Google needs the Worker key)
+   areaText:'', budget:'', flags:{}, near:true, state:'idle', results:[], total:0, mainN:0, msg:'', seq:0, more:false, url:''};
 
 function openSearch(kw){
   if (typeof kw==='string') sx.kw=kw;
