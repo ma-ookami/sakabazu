@@ -4,22 +4,27 @@
 const DM_PARTS = {
   body:  { label:'体の色', color:true, opts:{ aka:['#E0453A','#B8322A'], kin:['#E9B949','#C08F22'], shiro:['#F6F1E7','#D8CDB8'], momo:['#F59CB2','#D9758F'],
            ao:['#5B93D3','#3C6FAA'], midori:['#62B072','#438A52'], kuro:['#3A3434','#221E1E'] } },
-  gara:  { label:'体の模様', opts:{ nashi:'なし', kumo:'雲', nami:'波', ume:'梅', sen:'金の線' } },
+  gara:  { label:'体の模様', opts:{ nashi:'なし', kumo:'雲', nami:'波', ume:'梅', sakura:'桜', sen:'金の線', ichimatsu:'市松', asanoha:'麻の葉', shippo:'七宝', uroko:'鱗', mizutama:'しぶき', shima:'提灯の縞' } },
   eye:   { label:'目', opts:{ kira:'キラキラ', maru:'まる', ten:'てん', niko:'にっこり', gyoro:'ぎょろ', kata:'片目(願かけ)' } },
   brow:  { label:'まゆ', opts:{ nashi:'なし', hoso:'ほそ', futo:'ふと', tsuru:'いかつい' } },
   hige:  { label:'ひげ', opts:{ nashi:'なし', chobi:'ちょび', kuru:'くるん', kame:'もじゃ' } },
-  mouth: { label:'口', opts:{ niko:'にこ', han:'あーん', omega:'ω', pokan:'ぽかん', bero:'べー', he:'への字' } },
+  mouth: { label:'口', opts:{ niko:'にこ', han:'あーん', omega:'ω', pokan:'ぽかん', bero:'べー', puha:'ぷはー', he:'への字' } },
+  kaoiro:{ label:'顔色', opts:{ nashi:'ふつう', horo:'ほろ酔い' } },
   hoho:  { label:'ほっぺ', opts:{ nashi:'なし', ari:'あり' } },
   moji:  { label:'お腹の字', opts:{ '':'なし', '福':'福', '酒':'酒', '呑':'呑', '吉':'吉', '勝':'勝', '神':'神', '雅':'雅' } },
   head:  { label:'あたま', opts:{ nashi:'なし', neko:'ねこ耳', hachi:'はちまき' } },
   kao:   { label:'顔の小物', opts:{ nashi:'なし', megane:'メガネ', sangura:'サングラス' } },
-  item:  { label:'もちもの', opts:{ nashi:'なし', jokki:'ジョッキ', choko:'おちょこ', chochin:'ちょうちん' } },
+  item:  { label:'もちもの', opts:{ nashi:'なし', jokki:'ジョッキ', kanpai:'乾杯', highball:'ハイボール', wine:'ワイン', tokkuri:'とっくり', choko:'おちょこ',
+           yakitori:'焼き鳥', edamame:'枝豆', chochin:'ちょうちん', uchiwa:'うちわ', maneki:'招き猫の手' } },
+  ushiro:{ label:'うしろ', opts:{ nashi:'なし', goko:'後光' } },
 };
-const DM_DEFAULT = { body:'aka', gara:'nashi', eye:'kira', brow:'hoso', hige:'nashi', mouth:'niko', hoho:'ari', moji:'福', head:'nashi', kao:'nashi', item:'nashi' };
+const DM_DEFAULT = { body:'aka', gara:'nashi', eye:'kira', brow:'hoso', hige:'nashi', mouth:'niko', hoho:'ari', moji:'福', head:'nashi', kao:'nashi', item:'nashi', kaoiro:'nashi', ushiro:'nashi' };
 // one tap looks: the cute default, and the classic stern daruma face
 const DM_PRESETS = [
   ['かわいい', DM_DEFAULT],
   ['いかつい', { body:'aka', gara:'kumo', eye:'gyoro', brow:'tsuru', hige:'kame', mouth:'he', hoho:'nashi', moji:'福', head:'nashi', kao:'nashi', item:'nashi' }],
+  ['ほろ酔い', { body:'aka', gara:'shima', eye:'niko', brow:'hoso', hige:'nashi', mouth:'puha', hoho:'ari', kaoiro:'horo', moji:'酒', head:'hachi', kao:'nashi', item:'jokki' }],
+  ['ありがたい', { body:'kin', gara:'shippo', eye:'niko', brow:'futo', hige:'kuru', mouth:'niko', hoho:'ari', moji:'福', head:'nashi', kao:'nashi', item:'nashi', ushiro:'goko' }],
 ];
 const cleanDm = c => {
   const o=Object.fromEntries(Object.entries(DM_PARTS).map(([k,p]) => [k, c && c[k]!=null && c[k] in p.opts ? c[k] : DM_DEFAULT[k]]));
@@ -65,6 +70,7 @@ function darumaSvg(c){
     pokan:`<ellipse cx="32" cy="${38.6+my}" rx="1.9" ry="2.2" fill="${ink}"/>`,
     bero: ln(`M29 ${37+my}Q32 ${39.5+my} 35 ${37+my}`,1.8)+`<path d="M30.6 ${38.4+my}Q32 ${42.5+my} 33.4 ${38.4+my}Z" fill="#F07A7A"/>`,
     han:`<path d="M28.3 ${36.6+my}H35.7A3.7 3.7 0 0 1 28.3 ${36.6+my}Z" fill="#8E2A22" stroke="${ink}" stroke-width="1.3" stroke-linejoin="round"/><path d="M30 ${39.1+my}Q32 ${37.9+my} 34 ${39.1+my}Q32 ${40.6+my} 30 ${39.1+my}Z" fill="#F07A7A"/>`,
+    puha:`<ellipse cx="32" cy="${38.8+my}" rx="3.4" ry="2.6" fill="#8E2A22" stroke="${ink}" stroke-width="1.2"/><path d="M40 ${36+my}q2.5-1 4.5 0M41 ${39.5+my}q3 .3 5 2" fill="none" stroke="${ink}" stroke-width="1.1" stroke-linecap="round" opacity=".55"/>`,
     he: ln(`M28.5 ${39+my}Q32 ${36.5+my} 35.5 ${39+my}`,2) }[c.mouth];
   const hoho = (o=.75) => c.hoho==='ari' ? `<ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="${o}"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="${o}"/>` : '';
   // patterns on the colored part of the body, clipped to the body
@@ -76,6 +82,13 @@ function darumaSvg(c){
       .map(([x,y])=>gl(`M${x-4} ${y}a4 4 0 0 1 8 0`,1.3)+gl(`M${x-2.2} ${y}a2.2 2.2 0 0 1 4.4 0`,1.1)).join(''),
     ume: [[12,44,1],[52,44,1],[16,54,.8],[48,54,.8],[9,34,.7],[55,34,.7]].map(([x,y,s])=>`<g transform="translate(${x} ${y}) scale(${s})">${[0,72,144,216,288].map(a=>`<circle cx="0" cy="-2.6" r="2" fill="#FFD6DE" transform="rotate(${a})"/>`).join('')}<circle r="1.2" fill="${gold}"/></g>`).join(''),
     sen: gl('M11 28Q9 40 13 51',1.8)+gl('M53 28Q55 40 51 51',1.8)+gl('M14 26Q12.5 40 16.5 50',1)+gl('M50 26Q51.5 40 47.5 50',1),
+    sakura: [[11,45,1],[53,45,1],[15,55,.85],[49,55,.85],[8,33,.7],[56,33,.7],[23,59,.7],[41,59,.7]].map(([x,y,k])=>`<g transform="translate(${x} ${y}) scale(${k})">${[0,72,144,216,288].map(a=>`<ellipse cx="0" cy="-2.7" rx="1.5" ry="2.5" fill="#FFC9D6" transform="rotate(${a})"/>`).join('')}<circle r=".9" fill="${gold}"/></g>`).join(''),
+    ichimatsu: (()=>{ let o=''; for(let y=40;y<64;y+=6) for(let x=2;x<62;x+=6) if(((x-2)/6+(y-40)/6)%2===0) o+=`<rect x="${x}" y="${y}" width="6" height="6" fill="${gold}" opacity=".38"/>`; return o; })(),
+    asanoha: (()=>{ let o=''; for(let y=42,r=0;y<64;y+=7,r++) for(let x=(r%2?6:2);x<64;x+=8) o+=gl(`M${x} ${y-3.5}V${y+3.5}M${x-3} ${y-1.75}L${x+3} ${y+1.75}M${x-3} ${y+1.75}L${x+3} ${y-1.75}`,.9); return o; })(),
+    shippo: (()=>{ let o=''; for(let y=40;y<66;y+=8) for(let x=0;x<66;x+=8) o+=`<circle cx="${x}" cy="${y}" r="5.6" fill="none" stroke="${gold}" stroke-width="1" opacity=".85"/>`; return o; })(),
+    uroko: (()=>{ let o=''; for(let y=41,r=0;y<64;y+=7,r++) for(let x=(r%2?-2:2);x<64;x+=8) o+=`<path d="M${x} ${y+7}L${x+4} ${y}L${x+8} ${y+7}Z" fill="${gold}" opacity="${(r+x)%3?'.18':'.42'}"/>`; return o; })(),
+    mizutama: [[12,40,2.4],[20,48,1.6],[9,52,1.8],[52,40,2.2],[45,49,1.5],[56,53,2],[27,57,1.4],[38,58,2],[16,30,1.2],[49,27,1.4],[33,62,1.2]].map(([x,y,r],i)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${i%3?'#fff':gold}" opacity=".75"/>`).join(''),
+    shima: [12,18,24,30,36,42,48,54,60].map(y=>`<path d="M2 ${y}Q32 ${y+5} 62 ${y}" fill="none" stroke="${BD}" stroke-width="1.5" opacity=".55"/>`).join(''),
   }[c.gara];
   const ears = c.head==='neko' ? `<path d="M12 22L12.5 3L27 10Z" fill="${B}"/><path d="M14.4 15.5L14.8 7.4L21.6 10.6Z" fill="#FF9DB0"/>
       <path d="M52 22L51.5 3L37 10Z" fill="${B}"/><path d="M49.6 15.5L49.2 7.4L42.4 10.6Z" fill="#FF9DB0"/>` : '';
@@ -95,8 +108,18 @@ function darumaSvg(c){
     choko:`<g transform="translate(51 50)"><path d="M0 0H10L8.5 6.5H1.5Z" fill="#fff" stroke="${ink}" stroke-width="1"/><path d="M1 1.6H9" stroke="#5B93D3" stroke-width="1.6"/></g>`,
     chochin:`<g transform="translate(52 30)"><path d="M5 -6V0" stroke="${ink}" stroke-width="1"/><rect x="2" y="0" width="6" height="2" rx=".6" fill="${ink}"/>
       <ellipse cx="5" cy="9" rx="5.5" ry="7.5" fill="#E0453A"/><path d="M0 6.5Q5 8 10 6.5M-.3 10Q5 11.5 10.3 10" stroke="#9A2A22" stroke-width=".6" fill="none"/><rect x="2" y="16" width="6" height="2" rx=".6" fill="${ink}"/></g>`,
+    kanpai:`<g transform="translate(50 42)"><rect x="0" y="2" width="11" height="15" rx="2" fill="#F4C24C" stroke="${ink}" stroke-width="1"/><path d="M11 6h2.5a2.5 2.5 0 0 1 0 6H11" fill="none" stroke="${ink}" stroke-width="1.4"/><path d="M-.5 3Q1 -1 4 1Q6 -1.5 8.5 1Q11 -.5 11.5 3Z" fill="#fff" stroke="${ink}" stroke-width=".8"/></g>
+      <g transform="translate(14 42) scale(-1 1)"><rect x="0" y="2" width="11" height="15" rx="2" fill="#F4C24C" stroke="${ink}" stroke-width="1"/><path d="M11 6h2.5a2.5 2.5 0 0 1 0 6H11" fill="none" stroke="${ink}" stroke-width="1.4"/><path d="M-.5 3Q1 -1 4 1Q6 -1.5 8.5 1Q11 -.5 11.5 3Z" fill="#fff" stroke="${ink}" stroke-width=".8"/></g>`,
+    highball:`<g transform="translate(52 34)"><path d="M0 0H9L8 22H1Z" fill="#F7E3A6" fill-opacity=".9" stroke="${ink}" stroke-width="1"/><rect x="2" y="7" width="4" height="4" rx=".8" fill="#fff" opacity=".9"/><rect x="4" y="12" width="3.5" height="3.5" rx=".8" fill="#fff" opacity=".8"/><circle cx="3" cy="17" r=".7" fill="#fff"/><circle cx="6" cy="4" r=".6" fill="#fff"/><path d="M6.5 -4L5 7" stroke="#E0453A" stroke-width="1.2" stroke-linecap="round"/></g>`,
+    wine:`<g transform="translate(51 38)"><path d="M0 0H10Q10 8 5 9Q0 8 0 0Z" fill="#9B2335" stroke="${ink}" stroke-width="1"/><path d="M0 0H10" stroke="${ink}" stroke-width="1"/><path d="M5 9V17M1.5 17.5H8.5" stroke="${ink}" stroke-width="1.2" stroke-linecap="round"/></g>`,
+    tokkuri:`<g transform="translate(51 36)"><path d="M4 0H8V4Q13 9 12 17Q11 22 6 22Q1 22 0 17Q-1 9 4 4Z" fill="#fff" stroke="${ink}" stroke-width="1"/><path d="M.4 13.5H11.6" stroke="#5B93D3" stroke-width="2.2"/><text x="6" y="11" text-anchor="middle" font-size="4.5" font-family="serif" fill="${ink}">酒</text></g>`,
+    yakitori:`<g transform="translate(48 30) rotate(25)"><path d="M3 -2V26" stroke="#B88A55" stroke-width="1.4" stroke-linecap="round"/><ellipse cx="3" cy="4" rx="3.3" ry="2.9" fill="#A0522D" stroke="${ink}" stroke-width=".6"/><ellipse cx="3" cy="10" rx="3.3" ry="2.9" fill="#B5652E" stroke="${ink}" stroke-width=".6"/><ellipse cx="3" cy="16" rx="3.3" ry="2.9" fill="#A0522D" stroke="${ink}" stroke-width=".6"/><path d="M1 3.5l1 .5M2 9.5l1.5.3M1 15.5l1.4.5" stroke="#5A2C12" stroke-width=".6"/></g>`,
+    edamame:`<g transform="translate(49 46) rotate(-20)"><path d="M0 4Q1 -1 6 1Q10 -1 13 2Q17 0 17 4Q16 9 12 7Q8 10 5 7Q1 9 0 4Z" fill="#7BBF4B" stroke="#3E7A23" stroke-width="1"/><circle cx="4" cy="4" r="1.8" fill="#9ED36A"/><circle cx="8.5" cy="4" r="1.8" fill="#9ED36A"/><circle cx="13" cy="4" r="1.8" fill="#9ED36A"/></g>`,
+    uchiwa:`<g transform="translate(55 30) rotate(15)"><path d="M0 8V20" stroke="#B88A55" stroke-width="1.6" stroke-linecap="round"/><circle cx="0" cy="0" r="8" fill="#fff" stroke="${ink}" stroke-width="1"/><circle cx="0" cy="0" r="4" fill="#E0453A"/><path d="M-7 3Q0 6 7 3" stroke="#5B93D3" stroke-width="1.2" fill="none"/></g>`,
+    maneki:`<g transform="translate(52 12)"><path d="M2 18Q0 10 2 5Q4 0 8 1Q12 2 11 8Q10 14 8 18Z" fill="#fff" stroke="${ink}" stroke-width="1"/><circle cx="5" cy="4" r="1.2" fill="#FF9DB0"/><circle cx="8" cy="3.5" r="1.2" fill="#FF9DB0"/><circle cx="9.6" cy="6" r="1.1" fill="#FF9DB0"/><ellipse cx="7" cy="8.5" rx="2.2" ry="1.8" fill="#FF9DB0"/></g>`,
   }[c.item];
   return `<svg viewBox="0 0 64 66" aria-hidden="true"><defs><clipPath id="${cid}"><path d="${BODY}"/></clipPath></defs><g class="dm-body">
+  ${c.ushiro==='goko' ? `<g class="dm-goko"><circle cx="32" cy="33" r="34" fill="#F2C14E" opacity=".16"/>${Array.from({length:16},(_,k)=>`<path d="M32 33L${32+38*Math.cos((k+.5)*Math.PI/8-.08)} ${33+38*Math.sin((k+.5)*Math.PI/8-.08)}L${32+38*Math.cos((k+.5)*Math.PI/8+.08)} ${33+38*Math.sin((k+.5)*Math.PI/8+.08)}Z" fill="#F2C14E" opacity=".55"/>`).join('')}</g>` : ''}
   <ellipse cx="32" cy="62.5" rx="20" ry="2.8" fill="#000" opacity=".12"/>
   ${ears}
   <path d="${BODY}" fill="${B}"/>
@@ -104,7 +127,8 @@ function darumaSvg(c){
   <g clip-path="url(#${cid})">${gara}</g>
   <ellipse cx="22" cy="12.5" rx="6" ry="2.6" fill="#fff" opacity=".28" transform="rotate(-22 22 12.5)"/>
   <ellipse cx="32" cy="31" rx="18" ry="15" fill="${face}" stroke="${gold}" stroke-width="1.6"/>
-  ${c.moji ? `<text x="32" y="56" text-anchor="middle" font-size="9.5" font-weight="700" font-family="Zen Antique, serif" fill="${gold}">${c.moji}</text>` : ''}
+  ${c.kaoiro==='horo' ? `<ellipse cx="32" cy="32" rx="17" ry="13.5" fill="#FF7A7A" opacity=".16"/><ellipse cx="19.5" cy="35.5" rx="4.2" ry="2.4" fill="#FF6B6B" opacity=".55"/><ellipse cx="44.5" cy="35.5" rx="4.2" ry="2.4" fill="#FF6B6B" opacity=".55"/><path d="M15 29.5l2 .8M14.6 32l2 .4M49 29.5l-2 .8M49.4 32l-2 .4" stroke="#E0453A" stroke-width=".8" stroke-linecap="round" opacity=".7"/>` : ''}
+  ${c.moji ? `<text x="32" y="56" text-anchor="middle" font-size="9.5" font-weight="700" font-family="Zen Antique, serif" fill="${gold}" stroke="${B}" stroke-width="2.2" paint-order="stroke">${c.moji}</text>` : ''}
   ${brow}${hige}
   <g class="dm-f dm-normal"><g class="dm-eyes">${eye}</g>${mouth}${hoho()}</g>
   <g class="dm-f dm-happy">${ln('M21.5 31Q25 26.5 28.5 31',2.4)+ln('M35.5 31Q39 26.5 42.5 31',2.4)}
