@@ -6,7 +6,9 @@ function cardShell(s){
   const c=el('article','card shop2'); c.style.setProperty('--c',crestColor(s));
   const hit=el('button','card-hit'); hit.setAttribute('aria-label',(s.name||'')+'の詳細'); hit.onclick=()=>openDetailFrom(c,s.id); c.appendChild(hit);
   const top=el('div','sc-top'); const cr=el('span','crest',crestOf(s)); cr.setAttribute('aria-hidden','true'); top.appendChild(cr);
-  const main=el('div','sc-main'); main.appendChild(el('h3','name',s.name||'(名前なし)')); if(s.area) main.appendChild(el('div','area',s.area)); top.appendChild(main);
+  const main=el('div','sc-main'); main.appendChild(el('h3','name',s.name||'(名前なし)')); if(s.area) main.appendChild(el('div','area',s.area));
+  if (isFriendShop(s) && friends[s._friend]) main.appendChild(el('span','fr-own',friends[s._friend].nick+'の店'));
+  top.appendChild(main);
   c.appendChild(top);
   return {c,top,chips:el('div','sc-chips')};
 }

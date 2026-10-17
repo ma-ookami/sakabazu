@@ -46,7 +46,7 @@ async function renderWant(v){
     const faces=el('div','faces'); const st=el('span','stack'); faces.appendChild(st);
     faces.appendChild(el('span',null, whoText(ids,'行きたい')));
     foot.appendChild(faces); slots.push([st,ids.slice(0,5)]);
-    if (!readOnly && me && groupMode()){ const mine=!!(s.wants&&s.wants[me]); const wb=el('button','want-btn live', mine?'行きたい ✓':'私も行きたい'); wb.setAttribute('aria-pressed',String(mine)); wb.onclick=()=>toggleWant(s.id); foot.appendChild(wb); }
+    if (!readOnly && me && groupMode()){ const mine=!!(s.wants&&s.wants[me]); const wb=el('button','want-btn live', mine?'行きたい ✓':isFriendShop(s)?'＋ 自分のリストに入れる':'私も行きたい'); wb.setAttribute('aria-pressed',String(mine)); wb.onclick=()=>toggleWant(s.id); foot.appendChild(wb); }
     c.appendChild(foot); }
     if (!readOnly && me){
       const right = !wentBy(s)[me] ? {label:'✓ 行った', run:()=>markWent(s.id)} : null;
@@ -89,7 +89,9 @@ function renderWent(v){
     if (chips.children.length) c.appendChild(chips);
     const sl=starLine(s); c.appendChild(sl || el('div','marks','まだ星がついていません'));
     const bd=el('div','badges'); c.appendChild(bd); badgeSlots.push([bd,s.id]);
-    const ids=recorders(s); if (ids.length){ const f=el('div','foot'); const fc=el('div','faces'); const st=el('span','stack'); fc.append(st, el('span',null,`${ids.length}人が記録`)); f.appendChild(fc); c.appendChild(f); slots.push([st,ids.slice(0,5)]); }
+    const ids=recorders(s); if (ids.length || (isFriendShop(s) && !readOnly && me)){ const f=el('div','foot'); const fc=el('div','faces'); const st=el('span','stack'); fc.append(st, el('span',null,ids.length?`${ids.length}人が記録`:'')); f.appendChild(fc);
+      if (isFriendShop(s) && !readOnly && me){ const ib=el('button','want-btn live','＋ 自分のリストに入れる'); ib.onclick=()=>importToMine([s.id]); f.appendChild(ib); }
+      c.appendChild(f); slots.push([st,ids.slice(0,5)]); }
     list.appendChild(c);
   }
   fillFaces(slots); fillBadges(badgeSlots);

@@ -135,11 +135,16 @@ function friendsSec(root){
   // one real input lies over the boxes, so typing, deleting and pasting all just work
   const f=el('form','codeform'); f.noValidate=true;
   const cb=el('label','codebox'); const i=el('input','code-in'); i.autocomplete='off'; i.autocapitalize='characters'; i.spellcheck=false; i.maxLength=12;
-  i.setAttribute('aria-label','飲み友のコード(7文字)'); i.inputMode='text';
+  i.inputMode='url'; i.setAttribute('autocorrect','off');   // url keyboard: plain a-z first (no kana composing); type stays text so the caret can be moved
+  i.setAttribute('aria-label','飲み友のコード(7文字)');
   const cells=[]; for (let k=0;k<7;k++){ if(k===4) cb.appendChild(el('span','code-dash','-')); const c=el('span','code-c'); cells.push(c); cb.appendChild(c); }
   cb.appendChild(i);
   const b=el('button','btn btn-red','追加'); b.type='submit'; b.disabled=true;
-  const draw=()=>{ const v=cleanCode(i.value).slice(0,7); if(i.value!==v) i.value=v;
+  // while a Japanese keyboard is still composing, leave the text alone (rewriting it then doubles letters)
+  let composing=false;
+  i.addEventListener('compositionstart',()=>{ composing=true; });
+  i.addEventListener('compositionend',()=>{ composing=false; draw(); toEnd(); });
+  const draw=()=>{ const v=cleanCode(i.value).slice(0,7); if(!composing && i.value!==v) i.value=v;
     cells.forEach((c,k)=>{ c.textContent=v[k]||''; c.classList.toggle('cur', document.activeElement===i && k===Math.min(v.length,6)); });
     b.disabled=v.length!==7; };
   const toEnd=()=>{ const n=i.value.length; try{ i.setSelectionRange(n,n); }catch{} };
@@ -207,6 +212,9 @@ function whoBar(v){
     pick.onclick=()=>{ whoOpen=!whoOpen; render(); };
     head.append(el('span','wc-t','🤝'), pick, el('span','wc-t','とのリスト'));
     head.appendChild(el('span','wc-s', fDenied[wf] ? '(相手のリストを読めません)' : '2人の店を合わせて表示'));
+    const only=shops.filter(x=>x._friend===wf);
+    if (only.length && !readOnly){ const ib=el('button','wc-imp',`${friends[wf].nick}の店をまとめて自分のリストへ(${only.length}軒)`); ib.type='button';
+      ib.onclick=async()=>{ if(!(await ask(`${friends[wf].nick}の店${only.length}軒を、自分の「行きたい」に入れます。`,'入れる'))) return; importToMine(only.map(x=>x.id)); }; head.appendChild(ib); }
   } else head.appendChild(el('span','wc-t', ids.length ? '🤝 誰とのリストを見る?' : '🤝 飲み友がまだいません'));
   bar.appendChild(head);
   if (whoOpen || !wf){
@@ -220,3 +228,9 @@ function whoBar(v){
   v.appendChild(bar);
 }
 function openFriends(){ setSub='friends'; setTab('set'); }
+
+// copy 飲み友's shops into my list (as 行きたい). one by one so each gets its details
+async function importToMine(ids){
+  let n=0; for (const id of ids){ const s=shops.find(x=>x.id===id); if(!s || !isFriendShop(s)) continue; const nid=await importShop(id); if(nid && !String(nid).startsWith('f~')) n++; }
+  if (n) toast(n===1 ? '自分のリストに入れました' : `${n}軒を自分のリストに入れました`);
+}
