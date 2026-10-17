@@ -34,9 +34,6 @@ function openAt(s,t){
   if (o==null || c==null) return null;
   return c>o ? (m>=o && m<c) : (m>=o || m<c);
 }
-function todayList(){ const t=today(); const P=SP(); return Object.entries(todayDocs).filter(([,d])=>d.date===t && shops.some(s=>s.id===d.shopId) && (!P || P.has(d.by) || Object.keys(d.votes||{}).some(u=>d.votes[u]&&P.has(u))))
-  .map(([id,d])=>({id,...d,yes:Object.keys(d.votes||{}).filter(u=>d.votes[u])}))
-  .sort((a,b)=>b.yes.length-a.yes.length || (a.createdAt||0)-(b.createdAt||0)); }
 function distM(a,b){ const R=6371000, r=x=>x*Math.PI/180; const dLat=r(b.lat-a.lat), dLng=r(b.lng-a.lng); const h=Math.sin(dLat/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dLng/2)**2; return 2*R*Math.asin(Math.sqrt(h)); }
 const fmtWalk=m=> m<1500 ? `徒歩${Math.max(1,Math.round(m/80))}分` : `${(m/1000).toFixed(1)}km`;
 function candidates(){
@@ -46,56 +43,57 @@ function candidates(){
   const out=arr.map(s=>({s,d:Infinity})); out.sort((a,b)=>score(b.s)-score(a.s));
   return out;
 }
-function todayBlock(v){
-  const list=todayList();
-  if (!list.length){
-    const b=el('button','todaybtn'); b.onclick=openPick;
-    const wf=mixedFriends()[0];   // with a friend's list on: deciding where to go together
-    b.append(el('span','tb-t', wf ? `${friends[wf].nick}とどこ行く?` : '今日どこ行く?'), el('span','tb-s', wf ? '2人の行きたい店と行った店から探す' : '行きたい店と行った店から探す'));
-    v.appendChild(b); return;
-  }
-  const box=el('section','today'); const h=el('div','today-h'); h.appendChild(el('h2','today-t','今日の飲み'));
-  if (!readOnly){ const a=el('button','sbtn','＋ 候補を足す'); a.onclick=openPick; h.appendChild(a); }
-  box.appendChild(h);
-  const slots=[];
-  list.forEach((d,i)=>{
-    const s=shops.find(x=>x.id===d.shopId);
-    const c=el('article','tcard'+(i===0&&d.yes.length?' lead':''));
-    const top=el('div','row'); const left=el('div');
-    const nm=el('button','name tname',s.name||'(名前なし)'); nm.onclick=()=>openDetail(s.id); left.appendChild(nm);
-    const sub=[d.time?d.time+'〜':'', s.area||''].filter(Boolean).join('　'); if(sub) left.appendChild(el('div','area',sub));
-    top.appendChild(left);
-    if (d.by===me && !readOnly){ const x=el('button','ic','✕'); x.setAttribute('aria-label','候補から外す'); x.onclick=()=>removeProposal(d.id); top.appendChild(x); }
-    c.appendChild(top);
-    const ft=el('div','foot'); const fc=el('div','faces'); const st=el('span','stack');
-    fc.append(st, el('span',null, d.yes.length?`${d.yes.length}人が行く`:'まだ誰も')); ft.appendChild(fc); slots.push([st,d.yes.slice(0,6)]);
-    const btns=el('div','tbtns');
-    const sh=el('button','sbtn','送る'); sh.onclick=()=>shareShop(s,d.time); btns.appendChild(sh);
-    if (me && !readOnly && groupMode()){ const mine=!!(d.votes&&d.votes[me]); const g=el('button','sbtn'+(mine?' on':''), mine?'行く ✓':'行く'); g.setAttribute('aria-pressed',String(mine)); g.onclick=()=>vote(d.id,!mine); btns.appendChild(g); }
-    ft.appendChild(btns); c.appendChild(ft); box.appendChild(c);
-  });
-  v.appendChild(box); fillFaces(slots);
+/* 今日の候補: each person adds shops they'd be happy with today (stored in their own today/ docs);
+   with a 飲み友's list on, both sides' picks are merged, and shops both picked are "🍻 2人ともOK" */
+const shopKey = s => (s && s.hp && s.hp.id) ? 'hp:'+s.hp.id : 'n:'+norm((s&&s.name)||'');
+let fToday={};   // 飲み友 -> their picks for today
+function myPickDocs(){ const t=today(); return Object.entries(todayDocs).filter(([,d])=>d.date===t && d.by===me).map(([id,d])=>({...d,_id:id})); }
+function docKey(d){ if (d.key) return d.key; const s=shops.find(x=>x.id===d.shopId); return s ? shopKey(s) : 'id:'+d.shopId; }
+function todayCands(){
+  const map=new Map(), t=today();
+  const add=(d,who)=>{ if(d.date!==t) return; const k=docKey(d); let c=map.get(k);
+    if (!c){ c={key:k, name:d.name||'', by:new Set(), time:''}; map.set(k,c); }
+    c.by.add(who); if (who===me) c.mine=d; if (!c.name && d.name) c.name=d.name; if (d.time && !c.time) c.time=d.time; };
+  for (const d of myPickDocs()) add(d,me);
+  const wf=mixedFriends()[0]; if (wf) for (const d of fToday[wf]||[]) add(d,wf);
+  for (const c of map.values()){ c.shop=shops.find(s=>shopKey(s)===c.key) || shops.find(s=>c.mine && s.id===c.mine.shopId) || null; if(!c.name && c.shop) c.name=c.shop.name; }
+  return [...map.values()].sort((a,b)=>b.by.size-a.by.size || (b.by.has(me)-a.by.has(me)));
 }
-function propose(shopId,time){
-  if(!me||readOnly) return; const id=`${today()}_${shopId}`; const ex=todayDocs[id];
-  if (ex && ex.date===today()){ vote(id,true); if(time && ex.by===me) patchToday(id,{time}); return; }
-  const data={shopId,date:today(),by:me,time:time||'',createdAt:Date.now(),votes:{[me]:true}};
-  todayDocs={...todayDocs,[id]:data}; render();
+const isPicked = s => myPickDocs().some(d=>docKey(d)===shopKey(s));
+// add / remove a shop from my picks for today
+function togglePick(s, c){
+  if (!me || readOnly) return;
+  const key = s ? shopKey(s) : c.key, mine=myPickDocs().find(d=>docKey(d)===key);
+  buzz();
+  if (mine){ const o={...todayDocs}; delete o[mine._id]; todayDocs=o; afterChange();
+    if (mode==='db') enqueue('today:'+mine._id,()=>db.doc('today/'+mine._id).delete()); else saveLocal(); return; }
+  const shopId = s ? s.id : ('k:'+key).slice(0,60), id=`${today()}_${shopId}`;
+  const data={shopId, date:today(), by:me, time:'', createdAt:Date.now(), votes:{}, name:((s&&s.name)||c.name||'').slice(0,60), key:key.slice(0,80)};
+  todayDocs={...todayDocs,[id]:data}; afterChange();
   if (mode==='db') enqueue('today:'+id,()=>db.doc('today/'+id).set(data)); else saveLocal();
 }
-function patchToday(id,p){ const d=todayDocs[id]; if(!d) return; todayDocs={...todayDocs,[id]:deepMerge(JSON.parse(JSON.stringify(d)),JSON.parse(JSON.stringify(p)))}; render();
-  if (mode==='db') enqueue('today:'+id,()=>db.doc('today/'+id).update(p)); else saveLocal(); }
-function vote(id,val){ if(!me) return; buzz(); patchToday(id,{votes:{[me]:val}}); }
-async function removeProposal(id){ if(!(await ask('この候補を外しますか?','外す'))) return; const o={...todayDocs}; delete o[id]; todayDocs=o; render();
-  if (mode==='db') enqueue('today:'+id,()=>db.doc('today/'+id).delete()); else saveLocal(); }
+function pickBtn(s){
+  const on=isPicked(s), b=el('button','sbtn'+(on?'':' on'), on?'✓ 候補':'＋ 候補'); b.setAttribute('aria-pressed',String(on));
+  b.setAttribute('aria-label',(s.name||'')+(on?'を今日の候補から外す':'を今日の候補に入れる'));
+  b.onclick=e=>{ e.stopPropagation(); togglePick(s); }; return b;
+}
+function todayBlock(v){
+  const wf=mixedFriends()[0], cs=todayCands();
+  const b=el('button','todaybtn'); b.onclick=()=>openPick(cs.length?'today':null);
+  b.append(el('span','tb-t', wf ? `${friends[wf].nick}とどこ行く?` : '今日どこ行く?'));
+  if (cs.length){
+    const both=cs.filter(c=>c.by.size>1);
+    b.appendChild(el('span','tb-s', both.length ? `🍻 2人ともOK: ${both.map(c=>c.name).slice(0,2).join('・')}${both.length>2?' ほか':''}` : `今日の候補 ${cs.length}軒`));
+  } else b.appendChild(el('span','tb-s', wf ? '候補を出し合って、2人ともいい店を探す' : '行きたい店と行った店から探す'));
+  v.appendChild(b);
+}
 async function shareShop(s,time){
   const text=`今日ここどう?\n${s.name}${s.area?`(${s.area})`:''}${time?`\n${time}〜`:''}\n${mapsUrl(s)}\n\n酒場図: ${location.origin+location.pathname}`;
   try{ if(navigator.share){ await navigator.share({text}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
   try{ await navigator.clipboard.writeText(text); toast('メッセージをコピーしました。LINEなどに貼って送れます'); }catch{ toast('コピーできませんでした'); }
 }
-function openPick(){ pick.chosen=null; pick.proposing=null; const wf=mixedFriends()[0]; $('pTitle').textContent = wf ? `${friends[wf].nick}とどこ行く?` : '今日どこ行く?'; showSheet('pickSheet'); buildPick(); $('pBack').focus({preventScroll:true}); }
+function openPick(src){ pick.chosen=null; pick.proposing=null; if (src) pick.src=src; const wf=mixedFriends()[0]; $('pTitle').textContent = wf ? `${friends[wf].nick}とどこ行く?` : '今日どこ行く?'; showSheet('pickSheet'); buildPick(); $('pBack').focus({preventScroll:true}); }
 function closePick(){ hideSheet('pickSheet'); }
-function startPropose(id){ pick.proposing=id; buildPick(); const p=$('pProp'); if(p) requestAnimationFrame(()=>p.scrollIntoView({block:'center',behavior:'smooth'})); }
 function omakase(cands){
   if (!cands.length) return;
   const one=()=>cands[Math.floor(Math.random()*cands.length)].s;
@@ -119,8 +117,10 @@ function buildPick(){
   const ae=document.activeElement; if (ae && b.contains(ae) && ae.tagName==='INPUT') return;
   b.textContent='';
   const seg=el('div','seg'); seg.setAttribute('role','group'); seg.setAttribute('aria-label','探す場所');
-  for (const [k,l] of [['all','両方'],['want','行きたい'],['went','行った']]){ const x=el('button',null,l); x.setAttribute('aria-pressed',String(pick.src===k)); x.onclick=()=>{ pick.src=k; pick.chosen=null; buildPick(); }; seg.appendChild(x); }
+  const nc=todayCands().length;
+  for (const [k,l] of [['all','両方'],['want','行きたい'],['went','行った'],['today',nc?`今日の候補 ${nc}`:'今日の候補']]){ const x=el('button',null,l); x.setAttribute('aria-pressed',String(pick.src===k)); x.onclick=()=>{ pick.src=k; pick.chosen=null; buildPick(); }; seg.appendChild(x); }
   b.appendChild(seg);
+  if (pick.src==='today'){ todayTab(b); return; }
   filterBar(b,pick,shops.filter(s=>pick.src==='all'?statusOf(s):pick.src==='want'?inWant(s):inWent(s)),buildPick);
   const cands=candidates();
   const om=el('div','omakase'); const slot=el('div','slot'); slot.id='pSlot'; slot.setAttribute('aria-live','polite');
@@ -130,17 +130,8 @@ function buildPick(){
   else slot.append(el('span','sl-k',`${cands.length}軒の中から`), el('span','sl-n','迷ったら、おまかせ'));
   const ob=el('div','sl-btns');
   const spin=el('button','btn btn-ink',chosen?'もう一回':'🎲 決める'); spin.disabled=!cands.length; spin.onclick=()=>omakase(cands); ob.appendChild(spin);
-  if (chosen && !readOnly && me){ const go=el('button','btn btn-red','今日ここ'); go.onclick=()=>startPropose(chosen.s.id); ob.appendChild(go); }
+  if (chosen && !readOnly && me){ const on=isPicked(chosen.s); const go=el('button','btn btn-red', on?'✓ 候補':'候補に入れる'); go.onclick=()=>togglePick(chosen.s); ob.appendChild(go); }
   slot.appendChild(ob); om.appendChild(slot); b.appendChild(om);
-  const ps=pick.proposing && shops.find(x=>x.id===pick.proposing);
-  if (ps){
-    const pp=el('div','propose'); pp.id='pProp'; pp.appendChild(el('p','pp-t',`「${ps.name}」を今日の候補にする`));
-    const row=el('div','pp-row'); const lab=el('label',null,'集合');
-    const t=el('input','dateinput'); t.type='time'; t.value=pick.time; t.oninput=()=>{ pick.time=t.value; }; lab.appendChild(t); row.appendChild(lab);
-    const ok=el('button','btn btn-red','提案する'); ok.onclick=()=>{ propose(ps.id,pick.time); pick.proposing=null; pick.chosen=null; closePick(); setTab('home'); toast(`「${ps.name}」を今日の候補にしました`,'飲み友に送る',()=>shareShop(ps,pick.time)); };
-    const cx=el('button','btn btn-line','やめる'); cx.onclick=()=>{ pick.proposing=null; buildPick(); };
-    row.append(ok,cx); pp.appendChild(row); b.appendChild(pp);
-  }
   if (!cands.length){ b.appendChild(el('p','empty', shops.length?'条件に合う店がありません。条件を外してみてください。':'まだ店がありません。行きたい店を追加してみましょう。')); return; }
   const ul=el('ul','plist');
   for (const {s,d} of cands){
@@ -149,9 +140,31 @@ function buildPick(){
     info.appendChild(el('span','pm',[statusOf(s)==='went'?'行った':'行きたい', genreOf(s), (hoursStatus(s)||{}).t, s.area, Number.isFinite(d)?fmtWalk(d):''].filter(Boolean).join('　')));
     const sl=starLine(s); if(sl) info.appendChild(sl);
     li.appendChild(info);
-    if (!readOnly && me){ const g=el('button','sbtn on','今日ここ'); g.onclick=()=>startPropose(s.id); li.appendChild(g); }
+    if (!readOnly && me) li.appendChild(pickBtn(s));
     ul.appendChild(li);
   }
   b.appendChild(ul);
+}
+// the 今日の候補 tab: mine and the 飲み友's picks together; shops both picked come first, marked 🍻
+function todayTab(b){
+  const wf=mixedFriends()[0], cs=todayCands();
+  b.appendChild(el('p','hint', wf ? `あなたと${friends[wf].nick}が出した今日の候補。いいと思ったら「＋ 私も」。2人とも選んだ店が「🍻 2人ともOK」になります。`
+    : '今日の候補。「飲み友と」に切り替えると、相手の候補と合わせて見られます。'));
+  if (!cs.length){ b.appendChild(el('p','empty','まだ候補がありません。「両方」「行きたい」「行った」のタブで「＋ 候補」を押して入れてください。')); return; }
+  const ul=el('ul','plist cands');
+  for (const c of cs){
+    const both=c.by.size>1, li=el('li', both?'both':'');
+    const info=el('button','pinfo'); if (c.shop) info.onclick=()=>openDetail(c.shop.id);
+    if (both) info.appendChild(el('span','both-b','🍻 2人ともOK'));
+    info.appendChild(el('span','pn',c.name||'(名前なし)'));
+    const sub=[c.shop&&genreOf(c.shop), c.shop&&(hoursStatus(c.shop)||{}).t, c.shop&&c.shop.area].filter(Boolean).join('　'); if(sub) info.appendChild(el('span','pm',sub));
+    const who=el('span','who-l'); for (const u of c.by){ const t=el('span','who-t'+(u===me?' me':''), (u===me?'あなた':(friends[u]||{}).nick||'飲み友')+' ✓'); who.appendChild(t); } info.appendChild(who);
+    li.appendChild(info);
+    if (!readOnly && me){ const on=c.by.has(me); const g=el('button','sbtn'+(on?'':' on'), on?'✓ 選んだ':'＋ 私も'); g.onclick=()=>togglePick(c.shop,c); li.appendChild(g); }
+    ul.appendChild(li);
+  }
+  b.appendChild(ul);
+  const both=cs.filter(c=>c.by.size>1);
+  if (both.length && both[0].shop){ const sh=el('button','btn btn-line sx-alt','🍻 決まった店をLINEなどで送る'); sh.onclick=()=>shareShop(both[0].shop,''); b.appendChild(sh); }
 }
 $('pBack').onclick=closePick;

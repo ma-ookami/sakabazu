@@ -58,12 +58,17 @@ function watchFriends(){
   },()=>{}));
 }
 function syncFriendSubs(){
-  for (const f of Object.keys(fSubs)) if (!mix.has(f) || !friends[f]){ try{ fSubs[f](); }catch{} delete fSubs[f]; delete fShops[f]; }
+  for (const f of Object.keys(fSubs)) if (!mix.has(f) || !friends[f]){ try{ fSubs[f](); }catch{} delete fSubs[f]; delete fShops[f]; delete fToday[f]; }
   for (const f of mixedFriends()) if (!fSubs[f]){
     const fr=friends[f];
-    fSubs[f]=fs.collection(`groups/${fr.gid}/shops`).limit(1000).onSnapshot(snap=>{
+    const u1=fs.collection(`groups/${fr.gid}/shops`).limit(1000).onSnapshot(snap=>{
       fShops[f]=snap.docs.map(d=>({id:d.id,...JSON.parse(JSON.stringify(d.data()||{}))})); delete fDenied[f]; afterChange();
     },e=>{ console.warn(e); fDenied[f]=true; fShops[f]=[]; afterChange(); });
+    // their 今日の候補 (today only)
+    const u2=fs.collection(`groups/${fr.gid}/today`).where('date','==',today()).limit(100).onSnapshot(snap=>{
+      fToday[f]=snap.docs.map(d=>({id:d.id,...JSON.parse(JSON.stringify(d.data()||{}))})).filter(d=>typeof d.shopId==='string'); afterChange();
+    },e=>{ console.warn(e); fToday[f]=[]; });
+    fSubs[f]=()=>{ u1(); u2(); };
   }
 }
 // their current name and icon (the friend doc keeps the name from when we became friends)
@@ -72,7 +77,7 @@ function fetchFriend(f){
   fs.doc(`groups/${fr.gid}/members/${fr.mid}`).get().then(d=>{ if(!d.exists || !friends[f]) return; const v=d.data()||{};
     if (v.nick) friends[f].nick=String(v.nick).slice(0,20); if (v.ic && typeof v.ic==='object') friends[f].ic=v.ic; if (v.dm && typeof v.dm==='object') friends[f].dm=v.dm; render(); }).catch(()=>{});
 }
-function stopFriendSubs(){ for (const f of Object.keys(fSubs)){ try{ fSubs[f](); }catch{} } fSubs={}; fShops={}; }
+function stopFriendSubs(){ for (const f of Object.keys(fSubs)){ try{ fSubs[f](); }catch{} } fSubs={}; fShops={}; fToday={}; }
 
 // my 飲み友コード: one per device, made the first time it is needed
 let codeP=null;

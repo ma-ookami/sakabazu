@@ -91,7 +91,7 @@
 | `groups/{gid}/links/{uid}` | `{mid, at, verified}` この端末はメンバー mid として動く | その端末だけ(作った人は一覧可) / その端末。合言葉がある mid には合言葉が必要 |
 | `groups/{gid}/shops/{shopId}` | 下の表 | メンバー / メンバー(`createdBy` は本人のみ) |
 | `groups/{gid}/rankings/{mid}` | `{ids: [shopId...], updatedAt}` 好きな店ランキング | メンバー / 本人 |
-| `groups/{gid}/today/{YYYY-MM-DD}_{shopId}` | `{shopId, date, by, time, createdAt, votes: {mid: true/false}}` 今日の提案 | メンバー / メンバー |
+| `groups/{gid}/today/{YYYY-MM-DD}_{shopId}` | `{shopId, date, by, name, key, time, createdAt, votes}` 今日の候補(key は店の照合用: hp:<ホットペッパーID> か n:<店名>) | メンバーと飲み友が読める / メンバー |
 | `users/{uid}` | `{gid, owned: [gid...]}` 自分のグループの場所 | 本人 / 本人 |
 
 ### `shops/{shopId}`
