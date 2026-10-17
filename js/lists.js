@@ -1,9 +1,6 @@
 /* ---------- want / went lists and ranking ---------- */
 const listF={at:'',genre:'',star:0};   // the lists' 時間 / ジャンル / 星 (same pickers as 今日どこ行く?)
 async function renderWant(v){
-  if (!readOnly){
-    v.appendChild(el('p','hint','右スワイプで「行った」、左で外す'));
-  }
   let arr=shops.filter(inWant);
   filterBar(v,listF,arr,render);
   arr=arr.filter(s=>fMatch(s,listF)).sort((a,b)=>{
@@ -21,7 +18,8 @@ async function renderWant(v){
   for (const s of arr){
     const {c,top,chips}=cardShell(s);
     if (!readOnly && me && !wentBy(s)[me]){ const w=el('button','went-btn live','行った'); w.setAttribute('aria-label',(s.name||'')+'に行った'); w.onclick=()=>wentWhen(s.id); top.appendChild(w); }
-    moreBtn(c,s);
+    if (!readOnly && me && s.wants && s.wants[me] && !isFriendShop(s)){ const x=el('button','out-btn','外す'); x.type='button'; x.setAttribute('aria-label',(s.name||'')+'をリストから外す');
+      x.onclick=e=>{ e.stopPropagation(); removeMine(s.id); }; c.appendChild(x); }
     if (s.planDate) pill(chips,'plan',fmtDate(s.planDate)+' に行く予定');
     hoursPill(chips,s); tagPills(chips,s,3);
     if (chips.children.length) c.appendChild(chips);
@@ -34,11 +32,7 @@ async function renderWant(v){
     // only for shops the 飲み友 wants and I don't yet (whether I want it already shows in the faces line)
     if (!readOnly && me && groupMode() && !(s.wants&&s.wants[me])){ const wb=el('button','want-btn live', isFriendShop(s)?'＋ 自分のリストに入れる':'私も行きたい'); wb.onclick=()=>toggleWant(s.id); foot.appendChild(wb); }
     c.appendChild(foot); }
-    if (!readOnly && me){
-      const right = !wentBy(s)[me] ? {label:'✓ 行った', run:()=>wentWhen(s.id,false,()=>render())} : null;
-      const left = (s.wants&&s.wants[me]) ? {label:'外す', run:()=>removeMine(s.id)} : null;
-      list.appendChild(right||left ? swipeable(c,right,left) : c);
-    } else list.appendChild(c);
+    list.appendChild(c);
   }
   fillFaces(slots);
 }
