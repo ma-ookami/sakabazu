@@ -107,13 +107,29 @@ if ('IntersectionObserver' in window){
 $('mbTop').onclick=()=>window.scrollTo({top:0,behavior:reduceMotion()?'auto':'smooth'});
 
 // action sheet: a short list of what you can do, from the bottom of the screen. items: [{label, run, danger}]
-function actionSheet(title, items){
+function actionSheet(title, items, onCancel){
   const bg=el('div','actsheet'); bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true'); bg.setAttribute('aria-label',title);
   const p=el('div','as-panel'); p.appendChild(el('p','as-t',title));
   const close=()=>{ bg.remove(); document.removeEventListener('keydown',esc); };
-  const esc=e=>{ if(e.key==='Escape') close(); };
+  const cancel=()=>{ close(); if(onCancel) onCancel(); };
+  const esc=e=>{ if(e.key==='Escape') cancel(); };
   for (const it of items){ const b=el('button','as-i'+(it.danger?' as-danger':''),it.label); b.type='button'; b.onclick=()=>{ close(); it.run(); }; p.appendChild(b); }
-  const c=el('button','as-i as-cancel','キャンセル'); c.type='button'; c.onclick=close; p.appendChild(c);
-  bg.onclick=e=>{ if(e.target===bg) close(); }; document.addEventListener('keydown',esc);
+  const c=el('button','as-i as-cancel','キャンセル'); c.type='button'; c.onclick=cancel; p.appendChild(c);
+  bg.onclick=e=>{ if(e.target===bg) cancel(); }; document.addEventListener('keydown',esc);
   bg.appendChild(p); document.body.appendChild(bg); const f=p.querySelector('.as-i'); if(f) f.focus({preventScroll:true});
+}
+
+// a date, asked in a small dialog (up to today). -> 'YYYY-MM-DD' or null when cancelled
+function askDate(title){
+  return new Promise(res=>{
+    const d=el('dialog','ask'); const box=el('div','ask-in'); box.appendChild(el('p',null,title));
+    const i=el('input','dateinput'); i.type='date'; i.max=today(); i.value=today(); i.setAttribute('aria-label',title); box.appendChild(i);
+    const a=el('div','actions'); a.style.marginTop='14px'; const no=el('button','btn btn-line','やめる'); const yes=el('button','btn btn-red','決定');
+    a.append(no,yes); box.appendChild(a); d.appendChild(box); document.body.appendChild(d);
+    const done=v=>{ if(!d.isConnected) return; d.close(); d.remove(); res(v); };
+    no.onclick=()=>done(null); yes.onclick=()=>done(/^\d{4}-\d{2}-\d{2}$/.test(i.value)?i.value:null);
+    d.addEventListener('cancel',e=>{ e.preventDefault(); done(null); });
+    d.addEventListener('click',e=>{ if(e.target===d) done(null); });
+    d.showModal(); i.focus();
+  });
 }

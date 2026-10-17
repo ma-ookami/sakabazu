@@ -14,7 +14,7 @@ function buildDetail(s){
   $('dEdit').hidden=readOnly; $('dDel').hidden=readOnly;
   $('dSeg').setAttribute('aria-label','あなたの状態');
   for (const b of $('dSeg').children){ b.disabled=readOnly||!me; b.onclick=()=>{ const cur=shops.find(x=>x.id===s.id); if(!cur) return; const m=mySt(cur); if(m===b.dataset.s) return;   // already that: tapping again does nothing (外す is its own button below)
-    (b.dataset.s==='went'?markWent(s.id,true):markWant(s.id)); }; }
+    (b.dataset.s==='went'?wentWhen(s.id,true):markWant(s.id)); }; }
   $('dOut').onclick=()=>removeMine(s.id);
   const body=$('dBody'); body.textContent='';
   // the basics first (where, when it's open, links), then what matters most: 星 and ひとこと.
@@ -29,14 +29,14 @@ function buildDetail(s){
       if(!readOnly&&me){ const b=el('button','want-btn'); b.id='dWantBtn'; b.style.marginTop='10px'; b.onclick=()=>toggleWant(s.id); w.appendChild(b); }
       body.appendChild(w); }
     body.appendChild(fold('特徴', tagSec(s), tagCount(s)));
-    if(!readOnly){ const g=el('button','btn btn-red big-went','行った'); g.onclick=()=>markWent(s.id,true); body.appendChild(g); }
+    if(!readOnly){ const g=el('button','btn btn-red big-went','行った'); g.onclick=()=>wentWhen(s.id,true); body.appendChild(g); }
   } else {
     const rs=sec('評価', me&&!readOnly ? '星はなぞって0.1刻みで' : ''); rs.appendChild(starInput(s)); body.appendChild(rs);
     const n=sec('ひとこと'); memoBox(n,'note','例: 金曜は混むので予約必須'); body.appendChild(n);
     const p=sec('行った日'); const wb=el('div','faces'); wb.id='dWentBy'; if (groupMode()) p.appendChild(wb);
     if (wentBy(s)[me] && !readOnly){ const d=el('input','dateinput'); d.type='date'; d.id='dWent';
       d.onchange=()=>{ const cur=shops.find(x=>x.id===s.id); if(cur) patchShop(s.id,{went:wentPatch(cur,me,d.value||true)}); }; p.appendChild(d); }
-    else if (!readOnly && me){ const g=el('button','btn btn-red'); g.textContent='私も行った'; g.style.marginTop='12px'; g.onclick=()=>markWent(s.id,true); p.appendChild(g); }
+    else if (!readOnly && me){ const g=el('button','btn btn-red'); g.textContent='私も行った'; g.style.marginTop='12px'; g.onclick=()=>wentWhen(s.id,true); p.appendChild(g); }
     body.appendChild(p);
     // folded: ◎○ by item, 特徴, 来店記録と会計, memos by item
     const ms=el('div');

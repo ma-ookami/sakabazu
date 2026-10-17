@@ -20,7 +20,7 @@ async function renderWant(v){
   const slots=[];
   for (const s of arr){
     const {c,top,chips}=cardShell(s);
-    if (!readOnly && me && !wentBy(s)[me]){ const w=el('button','went-btn live','行った'); w.setAttribute('aria-label',(s.name||'')+'に行った'); w.onclick=()=>{ w.classList.add('pop'); setTimeout(()=>markWent(s.id),280); }; top.appendChild(w); }
+    if (!readOnly && me && !wentBy(s)[me]){ const w=el('button','went-btn live','行った'); w.setAttribute('aria-label',(s.name||'')+'に行った'); w.onclick=()=>wentWhen(s.id); top.appendChild(w); }
     moreBtn(top,s);
     if (s.planDate) pill(chips,'plan',fmtDate(s.planDate)+' に行く予定');
     hoursPill(chips,s); tagPills(chips,s,3);
@@ -35,7 +35,7 @@ async function renderWant(v){
     if (!readOnly && me && groupMode() && !(s.wants&&s.wants[me])){ const wb=el('button','want-btn live', isFriendShop(s)?'＋ 自分のリストに入れる':'私も行きたい'); wb.onclick=()=>toggleWant(s.id); foot.appendChild(wb); }
     c.appendChild(foot); }
     if (!readOnly && me){
-      const right = !wentBy(s)[me] ? {label:'✓ 行った', run:()=>markWent(s.id)} : null;
+      const right = !wentBy(s)[me] ? {label:'✓ 行った', run:()=>wentWhen(s.id,false,()=>render())} : null;
       const left = (s.wants&&s.wants[me]) ? {label:'外す', run:()=>removeMine(s.id)} : null;
       list.appendChild(right||left ? swipeable(c,right,left) : c);
     } else list.appendChild(c);
@@ -161,7 +161,7 @@ function moreBtn(top,s){
 }
 function shopMenu(s){
   const st=mySt(s), items=[];
-  if (st!=='went') items.push({label:'✓ 行った', run:()=>markWent(s.id)});
+  if (st!=='went') items.push({label:'✓ 行った', run:()=>wentWhen(s.id)});
   if (st==='went') items.push({label:'↩ 行きたいに戻す', run:()=>backToWant(s.id)});
   items.push(isPicked(s) ? {label:'今日の候補から外す', run:()=>togglePick(s)} : {label:'＋ 今日の候補に入れる', run:()=>{ togglePick(s); toast(`「${s.name}」を今日の候補に入れました`,'決めるで見る',()=>openPick('today')); }});
   items.push({label:'詳しく見る・評価する', run:()=>openDetail(s.id)});

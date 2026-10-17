@@ -32,14 +32,25 @@ function tagSec(s){
   }
   return box;
 }
-function markWent(id,stayOpen){
+function markWent(id,stayOpen,date){
   const s=shops.find(x=>x.id===id); if(!s) return;
-  darumaCheer(`「${s.name}」おつかれさま!`);
-  { const d=today(); const ev=ensureVisit(s,d); patchShop(id,Object.assign({went:wentPatch(s,me,d), wants:{[me]:false}}, ev.patch)); }
+  const d = date===undefined ? today() : date;
+  if (d===today()) darumaCheer(`「${s.name}」おつかれさま!`);
+  if (d){ const ev=ensureVisit(s,d); patchShop(id,Object.assign({went:wentPatch(s,me,d), wants:{[me]:false}}, ev.patch)); }
+  else patchShop(id,{went:wentPatch(s,me,true), wants:{[me]:false}});
   // from the list: stay there so you can mark several in a row; the toast opens the shop if you want to add more
   if (!stayOpen){ buzz(); toast(`「${s.name}」を行ったに記録しました`,'詳しく',()=>{ const t=myShops.find(x=>x.id===id) || myShops.find(x=>norm(x.name)===norm(s.name)); openDetail(t?t.id:id); }); }
 }
 // 行った -> back to 行きたい (the visits stay), with undo
+// 行った from a list or the detail: ask when first (today / a day / don't remember)
+function wentWhen(id,stayOpen,onCancel){
+  const s=shops.find(x=>x.id===id); if(!s) return;
+  actionSheet(`「${s.name||'このお店'}」にいつ行った?`,[
+    {label:'今日', run:()=>markWent(id,stayOpen,today())},
+    {label:'日付を選ぶ', run:async()=>{ const d=await askDate('行った日'); if(d) markWent(id,stayOpen,d); else if(onCancel) onCancel(); }},
+    {label:'覚えてない(カレンダーには入れない)', run:()=>markWent(id,stayOpen,null)},
+  ], onCancel);
+}
 function backToWant(id){ const s=shops.find(x=>x.id===id); if(!s||!me) return; const was=wentBy(s)[me]||true;
   const mine=visitList(s).filter(v=>v.people&&v.people[me]).map(v=>v.vid);
   const vis=on=>Object.fromEntries(mine.map(vid=>[vid,{people:{[me]:on}}]));
