@@ -43,6 +43,7 @@ async function renderWant(v){
 }
 
 function renderWent(v){
+  if (!readOnly) v.appendChild(el('p','hint','カードは右にスワイプで「行きたい」に戻す、左で外せます。'));
   filterBar(v,listF,shops.filter(inWent),render);
   let arr=shops.filter(inWent).filter(s=>fMatch(s,listF));
   const key = sort==='again'?'again': sort==='price'?'price':null;
@@ -69,7 +70,12 @@ function renderWent(v){
     const ids=recorders(s); if (ids.length || (isFriendShop(s) && !readOnly && me)){ const f=el('div','foot'); const fc=el('div','faces'); const st=el('span','stack'); fc.append(st, el('span',null,ids.length?`${ids.length}人が記録`:'')); f.appendChild(fc);
       if (isFriendShop(s) && !readOnly && me){ const ib=el('button','want-btn live','＋ 自分のリストに入れる'); ib.onclick=()=>importToMine([s.id]); f.appendChild(ib); }
       c.appendChild(f); slots.push([st,ids.slice(0,5)]); }
-    list.appendChild(c);
+    // swipe: right = back to 行きたい, left = 外す (only my own record; a 飲み友-only shop has nothing of mine to move)
+    if (!readOnly && me && wentBy(s)[me]){
+      const right={label:'↩ 行きたいに戻す', run:()=>backToWant(s.id)};
+      const left={label:'外す', run:()=>removeMine(s.id)};
+      list.appendChild(swipeable(c,right,left));
+    } else list.appendChild(c);
   }
   fillFaces(slots); fillBadges(badgeSlots);
 }
