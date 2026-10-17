@@ -76,3 +76,4 @@ textarea.memo,.field{box-sizing:border-box;max-width:100%}
 .memos.sec{padding:6px 0}
 .memos summary{padding:10px 0}
 .memos + .sec{padding-top:12px}
+.d-out{display:block;margin:6px 0 0;font-size:12px;color:var(--sub)}

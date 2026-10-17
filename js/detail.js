@@ -13,7 +13,9 @@ function buildDetail(s){
   const st=statusOf(s)||'want'; builtStatus=st+'|'+mySt(s)+'|'+[...mix].join();
   $('dEdit').hidden=readOnly; $('dDel').hidden=readOnly;
   $('dSeg').setAttribute('aria-label','あなたの状態');
-  for (const b of $('dSeg').children){ b.disabled=readOnly||!me; b.onclick=()=>{ const cur=shops.find(x=>x.id===s.id); if(!cur) return; const m=mySt(cur); if(m===b.dataset.s) removeMine(s.id); else (b.dataset.s==='went'?markWent(s.id,true):markWant(s.id)); }; }
+  for (const b of $('dSeg').children){ b.disabled=readOnly||!me; b.onclick=()=>{ const cur=shops.find(x=>x.id===s.id); if(!cur) return; const m=mySt(cur); if(m===b.dataset.s) return;   // already that: tapping again does nothing (外す is its own button below)
+    (b.dataset.s==='went'?markWent(s.id,true):markWant(s.id)); }; }
+  $('dOut').onclick=()=>removeMine(s.id);
   const body=$('dBody'); body.textContent='';
   body.appendChild(infoSec());
   if (st==='want'){
@@ -58,6 +60,7 @@ async function patchDetail(){
   if (builtStatus!==(statusOf(s)||'want')+'|'+mySt(s)+'|'+[...mix].join()) buildDetail(s);
   $('dName').textContent=s.name||'(名前なし)'; $('dArea').textContent=s.area||'';
   for (const b of $('dSeg').children) b.setAttribute('aria-pressed',String(b.dataset.s===mySt(s)));
+  $('dOut').hidden = readOnly || !me || !mySt(s);
   const plan=$('dPlan'); if(plan && document.activeElement!==plan) plan.value=s.planDate||'';
   const went=$('dWent'); if(went && document.activeElement!==went){ const v=wentBy(s)[me]; went.value=typeof v==='string'?v:''; }
   const dwb=$('dWentBy'); if(dwb){ const ids=wentIds(s); const pw=await people(ids); if(openId!==s.id) return; dwb.textContent=''; if(ids.length){ const st=el('span','stack'); ids.slice(0,6).forEach(u=>st.appendChild(avatar(pw,u))); dwb.appendChild(st); dwb.appendChild(el('span',null,ids.map(u=>nameOf(pw,u)).join('、'))); } else dwb.appendChild(el('span',null,'まだいません')); }
