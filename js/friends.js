@@ -157,8 +157,7 @@ function renderFlaps(){
   const mine=el('button',null,'自分のリスト'); mine.type='button'; mine.setAttribute('aria-pressed',String(!wf));
   mine.onclick=()=>{ closeWho(); if(!mix.size) return; mix.clear(); saveMix(); syncFriendSubs(); rebuildShops(); buzz(); render(); window.scrollTo({top:0}); };
   const fr=el('button',null); fr.type='button'; fr.setAttribute('aria-pressed',String(!!wf)); fr.setAttribute('aria-haspopup','listbox');
-  if (wf) fr.append(avatar({},friends[wf].mid,'who-av'), document.createTextNode(friends[wf].nick+'と'));
-  else fr.appendChild(document.createTextNode('友達と'));
+  fr.appendChild(document.createTextNode('友達と'));   // who it is shows in the line under the header (「けんとのリスト」)
   fr.appendChild(el('span','who-c','▾'));
   fr.onclick=e=>{ e.stopPropagation(); toggleWho(); };
   seg.append(mine,fr); nav.appendChild(seg);

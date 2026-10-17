@@ -2,15 +2,18 @@
 /* masthead: navy with a quiet 青海波 (wave) pattern, a retro-modern logo, the lantern menu on the right,
    and pills to pick whose list you see: 自分 / each friend / ＋ */
 .sign{position:relative}
-.mast{position:relative;z-index:5;margin:0 -18px;padding:22px 20px 14px;color:var(--on-indigo);
+.mast{position:relative;z-index:5;margin:0 -18px;padding:16px 18px 14px 20px;color:var(--on-indigo);
   background:linear-gradient(180deg,rgba(23,36,64,0) 40%,rgba(23,36,64,.85)),url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='20' viewBox='0 0 40 20'><circle cx='0' cy='0' r='19' fill='%23172440'/><circle cx='0' cy='0' r='19' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='0' cy='0' r='14' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='0' cy='0' r='9' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='0' cy='0' r='4' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='40' cy='0' r='19' fill='%23172440'/><circle cx='40' cy='0' r='19' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='40' cy='0' r='14' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='40' cy='0' r='9' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='40' cy='0' r='4' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='20' cy='10' r='19' fill='%23172440'/><circle cx='20' cy='10' r='19' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='20' cy='10' r='14' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='20' cy='10' r='9' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='20' cy='10' r='4' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='0' cy='20' r='19' fill='%23172440'/><circle cx='0' cy='20' r='19' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='0' cy='20' r='14' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='0' cy='20' r='9' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='0' cy='20' r='4' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='40' cy='20' r='19' fill='%23172440'/><circle cx='40' cy='20' r='19' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='40' cy='20' r='14' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='40' cy='20' r='9' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/><circle cx='40' cy='20' r='4' fill='none' stroke='%23F2EADB' stroke-opacity='.09' stroke-width='1.2'/></svg>") 0 0/40px 20px,#172440;
   border-bottom:3px solid var(--red);box-shadow:0 2px 0 #C9A253 inset}
-.logo{margin:0;display:flex;flex-direction:column;align-items:flex-start;gap:8px;line-height:1;color:#F6EBD6}
-.lg-k{font-family:"Shippori Mincho B1",var(--serif);font-weight:800;font-size:clamp(36px,10vw,46px);letter-spacing:.16em}
-.lg-r{display:flex;align-items:center;gap:8px;font-family:"Josefin Sans",sans-serif;font-weight:600;font-size:11px;letter-spacing:.5em;opacity:.75;padding-left:2px}
-.lg-r::before,.lg-r::after{content:"";width:18px;height:1px;background:currentColor;opacity:.7}
+.mast-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{margin:0;display:inline-flex;flex-direction:column;gap:6px;line-height:1;color:#F6EBD6;flex:none}
+.lg-top{display:flex;align-items:center;gap:8px}
+.lantern-mini{width:20px;height:auto;flex:none;margin-top:-4px;filter:drop-shadow(0 2px 6px var(--glow))}
+@media (prefers-reduced-motion:no-preference){ .lantern-mini{transform-origin:50% 0;animation:sway 5.5s ease-in-out infinite alternate} }
+.lg-k{font-family:"Shippori Mincho B1",var(--serif);font-weight:800;font-size:clamp(28px,8vw,34px);letter-spacing:.12em}
+.lg-r{display:flex;justify-content:space-between;font-family:"Josefin Sans",sans-serif;font-weight:600;font-size:10px;opacity:.75;padding-left:1px}   /* spread to the width of 酒場図 + lantern */
 .mast .stats{display:none}
-.flaps{position:relative;display:flex;margin-top:16px}
+.flaps{position:relative;display:flex;flex:none}
 .flaps::-webkit-scrollbar{display:none}
 .flap{flex:none;border:1px solid rgba(242,234,219,.28);background:rgba(242,234,219,.06);color:var(--on-indigo);border-radius:999px;padding:6px 14px;
   font:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;white-space:nowrap;transition:background-color .2s,color .2s,border-color .2s;-webkit-tap-highlight-color:transparent}
@@ -19,9 +22,6 @@
 .flap:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 
 /* lantern = menu button */
-.lantern-btn{position:absolute;right:14px;top:-2px;z-index:3;width:44px;height:84px;pointer-events:none}
-.lantern{display:block;width:34px;height:auto;margin:0 auto;transform-origin:50% 0;filter:drop-shadow(0 6px 14px var(--glow))}
-@media (prefers-reduced-motion:no-preference){ .lantern{animation:sway 5.5s ease-in-out infinite alternate} .lantern-btn.lit .lantern{animation:sway 5.5s ease-in-out infinite alternate,glow 1.6s ease-in-out infinite} }
 @keyframes sway{from{transform:rotate(-2.5deg)}to{transform:rotate(2.5deg)}}
 @keyframes glow{50%{filter:drop-shadow(0 0 18px #ffb35c) brightness(1.25)}}
 
@@ -62,11 +62,11 @@ body.scrolled .minibar{transform:none;opacity:1;pointer-events:auto}
 
 /* 自分のリスト / 友達と ▾ */
 .whoseg{display:inline-flex;background:rgba(242,234,219,.08);border:1px solid rgba(242,234,219,.25);border-radius:999px;padding:3px}
-.whoseg button{border:0;background:none;color:var(--on-indigo);border-radius:999px;padding:7px 16px;font:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.whoseg button{border:0;background:none;color:var(--on-indigo);border-radius:999px;padding:7px 12px;font:inherit;font-size:12.5px;font-weight:700;letter-spacing:.04em;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;-webkit-tap-highlight-color:transparent}
 .whoseg button[aria-pressed="true"]{background:#F6EBD6;color:#172440}
 .who-c{font-size:10px;opacity:.7}
 .who-av{width:22px;height:22px;font-size:11px;border-radius:50%}
-.whomenu{position:absolute;left:0;top:calc(100% + 8px);z-index:20;min-width:250px;max-height:60vh;overflow-y:auto;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-2);padding:6px;display:grid}
+.whomenu{position:absolute;right:0;top:calc(100% + 8px);z-index:20;min-width:250px;max-height:60vh;overflow-y:auto;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-2);padding:6px;display:grid}
 .whomenu[hidden]{display:none}
 .who-i{display:flex;align-items:center;gap:10px;border:0;background:none;padding:10px 12px;border-radius:10px;font:inherit;font-size:14px;color:var(--ink);text-align:left}
 .who-i:hover{background:var(--faint)}
@@ -74,3 +74,4 @@ body.scrolled .minibar{transform:none;opacity:1;pointer-events:auto}
 .who-ck{margin-left:auto;color:var(--red);font-weight:800}
 .who-add{color:var(--red);font-weight:700;border-top:1px solid var(--line);border-radius:0 0 10px 10px;margin-top:4px}
 .who-empty{font-size:12px;color:var(--sub);margin:8px 10px;line-height:1.6}
+@media (max-width:359px){ .lg-k{font-size:24px} .lantern-mini{width:16px} .whoseg button{padding:6px 9px;font-size:11.5px} .mast-row{gap:8px} .mast{padding-left:16px;padding-right:12px} }
