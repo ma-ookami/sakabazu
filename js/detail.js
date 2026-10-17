@@ -17,27 +17,29 @@ function buildDetail(s){
     (b.dataset.s==='went'?markWent(s.id,true):markWant(s.id)); }; }
   $('dOut').onclick=()=>removeMine(s.id);
   const body=$('dBody'); body.textContent='';
+  // the basics first (where, when it's open, links), then what matters most: 星 and ひとこと.
+  // the rest is folded away, opened only by people who want it
   body.appendChild(infoSec());
+  body.appendChild(locSec(s));
+  const rr=s.r||{}, mine=rr[me]||{};
   if (st==='want'){
-    const p=sec('行く予定日'); const d=el('input','dateinput'); d.type='date'; d.id='dPlan'; d.disabled=readOnly; d.onchange=()=>patchShop(s.id,{planDate:d.value}); p.appendChild(d); body.appendChild(p);
-    body.appendChild(tagSec(s));
-    body.appendChild(locSec(s));
-    const w=sec('行きたい人'); const wl=el('div','faces'); wl.id='dWants'; w.appendChild(wl);
-    if(!readOnly&&me){ const b=el('button','want-btn'); b.id='dWantBtn'; b.style.marginTop='10px'; b.onclick=()=>toggleWant(s.id); w.appendChild(b); }
-    if (groupMode()) body.appendChild(w);
     const n=sec('気になっている理由・メモ'); memoBox(n,'note','例: 飲み友のおすすめ、金曜は要予約'); body.appendChild(n);
+    const p=sec('行く予定日'); const d=el('input','dateinput'); d.type='date'; d.id='dPlan'; d.disabled=readOnly; d.onchange=()=>patchShop(s.id,{planDate:d.value}); p.appendChild(d); body.appendChild(p);
+    if (groupMode()){ const w=sec('行きたい人'); const wl=el('div','faces'); wl.id='dWants'; w.appendChild(wl);
+      if(!readOnly&&me){ const b=el('button','want-btn'); b.id='dWantBtn'; b.style.marginTop='10px'; b.onclick=()=>toggleWant(s.id); w.appendChild(b); }
+      body.appendChild(w); }
+    body.appendChild(fold('特徴', tagSec(s), tagCount(s)));
     if(!readOnly){ const g=el('button','btn btn-red big-went','行った'); g.onclick=()=>markWent(s.id,true); body.appendChild(g); }
   } else {
-    const p=sec('行った人'); const wb=el('div','faces'); wb.id='dWentBy'; p.appendChild(wb);
-    if (wentBy(s)[me] && !readOnly){ const lab=el('label','loctxt','あなたが行った日 '); lab.style.display='block'; lab.style.margin='12px 0 0'; const d=el('input','dateinput'); d.type='date'; d.id='dWent';
-      d.onchange=()=>{ const cur=shops.find(x=>x.id===s.id); if(cur) patchShop(s.id,{went:wentPatch(cur,me,d.value||true)}); }; lab.appendChild(d); p.appendChild(lab); }
+    const rs=sec('評価', me&&!readOnly ? '星はなぞって0.1刻みで' : ''); rs.appendChild(starInput(s)); body.appendChild(rs);
+    const n=sec('ひとこと'); memoBox(n,'note','例: 金曜は混むので予約必須'); body.appendChild(n);
+    const p=sec('行った日'); const wb=el('div','faces'); wb.id='dWentBy'; if (groupMode()) p.appendChild(wb);
+    if (wentBy(s)[me] && !readOnly){ const d=el('input','dateinput'); d.type='date'; d.id='dWent';
+      d.onchange=()=>{ const cur=shops.find(x=>x.id===s.id); if(cur) patchShop(s.id,{went:wentPatch(cur,me,d.value||true)}); }; p.appendChild(d); }
     else if (!readOnly && me){ const g=el('button','btn btn-red'); g.textContent='私も行った'; g.style.marginTop='12px'; g.onclick=()=>markWent(s.id,true); p.appendChild(g); }
     body.appendChild(p);
-    body.appendChild(visitSec(s));
-    body.appendChild(locSec(s));
-    const rs=sec('評価', me&&!readOnly ? '星はなぞって0.1刻みで' : '');
-    rs.appendChild(starInput(s));
-    rs.appendChild(el('h4','tg-cat','項目ごと(タップで付ける・もう一度で取り消し)'));
+    // folded: ◎○ by item, 特徴, 来店記録と会計, memos by item
+    const ms=el('div');
     const grid=el('div','grid');
     for (const it of ITEMS){
       const lb=el('div','lb',it.label); lb.appendChild(el('small',null,it.hint)); grid.appendChild(lb);
@@ -46,15 +48,24 @@ function buildDetail(s){
         b.onclick=()=>{ const cur=myVal(openId,it.k).m; setMark(openId,it.k,cur===m?'':m); }; stp.appendChild(b); }
       grid.appendChild(stp);
     }
-    rs.appendChild(grid); const tb=el('div'); tb.id='dTable'; rs.appendChild(tb); body.appendChild(rs);
-    body.appendChild(tagSec(s));
-    const dt=el('details','memos sec'); const sm=el('summary',null,'項目ごとのメモ'); dt.appendChild(sm);
-    const rr=s.r||{}; dt.open = ITEMS.some(it=>Object.values(rr).some(p=>p&&p[it.k]&&(p[it.k].t||'').trim()));
-    for (const it of ITEMS){ const mi=el('div','mi'); mi.appendChild(el('h4',null,it.label)); memoBox(mi,it.k,it.ph); dt.appendChild(mi); }
-    body.appendChild(dt);
-    const n=sec('ひとこと'); memoBox(n,'note','例: 金曜は混むので予約必須'); body.appendChild(n);
+    ms.appendChild(el('p','hint','タップで付ける・もう一度で取り消し')); ms.appendChild(grid); const tb=el('div'); tb.id='dTable'; ms.appendChild(tb);
+    body.appendChild(fold('項目ごとの評価(◎○△×)', ms, ITEMS.filter(it=>mine[it.k]&&mine[it.k].m).length));
+    body.appendChild(fold('特徴', tagSec(s), tagCount(s)));
+    body.appendChild(fold('来店記録・会計', visitSec(s), visitList(s).length));
+    const mm=el('div'); for (const it of ITEMS){ const mi=el('div','mi'); mi.appendChild(el('h4',null,it.label)); memoBox(mi,it.k,it.ph); mm.appendChild(mi); }
+    body.appendChild(fold('項目ごとのメモ', mm, ITEMS.filter(it=>Object.values(rr).some(p=>p&&p[it.k]&&(p[it.k].t||'').trim())).length));
   }
 }
+// a folded section: opens on tap, remembers being open while you look at shops; n = how many things are in it
+const foldOpen=new Set();
+function fold(title,node,n){
+  const d=el('details','fold sec'); d.open=foldOpen.has(title);
+  const sm=el('summary'); sm.append(el('span','fd-t',title)); if(n) sm.appendChild(el('span','fd-n',String(n)));
+  d.appendChild(sm); d.appendChild(node);
+  d.ontoggle=()=>{ if(d.open) foldOpen.add(title); else foldOpen.delete(title); };
+  return d;
+}
+const tagCount = s => TAGS.filter(t=>s.tags&&s.tags[t.k]).length;
 async function patchDetail(){
   const s=shops.find(x=>x.id===openId); if(!s){ if(openId) closeDetail(); return; }
   if (builtStatus!==(statusOf(s)||'want')+'|'+mySt(s)+'|'+[...mix].join()) buildDetail(s);
