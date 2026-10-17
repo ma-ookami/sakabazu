@@ -58,6 +58,36 @@ const asking = () => !!document.querySelector('dialog.ask[open]');
 
 /* swipe a card sideways: right / left = {label, run}. Returns the wrapper to insert instead of the card. */
 let swiping=false;
+function swipeable(card,right,left){
+  const w=el('div','swipe'); const act=el('div','swipe-act'); act.setAttribute('aria-hidden','true');
+  if (right) act.appendChild(el('span','sa-r',right.label)); if (left) act.appendChild(el('span','sa-l',left.label));
+  w.append(act,card);
+  const TH=90; let x0=0, y0=0, dx=0, pid=null, tracking=false, moving=false, armed=false, endedAt=0;
+  card.addEventListener('pointerdown',e=>{ if((e.pointerType==='mouse'&&e.button>0) || e.target.closest('.live')) return; x0=e.clientX; y0=e.clientY; dx=0; pid=e.pointerId; tracking=true; moving=false; });
+  card.addEventListener('pointermove',e=>{
+    if (!tracking || e.pointerId!==pid) return; const mx=e.clientX-x0, my=e.clientY-y0;
+    if (!moving){
+      if (Math.abs(my)>10 && Math.abs(my)>Math.abs(mx)){ tracking=false; return; }
+      if (Math.abs(mx)<12) return;
+      moving=true; swiping=true; try{ card.setPointerCapture(pid); }catch{} w.classList.add('drag'); card.classList.remove('settle');
+    }
+    dx = (mx>0&&!right)||(mx<0&&!left) ? mx/6 : mx;
+    card.style.transform=`translateX(${dx}px)`;
+    w.classList.toggle('r',dx>0&&!!right); w.classList.toggle('l',dx<0&&!!left);
+    const a=Math.abs(dx)>TH && !!(dx>0?right:left);
+    if (a!==armed){ armed=a; w.classList.toggle('armed',a); if(a) buzz(); }
+  });
+  const end=()=>{
+    if (!tracking) return; tracking=false; if (!moving) return; moving=false; endedAt=Date.now();
+    w.classList.remove('drag','armed'); card.classList.add('settle');
+    const fire = armed ? (dx>0?right:left) : null; armed=false;
+    if (fire){ card.style.transform=`translateX(${dx>0?110:-110}%)`; setTimeout(()=>{ swiping=false; fire.run(); },200); }
+    else { card.style.transform=''; setTimeout(()=>{ w.classList.remove('r','l'); swiping=false; },320); }
+  };
+  card.addEventListener('pointerup',end); card.addEventListener('pointercancel',end);
+  card.addEventListener('click',e=>{ if(Date.now()-endedAt<400){ e.stopPropagation(); e.preventDefault(); } },true); // no tap right after a drag
+  return w;
+}
 
 /* view transitions (progressive: plain update where unsupported or with reduced motion) */
 function withTransition(update){ if(!canVT()){ update(); return; } document.startViewTransition(update); }

@@ -114,3 +114,10 @@ body:has(.toast:not([hidden])) .fab{transform:translateY(-68px)}
 .sc-side{flex-direction:row;gap:8px}
 .shop2 .sc-side .went-btn{width:44px;height:44px;font-size:11px;letter-spacing:0;padding:0}
 .sc-side .out-btn{white-space:nowrap}
+.swipe-act{position:absolute;inset:0;border-radius:var(--r-lg);display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-weight:700;font-size:14px;opacity:0;transition:opacity .15s}
+.swipe-act span{display:flex;align-items:center;gap:8px;transition:transform .2s var(--ease-spring)}
+.swipe.r .swipe-act{opacity:1;background:var(--red);color:var(--on-red)}
+.swipe.l .swipe-act{opacity:1;background:var(--ink);color:var(--bg);justify-content:flex-end}
+.swipe.r .swipe-act .sa-l,.swipe.l .swipe-act .sa-r{display:none}
+.swipe.armed .swipe-act span{transform:scale(1.12)}
+.swipe > .card.settle{transition:transform .32s var(--ease-out)}

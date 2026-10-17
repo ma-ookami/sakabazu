@@ -40,6 +40,7 @@ let wentView='list';   // 行った: the list, or the calendar of visits
 function renderWent(v){
   segBar(v,[['list','リスト'],['cal','カレンダー']],wentView,k=>{ wentView=k; },'subseg');
   if (wentView==='cal'){ const sub=el('div'); v.appendChild(sub); renderCal(sub); return; }
+  if (!readOnly) v.appendChild(el('p','hint','右にスワイプで「行きたい」に戻せます'));
   filterBar(v,listF,shops.filter(inWent),render);
   let arr=shops.filter(inWent).filter(s=>fMatch(s,listF));
   if (!['new','star','price'].includes(sort)) sort='new';
@@ -58,9 +59,8 @@ function renderWent(v){
   for (const s of arr){
     const {c,top,chips}=cardShell(s);
     if (!readOnly && me && wentBy(s)[me]){
-      const bk=el('button','out-btn','↩ 行きたい'); bk.type='button'; bk.setAttribute('aria-label',(s.name||'')+'を行きたいに戻す'); bk.onclick=e=>{ e.stopPropagation(); backToWant(s.id); };
       const x=el('button','out-btn','外す'); x.type='button'; x.setAttribute('aria-label',(s.name||'')+'をリストから外す'); x.onclick=e=>{ e.stopPropagation(); removeMine(s.id); };
-      top.append(bk,x); }
+      top.append(x); }
     hoursPill(chips,s);
     { const last=visitList(s).find(x=>x.actual>0); if(last) pill(chips,'yen',`1人 ${yen(last.actual)}`); }
     { const sl=starLine(s); if(sl) chips.insertBefore(sl, chips.children[1]||null); }
@@ -68,7 +68,8 @@ function renderWent(v){
     const ids=recorders(s); if (ids.length || (isFriendShop(s) && !readOnly && me)){ const f=el('div','foot'); const fc=el('div','faces'); const st=el('span','stack'); fc.append(st, el('span',null,ids.length?`${ids.length}人が記録`:'')); f.appendChild(fc);
       if (isFriendShop(s) && !readOnly && me){ const ib=el('button','want-btn live','＋ 自分のリストに入れる'); ib.onclick=()=>importToMine([s.id]); f.appendChild(ib); }
       c.appendChild(f); slots.push([st,ids.slice(0,5)]); }
-    list.appendChild(c);
+    // swipe right: back to 行きたい (rarely needed, so no button)
+    list.appendChild(!readOnly && me && wentBy(s)[me] ? swipeable(c,{label:'↩ 行きたいに戻す', run:()=>backToWant(s.id)},null) : c);
   }
   fillFaces(slots); fillBadges(badgeSlots);
 }
