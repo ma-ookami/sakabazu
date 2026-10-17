@@ -97,7 +97,9 @@ function sxQuery(){
   if (sx.budget) extra.budget=sx.budget;
   for (const [k] of HP_FLAGS) if (sx.flags[k]) extra[k]='1';
   const q={...where,...extra}; if (kw) q.keyword=[where.keyword,kw].filter(Boolean).join(' ');
-  const nameQ = kw ? {...where,...extra,name_any:kw} : null;
+  // shop-name matches: searched around a point (fast, and stays in the area). by area code it is slow and ignores the area
+  const pt = a.at ? {lat:a.at.lat,lng:a.at.lng,range:'3'} : (!place && a.kw) ? {lat:SAPPORO.lat,lng:SAPPORO.lng,range:'5'} : where.here ? {here:true,range:'3'} : where.lat ? {lat:where.lat,lng:where.lng,range:'3'} : null;
+  const nameQ = (kw && pt) ? {...pt,...extra,name_any:kw} : null;
   const label=[place||(a.id!=='any'?a.label:''), kw].filter(Boolean).join(' × ');
   return {q,nameQ,label,usedSa};
 }
@@ -119,14 +121,14 @@ async function runSearch(more){
     // shop-name matches first (they are usually what was meant), then the keyword matches
     const [main,byName]=await Promise.all([
       hpSearch(q).catch(e=>{ if(e.code==='old'){ hpVer=1; return null; } throw e; }),
-      (!more && nameQ && hpVer!==1) ? hpSearch({...nameQ,count:'10'}).catch(()=>null) : null,
+      (!more && nameQ && hpVer!==1) ? Promise.race([hpSearch({...nameQ,count:'10'}).catch(()=>null), new Promise(r=>setTimeout(()=>r(null),2500))]) : null,   // never wait long for these
     ]);
     if (seq!==sx.seq) return;
     if (!main || (usedSa && hpVer===1)) return runSearch(more);   // an old Worker: search by the area's point instead
     // the API doesn't apply small_area / lat-lng to name_any: keep only name matches inside the chosen area
     const w=nameQ||{};
     const inArea = r => w.small_area ? (r.small_area && r.small_area.code===w.small_area)
-      : w.lat ? Math.hypot((+r.lat-w.lat)*111000,(+r.lng-w.lng)*111000*Math.cos(w.lat*Math.PI/180)) <= 1500
+      : w.lat ? Math.hypot((+r.lat-w.lat)*111000,(+r.lng-w.lng)*111000*Math.cos(w.lat*Math.PI/180)) <= (w.range==='5'?3200:1500)
       : w.keyword==='札幌市' ? /札幌市/.test(r.address||'') : true;
     const names = (byName && byName.v>=2) ? byName.shops.filter(inArea) : [];
     for (const r of names) r._name=true;

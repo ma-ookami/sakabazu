@@ -67,12 +67,3 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center;justify-conten
 @media (prefers-reduced-motion:no-preference){ .skel i{animation:shimmer 1.4s linear infinite} }
 @keyframes shimmer{to{background-position:-150% 0}}
 .pagetitle{font-family:var(--serif);font-weight:700;font-size:24px;margin:20px 0 4px;letter-spacing:.04em}
-/* the page's quiet pattern says whose list it is: 市松 = mine, 鱗 = with a 飲み友 */
-body{background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='112' height='112'><rect width='56' height='56' fill='rgba(39,33,29,.018)'/><rect x='56' y='56' width='56' height='56' fill='rgba(39,33,29,.018)'/></svg>");background-attachment:fixed}
-html.fmode body{background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='96' height='84'><path d='M0 42L24 0L48 42ZM48 42L72 0L96 42ZM24 84L48 42L72 84Z' fill='rgba(39,33,29,.022)'/></svg>")}
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]) body{background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='112' height='112'><rect width='56' height='56' fill='rgba(255,255,255,.018)'/><rect x='56' y='56' width='56' height='56' fill='rgba(255,255,255,.018)'/></svg>")}
-  :root.fmode:not([data-theme="light"]) body{background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='96' height='84'><path d='M0 42L24 0L48 42ZM48 42L72 0L96 42ZM24 84L48 42L72 84Z' fill='rgba(255,255,255,.02)'/></svg>")}
-}
-:root[data-theme="dark"] body{background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='112' height='112'><rect width='56' height='56' fill='rgba(255,255,255,.018)'/><rect x='56' y='56' width='56' height='56' fill='rgba(255,255,255,.018)'/></svg>")}
-:root.fmode[data-theme="dark"] body{background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='96' height='84'><path d='M0 42L24 0L48 42ZM48 42L72 0L96 42ZM24 84L48 42L72 84Z' fill='rgba(255,255,255,.02)'/></svg>")}
