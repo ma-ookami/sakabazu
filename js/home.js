@@ -13,6 +13,10 @@ function renderHome(v0){
   darumaGreet(v);
   whoBar(v);
   todayBlock(v);
+  if (!readOnly){ const acts=el('div','homeacts'); const b=el('button','hact main'); const t=el('span','tb-t');
+    t.innerHTML='<svg class="tb-ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>';
+    t.appendChild(document.createTextNode('お店をリストに追加'));
+    b.append(t, el('span','tb-s','エリア・料理・URLから探す')); b.onclick=goAdd; acts.appendChild(b); v.appendChild(acts); }
 }
 async function renderScore(v){
   const g=groupMode(); const P=SP();
