@@ -81,3 +81,11 @@
 ::view-transition-new(sheet){animation:sheetUp .46s cubic-bezier(.22,1,.36,1)}
 /* the sheet scrolls up and down only: no sideways wobble on phones */
 .sheet-in{overflow-x:hidden;touch-action:pan-y}
+/* action sheet */
+.actsheet{position:fixed;inset:0;z-index:45;background:var(--scrim,rgba(0,0,0,.45));display:flex;align-items:flex-end;justify-content:center}
+.as-panel{width:100%;max-width:640px;background:var(--bg);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:14px 14px calc(14px + env(safe-area-inset-bottom,0px));display:grid;gap:6px;box-shadow:0 -10px 30px rgba(0,0,0,.2)}
+@media (prefers-reduced-motion:no-preference){ .as-panel{animation:asUp .22s var(--ease-out)} @keyframes asUp{from{transform:translateY(40px);opacity:.4}} }
+.as-t{margin:2px 6px 6px;font-family:var(--serif);font-weight:700;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.as-i{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:14px;font:inherit;font-size:15px;font-weight:700;color:var(--ink);text-align:left}
+.as-danger{color:var(--red)}
+.as-cancel{text-align:center;font-weight:500;color:var(--sub);margin-top:4px}

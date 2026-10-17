@@ -105,3 +105,15 @@ if ('IntersectionObserver' in window){
   new IntersectionObserver(([e])=>document.body.classList.toggle('scrolled',!e.isIntersecting),{rootMargin:'-56px 0px 0px 0px'}).observe(document.querySelector('.mast'));
 }
 $('mbTop').onclick=()=>window.scrollTo({top:0,behavior:reduceMotion()?'auto':'smooth'});
+
+// action sheet: a short list of what you can do, from the bottom of the screen. items: [{label, run, danger}]
+function actionSheet(title, items){
+  const bg=el('div','actsheet'); bg.setAttribute('role','dialog'); bg.setAttribute('aria-modal','true'); bg.setAttribute('aria-label',title);
+  const p=el('div','as-panel'); p.appendChild(el('p','as-t',title));
+  const close=()=>{ bg.remove(); document.removeEventListener('keydown',esc); };
+  const esc=e=>{ if(e.key==='Escape') close(); };
+  for (const it of items){ const b=el('button','as-i'+(it.danger?' as-danger':''),it.label); b.type='button'; b.onclick=()=>{ close(); it.run(); }; p.appendChild(b); }
+  const c=el('button','as-i as-cancel','キャンセル'); c.type='button'; c.onclick=close; p.appendChild(c);
+  bg.onclick=e=>{ if(e.target===bg) close(); }; document.addEventListener('keydown',esc);
+  bg.appendChild(p); document.body.appendChild(bg); const f=p.querySelector('.as-i'); if(f) f.focus({preventScroll:true});
+}

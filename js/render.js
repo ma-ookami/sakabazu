@@ -26,7 +26,7 @@ function render(){
   if (mode==='loading'){ const k=el('div','skel'); k.setAttribute('role','status'); k.setAttribute('aria-label','読み込み中'); for(const h of [96,132,132,132]){ const i=el('i'); i.style.setProperty('--h',h+'px'); k.appendChild(i); } v.appendChild(k); return; }
   if (tab==='set'){ v.appendChild(el('h2','pagetitle','自分')); const b=el('div'); b.id='setBody'; v.appendChild(b); buildCrew(b); return; }
   if (tab==='home') renderHome(v);
-  else if (tab==='list'){ addBar(v); listSeg(v); if(listSub==='want') renderWant(v); else renderWent(v); }
+  else if (tab==='list'){ addFab(v); listSeg(v); if(listSub==='want') renderWant(v); else renderWent(v); }
   else renderMap(v);
   if (keep){ const n=$('quick'); if(n){ n.focus(); try{ n.setSelectionRange(keep.s,keep.e); }catch{} } }
 }

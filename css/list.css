@@ -125,3 +125,15 @@
 .ab-go{grid-column:3;grid-row:1 / span 2;font-size:26px;line-height:1;opacity:.8}
 @media (prefers-reduced-motion:no-preference){ .addbar:active{transform:scale(.98)} }
 .pk-bar{margin-bottom:12px}
+/* "…" on cards */
+.sc-top{grid-template-columns:auto minmax(0,1fr) auto auto}
+.more-btn{position:relative;z-index:2;flex:none;width:34px;height:34px;border-radius:50%;border:0;background:transparent;color:var(--sub);font-size:20px;line-height:1;letter-spacing:.05em;padding:0 0 6px}
+.more-btn:hover{background:var(--faint)}
+/* the floating ＋ on the list */
+.fab{position:fixed;right:max(16px,calc(50% - 320px + 16px));bottom:calc(92px + env(safe-area-inset-bottom,0px));z-index:14;width:58px;height:58px;border-radius:50%;border:0;
+  background:var(--red);color:var(--on-red);font-size:32px;font-weight:300;line-height:1;box-shadow:0 6px 18px color-mix(in srgb,var(--red) 40%,transparent),var(--shadow-2)}
+@media (prefers-reduced-motion:no-preference){ .fab:active{transform:scale(.92)} }
+#view:has(.fab){padding-bottom:70px}
+.card .more-btn{pointer-events:auto}
+body:has(.toast:not([hidden])) .fab{transform:translateY(-68px)}
+.fab{transition:transform .25s var(--ease-out)}

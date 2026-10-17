@@ -2,7 +2,7 @@
 const listF={at:'',genre:'',star:0};   // the lists' 時間 / ジャンル / 星 (same pickers as 今日どこ行く?)
 async function renderWant(v){
   if (!readOnly){
-    v.appendChild(el('p','hint','カードは右にスワイプで「行った」、左で外せます。'));
+    v.appendChild(el('p','hint','店の操作はカードの「…」から(右スワイプで「行った」、左で外す、もできます)。'));
   }
   let arr=shops.filter(inWant);
   filterBar(v,listF,arr,render);
@@ -15,12 +15,13 @@ async function renderWant(v){
   const list=el('div','list'); v.appendChild(list);
   if (!arr.length){
     const e=el('div','empty'); e.appendChild(el('span','mincho', fOn(listF)?'条件に合う店がありません':'行きたい店はまだありません'));
-    if(!fOn(listF)) e.appendChild(document.createTextNode('気になる店を上の「お店を探す」から入れていきましょう。')); list.appendChild(e); return;
+    if(!fOn(listF)) e.appendChild(document.createTextNode('右下の「＋」から、気になる店を入れていきましょう。')); list.appendChild(e); return;
   }
   const slots=[];
   for (const s of arr){
     const {c,top,chips}=cardShell(s);
     if (!readOnly && me && !wentBy(s)[me]){ const w=el('button','went-btn live','行った'); w.setAttribute('aria-label',(s.name||'')+'に行った'); w.onclick=()=>{ w.classList.add('pop'); setTimeout(()=>markWent(s.id),280); }; top.appendChild(w); }
+    moreBtn(top,s);
     if (s.planDate) pill(chips,'plan',fmtDate(s.planDate)+' に行く予定');
     hoursPill(chips,s); tagPills(chips,s,3);
     if (chips.children.length) c.appendChild(chips);
@@ -46,7 +47,7 @@ let wentView='list';   // 行った: the list, or the calendar of visits
 function renderWent(v){
   segBar(v,[['list','リスト'],['cal','カレンダー']],wentView,k=>{ wentView=k; },'subseg');
   if (wentView==='cal'){ const sub=el('div'); v.appendChild(sub); renderCal(sub); return; }
-  if (!readOnly) v.appendChild(el('p','hint','カードは右にスワイプで「行きたい」に戻す、左で外せます。'));
+  if (!readOnly) v.appendChild(el('p','hint','店の操作はカードの「…」から(右スワイプで「行きたい」に戻す、左で外す、もできます)。'));
   filterBar(v,listF,shops.filter(inWent),render);
   let arr=shops.filter(inWent).filter(s=>fMatch(s,listF));
   const key = sort==='again'?'again': sort==='price'?'price':null;
@@ -64,6 +65,7 @@ function renderWent(v){
   for (const s of arr){
     const {c,top,chips}=cardShell(s);
     if (lastWent(s)) top.appendChild(el('span','date',fmtDate(lastWent(s))));
+    moreBtn(top,s);
     hoursPill(chips,s);
     { const last=visitList(s).find(x=>x.actual>0); if(last) pill(chips,'yen',`1人 ${yen(last.actual)}`); const sc=senseScore(s); if(sc!=null) pill(chips,'sense',`感覚一致 ${sc}%`); const dl=dealLabel(dealScore(s)); if(dl) pill(chips,dl==='感覚より安い'?'deal':'tag',dl); }
     tagPills(chips,s,2);
@@ -150,12 +152,24 @@ async function addManual(raw){
   return !!(await addOrBump(name,area));
 }
 
-// the list's add button (above 行きたい / 行った): opens the search screen, so it looks like a button, not a text box
-function addBar(v){
+
+// "…" on a card: what you can do to this shop
+function moreBtn(top,s){
+  if (readOnly || !me || isFriendShop(s)) return;
+  const b=el('button','more-btn','…'); b.type='button'; b.setAttribute('aria-label',(s.name||'')+'の操作');
+  b.onclick=e=>{ e.stopPropagation(); shopMenu(s); }; top.appendChild(b);
+}
+function shopMenu(s){
+  const st=mySt(s), items=[];
+  if (st!=='went') items.push({label:'✓ 行った', run:()=>markWent(s.id)});
+  if (st==='went') items.push({label:'↩ 行きたいに戻す', run:()=>backToWant(s.id)});
+  items.push(isPicked(s) ? {label:'今日の候補から外す', run:()=>togglePick(s)} : {label:'＋ 今日の候補に入れる', run:()=>{ togglePick(s); toast(`「${s.name}」を今日の候補に入れました`,'決めるで見る',()=>openPick('today')); }});
+  items.push({label:'詳しく見る・評価する', run:()=>openDetail(s.id)});
+  items.push({label:'自分のリストから外す', run:()=>removeMine(s.id), danger:true});
+  actionSheet(s.name||'このお店', items);
+}
+// the list's floating ＋ (search, URL, name: all in the search screen)
+function addFab(v){
   if (readOnly) return;
-  const b=el('button','addbar'); b.type='button';
-  b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>';
-  b.append(el('span','ab-t','お店を探して追加'), el('span','ab-s','エリア・料理・店名・URL'), el('span','ab-go','›'));
-  b.onclick=()=>openSearch('');
-  v.appendChild(b);
+  const b=el('button','fab','＋'); b.type='button'; b.setAttribute('aria-label','お店を追加'); b.onclick=()=>openSearch(''); v.appendChild(b);
 }
