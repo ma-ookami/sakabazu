@@ -103,9 +103,25 @@
 body:has(.toast:not([hidden])) .fab{transform:translateY(-68px)}
 .fab{transition:transform .25s var(--ease-out)}
 /* "…" sits at the card's bottom right */
-.card:has(> .more-btn){position:relative;padding-bottom:24px}
-.card > .more-btn{position:absolute;right:8px;bottom:2px;width:40px;height:28px;border-radius:14px}
 /* 行きたい: a small 外す at the bottom right */
-.card:has(> .out-btn){position:relative;padding-bottom:36px}
-.card > .out-btn{position:absolute;right:12px;bottom:8px;pointer-events:auto;border:1px solid var(--line);background:transparent;color:var(--sub);border-radius:999px;padding:2px 10px;font:inherit;font-size:11.5px;line-height:1.6}
-.card > .out-btn:hover{color:var(--red);border-color:color-mix(in srgb,var(--red) 40%,var(--line))}
+/* compact cards: one row, buttons stacked on the right */
+.shop2{padding:10px 12px}
+.shop2::before{top:12px;bottom:12px}
+.shop2 .sc-top{grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center}
+.shop2 .crest{width:38px;height:38px;font-size:19px;box-shadow:0 0 0 2px color-mix(in srgb,var(--c) 22%,transparent)}
+.shop2 .sc-main .name{font-size:16px;line-height:1.3}
+.shop2 .sc-chips{margin-top:4px;gap:6px}
+.shop2 .sc-chips:empty{display:none}
+.shop2 .sc-chips .pill{height:22px;padding:0 8px;font-size:11.5px}
+.shop2 .sc-chips .starline{margin:0;gap:4px}
+.shop2 .sc-chips .starline .stars{--sz:12px}
+.shop2 .sc-chips .starline .st-v{font-size:12.5px}
+.sc-side{display:flex;flex-direction:column;align-items:center;gap:4px}
+.shop2 .went-btn{width:44px;height:44px;font-size:12px}
+.sc-side .out-btn{pointer-events:auto;border:1px solid var(--line);background:transparent;color:var(--sub);border-radius:999px;padding:0 9px;font:inherit;font-size:11px;line-height:20px}
+.sc-side .out-btn:hover{color:var(--red);border-color:color-mix(in srgb,var(--red) 40%,var(--line))}
+.sc-side .more-btn{width:36px;height:24px;padding:0 0 6px}
+.shop2 .foot{margin-top:8px}
+.shop2 .badges{margin-top:6px}
+.sc-side{flex-direction:row;gap:8px}
+.shop2 .sc-side .went-btn{width:44px;height:44px;font-size:11px;letter-spacing:0;padding:0}

@@ -9,8 +9,10 @@ function cardShell(s){
   const main=el('div','sc-main'); main.appendChild(el('h3','name',s.name||'(名前なし)')); if(s.area) main.appendChild(el('div','area',s.area));
   if (isFriendShop(s) && friends[s._friend]) main.appendChild(el('span','fr-own',friends[s._friend].nick+'の店'));
   top.appendChild(main);
+  const side=el('div','sc-side'); top.appendChild(side);
   c.appendChild(top);
-  return {c,top,chips:el('div','sc-chips')};
+  const chips=el('div','sc-chips'); main.appendChild(chips);
+  return {c,top:side,chips};
 }
 function pill(chips,cls,t){ chips.appendChild(el('span','pill '+cls,t)); }
 const toMin=t=>{ const m=/^(\d{1,2}):(\d{2})$/.exec(t||''); return m ? (+m[1])*60+(+m[2]) : null; };

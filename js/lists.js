@@ -19,10 +19,9 @@ async function renderWant(v){
     const {c,top,chips}=cardShell(s);
     if (!readOnly && me && !wentBy(s)[me]){ const w=el('button','went-btn live','行った'); w.setAttribute('aria-label',(s.name||'')+'に行った'); w.onclick=()=>wentWhen(s.id); top.appendChild(w); }
     if (!readOnly && me && s.wants && s.wants[me] && !isFriendShop(s)){ const x=el('button','out-btn','外す'); x.type='button'; x.setAttribute('aria-label',(s.name||'')+'をリストから外す');
-      x.onclick=e=>{ e.stopPropagation(); removeMine(s.id); }; c.appendChild(x); }
+      x.onclick=e=>{ e.stopPropagation(); removeMine(s.id); }; top.appendChild(x); }
     if (s.planDate) pill(chips,'plan',fmtDate(s.planDate)+' に行く予定');
-    hoursPill(chips,s); tagPills(chips,s,3);
-    if (chips.children.length) c.appendChild(chips);
+    hoursPill(chips,s); { const sl=starLine(s); if(sl) chips.appendChild(sl); }
     const ids=wantIds(s).sort((a,b)=>(a===me)-(b===me));   // others first, me last (same as whoText)
     if (groupMode()){
     const foot=el('div','foot');
@@ -58,13 +57,10 @@ function renderWent(v){
   const slots=[], badgeSlots=[];
   for (const s of arr){
     const {c,top,chips}=cardShell(s);
-    if (lastWent(s)) top.appendChild(el('span','date',fmtDate(lastWent(s))));
-    moreBtn(c,s);
+    moreBtn(top,s);
     hoursPill(chips,s);
     { const last=visitList(s).find(x=>x.actual>0); if(last) pill(chips,'yen',`1人 ${yen(last.actual)}`); const sc=senseScore(s); if(sc!=null) pill(chips,'sense',`感覚一致 ${sc}%`); const dl=dealLabel(dealScore(s)); if(dl) pill(chips,dl==='感覚より安い'?'deal':'tag',dl); }
-    tagPills(chips,s,2);
-    if (chips.children.length) c.appendChild(chips);
-    const sl=starLine(s); c.appendChild(sl || el('div','marks','まだ星がついていません'));
+    { const sl=starLine(s); if(sl) chips.insertBefore(sl, chips.children[1]||null); }
     const bd=el('div','badges'); c.appendChild(bd); badgeSlots.push([bd,s.id]);
     const ids=recorders(s); if (ids.length || (isFriendShop(s) && !readOnly && me)){ const f=el('div','foot'); const fc=el('div','faces'); const st=el('span','stack'); fc.append(st, el('span',null,ids.length?`${ids.length}人が記録`:'')); f.appendChild(fc);
       if (isFriendShop(s) && !readOnly && me){ const ib=el('button','want-btn live','＋ 自分のリストに入れる'); ib.onclick=()=>importToMine([s.id]); f.appendChild(ib); }
