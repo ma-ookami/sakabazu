@@ -7,7 +7,13 @@ function counts(){
   $('sWant').textContent=w; $('sWent').textContent=g; $('tWant').textContent=w||''; $('tWent').textContent=g||'';
   const mb=$('mbStats'); mb.textContent=''; mb.append('行きたい', el('b',null,String(w)), '・行った', el('b',null,String(g)));
 }
+// Japanese input: while a word is still being composed, rebuilding the screen under the cursor makes the
+// keyboard type it again (doubled letters). so wait, and redraw once the word is confirmed
+let imeOn=false, renderLater=false;
+document.addEventListener('compositionstart',()=>{ imeOn=true; },true);
+document.addEventListener('compositionend',()=>{ imeOn=false; if(renderLater){ renderLater=false; setTimeout(render,0); } },true);
 function render(){
+  if (imeOn && $('view').contains(document.activeElement)){ renderLater=true; return; }
   counts(); renderFlaps();
   // typing in settings: don't rebuild under the cursor (data updates arrive while you type)
   if (tab==='set' && $('setBody') && $('setBody').contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName) && mode==='db') return;
@@ -28,7 +34,9 @@ function matches(s){ if (tagFilter && !(s.tags && s.tags[tagFilter])) return fal
 function searchBox(v){
   const lab=el('label','sr','店名やエリアで探す'); lab.htmlFor='q';
   const q=el('input','field'); q.id='q'; q.type='search'; q.placeholder='リストの中から絞り込む'; q.value=query;
-  q.oninput=()=>{ query=q.value; const pos=q.selectionStart; render(); const n=$('q'); n.focus(); n.setSelectionRange(pos,pos); };
+  const apply=()=>{ query=q.value; const pos=q.selectionStart; render(); const n=$('q'); if(n){ n.focus(); try{ n.setSelectionRange(pos,pos); }catch{} } };
+  q.oninput=e=>{ if (e.isComposing || imeOn) return; apply(); };   // while composing: wait for the word
+  q.addEventListener('compositionend',()=>setTimeout(apply,0));
   v.appendChild(lab); return q;
 }
 // nothing in my lists matched: offer to look for new shops with the same words
