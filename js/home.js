@@ -7,7 +7,7 @@ function segBar(v,items,cur,onPick,cls){
   v.appendChild(seg);
 }
 function listSeg(v){ segBar(v,[['want',`行きたい ${shops.filter(inWant).length}`],['went',`行った ${shops.filter(inWent).length}`]],listSub,k=>{ listSub=k; }); }
-function recSeg(v){ segBar(v,[['cal','カレンダー'],['rank','ランキング'],['score','予想成績']],recSub,k=>{ recSub=k; }); }
+function recSeg(v){ if(recSub==='score') recSub='cal'; segBar(v,[['cal','カレンダー'],['rank','ランキング']],recSub,k=>{ recSub=k; }); }
 function goAdd(){ listSub='want'; setTab('list'); openSearch(''); }
 function renderHome(v0){
   // one column with the same gap between every block

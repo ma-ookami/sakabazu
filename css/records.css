@@ -44,3 +44,12 @@
 .scorecard .sb{margin:8px 0 0;font-size:13px}
 .rank .yen{font-size:18px}
 .day.today{margin:0}   /* .today (home section) must not push the cell down */
+/* 1st–3rd: a small medal (gold / silver / bronze) with a ribbon */
+.rank li:nth-child(-n+3) .num{position:relative;justify-self:center;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;
+  font-size:21px;color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.25);box-shadow:inset 0 -2px 0 rgba(0,0,0,.12),0 2px 6px rgba(0,0,0,.18);margin-top:6px}
+.rank li:nth-child(1) .num{background:radial-gradient(circle at 35% 30%,#FFF1B8,#E9B949 45%,#B8861E);font-size:22px}
+.rank li:nth-child(2) .num{background:radial-gradient(circle at 35% 30%,#FFFFFF,#C9CDD3 45%,#8C939C)}
+.rank li:nth-child(3) .num{background:radial-gradient(circle at 35% 30%,#FFE0C2,#CD8A4E 45%,#8E5426)}
+.rank li:nth-child(-n+3) .num::before{content:"";position:absolute;top:-9px;left:50%;width:16px;height:12px;transform:translateX(-50%);z-index:-1;
+  background:linear-gradient(90deg,#C3342A 0 50%,#2F5E9E 50%);clip-path:polygon(0 0,100% 0,100% 100%,50% 70%,0 100%)}
+.rank li:nth-child(2) .num{color:#4A4F57;text-shadow:0 1px 0 rgba(255,255,255,.6)}
