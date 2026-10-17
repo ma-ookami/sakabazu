@@ -264,10 +264,8 @@ function renderResults(){
     if (r.mobile_access) tags.appendChild(el('span','sx-acc',r.mobile_access));
     if (tags.childNodes.length) li.appendChild(tags);
     const ac=el('div','sx-ac');
-    const exists=myShops.some(s=>(s.hp&&s.hp.id===r.id) || norm(s.name)===norm(r.name));
-    const add=el('button','sbtn'+(exists?'':' on'), exists?'リストにあり':'＋ 行きたい'); add.disabled=exists||readOnly;
-    add.onclick=async()=>{ add.disabled=true; const id=await addOrBump(r.name,hpArea(r),hpShopExtra(r)); if(id){ toast(`「${r.name}」を行きたいに追加しました`); add.textContent='リストにあり'; add.classList.remove('on'); render(); } else add.disabled=false; };
-    ac.appendChild(add);
+    const own=myShops.find(s=>(s.hp&&s.hp.id===r.id) || norm(s.name)===norm(r.name));
+    resultActions(li,ac,r.name,hpArea(r),()=>hpShopExtra(r),own,renderResults);
     if (r.urls && r.urls.pc){ const a=el('a','sbtn','お店のページ'); a.href=r.urls.pc; a.target='_blank'; a.rel='noopener noreferrer'; ac.appendChild(a); }
     li.appendChild(ac); ul.appendChild(li);
   }
@@ -349,10 +347,8 @@ function renderGoogle(){
     const wds=p.regularOpeningHours&&p.regularOpeningHours.weekdayDescriptions; if (wds&&wds[wd]) tx.appendChild(el('span','sx-acc','今日 '+wds[wd].replace(/^[^:：]+[:：]\s*/,'')));
     li.appendChild(tx);
     const ac=el('div','sx-ac');
-    const exists=myShops.some(s=>norm(s.name)===norm(name) || (Array.isArray(s.links)&&p.googleMapsUri&&s.links.includes(p.googleMapsUri)));
-    const add=el('button','sbtn'+(exists?'':' on'), exists?'リストにあり':'＋ 行きたい'); add.disabled=exists||readOnly;
-    add.onclick=async()=>{ add.disabled=true; const id=await addOrBump(name,gArea(p),gExtra(p)); if(id){ toast(`「${name}」を行きたいに追加しました`); add.textContent='リストにあり'; add.classList.remove('on'); render(); } else add.disabled=false; };
-    ac.appendChild(add);
+    const own=myShops.find(s=>norm(s.name)===norm(name) || (Array.isArray(s.links)&&p.googleMapsUri&&s.links.includes(p.googleMapsUri)));
+    resultActions(li,ac,name,gArea(p),()=>gExtra(p),own,renderGoogle);
     if (p.googleMapsUri){ const a=el('a','sbtn','Googleマップ'); a.href=p.googleMapsUri; a.target='_blank'; a.rel='noopener noreferrer'; ac.appendChild(a); }
     li.appendChild(ac); ul.appendChild(li);
   }
@@ -361,4 +357,29 @@ function renderGoogle(){
   const kw=sxWords(sx.kw);
   if (kw && !readOnly){ const m=el('button','btn btn-line sx-alt',`「${kw}」をこの名前で行きたいに追加`); m.onclick=async()=>{ m.disabled=true; if(await addManual(kw)){ closeSearch(); listSub='want'; setTab('list'); } else m.disabled=false; }; box.appendChild(m); }
   box.appendChild(el('p','caution','検索: Google マップ'));
+}
+
+// a result's buttons: ＋ 行きたい (red) and ✓ 行った (navy). 行った asks when: 今日 / a date / 覚えてない
+function resultActions(li,ac,name,area,extra,own,redraw){
+  const st = own ? mySt(own) : null;
+  const w=el('button','sbtn sx-want', st==='want'?'✓ 行きたい':'＋ 行きたい'); w.disabled=!!st||readOnly;
+  w.onclick=async()=>{ w.disabled=true; const id=await addOrBump(name,area,extra()); if(id){ toast(`「${name}」を行きたいに追加しました`); render(); redraw(); } else w.disabled=false; };
+  const g=el('button','sbtn sx-went', st==='went'?'✓ 行った済み':'✓ 行った'); g.disabled=st==='went'||readOnly;
+  let row=null;
+  g.onclick=()=>{
+    if (row){ row.remove(); row=null; return; }
+    row=el('div','sx-when'); row.appendChild(el('span','sx-wl','いつ行った?'));
+    const go=async date=>{ row.querySelectorAll('button,input').forEach(x=>x.disabled=true);
+      const id = own ? own.id : await addOrBump(name,area,extra());
+      if (!id){ redraw(); return; }
+      if (date===today()) markWent(id,true);
+      else { const cur=shops.find(x=>x.id===id)||myShops.find(x=>x.id===id); patchShop(id,{went:wentPatch(cur||{},me,date||true), wants:{[me]:false}}); }
+      toast(`「${name}」を行ったに記録しました`); render(); redraw(); };
+    const t=el('button','sbtn','今日'); t.onclick=()=>go(today());
+    const d=el('input','sx-date'); d.type='date'; d.max=today(); d.setAttribute('aria-label','行った日'); d.onchange=()=>{ if(d.value) go(d.value); };
+    const dl=el('label','sbtn sx-dl','日付を選ぶ'); dl.appendChild(d);
+    const u=el('button','sbtn','覚えてない'); u.onclick=()=>go(null);
+    row.append(t,dl,u); li.appendChild(row);
+  };
+  ac.append(w,g);
 }
