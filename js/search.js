@@ -36,7 +36,7 @@ function buildSearch(){
   // after a search: the conditions fold into one line, results right below
   if (searched){
     const sum=el('button','sx-sum'); sum.type='button';
-    const on=[hpAreaOf().label, sxWords(sx.kw), sx.budget&&(HP_BUDGETS.find(x=>x[0]===sx.budget)||[])[1], ...HP_FLAGS.filter(([k])=>sx.flags[k]).map(x=>x[1])].filter(Boolean);
+    const on=[hpAreaOf().label, sxWords(sxKwAll()), sx.budget&&(HP_BUDGETS.find(x=>x[0]===sx.budget)||[])[1], ...HP_FLAGS.filter(([k])=>sx.flags[k]).map(x=>x[1])].filter(Boolean);
     sum.append(el('span','sx-sum-ic','🔍'), el('span','sx-sum-t',on.join(' × ')), el('span','sx-sum-e','✎ 条件を変える'));
     sum.onclick=()=>{ sx.editing=true; buildSearch(); const k=$('sxKw'); if(k) k.focus({preventScroll:true}); };
     body.appendChild(sum);
@@ -53,12 +53,12 @@ function buildSearch(){
     ki.oninput=()=>{ sx.kw=ki.value; };
     ki.addEventListener('paste',e=>{ const t=clipFromEvent(e); if (!hasUrl(t)) return; e.preventDefault(); ki.value=''; sx.kw=''; runUrls(t); });
     r2.appendChild(ki); f.appendChild(r2);
-    const go=el('button','btn btn-red sx-go','検索'); go.type='submit'; f.appendChild(go);
     f.onsubmit=e=>{ e.preventDefault(); ki.blur(); runSearch(); };
     body.appendChild(f);
-    body.appendChild(el('h3','sx-h','ジャンルから探す'));
+    body.appendChild(el('h3','sx-h','ジャンル(1つ選べます)'));
     const gs=el('div','sx-genres');
-    for (const g of HP_GENRES){ const c=el('button','sx-genre',g); c.type='button'; c.onclick=()=>{ sx.kw=g; ki.value=g; runSearch(); }; gs.appendChild(c); }
+    for (const g of HP_GENRES){ const c=el('button','sx-genre',g); c.type='button'; c.setAttribute('aria-pressed',String(sx.genre===g));
+      c.onclick=()=>{ sx.genre = sx.genre===g ? '' : g; for (const x of gs.children) x.setAttribute('aria-pressed',String(x.textContent===sx.genre)); }; gs.appendChild(c); }
     body.appendChild(gs);
     // where to search, and the conditions (folded behind ⚙)
     const row=el('div','sx-opts');
@@ -82,6 +82,8 @@ function buildSearch(){
         fl.appendChild(c); }
       body.appendChild(fl);
     }
+    const go=el('button','btn btn-red sx-go sx-go-big','🔍 この条件で探す'); go.type='button'; go.onclick=()=>{ const k=$('sxKw'); if(k) k.blur(); runSearch(); }; body.appendChild(go);
+    body.appendChild(el('p','sx-go-hint','店名を入れなくても、エリアとジャンルだけで探せます'));
   }
   const res=el('div','sx-res'); res.id='sxRes'; res.setAttribute('aria-live','polite'); body.appendChild(res);
   renderResults();
@@ -123,6 +125,7 @@ const HP_SYN = {'飲み屋':'居酒屋','呑み屋':'居酒屋','飲み屋さん
   'やきとり':'焼き鳥','焼鳥':'焼き鳥','やきにく':'焼肉','すし':'寿司','鮨':'寿司','らーめん':'ラーメン','じんぎすかん':'ジンギスカン',
   'すーぷかれー':'スープカレー','スープカリー':'スープカレー','かいせん':'海鮮','ほるもん':'ホルモン','もつ':'ホルモン','ばー':'バー',
   '立ち呑み':'立ち飲み','たちのみ':'立ち飲み','にほんしゅ':'日本酒','おでん屋':'おでん','焼き鳥屋':'焼き鳥','寿司屋':'寿司'};
+const sxKwAll = () => [sx.kw, sx.genre].filter(x=>x && x.trim()).join(' ');
 const sxWords = s => s.replace(/[\s　]+/g,' ').trim().split(' ').filter(Boolean).map(w=>HP_SYN[w]||w).join(' ');
 const isUrl = s => /^https?:\/\/\S+$/i.test(s.trim());
 const URL_RE = /https?:\/\/[^\s<>"'「」()（）]+/g;
@@ -211,7 +214,7 @@ function urlsIn(text){
 
 // what we send to the proxy. q: by keyword / nameQ: the same place, but the words matched against shop names
 function sxQuery(){
-  const a=hpAreaOf(), kw=sxWords(sx.kw), place=sxWords(sx.areaText);
+  const a=hpAreaOf(), kw=sxWords(sxKwAll()), place=sxWords(sx.areaText);
   const where={}; let usedSa=false;
   if (place) where.keyword=place;
   else if (a.kw) where.keyword=a.kw;
@@ -225,7 +228,8 @@ function sxQuery(){
   const q={...where,...extra}; if (kw) q.keyword=[where.keyword,kw].filter(Boolean).join(' ');
   // shop-name matches: searched around a point (fast, and stays in the area). by area code it is slow and ignores the area
   const pt = a.at ? {lat:a.at.lat,lng:a.at.lng,range:'3'} : (!place && a.kw) ? {lat:SAPPORO.lat,lng:SAPPORO.lng,range:'5'} : where.here ? {here:true,range:'3'} : where.lat ? {lat:where.lat,lng:where.lng,range:'3'} : null;
-  const nameQ = (kw && pt) ? {...pt,...extra,name_any:kw} : null;
+  const nk=sxWords(sx.kw||'');   // shop names: only what was typed (not the genre)
+  const nameQ = (nk && pt) ? {...pt,...extra,name_any:nk} : null;
   const label=[place||(a.id!=='any'?a.label:''), kw].filter(Boolean).join(' × ');
   return {q,nameQ,label,usedSa};
 }
@@ -258,7 +262,7 @@ async function runSearch(more){
       : w.lat ? Math.hypot((+r.lat-w.lat)*111000,(+r.lng-w.lng)*111000*Math.cos(w.lat*Math.PI/180)) <= (w.range==='5'?3200:1500)
       : w.keyword==='札幌市' ? /札幌市/.test(r.address||'') : true;
     const names = (byName && byName.v>=2) ? byName.shops.filter(inArea) : [];
-    const genreWord = HP_GENRES.includes(sx.kw.trim()) || /^(居酒屋|酒場|飲み屋|バー|立ち?飲み|焼き?鳥|寿司|ラーメン|焼肉|海鮮)$/.test(sx.kw.trim());
+    const genreWord = !sx.kw.trim() || HP_GENRES.includes(sx.kw.trim()) || /^(居酒屋|酒場|飲み屋|バー|立ち?飲み|焼き?鳥|寿司|ラーメン|焼肉|海鮮)$/.test(sx.kw.trim());
     if (!genreWord) for (const r of names) r._name=true;
     const seen=new Set(more ? sx.results.map(r=>r.id) : names.map(r=>r.id));
     const add=main.shops.filter(r=>!seen.has(r.id));
@@ -447,7 +451,7 @@ function renderResults(){
 const G_PRICE={PRICE_LEVEL_INEXPENSIVE:'¥',PRICE_LEVEL_MODERATE:'¥¥',PRICE_LEVEL_EXPENSIVE:'¥¥¥',PRICE_LEVEL_VERY_EXPENSIVE:'¥¥¥¥'};
 // where to look: a chosen area as a box (only inside it), a typed place as a nudge toward 札幌, or anywhere
 function gQuery(){
-  const a=hpAreaOf(), kw=sxWords(sx.kw), place=sxWords(sx.areaText);
+  const a=hpAreaOf(), kw=sxWords(sxKwAll()), place=sxWords(sx.areaText);
   const near = place || (a.id!=='any' && !a.here && a.id!=='sapporo' ? a.label : '');
   const q={gq:[near, kw||'居酒屋'].filter(Boolean).join(' ')};
   if (place) Object.assign(q,{lat:SAPPORO.lat,lng:SAPPORO.lng,r:30000});
