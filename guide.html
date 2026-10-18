@@ -155,6 +155,12 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:0 0 28px}
 .pin .pm-b{fill:#B2322A;stroke:#fff;stroke-width:1.8}.pin .pm-d{fill:#fff}.pin .pm-sh{fill:#000;opacity:.25}
 .pin.w .pm-b{fill:#fff;stroke:#B2322A;stroke-width:2.4}.pin.w .pm-d{fill:#B2322A}
 .pin.g .pm-b{fill:#C9A14A}
+.merge-ar{margin:4px 0 0;text-align:center}
+.merge-ar svg{width:100%;max-width:330px;height:46px;display:block;margin:0 auto}
+.merge-ar small,.bring-ar small{display:block;color:var(--sub);font-size:12px;font-weight:700;letter-spacing:0}
+.merged{background:var(--card);border:2px solid var(--red);border-radius:16px;padding:12px;display:grid;gap:6px;margin-top:6px;box-shadow:0 6px 16px rgba(178,50,42,.08)}
+.mg{display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:6px 8px;border-radius:10px;background:#fff;border:1px solid var(--line)}
+.mg b{font-family:var(--serif);font-size:14px;margin-right:4px;flex-basis:100%}
 .end-lan{display:flex;gap:14px;justify-content:center;margin-bottom:10px}
 .end-lan svg{width:30px;height:42px;filter:drop-shadow(0 0 10px rgba(255,179,71,.5))}
 </style>
@@ -359,7 +365,14 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:0 0 28px}
       <div class="bp"><span class="av big" style="background:#2FA7A8">け</span><b>けん</b><ul><li class="wa">居酒屋 酒場図</li><li class="wa">大衆居酒屋 SAKABAZU</li></ul></div>
       <div class="bp"><span class="av big" style="background:#7A3FB0">た</span><b>たろう</b><ul><li class="we">居酒屋 酒場図</li><li class="wa">海鮮の店</li></ul></div>
     </div>
-    <div class="bring-ar">↓ ↓ ↓<small>それぞれの「行きたい」「行った」を持ち寄り、「＋候補」を出し合う</small></div>
+    <div class="merge-ar"><svg viewBox="0 0 300 54" aria-hidden="true"><path d="M50 2 C50 30 150 22 150 50 M150 2 V50 M250 2 C250 30 150 22 150 50" fill="none" stroke="#B2322A" stroke-width="2.4" stroke-linecap="round"/><path d="M143 43 L150 52 L157 43" fill="none" stroke="#B2322A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><small>3人のリストが、1つにまとまる</small></div>
+    <div class="merged"><span class="mock-t">みんなのリスト(飲み友とどこ行く? › 探す)</span>
+      <div class="mg"><b>居酒屋 酒場図</b><span class="p want"><span class="av" style="background:#B8322A">あ</span>行きたい</span><span class="p want"><span class="av" style="background:#2FA7A8">け</span>行きたい</span><span class="p went"><span class="av" style="background:#7A3FB0">た</span>行った</span></div>
+      <div class="mg"><b>大衆居酒屋 SAKABAZU</b><span class="p want"><span class="av" style="background:#2FA7A8">け</span>行きたい</span></div>
+      <div class="mg"><b>焼鳥の店</b><span class="p went"><span class="av" style="background:#B8322A">あ</span>行った</span></div>
+      <div class="mg"><b>海鮮の店</b><span class="p want"><span class="av" style="background:#7A3FB0">た</span>行きたい</span></div>
+    </div>
+    <div class="bring-ar">↓<small>この中から、それぞれ「＋候補」を出し合う</small></div>
     <div class="bring-to"><span class="mock-t">今日の候補</span>
       <div class="bt"><span class="p ok">🍻 全員OK</span><b>居酒屋 酒場図</b></div>
       <div class="bt"><span class="p">3人中2人OK</span><b>大衆居酒屋 SAKABAZU</b></div>
