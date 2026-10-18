@@ -135,3 +135,18 @@ function askDate(title){
 }
 // move focus into an opened sheet without drawing a focus ring on its first button (keyboard users still start inside it)
 function focusIn(id){ const p=$(id) && $(id).querySelector('.sheet-in'); if(!p) return; p.tabIndex=-1; p.focus({preventScroll:true}); }
+
+// ask for a short text. -> the text, or '' when cancelled
+function askText(title,value,max){
+  return new Promise(res=>{
+    const d=el('dialog','ask'); const box=el('div','ask-in'); box.appendChild(el('p',null,title));
+    const i=el('input','field'); i.value=value||''; i.maxLength=max||40; i.setAttribute('aria-label',title); box.appendChild(i);
+    const a=el('div','actions'); a.style.marginTop='14px'; const no=el('button','btn btn-line','やめる'); const yes=el('button','btn btn-red','保存');
+    a.append(no,yes); box.appendChild(a); d.appendChild(box); document.body.appendChild(d);
+    const done=v=>{ if(!d.isConnected) return; d.close(); d.remove(); res(v); };
+    no.onclick=()=>done(''); yes.onclick=()=>done(i.value.trim());
+    i.onkeydown=e=>{ if(e.key==='Enter' && !e.isComposing){ e.preventDefault(); done(i.value.trim()); } };
+    d.addEventListener('cancel',e=>{ e.preventDefault(); done(''); });
+    d.showModal(); i.focus(); i.select();
+  });
+}

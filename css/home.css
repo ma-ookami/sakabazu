@@ -227,3 +227,18 @@ body.gating .tabs{display:none}
 .now-h{align-items:center}
 .now-g{flex:none;margin-left:auto;height:34px;max-width:46%}
 .add-main{padding-bottom:18px}
+
+/* 誰と行く: several 飲み友, and saved 飲み会 */
+.who-stack{display:inline-flex;margin-right:4px}
+.who-stack .who-av{box-shadow:0 0 0 1.5px var(--ink)}
+.who-stack .who-av + .who-av{margin-left:-7px}
+.wc-box{display:grid;gap:10px;padding:12px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--card)}
+.wc-lab{flex-basis:100%;font-size:11.5px;font-weight:700;color:var(--sub)}
+.wc-parties{display:flex;flex-wrap:wrap;gap:6px}
+.wc-party{display:inline-flex;align-items:center;padding:0;overflow:hidden}
+.wc-party.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.wcp-go{border:0;background:none;color:inherit;font:inherit;font-weight:700;padding:6px 6px 6px 12px}
+.wcp-x{border:0;background:none;color:inherit;opacity:.5;font:inherit;padding:6px 10px 6px 4px}
+.wc-ck{font-weight:700}
+.wc-foot{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.both-b.some{background:color-mix(in srgb,var(--gold) 10%,var(--card));color:var(--sub)}

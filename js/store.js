@@ -128,7 +128,7 @@ function honBtn(s){
 }
 // a label: 本命 / <nick>の本命 / 2人とも本命
 function honPill(ch,s){ const by=honBy(s); if(!by.length) return;
-  const t = by.length>1 ? '2人とも本命' : by[0]===me ? '本命' : `${(friendByMid(by[0])||{}).nick||'飲み友'}の本命`;
+  const t = by.length>1 ? (by.length===2?'2人とも本命':`${by.length}人とも本命`) : by[0]===me ? '本命' : `${(friendByMid(by[0])||{}).nick||'飲み友'}の本命`;
   pill(ch,'hon',t); ch.lastChild.prepend(lanEl()); }
 
 // ---------- private part of a shop (groups/{gid}/priv/{shopId}, readable only by me) ----------
@@ -184,5 +184,5 @@ function tsukeBtn(s){
 }
 // a label: 行きつけ / <nick>の行きつけ / 2人の行きつけ
 function tsukePill(ch,s){ const by=tsukeBy(s); if(!by.length) return;
-  const t = by.length>1 ? '2人の行きつけ' : by[0]===me ? '行きつけ' : `${(friendByMid(by[0])||{}).nick||'飲み友'}の行きつけ`;
+  const t = by.length>1 ? (by.length===2?'2人の行きつけ':`${by.length}人の行きつけ`) : by[0]===me ? '行きつけ' : `${(friendByMid(by[0])||{}).nick||'飲み友'}の行きつけ`;
   pill(ch,'tsuke',t); ch.lastChild.prepend(chokoEl()); }

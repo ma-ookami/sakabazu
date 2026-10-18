@@ -4,8 +4,8 @@
 let myShops=[], friends={}, fShops={}, fDenied={}, fSubs={}, myCode='';
 let frReqs={}, frSent={}, sentSubs={};
 let friendsLoaded=false;   // the first list of 飲み友 has arrived   // 飲み友申請: to me / from me (waiting)
-// the friend whose list I'm looking at together with mine (one at a time: "けんとのリスト")
-let mix = new Set((()=>{ try{ return JSON.parse(localStorage.getItem('nm-mix')||'[]').slice(0,1); }catch{ return []; } })());
+// the 飲み友 I'm going with (one or more): their lists are mixed into 決める
+let mix = new Set((()=>{ try{ return JSON.parse(localStorage.getItem('nm-mix')||'[]').slice(0,8); }catch{ return []; } })());
 const saveMix = () => { try{ localStorage.setItem('nm-mix',JSON.stringify([...mix])); }catch{} };
 // on screen only on the 決める tab; lists and map always show just mine
 const activeFriends = () => tab==='home' ? mixedFriends() : [];
@@ -261,32 +261,67 @@ if (!friendMode) mix.clear(); else if (!mix.size && lastFriend) mix.add(lastFrie
 const saveWho = () => { try{ localStorage.setItem('nm-fmode',friendMode?'1':''); localStorage.setItem('nm-lastf',lastFriend||''); }catch{} };
 function setWho(fm,f){
   friendMode=fm; if (f) lastFriend=f;
-  mix = (fm && lastFriend && friends[lastFriend]) ? new Set([lastFriend]) : new Set();
-  whoOpen = fm && !mix.size;   // friend mode without a friend yet: show the choices
+  if (!fm) mix=new Set();
+  else if (f) mix=new Set([f]);
+  else if (!mixedFriends().length && lastFriend && friends[lastFriend]) mix=new Set([lastFriend]);
+  whoOpen = fm && !mixedFriends().length;   // friend mode without anyone yet: show the choices
   saveMix(); saveWho(); syncFriendSubs(); rebuildShops(); buzz(); render();
 }
-// the bar under the header, on every tab: whose list this is, and (in friend mode) who to look at with
+// add / remove one person from who I'm going with
+function toggleMix(f){
+  const m=new Set(mixedFriends()); if (m.has(f)) m.delete(f); else m.add(f);
+  mix=m; friendMode=true; if (m.has(f)) lastFriend=f;
+  saveMix(); saveWho(); syncFriendSubs(); rebuildShops(); buzz(); render();
+}
+// "けん" / "けん・たろう" / "けん他2人"
+function whoNames(ids){ const n=(ids||activeFriends()).map(x=>(friends[x]||{}).nick||'飲み友'); return n.length<=2 ? n.join('・') : `${n[0]}他${n.length-1}人`; }
+// 飲み会: saved groups of 飲み友 (this device only)
+let parties = (()=>{ try{ const p=JSON.parse(localStorage.getItem('nm-parties')||'[]'); return Array.isArray(p)?p.filter(x=>x&&x.name&&Array.isArray(x.ids)):[]; }catch{ return []; } })();
+const saveParties = () => { try{ localStorage.setItem('nm-parties',JSON.stringify(parties)); }catch{} };
+const sameSet = (a,b) => a.length===b.length && a.every(x=>b.includes(x));
+function useParty(p){ const ids=p.ids.filter(x=>friends[x]); if(!ids.length){ toast('この飲み会のメンバーはもう飲み友にいません'); return; }
+  mix=new Set(ids); friendMode=true; lastFriend=ids[0]; whoOpen=false; saveMix(); saveWho(); syncFriendSubs(); rebuildShops(); buzz(); render(); }
+async function saveParty(){
+  const ids=mixedFriends(); if (ids.length<2) return;
+  const name=await askText('この飲み会の名前', whoNames(ids)+'と', 20); if (!name) return;
+  parties=[...parties.filter(p=>!sameSet(p.ids,ids)), {name, ids}].slice(-8); saveParties(); toast(`「${name}」を保存しました`); render(); }
+async function dropParty(p){ if (!(await ask(`「${p.name}」を消しますか?(飲み友はそのままです)`,'消す',true))) return; parties=parties.filter(x=>x!==p); saveParties(); render(); }
+// the bar on 決める: 誰と行く? [1人で | 飲み友と], then who (several can be picked) and the saved 飲み会
 function whoBar(v){
   if (!(mode==='db' && !!me && !!members[me])) return;
-  const ids=Object.keys(friends).sort((a,b)=>friends[a].at-friends[b].at), wf=mixedFriends()[0];
+  const ids=Object.keys(friends).sort((a,b)=>friends[a].at-friends[b].at), sel=mixedFriends();
   const bar=el('div','wholine');
   const seg=el('div','whoseg wc-seg'); seg.setAttribute('role','group'); seg.setAttribute('aria-label','誰と行く?');
   const one=el('button',null,'1人で'); one.type='button'; one.setAttribute('aria-pressed',String(!friendMode)); one.onclick=()=>{ if(friendMode) setWho(false); };
   const two=el('button'); two.type='button'; two.setAttribute('aria-pressed',String(friendMode));
-  if (friendMode && wf) two.append(avatar({},friends[wf].mid,'who-av'), document.createTextNode(friends[wf].nick+'と'), el('span','who-c','▾'));
+  if (friendMode && sel.length){ const st=el('span','who-stack'); sel.slice(0,3).forEach(x=>st.appendChild(avatar({},friends[x].mid,'who-av'))); two.append(st, document.createTextNode(whoNames(sel)+'と'), el('span','who-c','▾')); }
   else two.textContent='飲み友と';
   two.onclick=()=>{ if(!friendMode) setWho(true); else { whoOpen=!whoOpen; render(); } };
   seg.append(one,two);
   bar.append(el('span','wc-q','誰と行く?'), seg); v.appendChild(bar);
-  if (friendMode && (whoOpen || !wf)){
-    const ch=el('div','wc-list');
+  if (friendMode && (whoOpen || !sel.length)){
+    const box=el('div','wc-box');
+    const pv=parties.filter(p=>p.ids.some(x=>friends[x]));
+    if (pv.length){ const pr=el('div','wc-parties'); pr.appendChild(el('span','wc-lab','飲み会'));
+      for (const p of pv){ const on=sameSet(p.ids.filter(x=>friends[x]),sel); const c=el('span','chip wc-party'+(on?' on':'')); c.setAttribute('aria-pressed',String(on));
+        const go=el('button','wcp-go',p.name); go.type='button'; go.onclick=()=>useParty(p);
+        const x=el('button','wcp-x','×'); x.type='button'; x.setAttribute('aria-label',p.name+'を消す'); x.onclick=()=>dropParty(p);
+        c.append(go,x); pr.appendChild(c); }
+      box.appendChild(pr); }
+    const ch=el('div','wc-list'); ch.appendChild(el('span','wc-lab','誰と(何人でも)'));
     if (!ids.length) ch.appendChild(el('span','wc-s','まだ飲み友がいません。'));
-    for (const id of ids){ const c=el('button','chip wc-f'); c.type='button'; c.setAttribute('aria-pressed',String(id===wf));
-      c.append(avatar({},friends[id].mid,'who-av'), el('span',null,friends[id].nick)); c.onclick=()=>{ whoOpen=false; setWho(true,id); }; ch.appendChild(c); }
+    for (const id of ids){ const c=el('button','chip wc-f'); c.type='button'; c.setAttribute('aria-pressed',String(sel.includes(id)));
+      c.append(avatar({},friends[id].mid,'who-av'), el('span',null,friends[id].nick)); if (sel.includes(id)) c.appendChild(el('span','wc-ck','✓'));
+      c.onclick=()=>toggleMix(id); ch.appendChild(c); }
     const add=el('button','chip wc-add','＋ 飲み友を追加'); add.type='button'; add.onclick=()=>{ whoOpen=false; openFriends(); }; ch.appendChild(add);
-    v.appendChild(ch);
+    box.appendChild(ch);
+    const ft=el('div','wc-foot');
+    if (sel.length>=2 && !parties.some(p=>sameSet(p.ids,sel))){ const sv=el('button','sbtn wc-save','＋ このメンバーを飲み会に保存'); sv.type='button'; sv.onclick=saveParty; ft.appendChild(sv); }
+    if (sel.length){ const ok=el('button','sbtn on wc-done','決定'); ok.type='button'; ok.onclick=()=>{ whoOpen=false; render(); }; ft.appendChild(ok); }
+    if (ft.children.length) box.appendChild(ft);
+    v.appendChild(box);
   }
-  if (friendMode && wf && fDenied[wf]) v.appendChild(el('p','hint','(相手のリストを読めません)'));
+  const den=sel.filter(x=>fDenied[x]); if (friendMode && den.length) v.appendChild(el('p','hint',`(${whoNames(den)}のリストを読めません)`));
 }
 function openFriends(){ setSub='friends'; setTab('set'); }
 

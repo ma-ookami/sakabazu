@@ -53,6 +53,9 @@ function candidates(){
 }
 /* 今日の候補: each person adds shops they'd be happy with today (stored in their own today/ docs);
    with a 飲み友's list on, both sides' picks are merged, and shops both picked are "🍻 2人ともOK" */
+// how many of us picked it: "🍻 2人ともOK" / "🍻 全員OK" / "3人中2人OK"
+const okLabel = c => { const n=1+activeFriends().length, k=c.by.size; if (k<2) return ''; return k>=n ? (n===2?'🍻 2人ともOK':'🍻 全員OK') : `${n}人中${k}人OK`; };
+const allOk = c => c.by.size>1 && c.by.size>=1+activeFriends().length;
 const shopKey = s => (s && s.hp && s.hp.id) ? 'hp:'+s.hp.id : 'n:'+norm((s&&s.name)||'');
 let fToday={};   // 飲み友 -> their picks for today
 function myPickDocs(){ const t=nightKey(); return Object.entries(todayDocs).filter(([,d])=>d.date===t && d.by===me).map(([id,d])=>({...d,_id:id})); }
@@ -63,7 +66,7 @@ function todayCands(){
     if (!c){ c={key:k, name:d.name||'', by:new Set(), time:''}; map.set(k,c); }
     c.by.add(who); if (who===me) c.mine=d; if (!c.name && d.name) c.name=d.name; if (d.time && !c.time) c.time=d.time; };
   for (const d of myPickDocs()) add(d,me);
-  const wf=activeFriends()[0]; if (wf) for (const d of fToday[wf]||[]) add(d,wf);
+  for (const wf of activeFriends()) for (const d of fToday[wf]||[]) add(d,wf);
   for (const c of map.values()){ c.shop=shops.find(s=>shopKey(s)===c.key) || shops.find(s=>c.mine && s.id===c.mine.shopId) || null; if(!c.name && c.shop) c.name=c.shop.name; }
   return [...map.values()].sort((a,b)=>b.by.size-a.by.size || (b.by.has(me)-a.by.has(me)));
 }
@@ -95,9 +98,9 @@ function todayBlock(v){
   const b=el('button','todaybtn'); b.onclick=()=>openPick(cs.length?'today':'find');
   b.append(el('span','tb-t', wf ? '飲み友とどこ行く?' : '今日どこ行く?'));
   if (cs.length){
-    const both=cs.filter(c=>c.by.size>1);
-    b.appendChild(el('span','tb-s', both.length ? `🍻 2人ともOK: ${both.map(c=>c.name).slice(0,2).join('・')}${both.length>2?' ほか':''}` : `今日の候補 ${cs.length}軒`));
-  } else b.appendChild(el('span','tb-s', wf ? '候補を出し合って、2人ともいい店を探す' : '行きたい店と行った店から探す'));
+    const both=cs.filter(allOk);
+    b.appendChild(el('span','tb-s', both.length ? `${okLabel(both[0])}: ${both.map(c=>c.name).slice(0,2).join('・')}${both.length>2?' ほか':''}` : `今日の候補 ${cs.length}軒`));
+  } else b.appendChild(el('span','tb-s', wf ? `${whoNames()}と候補を出し合って、みんながいい店を探す` : '行きたい店と行った店から探す'));
   v.appendChild(b);
 }
 async function shareShop(s,time){
@@ -184,14 +187,14 @@ function mineRow(s){
 // the 今日の候補 tab: mine and the 飲み友's picks together; shops both picked come first, marked 🍻
 function todayTab(b){
   const wf=activeFriends()[0], cs=todayCands();
-  b.appendChild(el('p','hint', wf ? `あなたと${friends[wf].nick}が出した今日の候補。いいと思ったら「＋ 私も」。2人とも選んだ店が「🍻 2人ともOK」になります。`
+  b.appendChild(el('p','hint', wf ? `あなたと${whoNames()}が出した今日の候補。いいと思ったら「＋ 私も」。選んだ人数が多い店から並びます。`
     : '今日の候補。「飲み友と」に切り替えると、相手の候補と合わせて見られます。'));
   if (!cs.length){ b.appendChild(el('p','empty','まだ候補がありません。「探す」で「＋ 候補」を押して入れてください。')); return; }
   const ul=el('ul','plist cands');
   for (const c of cs){
-    const both=c.by.size>1, li=el('li', both?'both':'');
+    const both=allOk(c), li=el('li', both?'both':'');
     const info=el('button','pinfo'); if (c.shop) info.onclick=()=>openDetail(c.shop.id);
-    if (both) info.appendChild(el('span','both-b','🍻 2人ともOK'));
+    { const ol=okLabel(c); if (ol) info.appendChild(el('span','both-b'+(both?'':' some'),ol)); }
     info.appendChild(el('span','pn',c.name||'(名前なし)'));
     if (c.shop) info.appendChild(pickChips(c.shop,false));
     const who=el('span','who-l'); for (const u of c.by){ const mid=u===me?me:(friends[u]||{}).mid, nm=u===me?'あなた':(friends[u]||{}).nick||'飲み友'; const t=el('span','who-t'+(u===me?' me':''),'✓'); t.prepend(avatar({},mid,'pl-av')); t.title=t.ariaLabel=nm+' ✓'; who.appendChild(t); } info.appendChild(who);
@@ -225,7 +228,7 @@ function pickChips(s,withStatus){
 // ---------- 決定: one of tonight's picks becomes "今日はここ" (go:true on my pick for it) ----------
 function decided(){
   const mine=myPickDocs().find(d=>d.go);
-  const wf=activeFriends()[0], theirs=wf && (fToday[wf]||[]).find(d=>d.go && d.date===nightKey());
+  let theirs=null, wf=null; for (const f of activeFriends()){ const t=(fToday[f]||[]).find(d=>d.go && d.date===nightKey()); if (t){ theirs=t; wf=f; break; } }
   const d=mine||theirs; if(!d) return null;
   const key=docKey(d), shop=shops.find(s=>shopKey(s)===key) || shops.find(s=>s.id===d.shopId) || null;
   return {key, name:d.name||(shop&&shop.name)||'', shop, by: mine ? me : wf, mine:!!mine, time:d.time||''};

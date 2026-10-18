@@ -79,6 +79,6 @@ function homeReady(){
   if (!homeSince){ homeSince=Date.now(); setTimeout(render,3100); }
   if (Date.now()-homeSince>3000) return true;
   if (!shopsLoaded || !todayLoaded) return false;
-  if (friendMode){ if (!friendsLoaded) return false; const wf=mixedFriends()[0]; if (wf && !(wf in fToday)) return false; }
+  if (friendMode){ if (!friendsLoaded) return false; if (mixedFriends().some(f=>!(f in fToday))) return false; }
   return true;
 }
