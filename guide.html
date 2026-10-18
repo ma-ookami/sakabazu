@@ -10,82 +10,98 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Antique&family=Shippori+Mincho+B1:wght@800&family=Josefin+Sans:wght@600&family=Zen+Old+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#F3EEE5;--card:#FFFCF7;--ink:#27211D;--sub:#7A6C5F;--line:#E3D8C6;--red:#B2322A;--on-red:#FFF8F0;--indigo:#1C2A44;--on-indigo:#F2EADB;--gold:#C9A14A;--blue:#2E5FA8;
+:root{--bg:#F3EEE5;--card:#FFFCF7;--ink:#27211D;--sub:#7A6C5F;--line:#E3D8C6;--red:#B2322A;--on-red:#FFF8F0;--indigo:#1C2A44;--on-indigo:#F2EADB;--gold:#B98A35;--green:#2F7D4F;--blue:#2E5FA8;
   --serif:"Zen Old Mincho","Hiragino Mincho ProN","Yu Mincho",serif;--brush:"Zen Antique","Hiragino Mincho ProN",serif;--sans:"Zen Kaku Gothic New","Hiragino Sans",sans-serif}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.75;-webkit-font-smoothing:antialiased}
 a{color:inherit}
-.wrap{max-width:720px;margin:0 auto;padding:0 18px}
+.wrap{max-width:680px;margin:0 auto;padding:0 18px}
+.dm-zzz{display:none}
 /* hero */
-.hero{position:relative;overflow:hidden;color:var(--on-indigo);background:radial-gradient(420px 260px at 50% 30%,rgba(255,190,90,.16),transparent 70%),var(--indigo);padding:22px 0 64px;border-bottom:5px solid var(--red)}
-.hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:60px;background:radial-gradient(circle at 50% 100%,transparent 0 14px,rgba(242,234,219,.08) 14px 15px,transparent 15px 22px,rgba(242,234,219,.08) 22px 23px,transparent 23px) 0 0/48px 30px repeat-x;pointer-events:none}
-.top{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1}
-.logo{font-family:"Shippori Mincho B1",var(--serif);font-weight:800;font-size:26px;letter-spacing:.06em;text-decoration:none}
+.hero{position:relative;overflow:hidden;color:var(--on-indigo);background:radial-gradient(420px 260px at 50% 35%,rgba(255,190,90,.16),transparent 70%),var(--indigo);padding:20px 0 36px;border-bottom:5px solid var(--red)}
+.top{display:flex;justify-content:space-between;align-items:center}
+.logo{font-family:"Shippori Mincho B1",var(--serif);font-weight:800;font-size:24px;letter-spacing:.06em;text-decoration:none}
 .back{font-size:13px;text-decoration:none;border:1px solid rgba(242,234,219,.45);border-radius:999px;padding:6px 14px}
-.hero-in{position:relative;z-index:1;display:grid;gap:18px;justify-items:center;text-align:center;margin-top:28px}
-.hero h1{margin:0;font-family:var(--brush);font-size:clamp(34px,9vw,52px);line-height:1.25;letter-spacing:.06em}
+.hero-in{display:grid;gap:14px;justify-items:center;text-align:center;margin-top:20px}
+.hero .dm{width:96px}
+.hero h1{margin:0;font-family:var(--brush);font-size:clamp(25px,7vw,40px);line-height:1.3;letter-spacing:.04em}
 .hero h1 em{font-style:normal;color:#FFD27A}
-.hero p{margin:0;max-width:30em;opacity:.9}
-.lanterns{display:flex;gap:18px;justify-content:center}
-.lanterns svg{width:34px;height:48px;filter:drop-shadow(0 0 12px rgba(255,179,71,.65));animation:sway 3.2s ease-in-out infinite;transform-origin:50% 0}
-.lanterns svg:nth-child(2){animation-delay:-1s;width:42px;height:58px}
-.lanterns svg:nth-child(3){animation-delay:-2s}
-@keyframes sway{50%{transform:rotate(4deg)}}
-.lan-cap{fill:#1F1B19}.lan-body{fill:#C8352B;stroke:#7A1A14;stroke-width:.8}.lan-rib{fill:none;stroke:#7A1A14;stroke-width:.8;opacity:.5}.lan-tas{stroke:#C8352B;stroke-width:1.4}
-.cta{display:inline-flex;align-items:center;gap:8px;background:var(--red);color:var(--on-red);text-decoration:none;font-weight:700;padding:14px 28px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.25);font-size:16px}
-.cta:active{transform:scale(.97)}
+.hero p{margin:0;max-width:28em;opacity:.92;font-size:15px}
+.points{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:460px;margin-top:4px}
+.points a{display:grid;gap:2px;justify-items:center;text-decoration:none;background:rgba(242,234,219,.08);border:1px solid rgba(242,234,219,.2);border-radius:14px;padding:10px 4px;font-size:12px}
+.points b{font-size:20px;line-height:1.2}
+.cta{display:inline-flex;align-items:center;gap:8px;background:var(--red);color:var(--on-red);text-decoration:none;font-weight:700;padding:13px 26px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.25);font-size:16px}
 /* sections */
-section{padding:44px 0 8px}
+section{padding:40px 0 4px}
 .kicker{display:inline-block;font-family:"Josefin Sans",sans-serif;font-weight:600;letter-spacing:.3em;font-size:12px;color:var(--red)}
-h2{margin:4px 0 18px;font-family:var(--serif);font-size:clamp(23px,6vw,30px);line-height:1.4}
-.dm-say{display:flex;gap:12px;align-items:center;margin:0 0 20px}
-.dm-say .dm{width:62px;flex:none}
-.dm-say .dm svg{width:100%;height:auto;display:block}
-.bub{position:relative;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 14px;font-size:14.5px}
-.bub::before{content:"";position:absolute;left:-7px;top:50%;width:12px;height:12px;background:var(--card);border-left:1px solid var(--line);border-bottom:1px solid var(--line);transform:translateY(-50%) rotate(45deg)}
-/* steps */
-.steps{display:grid;gap:14px;counter-reset:st}
-.step{position:relative;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:0 2px 0 var(--line)}
-.num{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-family:var(--brush);font-size:24px;color:var(--on-red);background:var(--red);box-shadow:0 0 0 4px #F6D8D3}
-.step:nth-child(2) .num{background:var(--indigo);box-shadow:0 0 0 4px #D5DAE4}
-.step:nth-child(3) .num{background:var(--gold);box-shadow:0 0 0 4px #EFE3C6}
-.step h3{margin:2px 0 4px;font-size:17px}
-.step p{margin:0;font-size:14px;color:var(--sub)}
-.chip{display:inline-block;border:1px solid var(--line);background:#fff;border-radius:999px;padding:0 10px;font-size:12.5px;margin:6px 4px 0 0;color:var(--ink)}
-/* features */
-.feats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
-.feat{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;display:grid;gap:6px;align-content:start}
-.feat .ic{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:22px;background:#F6EEE2}
-.feat .ic svg{width:22px;height:30px}
-.feat h3{margin:0;font-size:16px}
-.feat p{margin:0;font-size:13.5px;color:var(--sub)}
-.tag{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:0 8px}
-.t-red{background:#F6E1DE;color:var(--red)}.t-navy{background:#E1E6EF;color:var(--indigo)}.t-blue{background:#E2EAF5;color:var(--blue)}.t-gold{background:#F3EAD3;color:#8A6420}
-/* friends */
-.flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:8px;align-items:center;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px 12px}
-.flow .f{display:grid;gap:4px;justify-items:center;font-size:13px}
-.flow .f b{font-size:14px}
-.flow .f .e{font-size:28px}
-.flow .arr{color:var(--sub);font-size:20px}
-.ok{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:12px}
-.okb{font-size:12.5px;font-weight:700;border-radius:999px;padding:2px 12px;background:#F3EAD3;color:#7B5A1E}
+h2{margin:2px 0 12px;font-family:var(--serif);font-size:clamp(22px,6vw,28px);line-height:1.45}
+.lead{margin:0 0 16px;color:var(--sub);font-size:14.5px}
+.say{display:flex;gap:10px;align-items:flex-end;margin:0 0 16px}
+.say.r{flex-direction:row-reverse}
+.say .dm{width:64px;flex:none}
+.dm{display:block}
+.dm svg{width:100%;height:auto;display:block}
+.bub{position:relative;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 14px;font-size:14.5px;margin-bottom:10px}
+.bub::before{content:"";position:absolute;left:-7px;bottom:16px;width:12px;height:12px;background:var(--card);border-left:1px solid var(--line);border-bottom:1px solid var(--line);transform:rotate(45deg)}
+.say.r .bub::before{left:auto;right:-7px;transform:rotate(-135deg)}
+/* mock screens */
+.mock{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px;box-shadow:0 6px 18px rgba(39,33,29,.06);display:grid;gap:10px}
+.mock-t{font-size:11.5px;font-weight:700;color:var(--sub);letter-spacing:.06em}
+.seg{display:flex;background:#EEE7DA;border-radius:999px;padding:3px;gap:2px;font-size:13px}
+.seg span{flex:1;text-align:center;padding:5px 0;border-radius:999px;color:var(--sub)}
+.seg .on{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.shop{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.crest{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:#FFF8EF;font-family:var(--brush);font-size:18px;flex:none}
+.shop .nm{font-family:var(--serif);font-weight:700;font-size:15px}
+.shop .mid{flex:1;min-width:0;display:grid;gap:4px}
+.pills{display:flex;gap:4px;flex-wrap:wrap}
+.p{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:0 8px;line-height:20px;color:var(--ink);white-space:nowrap}
+.p.open{color:var(--green);border-color:#B9D6C3;background:#EEF6F0;font-weight:700}
+.p.want{color:var(--red);border-color:#E8B9B4;background:#FBEDEB;font-weight:700}
+.p.went{color:var(--indigo);border-color:#B8C0D0;background:#EDF0F5;font-weight:700}
+.p.ok{color:#7B5A1E;border-color:#E3CF9E;background:#F7EED9;font-weight:700}
+.stamp{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--red);color:var(--red);display:grid;place-items:center;font-size:12px;font-weight:700;transform:rotate(-8deg);box-shadow:inset 0 0 0 3px #fff,inset 0 0 0 4px #E3A49E;flex:none}
+.stars{color:#E8A33A;font-size:14px;letter-spacing:1px}
+.stars small{color:var(--ink);font-weight:700;margin-left:4px}
+.btn{display:inline-block;border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:700;white-space:nowrap}
+.btn.red{background:var(--red);color:var(--on-red)}
+.btn.navy{background:var(--indigo);color:var(--on-indigo)}
+.btn.line{border:1px solid var(--line);background:#fff}
+.av{width:18px;height:18px;border-radius:50%;display:inline-grid;place-items:center;color:#fff;font-size:10px;font-weight:700;vertical-align:-4px;margin-right:3px;box-shadow:0 0 0 1px #fff}
+.paste{border:1.5px dashed var(--line);border-radius:12px;padding:10px 12px;font-size:12.5px;color:var(--sub);line-height:1.6;background:#FFFDF9}
+.paste b{color:var(--ink)}
+.paste .u{color:var(--blue);word-break:break-all}
+.arrow{text-align:center;color:var(--sub);font-size:18px;line-height:1}
+.filled{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13px}
+.filled dt{color:var(--sub)}
+.filled dd{margin:0;font-weight:700}
+.filled dd .auto{font-size:10.5px;font-weight:700;color:var(--green);background:#EEF6F0;border-radius:999px;padding:0 6px;margin-left:4px}
+.memo{border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-size:13px;background:#fff}
+.rows{display:grid;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:13px}
+.rows div{display:flex;justify-content:space-between;padding:8px 12px;background:#fff;border-top:1px solid var(--line)}
+.rows div:first-child{border-top:0}
+.rows span{color:var(--sub)}
+/* more */
+.more{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mo{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;display:grid;gap:2px}
+.mo b{font-size:14px}
+.mo span{font-size:12.5px;color:var(--sub);line-height:1.6}
+.mo i{font-style:normal;font-size:20px}
+.mo svg{width:16px;height:22px}
 /* faq */
-details{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:0 16px;margin-bottom:10px}
-summary{cursor:pointer;list-style:none;padding:14px 0;font-weight:700;display:flex;justify-content:space-between;gap:10px}
+details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:0 14px;margin-bottom:8px}
+summary{cursor:pointer;list-style:none;padding:12px 0;font-weight:700;font-size:14.5px;display:flex;justify-content:space-between;gap:10px}
 summary::-webkit-details-marker{display:none}
 summary::after{content:"＋";color:var(--sub)}
 details[open] summary::after{content:"−"}
-details p{margin:0 0 14px;font-size:14px;color:var(--sub)}
-/* end */
-.end{text-align:center;padding:48px 0 64px}
-.end .dm{width:110px;margin:0 auto 10px}
-.end .dm svg{width:100%;height:auto}
-.end p{margin:0 0 18px}
-footer{text-align:center;font-size:11.5px;color:var(--sub);padding:0 0 32px}
-.dm-zzz{display:none}
-.end .dm{display:block}
-@media (prefers-reduced-motion:reduce){.lanterns svg{animation:none}}
+details p{margin:0 0 12px;font-size:13.5px;color:var(--sub)}
+.end{text-align:center;padding:40px 0 56px}
+.end .dm{width:100px;margin:0 auto 8px}
+.end p{margin:0 0 16px;font-family:var(--serif);font-size:18px}
+footer{text-align:center;font-size:11.5px;color:var(--sub);padding:0 0 28px}
+.choko .ck-body{fill:#FFFDF8;stroke:#27211D;stroke-width:1.3}.choko .ck-sake{fill:#CFE2F3}.choko .ck-ring{fill:none;stroke:#2E5FA8;stroke-width:1.2}.choko .ck-dot{fill:#2E5FA8}.choko .ck-foot{fill:#27211D}.choko .ck-rim{stroke:#27211D;fill:none}
+.lan-cap{fill:#1F1B19}.lan-body{fill:#C8352B;stroke:#7A1A14;stroke-width:.8}.lan-rib{fill:none;stroke:#7A1A14;stroke-width:.8;opacity:.5}.lan-tas{stroke:#C8352B;stroke-width:1.4}
 </style>
 </head>
 <body>
@@ -93,19 +109,7 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:0 0 32px}
   <div class="wrap">
     <div class="top"><a class="logo" href="sakabazu.html">酒場図</a><a class="back" href="sakabazu.html">アプリへ戻る</a></div>
     <div class="hero-in">
-      <div class="lanterns"><svg class="lan" viewBox="0 0 20 28" aria-hidden="true"><rect class="lan-cap" x="6" y="2" width="8" height="3" rx="1"/><ellipse class="lan-body" cx="10" cy="14" rx="7.2" ry="9"/><path class="lan-rib" d="M3.6 10.5Q10 12.5 16.4 10.5M3 14.5Q10 16.5 17 14.5M3.6 18.5Q10 20.5 16.4 18.5"/><rect class="lan-cap" x="6" y="22.5" width="8" height="3" rx="1"/><path class="lan-tas" d="M10 25.5v2.3"/></svg><svg class="lan" viewBox="0 0 20 28" aria-hidden="true"><rect class="lan-cap" x="6" y="2" width="8" height="3" rx="1"/><ellipse class="lan-body" cx="10" cy="14" rx="7.2" ry="9"/><path class="lan-rib" d="M3.6 10.5Q10 12.5 16.4 10.5M3 14.5Q10 16.5 17 14.5M3.6 18.5Q10 20.5 16.4 18.5"/><rect class="lan-cap" x="6" y="22.5" width="8" height="3" rx="1"/><path class="lan-tas" d="M10 25.5v2.3"/></svg><svg class="lan" viewBox="0 0 20 28" aria-hidden="true"><rect class="lan-cap" x="6" y="2" width="8" height="3" rx="1"/><ellipse class="lan-body" cx="10" cy="14" rx="7.2" ry="9"/><path class="lan-rib" d="M3.6 10.5Q10 12.5 16.4 10.5M3 14.5Q10 16.5 17 14.5M3.6 18.5Q10 20.5 16.4 18.5"/><rect class="lan-cap" x="6" y="22.5" width="8" height="3" rx="1"/><path class="lan-tas" d="M10 25.5v2.3"/></svg></div>
-      <h1>今夜の一軒、<br><em>すぐ決まる。</em></h1>
-      <p>行きたい店と行った店をためておいて、「今日どこ行く?」を飲み友とサッと決める。酒場好きのための、自分だけの酒場の地図です。</p>
-      <a class="cta" href="sakabazu.html">🏮 酒場図をひらく</a>
-    </div>
-  </div>
-</header>
-
-<main class="wrap">
-  <section>
-    <span class="kicker">HOW TO</span>
-    <h2>使い方は、3ステップ</h2>
-    <div class="dm-say"><span class="dm"><svg viewBox="0 0 64 66" aria-hidden="true"><defs><clipPath id="dmc2"><path d="M32 5C48.5 5 58 18.5 58 36C58 53.5 47 62 32 62C17 62 6 53.5 6 36C6 18.5 15.5 5 32 5Z"/></clipPath></defs><g class="dm-body">
+      <span class="dm"><svg viewBox="0 0 64 66" aria-hidden="true"><defs><clipPath id="dmc2"><path d="M32 5C48.5 5 58 18.5 58 36C58 53.5 47 62 32 62C17 62 6 53.5 6 36C6 18.5 15.5 5 32 5Z"/></clipPath></defs><g class="dm-body">
   
   <ellipse cx="32" cy="62.5" rx="20" ry="2.8" fill="#000" opacity=".12"/>
   
@@ -124,44 +128,34 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:0 0 32px}
   <g class="dm-f dm-sleep"><path d="M21.5 30Q25 33 28.5 30" fill="none" stroke="#2A2220" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35.5 30Q39 33 42.5 30" fill="none" stroke="#2A2220" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><ellipse cx="32" cy="38.6" rx="1.5" ry="1.1" fill="#2A2220" opacity=".7"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.4"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.4"/></g>
   </g>
   <g class="dm-zzz" fill="currentColor" font-weight="900" font-family="sans-serif"><text x="50" y="10" font-size="7">z</text><text x="55" y="4" font-size="9">z</text></g>
-  </svg></span><p class="bub">むずかしいことはないよ。まずは気になる店を1軒入れてみよう!</p></div>
-    <div class="steps">
-      <div class="step"><span class="num">一</span><div><h3>気になる店を入れる</h3><p>決める画面の「お店をリストに追加」から。エリアとジャンルで探すか、LINEで届いたお店のリンクを貼るだけ。検索に出ないお店は名前だけでもOK。</p>
-        <span class="chip">🔍 探す</span><span class="chip">🔗 URLを貼る</span><span class="chip">✎ 名前だけ</span></div></div>
-      <div class="step"><span class="num">二</span><div><h3>「今日どこ行く?」で決める</h3><p>行きたい店・行った店から、時間やジャンルで絞って「＋候補」へ。迷ったらルーレットの「おまかせ」。決まったら「ここにする」で、決める画面に「今日はここ!」が出ます。</p>
-        <span class="chip">⚙ 絞り込み</span><span class="chip">🎲 おまかせ</span><span class="chip">ここにする</span></div></div>
-      <div class="step"><span class="num">三</span><div><h3>行ったら記録する</h3><p>「行った」のハンコを押して、いつ行ったかを選ぶだけ。星とひとことを残せば、次の店選びがもっとラクに。翌日には、だるまが「ゆうべのお店、行った?」と聞いてくれます。</p>
-        <span class="chip">行った</span><span class="chip">★ 星</span><span class="chip">ひとこと</span></div></div>
+  </svg></span>
+      <h1>行きたい店も、<br>行った店も。<br><em>飲み友と、今日の一軒を。</em></h1>
+      <p>気になるお店と行ったお店を記録しておいて、飲み友と見せ合いながら「今日どこ行く?」をサッと決めるアプリです。</p>
+      <div class="points">
+        <a href="#record"><b>📒</b>記録する</a>
+        <a href="#add"><b>🔍</b>かんたん追加</a>
+        <a href="#friends"><b>🍻</b>飲み友と決める</a>
+      </div>
     </div>
-  </section>
+  </div>
+</header>
 
-  <section>
-    <span class="kicker">FEATURES</span>
-    <h2>酒場図のおたのしみ</h2>
-    <div class="feats">
-      <div class="feat"><span class="ic"><svg class="lan" viewBox="0 0 20 28" aria-hidden="true"><rect class="lan-cap" x="6" y="2" width="8" height="3" rx="1"/><ellipse class="lan-body" cx="10" cy="14" rx="7.2" ry="9"/><path class="lan-rib" d="M3.6 10.5Q10 12.5 16.4 10.5M3 14.5Q10 16.5 17 14.5M3.6 18.5Q10 20.5 16.4 18.5"/><rect class="lan-cap" x="6" y="22.5" width="8" height="3" rx="1"/><path class="lan-tas" d="M10 25.5v2.3"/></svg></span><h3>本命の提灯</h3><p>行きたい店の中でも「ここは絶対」という店は、提灯をともして<span class="tag t-red">本命</span>に。リストの上に並び、おまかせでも当たりやすくなります。</p></div>
-      <div class="feat"><span class="ic"><svg class="choko" style="color:#27211D" viewBox="0 0 24 22" aria-hidden="true"><path class="ck-body" d="M3.5 6.5h17l-2.3 10.2a2.4 2.4 0 0 1-2.3 1.8H8.1a2.4 2.4 0 0 1-2.3-1.8z"/><path class="ck-sake" d="M5.3 9.6h13.4l-1.6 6.6a1.5 1.5 0 0 1-1.4 1.1H8.3a1.5 1.5 0 0 1-1.4-1.1z"/><ellipse class="ck-ring" cx="12" cy="13.2" rx="3.1" ry="1.5"/><ellipse class="ck-dot" cx="12" cy="13.2" rx="1.2" ry=".55"/><path class="ck-foot" d="M9 18.5h6v1.6H9z"/><path class="ck-rim" d="M3.5 6.5h17"/></svg><style>.feat .choko .ck-body{fill:#FFFDF8;stroke:#27211D;stroke-width:1.3}.feat .choko .ck-sake{fill:#CFE2F3}.feat .choko .ck-ring{fill:none;stroke:#2E5FA8;stroke-width:1.2}.feat .choko .ck-dot{fill:#2E5FA8}.feat .choko .ck-foot{fill:#27211D}.feat .choko .ck-rim{stroke:#27211D}</style></span><h3>行きつけのお猪口</h3><p>また行きたい行った店は、お猪口を押してお酒を満たすと<span class="tag t-blue">行きつけ</span>に。定番の店がすぐ見つかります。</p></div>
-      <div class="feat"><span class="ic">🟢</span><h3>営業中の店</h3><p>決める画面の下に、今営業中の店を横並びで。ジャンルで絞れて、ホットペッパーの店ならそのまま<span class="tag t-navy">ネット予約</span>へ。</p></div>
-      <div class="feat"><span class="ic">📅</span><h3>カレンダー</h3><p>行った日はもちろん、<span class="tag t-gold">家飲み</span>や<span class="tag t-gold">休肝日</span>もワンタップで記録。月に何日飲んだかひと目でわかります。</p></div>
-      <div class="feat"><span class="ic">🗺️</span><h3>地図</h3><p>行きたい店・行った店がピンで並ぶ自分だけの酒場地図。ピンから「行った」「＋候補」もその場でできます。</p></div>
-      <div class="feat"><span class="ic">🎎</span><h3>だるまの着せ替え</h3><p>右上のアイコン →「だるま」で、体の色や模様、目や文字を着せ替え。飲み友にも見えます。</p></div>
-    </div>
-  </section>
-
-  <section>
-    <span class="kicker">WITH FRIENDS</span>
-    <h2>飲み友と、何人でも</h2>
-    <div class="dm-say"><span class="dm"><svg viewBox="0 0 64 66" aria-hidden="true"><defs><clipPath id="dmc4"><path d="M32 5C48.5 5 58 18.5 58 36C58 53.5 47 62 32 62C17 62 6 53.5 6 36C6 18.5 15.5 5 32 5Z"/></clipPath></defs><g class="dm-body">
+<main class="wrap">
+  <!-- 1 記録 -->
+  <section id="record">
+    <span class="kicker">01 RECORD</span>
+    <h2>「行きたい」と「行った」を、<br>ぜんぶ記録</h2>
+    <div class="say"><span class="dm"><svg viewBox="0 0 64 66" aria-hidden="true"><defs><clipPath id="dmc3"><path d="M32 5C48.5 5 58 18.5 58 36C58 53.5 47 62 32 62C17 62 6 53.5 6 36C6 18.5 15.5 5 32 5Z"/></clipPath></defs><g class="dm-body">
   
   <ellipse cx="32" cy="62.5" rx="20" ry="2.8" fill="#000" opacity=".12"/>
   
-  <path d="M32 5C48.5 5 58 18.5 58 36C58 53.5 47 62 32 62C17 62 6 53.5 6 36C6 18.5 15.5 5 32 5Z" fill="#F6F1E7"/>
-  <path d="M10 48C14 57 22 62 32 62C42 62 50 57 54 48C49 53 41 56 32 56C23 56 15 53 10 48Z" fill="#D8CDB8" opacity=".6"/>
-  <g clip-path="url(#dmc4)"></g>
+  <path d="M32 5C48.5 5 58 18.5 58 36C58 53.5 47 62 32 62C17 62 6 53.5 6 36C6 18.5 15.5 5 32 5Z" fill="#E0453A"/>
+  <path d="M10 48C14 57 22 62 32 62C42 62 50 57 54 48C49 53 41 56 32 56C23 56 15 53 10 48Z" fill="#B8322A" opacity=".6"/>
+  <g clip-path="url(#dmc3)"></g>
   <ellipse cx="22" cy="12.5" rx="6" ry="2.6" fill="#fff" opacity=".28" transform="rotate(-22 22 12.5)"/>
   <ellipse cx="32" cy="31" rx="18" ry="15" fill="#FFF8EC" stroke="#F2C14E" stroke-width="1.6"/>
   
-  <text x="32" y="56" text-anchor="middle" font-size="9.5" font-weight="700" font-family="Zen Antique, serif" fill="#F2C14E" stroke="#F6F1E7" stroke-width="2.2" paint-order="stroke">酔</text>
+  <text x="32" y="56" text-anchor="middle" font-size="9.5" font-weight="700" font-family="Zen Antique, serif" fill="#F2C14E" stroke="#E0453A" stroke-width="2.2" paint-order="stroke">福</text>
   <path d="M21 22.5Q25 20.5 29 22.5" fill="none" stroke="#2A2220" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35 22.5Q39 20.5 43 22.5" fill="none" stroke="#2A2220" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="1"/>
   <g class="dm-f dm-normal"><g class="dm-eyes"><path d="M21.5 31Q25 27 28.5 31" fill="none" stroke="#2A2220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35.5 31Q39 27 42.5 31" fill="none" stroke="#2A2220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/></g><path d="M29 37Q32 40 35 37" fill="none" stroke="#2A2220" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.75"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.75"/></g>
   <g class="dm-f dm-happy"><path d="M21.5 31Q25 26.5 28.5 31" fill="none" stroke="#2A2220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35.5 31Q39 26.5 42.5 31" fill="none" stroke="#2A2220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/>
@@ -169,43 +163,223 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:0 0 32px}
   <g class="dm-f dm-sleep"><path d="M21.5 30Q25 33 28.5 30" fill="none" stroke="#2A2220" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35.5 30Q39 33 42.5 30" fill="none" stroke="#2A2220" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><ellipse cx="32" cy="38.6" rx="1.5" ry="1.1" fill="#2A2220" opacity=".7"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.4"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.4"/></g>
   </g>
   <g class="dm-zzz" fill="currentColor" font-weight="900" font-family="sans-serif"><text x="50" y="10" font-size="7">z</text><text x="55" y="4" font-size="9">z</text></g>
-  </svg></span><p class="bub">みんなの「行きたい」を合わせて、全員がいい店を探せるよ!</p></div>
-    <div class="flow">
-      <div class="f"><span class="e">🔑</span><b>コードを交換</b>右上のアイコン→「飲み友」で申請</div>
-      <span class="arr">›</span>
-      <div class="f"><span class="e">🤝</span><b>承認して飲み友に</b>承認するまで何も見えません</div>
-      <span class="arr">›</span>
-      <div class="f"><span class="e">🍻</span><b>一緒に決める</b>「誰と行く?」でメンバーを選ぶ</div>
+  </svg></span><p class="bub">気になったお店は「行きたい」へ。行ったらハンコを押すだけで「行った」に移るよ。</p></div>
+    <div class="mock">
+      <span class="mock-t">リスト</span>
+      <div class="seg"><span class="on">行きたい 8</span><span>行った 23</span><span>カレンダー</span></div>
+      <div class="shop"><span class="crest" style="background:#B85A6E">鳥</span><div class="mid"><span class="nm">鳥屋 すすきの店</span><div class="pills"><span class="p open">営業中 〜24:00</span><span class="p">焼き鳥</span></div></div><span class="stamp">行った</span></div>
+      <div class="shop"><span class="crest" style="background:#3E6E8E">四</span><div class="mid"><span class="nm">四文屋</span><div class="pills"><span class="p">17:00から</span><span class="p">もつ焼き</span></div></div><span class="stamp">行った</span></div>
     </div>
-    <div class="ok"><span class="okb">🍻 全員OK</span><span class="okb">3人中2人OK</span><span class="okb">けんの本命</span></div>
-    <p style="font-size:14px;color:var(--sub);margin:14px 0 0">よく行くメンバーは「飲み会」として保存すると、次から1タップで呼び出せます。飲み友の店が混ざるのは決めるときだけ。あなたのリストはいつもあなたの記録帳です。</p>
+  </section>
+
+  <!-- 2 追加 -->
+  <section id="add">
+    <span class="kicker">02 ADD</span>
+    <h2>お店の追加は、かんたん</h2>
+    <p class="lead">ホットペッパーで探して「＋行きたい」。見つからないお店も、Googleマップのリンクを貼るだけ。お店の基本情報は自動で入ります。</p>
+
+    <div class="say"><span class="dm"><svg viewBox="0 0 64 66" aria-hidden="true"><defs><clipPath id="dmc4"><path d="M32 5C48.5 5 58 18.5 58 36C58 53.5 47 62 32 62C17 62 6 53.5 6 36C6 18.5 15.5 5 32 5Z"/></clipPath></defs><g class="dm-body">
+  
+  <ellipse cx="32" cy="62.5" rx="20" ry="2.8" fill="#000" opacity=".12"/>
+  
+  <path d="M32 5C48.5 5 58 18.5 58 36C58 53.5 47 62 32 62C17 62 6 53.5 6 36C6 18.5 15.5 5 32 5Z" fill="#E0453A"/>
+  <path d="M10 48C14 57 22 62 32 62C42 62 50 57 54 48C49 53 41 56 32 56C23 56 15 53 10 48Z" fill="#B8322A" opacity=".6"/>
+  <g clip-path="url(#dmc4)"></g>
+  <ellipse cx="22" cy="12.5" rx="6" ry="2.6" fill="#fff" opacity=".28" transform="rotate(-22 22 12.5)"/>
+  <ellipse cx="32" cy="31" rx="18" ry="15" fill="#FFF8EC" stroke="#F2C14E" stroke-width="1.6"/>
+  
+  <text x="32" y="56" text-anchor="middle" font-size="9.5" font-weight="700" font-family="Zen Antique, serif" fill="#F2C14E" stroke="#E0453A" stroke-width="2.2" paint-order="stroke">福</text>
+  <path d="M21 22.5Q25 20.5 29 22.5" fill="none" stroke="#2A2220" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35 22.5Q39 20.5 43 22.5" fill="none" stroke="#2A2220" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="1"/>
+  <g class="dm-f dm-normal"><g class="dm-eyes"><ellipse cx="25" cy="30" rx="3.6" ry="4.3" fill="#2A2220"/><ellipse cx="39" cy="30" rx="3.6" ry="4.3" fill="#2A2220"/>
+      <circle cx="26.3" cy="28.4" r="1.4" fill="#fff"/><circle cx="40.3" cy="28.4" r="1.4" fill="#fff"/><circle cx="24" cy="31.6" r=".7" fill="#fff"/><circle cx="38" cy="31.6" r=".7" fill="#fff"/></g><path d="M29 37Q32 40 35 37" fill="none" stroke="#2A2220" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.75"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.75"/></g>
+  <g class="dm-f dm-happy"><path d="M21.5 31Q25 26.5 28.5 31" fill="none" stroke="#2A2220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35.5 31Q39 26.5 42.5 31" fill="none" stroke="#2A2220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/>
+    <path d="M28.5 36.5Q32 43 35.5 36.5Z" fill="#B8322A" stroke="#2A2220" stroke-width="1.3" stroke-linejoin="round"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="1"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="1"/></g>
+  <g class="dm-f dm-sleep"><path d="M21.5 30Q25 33 28.5 30" fill="none" stroke="#2A2220" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35.5 30Q39 33 42.5 30" fill="none" stroke="#2A2220" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><ellipse cx="32" cy="38.6" rx="1.5" ry="1.1" fill="#2A2220" opacity=".7"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.4"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.4"/></g>
+  <circle cx="25" cy="30" r="6.2" fill="#fff" fill-opacity=".15" stroke="#2A2220" stroke-width="1.6"/><circle cx="39" cy="30" r="6.2" fill="#fff" fill-opacity=".15" stroke="#2A2220" stroke-width="1.6"/><path d="M31.2 29.5Q32 28.5 32.8 29.5" fill="none" stroke="#2A2220" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M18.8 29L14.5 27.5" fill="none" stroke="#2A2220" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M45.2 29L49.5 27.5" fill="none" stroke="#2A2220" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/></g>
+  <g class="dm-zzz" fill="currentColor" font-weight="900" font-family="sans-serif"><text x="50" y="10" font-size="7">z</text><text x="55" y="4" font-size="9">z</text></g>
+  </svg></span><p class="bub">エリアとジャンルを選んで「この条件で探す」。ホットペッパーのお店から探せるよ。</p></div>
+    <div class="mock">
+      <span class="mock-t">お店を追加 › 探す</span>
+      <div class="pills"><span class="p went">すすきの</span><span class="p">札幌駅</span><span class="p">大通</span><span class="p went">焼き鳥</span><span class="p">居酒屋</span></div>
+      <div class="shop"><div class="mid"><span class="nm">焼鳥 はちべえ</span><div class="pills"><span class="p">すすきの駅 / 焼き鳥</span><span class="p">🌙 3,000円</span></div></div></div>
+      <div><span class="btn red">＋ 行きたい</span> <span class="btn navy">✓ 行った</span></div>
+    </div>
+
+    <div class="say r" style="margin-top:22px"><span class="dm"><svg viewBox="0 0 64 66" aria-hidden="true"><defs><clipPath id="dmc5"><path d="M32 5C48.5 5 58 18.5 58 36C58 53.5 47 62 32 62C17 62 6 53.5 6 36C6 18.5 15.5 5 32 5Z"/></clipPath></defs><g class="dm-body">
+  
+  <ellipse cx="32" cy="62.5" rx="20" ry="2.8" fill="#000" opacity=".12"/>
+  
+  <path d="M32 5C48.5 5 58 18.5 58 36C58 53.5 47 62 32 62C17 62 6 53.5 6 36C6 18.5 15.5 5 32 5Z" fill="#E0453A"/>
+  <path d="M10 48C14 57 22 62 32 62C42 62 50 57 54 48C49 53 41 56 32 56C23 56 15 53 10 48Z" fill="#B8322A" opacity=".6"/>
+  <g clip-path="url(#dmc5)"></g>
+  <ellipse cx="22" cy="12.5" rx="6" ry="2.6" fill="#fff" opacity=".28" transform="rotate(-22 22 12.5)"/>
+  <ellipse cx="32" cy="31" rx="18" ry="15" fill="#FFF8EC" stroke="#F2C14E" stroke-width="1.6"/>
+  
+  <text x="32" y="56" text-anchor="middle" font-size="9.5" font-weight="700" font-family="Zen Antique, serif" fill="#F2C14E" stroke="#E0453A" stroke-width="2.2" paint-order="stroke">福</text>
+  <path d="M21 22.5Q25 20.5 29 22.5" fill="none" stroke="#2A2220" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35 22.5Q39 20.5 43 22.5" fill="none" stroke="#2A2220" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="1"/>
+  <g class="dm-f dm-normal"><g class="dm-eyes"><ellipse cx="25" cy="30" rx="3.6" ry="4.3" fill="#2A2220"/><ellipse cx="39" cy="30" rx="3.6" ry="4.3" fill="#2A2220"/>
+      <circle cx="26.3" cy="28.4" r="1.4" fill="#fff"/><circle cx="40.3" cy="28.4" r="1.4" fill="#fff"/><circle cx="24" cy="31.6" r=".7" fill="#fff"/><circle cx="38" cy="31.6" r=".7" fill="#fff"/></g><path d="M28.3 36.6H35.7A3.7 3.7 0 0 1 28.3 36.6Z" fill="#8E2A22" stroke="#2A2220" stroke-width="1.3" stroke-linejoin="round"/><path d="M30 39.1Q32 37.9 34 39.1Q32 40.6 30 39.1Z" fill="#F07A7A"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.75"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.75"/></g>
+  <g class="dm-f dm-happy"><path d="M21.5 31Q25 26.5 28.5 31" fill="none" stroke="#2A2220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35.5 31Q39 26.5 42.5 31" fill="none" stroke="#2A2220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/>
+    <path d="M28.5 36.5Q32 43 35.5 36.5Z" fill="#B8322A" stroke="#2A2220" stroke-width="1.3" stroke-linejoin="round"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="1"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="1"/></g>
+  <g class="dm-f dm-sleep"><path d="M21.5 30Q25 33 28.5 30" fill="none" stroke="#2A2220" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35.5 30Q39 33 42.5 30" fill="none" stroke="#2A2220" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><ellipse cx="32" cy="38.6" rx="1.5" ry="1.1" fill="#2A2220" opacity=".7"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.4"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.4"/></g>
+  </g>
+  <g class="dm-zzz" fill="currentColor" font-weight="900" font-family="sans-serif"><text x="50" y="10" font-size="7">z</text><text x="55" y="4" font-size="9">z</text></g>
+  </svg></span><p class="bub">ホットペッパーにないお店は、Googleマップの「共有」をコピーして「URLを貼る」へ!</p></div>
+    <div class="mock">
+      <span class="mock-t">お店を追加 › URLを貼る</span>
+      <div class="paste"><b>立ち飲み いこい</b><br>〒064-0804 北海道札幌市中央区南4条西3丁目<br><span class="u">https://maps.app.goo.gl/xxxx</span></div>
+      <div class="arrow">↓ 登録</div>
+      <dl class="filled">
+        <dt>店名</dt><dd>立ち飲み いこい<span class="auto">自動</span></dd>
+        <dt>場所</dt><dd>地図にピン・すすきの<span class="auto">自動</span></dd>
+        <dt>ジャンル</dt><dd>タグからワンタップ</dd>
+      </dl>
+    </div>
+
+    <div class="say" style="margin-top:22px"><span class="dm"><svg viewBox="0 0 64 66" aria-hidden="true"><defs><clipPath id="dmc6"><path d="M32 5C48.5 5 58 18.5 58 36C58 53.5 47 62 32 62C17 62 6 53.5 6 36C6 18.5 15.5 5 32 5Z"/></clipPath></defs><g class="dm-body">
+  
+  <ellipse cx="32" cy="62.5" rx="20" ry="2.8" fill="#000" opacity=".12"/>
+  
+  <path d="M32 5C48.5 5 58 18.5 58 36C58 53.5 47 62 32 62C17 62 6 53.5 6 36C6 18.5 15.5 5 32 5Z" fill="#E0453A"/>
+  <path d="M10 48C14 57 22 62 32 62C42 62 50 57 54 48C49 53 41 56 32 56C23 56 15 53 10 48Z" fill="#B8322A" opacity=".6"/>
+  <g clip-path="url(#dmc6)"></g>
+  <ellipse cx="22" cy="12.5" rx="6" ry="2.6" fill="#fff" opacity=".28" transform="rotate(-22 22 12.5)"/>
+  <ellipse cx="32" cy="31" rx="18" ry="15" fill="#FFF8EC" stroke="#F2C14E" stroke-width="1.6"/>
+  
+  <text x="32" y="56" text-anchor="middle" font-size="9.5" font-weight="700" font-family="Zen Antique, serif" fill="#F2C14E" stroke="#E0453A" stroke-width="2.2" paint-order="stroke">福</text>
+  <path d="M21 22.5Q25 20.5 29 22.5" fill="none" stroke="#2A2220" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35 22.5Q39 20.5 43 22.5" fill="none" stroke="#2A2220" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="1"/>
+  <g class="dm-f dm-normal"><g class="dm-eyes"><path d="M21.5 31Q25 27 28.5 31" fill="none" stroke="#2A2220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35.5 31Q39 27 42.5 31" fill="none" stroke="#2A2220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/></g><path d="M28.5 37.5Q30.2 40 32 37.8Q33.8 40 35.5 37.5" fill="none" stroke="#2A2220" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.75"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.75"/></g>
+  <g class="dm-f dm-happy"><path d="M21.5 31Q25 26.5 28.5 31" fill="none" stroke="#2A2220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35.5 31Q39 26.5 42.5 31" fill="none" stroke="#2A2220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/>
+    <path d="M28.5 36.5Q32 43 35.5 36.5Z" fill="#B8322A" stroke="#2A2220" stroke-width="1.3" stroke-linejoin="round"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="1"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="1"/></g>
+  <g class="dm-f dm-sleep"><path d="M21.5 30Q25 33 28.5 30" fill="none" stroke="#2A2220" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35.5 30Q39 33 42.5 30" fill="none" stroke="#2A2220" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><ellipse cx="32" cy="38.6" rx="1.5" ry="1.1" fill="#2A2220" opacity=".7"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.4"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.4"/></g>
+  </g>
+  <g class="dm-zzz" fill="currentColor" font-weight="900" font-family="sans-serif"><text x="50" y="10" font-size="7">z</text><text x="55" y="4" font-size="9">z</text></g>
+  </svg></span><p class="bub">ホットペッパーで見つかるお店なら、営業時間・ジャンル・予算・場所まで自動で入るから、入力いらず。食べログのリンクもOKだよ。</p></div>
+  </section>
+
+  <!-- 3 飲み友 -->
+  <section id="friends">
+    <span class="kicker">03 WITH FRIENDS</span>
+    <h2>飲み友と見せ合って、<br>「今日どこ行く?」</h2>
+    <p class="lead">飲み友になると、お互いの「行きたい」「行った」を合わせて今日の店を選べます。何人でもOK。</p>
+    <div class="say"><span class="dm"><svg viewBox="0 0 64 66" aria-hidden="true"><defs><clipPath id="dmc7"><path d="M32 5C48.5 5 58 18.5 58 36C58 53.5 47 62 32 62C17 62 6 53.5 6 36C6 18.5 15.5 5 32 5Z"/></clipPath></defs><g class="dm-body">
+  
+  <ellipse cx="32" cy="62.5" rx="20" ry="2.8" fill="#000" opacity=".12"/>
+  
+  <path d="M32 5C48.5 5 58 18.5 58 36C58 53.5 47 62 32 62C17 62 6 53.5 6 36C6 18.5 15.5 5 32 5Z" fill="#E0453A"/>
+  <path d="M10 48C14 57 22 62 32 62C42 62 50 57 54 48C49 53 41 56 32 56C23 56 15 53 10 48Z" fill="#B8322A" opacity=".6"/>
+  <g clip-path="url(#dmc7)"></g>
+  <ellipse cx="22" cy="12.5" rx="6" ry="2.6" fill="#fff" opacity=".28" transform="rotate(-22 22 12.5)"/>
+  <ellipse cx="32" cy="31" rx="18" ry="15" fill="#FFF8EC" stroke="#F2C14E" stroke-width="1.6"/>
+  
+  <text x="32" y="56" text-anchor="middle" font-size="9.5" font-weight="700" font-family="Zen Antique, serif" fill="#F2C14E" stroke="#E0453A" stroke-width="2.2" paint-order="stroke">福</text>
+  <path d="M21 22.5Q25 20.5 29 22.5" fill="none" stroke="#2A2220" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35 22.5Q39 20.5 43 22.5" fill="none" stroke="#2A2220" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="1"/>
+  <g class="dm-f dm-normal"><g class="dm-eyes"><path d="M21.5 31Q25 27 28.5 31" fill="none" stroke="#2A2220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35.5 31Q39 27 42.5 31" fill="none" stroke="#2A2220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/></g><path d="M29 37Q32 40 35 37" fill="none" stroke="#2A2220" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.75"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.75"/></g>
+  <g class="dm-f dm-happy"><path d="M21.5 31Q25 26.5 28.5 31" fill="none" stroke="#2A2220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35.5 31Q39 26.5 42.5 31" fill="none" stroke="#2A2220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/>
+    <path d="M28.5 36.5Q32 43 35.5 36.5Z" fill="#B8322A" stroke="#2A2220" stroke-width="1.3" stroke-linejoin="round"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="1"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="1"/></g>
+  <g class="dm-f dm-sleep"><path d="M21.5 30Q25 33 28.5 30" fill="none" stroke="#2A2220" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35.5 30Q39 33 42.5 30" fill="none" stroke="#2A2220" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><ellipse cx="32" cy="38.6" rx="1.5" ry="1.1" fill="#2A2220" opacity=".7"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.4"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.4"/></g>
+  <g transform="translate(50 42)"><rect x="0" y="2" width="11" height="15" rx="2" fill="#F4C24C" stroke="#2A2220" stroke-width="1"/><path d="M11 6h2.5a2.5 2.5 0 0 1 0 6H11" fill="none" stroke="#2A2220" stroke-width="1.4"/><path d="M-.5 3Q1 -1 4 1Q6 -1.5 8.5 1Q11 -.5 11.5 3Z" fill="#fff" stroke="#2A2220" stroke-width=".8"/></g>
+      <g transform="translate(14 42) scale(-1 1)"><rect x="0" y="2" width="11" height="15" rx="2" fill="#F4C24C" stroke="#2A2220" stroke-width="1"/><path d="M11 6h2.5a2.5 2.5 0 0 1 0 6H11" fill="none" stroke="#2A2220" stroke-width="1.4"/><path d="M-.5 3Q1 -1 4 1Q6 -1.5 8.5 1Q11 -.5 11.5 3Z" fill="#fff" stroke="#2A2220" stroke-width=".8"/></g></g>
+  <g class="dm-zzz" fill="currentColor" font-weight="900" font-family="sans-serif"><text x="50" y="10" font-size="7">z</text><text x="55" y="4" font-size="9">z</text></g>
+  </svg></span><p class="bub">「誰と行く?」でメンバーを選んで、それぞれ「＋候補」。みんなが選んだお店が上に来るよ。</p></div>
+    <div class="mock">
+      <span class="mock-t">飲み友とどこ行く? › 今日の候補</span>
+      <div class="shop" style="border-color:#E3CF9E;background:#FBF5E8"><div class="mid"><span class="p ok" style="justify-self:start">🍻 全員OK</span><span class="nm">鳥屋 すすきの店</span><div class="pills"><span class="p"><span class="av" style="background:#2FA7A8">け</span>✓</span><span class="p"><span class="av" style="background:#7A3FB0">た</span>✓</span><span class="p"><span class="av" style="background:#B8322A">ま</span>✓</span></div></div><span class="btn red">ここにする</span></div>
+      <div class="shop"><div class="mid"><span class="p" style="justify-self:start">3人中2人OK</span><span class="nm">四文屋</span></div><span class="btn line">＋ 私も</span></div>
+    </div>
+    <div class="say r" style="margin-top:20px"><span class="dm"><svg viewBox="0 0 64 66" aria-hidden="true"><defs><clipPath id="dmc2"><path d="M32 5C48.5 5 58 18.5 58 36C58 53.5 47 62 32 62C17 62 6 53.5 6 36C6 18.5 15.5 5 32 5Z"/></clipPath></defs><g class="dm-body">
+  
+  <ellipse cx="32" cy="62.5" rx="20" ry="2.8" fill="#000" opacity=".12"/>
+  
+  <path d="M32 5C48.5 5 58 18.5 58 36C58 53.5 47 62 32 62C17 62 6 53.5 6 36C6 18.5 15.5 5 32 5Z" fill="#E0453A"/>
+  <path d="M10 48C14 57 22 62 32 62C42 62 50 57 54 48C49 53 41 56 32 56C23 56 15 53 10 48Z" fill="#B8322A" opacity=".6"/>
+  <g clip-path="url(#dmc2)"></g>
+  <ellipse cx="22" cy="12.5" rx="6" ry="2.6" fill="#fff" opacity=".28" transform="rotate(-22 22 12.5)"/>
+  <ellipse cx="32" cy="31" rx="18" ry="15" fill="#FFF8EC" stroke="#F2C14E" stroke-width="1.6"/>
+  
+  <text x="32" y="56" text-anchor="middle" font-size="9.5" font-weight="700" font-family="Zen Antique, serif" fill="#F2C14E" stroke="#E0453A" stroke-width="2.2" paint-order="stroke">福</text>
+  <path d="M21 22.5Q25 20.5 29 22.5" fill="none" stroke="#2A2220" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35 22.5Q39 20.5 43 22.5" fill="none" stroke="#2A2220" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="1"/>
+  <g class="dm-f dm-normal"><g class="dm-eyes"><ellipse cx="25" cy="30" rx="3.6" ry="4.3" fill="#2A2220"/><ellipse cx="39" cy="30" rx="3.6" ry="4.3" fill="#2A2220"/>
+      <circle cx="26.3" cy="28.4" r="1.4" fill="#fff"/><circle cx="40.3" cy="28.4" r="1.4" fill="#fff"/><circle cx="24" cy="31.6" r=".7" fill="#fff"/><circle cx="38" cy="31.6" r=".7" fill="#fff"/></g><path d="M29 37Q32 40 35 37" fill="none" stroke="#2A2220" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.75"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.75"/></g>
+  <g class="dm-f dm-happy"><path d="M21.5 31Q25 26.5 28.5 31" fill="none" stroke="#2A2220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35.5 31Q39 26.5 42.5 31" fill="none" stroke="#2A2220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/>
+    <path d="M28.5 36.5Q32 43 35.5 36.5Z" fill="#B8322A" stroke="#2A2220" stroke-width="1.3" stroke-linejoin="round"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="1"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="1"/></g>
+  <g class="dm-f dm-sleep"><path d="M21.5 30Q25 33 28.5 30" fill="none" stroke="#2A2220" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35.5 30Q39 33 42.5 30" fill="none" stroke="#2A2220" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><ellipse cx="32" cy="38.6" rx="1.5" ry="1.1" fill="#2A2220" opacity=".7"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.4"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.4"/></g>
+  </g>
+  <g class="dm-zzz" fill="currentColor" font-weight="900" font-family="sans-serif"><text x="50" y="10" font-size="7">z</text><text x="55" y="4" font-size="9">z</text></g>
+  </svg></span><p class="bub">「ここにする」で決定! みんなの画面に「今日はここ!」が出て、LINEで送ることもできるよ。</p></div>
+    <p class="lead">飲み友になるには、右上のアイコン →「飲み友」でコードを入れて申請 → 相手が承認。メモやひとことは飲み友には見えません。</p>
+  </section>
+
+  <!-- 4 評価 -->
+  <section id="review">
+    <span class="kicker">04 REVIEW</span>
+    <h2>行った店には、星と感想を</h2>
+    <div class="say"><span class="dm"><svg viewBox="0 0 64 66" aria-hidden="true"><defs><clipPath id="dmc8"><path d="M32 5C48.5 5 58 18.5 58 36C58 53.5 47 62 32 62C17 62 6 53.5 6 36C6 18.5 15.5 5 32 5Z"/></clipPath></defs><g class="dm-body">
+  
+  <ellipse cx="32" cy="62.5" rx="20" ry="2.8" fill="#000" opacity=".12"/>
+  
+  <path d="M32 5C48.5 5 58 18.5 58 36C58 53.5 47 62 32 62C17 62 6 53.5 6 36C6 18.5 15.5 5 32 5Z" fill="#E0453A"/>
+  <path d="M10 48C14 57 22 62 32 62C42 62 50 57 54 48C49 53 41 56 32 56C23 56 15 53 10 48Z" fill="#B8322A" opacity=".6"/>
+  <g clip-path="url(#dmc8)"></g>
+  <ellipse cx="22" cy="12.5" rx="6" ry="2.6" fill="#fff" opacity=".28" transform="rotate(-22 22 12.5)"/>
+  <ellipse cx="32" cy="31" rx="18" ry="15" fill="#FFF8EC" stroke="#F2C14E" stroke-width="1.6"/>
+  
+  <text x="32" y="56" text-anchor="middle" font-size="9.5" font-weight="700" font-family="Zen Antique, serif" fill="#F2C14E" stroke="#E0453A" stroke-width="2.2" paint-order="stroke">福</text>
+  <path d="M21 22.5Q25 20.5 29 22.5" fill="none" stroke="#2A2220" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35 22.5Q39 20.5 43 22.5" fill="none" stroke="#2A2220" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="1"/>
+  <g class="dm-f dm-normal"><g class="dm-eyes"><ellipse cx="25" cy="30" rx="3.6" ry="4.3" fill="#2A2220"/><ellipse cx="39" cy="30" rx="3.6" ry="4.3" fill="#2A2220"/>
+      <circle cx="26.3" cy="28.4" r="1.4" fill="#fff"/><circle cx="40.3" cy="28.4" r="1.4" fill="#fff"/><circle cx="24" cy="31.6" r=".7" fill="#fff"/><circle cx="38" cy="31.6" r=".7" fill="#fff"/></g><path d="M28.5 37.5Q30.2 40 32 37.8Q33.8 40 35.5 37.5" fill="none" stroke="#2A2220" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.75"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.75"/></g>
+  <g class="dm-f dm-happy"><path d="M21.5 31Q25 26.5 28.5 31" fill="none" stroke="#2A2220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35.5 31Q39 26.5 42.5 31" fill="none" stroke="#2A2220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/>
+    <path d="M28.5 36.5Q32 43 35.5 36.5Z" fill="#B8322A" stroke="#2A2220" stroke-width="1.3" stroke-linejoin="round"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="1"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="1"/></g>
+  <g class="dm-f dm-sleep"><path d="M21.5 30Q25 33 28.5 30" fill="none" stroke="#2A2220" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35.5 30Q39 33 42.5 30" fill="none" stroke="#2A2220" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><ellipse cx="32" cy="38.6" rx="1.5" ry="1.1" fill="#2A2220" opacity=".7"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.4"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.4"/></g>
+  <g transform="translate(51 50)"><path d="M0 0H10L8.5 6.5H1.5Z" fill="#fff" stroke="#2A2220" stroke-width="1"/><path d="M1 1.6H9" stroke="#5B93D3" stroke-width="1.6"/></g></g>
+  <g class="dm-zzz" fill="currentColor" font-weight="900" font-family="sans-serif"><text x="50" y="10" font-size="7">z</text><text x="55" y="4" font-size="9">z</text></g>
+  </svg></span><p class="bub">星は0.1刻みで、ひとことも残せるよ。次に行くお店を選ぶときの手がかりになるね。</p></div>
+    <div class="mock">
+      <span class="mock-t">お店の詳細</span>
+      <div class="shop"><span class="crest" style="background:#8E5A2B">す</span><div class="mid"><span class="nm">すし善</span><div class="pills"><span class="p">寿司</span><span class="p went">行った</span></div></div></div>
+      <div class="stars">★★★★☆<small>4.2</small></div>
+      <div class="memo">ひとこと: 金曜は混むので予約がおすすめ。ウニが絶品</div>
+      <div class="rows"><div>行った日<span>10/1(木)</span></div><div>項目ごとの評価(価格・雰囲気・料理…)<span>◎○△×</span></div><div>来店記録・会計<span>2件</span></div></div>
+    </div>
+  </section>
+
+  <!-- ほかにも -->
+  <section>
+    <span class="kicker">AND MORE</span>
+    <h2>ほかにも</h2>
+    <div class="more">
+      <div class="mo"><i><svg class="lan" viewBox="0 0 20 28" aria-hidden="true"><rect class="lan-cap" x="6" y="2" width="8" height="3" rx="1"/><ellipse class="lan-body" cx="10" cy="14" rx="7.2" ry="9"/><path class="lan-rib" d="M3.6 10.5Q10 12.5 16.4 10.5M3 14.5Q10 16.5 17 14.5M3.6 18.5Q10 20.5 16.4 18.5"/><rect class="lan-cap" x="6" y="22.5" width="8" height="3" rx="1"/><path class="lan-tas" d="M10 25.5v2.3"/></svg></i><b>本命</b><span>行きたい店の「絶対ここ」に提灯を</span></div>
+      <div class="mo"><i><svg class="choko" viewBox="0 0 24 22" aria-hidden="true"><path class="ck-body" d="M3.5 6.5h17l-2.3 10.2a2.4 2.4 0 0 1-2.3 1.8H8.1a2.4 2.4 0 0 1-2.3-1.8z"/><path class="ck-sake" d="M5.3 9.6h13.4l-1.6 6.6a1.5 1.5 0 0 1-1.4 1.1H8.3a1.5 1.5 0 0 1-1.4-1.1z"/><ellipse class="ck-ring" cx="12" cy="13.2" rx="3.1" ry="1.5"/><ellipse class="ck-dot" cx="12" cy="13.2" rx="1.2" ry=".55"/><path class="ck-foot" d="M9 18.5h6v1.6H9z"/><path class="ck-rim" d="M3.5 6.5h17"/></svg></i><b>行きつけ</b><span>また行きたい店にお猪口を</span></div>
+      <div class="mo"><i>🟢</i><b>営業中の店</b><span>今あいてる時間の店を一覧で</span></div>
+      <div class="mo"><i>🎲</i><b>おまかせ</b><span>迷ったらルーレットで</span></div>
+      <div class="mo"><i>📅</i><b>カレンダー</b><span>家飲み・休肝日も記録</span></div>
+      <div class="mo"><i>🗺️</i><b>地図</b><span>自分だけの酒場地図</span></div>
+    </div>
   </section>
 
   <section>
     <span class="kicker">Q &amp; A</span>
     <h2>よくある質問</h2>
-    <details><summary>メモやひとことは飲み友に見られる?</summary><p>見られません。飲み友に見えるのは、店の名前・場所・営業時間・ジャンル・星・本命・行きつけ・今日の候補だけです。メモ・ひとこと・会計は自分だけのものです。</p></details>
-    <details><summary>スマホを変えたら記録はどうなる?</summary><p>記録はその端末(ブラウザ)に結びついています。右上のアイコン →「あなた」→「バックアップを保存」でファイルにしておけば、新しい端末で「バックアップから戻す」で取り込めます。</p></details>
-    <details><summary>ホーム画面に置きたい</summary><p>iPhoneはSafariの共有ボタン →「ホーム画面に追加」、Androidは「︙」→「ホーム画面に追加」。アプリのように開けます。</p></details>
-    <details><summary>Googleマップのお店も入れられる?</summary><p>入れられます。Googleマップの「共有」でコピーした文をそのまま貼れば、店名と場所が入ります。食べログ・ホットペッパーのリンクもOKです。</p></details>
-    <details><summary>営業中の店は、すぐ入れるお店?</summary><p>営業時間内のお店という意味で、空席まではわかりません。ホットペッパーのお店は「ネット予約」から空きを確認できます。</p></details>
+    <details><summary>メモやひとことは飲み友に見られる?</summary><p>見られません。飲み友に見えるのは、店の基本情報・星・本命・行きつけ・今日の候補だけです。</p></details>
+    <details><summary>スマホを変えたら?</summary><p>記録はその端末に結びついています。右上のアイコン →「あなた」→「バックアップを保存」でファイルにしておき、新しい端末で「バックアップから戻す」。</p></details>
+    <details><summary>ホーム画面に置きたい</summary><p>iPhoneはSafariの共有ボタン →「ホーム画面に追加」、Androidは「︙」→「ホーム画面に追加」。</p></details>
+    <details><summary>「営業中の店」はすぐ入れる?</summary><p>営業時間内という意味で、空席まではわかりません。ホットペッパーのお店は「ネット予約」から空きを確認できます。</p></details>
   </section>
 
   <div class="end">
-    <span class="dm"><svg viewBox="0 0 64 66" aria-hidden="true"><defs><clipPath id="dmc3"><path d="M32 5C48.5 5 58 18.5 58 36C58 53.5 47 62 32 62C17 62 6 53.5 6 36C6 18.5 15.5 5 32 5Z"/></clipPath></defs><g class="dm-body">
+    <span class="dm"><svg viewBox="0 0 64 66" aria-hidden="true"><defs><clipPath id="dmc9"><path d="M32 5C48.5 5 58 18.5 58 36C58 53.5 47 62 32 62C17 62 6 53.5 6 36C6 18.5 15.5 5 32 5Z"/></clipPath></defs><g class="dm-body">
   
   <ellipse cx="32" cy="62.5" rx="20" ry="2.8" fill="#000" opacity=".12"/>
   
-  <path d="M32 5C48.5 5 58 18.5 58 36C58 53.5 47 62 32 62C17 62 6 53.5 6 36C6 18.5 15.5 5 32 5Z" fill="#E9B949"/>
-  <path d="M10 48C14 57 22 62 32 62C42 62 50 57 54 48C49 53 41 56 32 56C23 56 15 53 10 48Z" fill="#C08F22" opacity=".6"/>
-  <g clip-path="url(#dmc3)"></g>
+  <path d="M32 5C48.5 5 58 18.5 58 36C58 53.5 47 62 32 62C17 62 6 53.5 6 36C6 18.5 15.5 5 32 5Z" fill="#E0453A"/>
+  <path d="M10 48C14 57 22 62 32 62C42 62 50 57 54 48C49 53 41 56 32 56C23 56 15 53 10 48Z" fill="#B8322A" opacity=".6"/>
+  <g clip-path="url(#dmc9)"></g>
   <ellipse cx="22" cy="12.5" rx="6" ry="2.6" fill="#fff" opacity=".28" transform="rotate(-22 22 12.5)"/>
-  <ellipse cx="32" cy="31" rx="18" ry="15" fill="#FFF8EC" stroke="#B8322A" stroke-width="1.6"/>
-  
-  <text x="32" y="56" text-anchor="middle" font-size="9.5" font-weight="700" font-family="Zen Antique, serif" fill="#B8322A" stroke="#E9B949" stroke-width="2.2" paint-order="stroke">祝</text>
+  <ellipse cx="32" cy="31" rx="18" ry="15" fill="#FFF8EC" stroke="#F2C14E" stroke-width="1.6"/>
+  <ellipse cx="32" cy="32" rx="17" ry="13.5" fill="#FF7A7A" opacity=".16"/><ellipse cx="19.5" cy="35.5" rx="4.2" ry="2.4" fill="#FF6B6B" opacity=".55"/><ellipse cx="44.5" cy="35.5" rx="4.2" ry="2.4" fill="#FF6B6B" opacity=".55"/><path d="M15 29.5l2 .8M14.6 32l2 .4M49 29.5l-2 .8M49.4 32l-2 .4" stroke="#E0453A" stroke-width=".8" stroke-linecap="round" opacity=".7"/>
+  <text x="32" y="56" text-anchor="middle" font-size="9.5" font-weight="700" font-family="Zen Antique, serif" fill="#F2C14E" stroke="#E0453A" stroke-width="2.2" paint-order="stroke">福</text>
   <path d="M21 22.5Q25 20.5 29 22.5" fill="none" stroke="#2A2220" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35 22.5Q39 20.5 43 22.5" fill="none" stroke="#2A2220" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="1"/>
-  <g class="dm-f dm-normal"><g class="dm-eyes"><ellipse cx="25" cy="30" rx="3.6" ry="4.3" fill="#2A2220"/><ellipse cx="39" cy="30" rx="3.6" ry="4.3" fill="#2A2220"/>
-      <circle cx="26.3" cy="28.4" r="1.4" fill="#fff"/><circle cx="40.3" cy="28.4" r="1.4" fill="#fff"/><circle cx="24" cy="31.6" r=".7" fill="#fff"/><circle cx="38" cy="31.6" r=".7" fill="#fff"/></g><ellipse cx="32" cy="38.8" rx="3.4" ry="2.6" fill="#8E2A22" stroke="#2A2220" stroke-width="1.2"/><path d="M40 36q2.5-1 4.5 0M41 39.5q3 .3 5 2" fill="none" stroke="#2A2220" stroke-width="1.1" stroke-linecap="round" opacity=".55"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.75"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.75"/></g>
+  <g class="dm-f dm-normal"><g class="dm-eyes"><path d="M21.5 31Q25 27 28.5 31" fill="none" stroke="#2A2220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35.5 31Q39 27 42.5 31" fill="none" stroke="#2A2220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/></g><ellipse cx="32" cy="38.8" rx="3.4" ry="2.6" fill="#8E2A22" stroke="#2A2220" stroke-width="1.2"/><path d="M40 36q2.5-1 4.5 0M41 39.5q3 .3 5 2" fill="none" stroke="#2A2220" stroke-width="1.1" stroke-linecap="round" opacity=".55"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.75"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.75"/></g>
   <g class="dm-f dm-happy"><path d="M21.5 31Q25 26.5 28.5 31" fill="none" stroke="#2A2220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35.5 31Q39 26.5 42.5 31" fill="none" stroke="#2A2220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/>
     <path d="M28.5 36.5Q32 43 35.5 36.5Z" fill="#B8322A" stroke="#2A2220" stroke-width="1.3" stroke-linejoin="round"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="1"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="1"/></g>
   <g class="dm-f dm-sleep"><path d="M21.5 30Q25 33 28.5 30" fill="none" stroke="#2A2220" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M35.5 30Q39 33 42.5 30" fill="none" stroke="#2A2220" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><ellipse cx="32" cy="38.6" rx="1.5" ry="1.1" fill="#2A2220" opacity=".7"/><ellipse cx="19.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.4"/><ellipse cx="44.5" cy="35.5" rx="3" ry="1.8" fill="#FF8C8C" opacity="0.4"/></g>
