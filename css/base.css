@@ -18,7 +18,7 @@ button{cursor:pointer}
 *{-webkit-tap-highlight-color:transparent}
 button,a,.chip{touch-action:manipulation}
 button{-webkit-user-select:none;user-select:none}
-input.field,textarea.memo,input.dateinput,.addrank select{font-size:16px}
+input.field,textarea.memo,input.dateinput,.addrank select,textarea.ua-in,select{font-size:16px}
 @media (prefers-reduced-motion:no-preference){
   .card,.sbtn,.btn,.chip,.todaybtn{transition:transform .16s var(--ease-out),box-shadow .2s,background-color .2s,border-color .2s,color .2s}
   .card:active,.todaybtn:active{transform:scale(.985)}

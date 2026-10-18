@@ -174,7 +174,7 @@ body.gating .tabs{display:none}
 .hact.url .ha-t{font-weight:700}
 .sx-urlbtn{justify-self:start;margin:8px 0 2px;padding:7px 12px;border:1px dashed color-mix(in srgb,var(--red) 45%,var(--line));border-radius:999px;background:var(--card);color:var(--red);font:inherit;font-size:12.5px;font-weight:700}
 .urladd .ua-t{margin:0 0 4px;font-size:17px}
-.ua-in{width:100%;box-sizing:border-box;margin-top:8px;padding:10px;border:1px solid var(--line);border-radius:var(--r-md,10px);background:var(--card);color:var(--ink);font:inherit;font-size:14px;resize:vertical}
+.ua-in{width:100%;box-sizing:border-box;margin-top:8px;padding:10px;border:1px solid var(--line);border-radius:var(--r-md,10px);background:var(--card);color:var(--ink);font:inherit;font-size:16px;resize:vertical}
 .ua-err{margin:6px 0 0;min-height:1em;color:var(--red);font-size:12px}
 .urladd .actions{flex-wrap:wrap}
 /* first visit: the add button gently calls */
