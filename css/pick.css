@@ -63,3 +63,7 @@
 .pk-chips .starline{margin:0;gap:4px}
 .pk-chips .starline .stars{--sz:12px}
 .pk-chips .starline .st-v{font-size:12.5px}
+/* who: their icon instead of the name */
+.pill.st-who{gap:4px;padding-left:3px}
+.pl-av{width:17px;height:17px;font-size:9.5px;flex:none;border:0;margin:0}
+.who-t{display:inline-flex;align-items:center;gap:3px;padding-left:3px}

@@ -179,7 +179,7 @@ function todayTab(b){
     if (both) info.appendChild(el('span','both-b','🍻 2人ともOK'));
     info.appendChild(el('span','pn',c.name||'(名前なし)'));
     if (c.shop) info.appendChild(pickChips(c.shop,false));
-    const who=el('span','who-l'); for (const u of c.by){ const t=el('span','who-t'+(u===me?' me':''), (u===me?'あなた':(friends[u]||{}).nick||'飲み友')+' ✓'); who.appendChild(t); } info.appendChild(who);
+    const who=el('span','who-l'); for (const u of c.by){ const mid=u===me?me:(friends[u]||{}).mid, nm=u===me?'あなた':(friends[u]||{}).nick||'飲み友'; const t=el('span','who-t'+(u===me?' me':''),'✓'); t.prepend(avatar({},mid,'pl-av')); t.title=t.ariaLabel=nm+' ✓'; who.appendChild(t); } info.appendChild(who);
     li.appendChild(info);
     if (!readOnly && me){ const on=c.by.has(me); const g=el('button','sbtn'+(on?'':' on'), on?'候補から外す':'＋ 私も'); g.onclick=()=>togglePick(c.shop,c); li.appendChild(g); }
     ul.appendChild(li);
@@ -198,7 +198,7 @@ function pickChips(s,withStatus){
     const fr=activeFriends();
     if (fr.length){   // 飲み友と: each person's own 行った / 行きたい
       const who=[[me,'あなた'], ...fr.map(f=>[friends[f].mid, friends[f].nick||'飲み友'])];
-      for (const [u,n] of who){ const st = wentBy(s)[u] ? 'went' : (s.wants&&s.wants[u]) ? 'want' : null; if(st) pill(ch,'st-'+st,`${n} ${st==='went'?'行った':'行きたい'}`); }
+      for (const [u,n] of who){ const st = wentBy(s)[u] ? 'went' : (s.wants&&s.wants[u]) ? 'want' : null; if(!st) continue; pill(ch,'st-'+st+' st-who', st==='went'?'行った':'行きたい'); const p=ch.lastChild; p.prepend(avatar({},u,'pl-av')); p.title=p.ariaLabel=`${n} ${p.textContent}`; }
     } else { const w=statusOf(s)==='went'; pill(ch, w?'st-went':'st-want', w?'行った':'行きたい'); }
   }
   honPill(ch,s); hoursPill(ch,s); { const g=genreOf(s); if(g) pill(ch,'genre',g); }
