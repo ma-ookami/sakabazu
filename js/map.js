@@ -39,6 +39,7 @@ function ensureMap(){
   mlMap.on('load',()=>tidyStyle(mlMap));
   mlMap.on('click',()=>{ if(mapV.sel){ mapV.sel=null; syncPins(); renderMapInfo(); } });
   mlMap.on('dragstart',()=>{ mapV.fit=false; });
+  mlMap.on('moveend',labelPins);
 }
 
 function renderMap(v){
@@ -74,7 +75,7 @@ function renderMap(v){
 const PIN_SVG='<svg viewBox="-12 -33 24 35" aria-hidden="true"><ellipse class="pm-sh" cx="0" cy="0" rx="5" ry="2"/><path class="pm-b" d="M0 0C-3 -7 -10 -11 -10 -20A10 10 0 1 1 10 -20C10 -11 3 -7 0 0Z"/><circle class="pm-d" cx="0" cy="-20" r="3.8"/></svg>';
 function syncPins(){
   if (!mlMap) return;
-  const vis=mapVisible(), ids=new Set(vis.map(s=>s.id)), many=vis.length>30;
+  const vis=mapVisible(), ids=new Set(vis.map(s=>s.id));
   for (const [id,m] of mlMarkers) if (!ids.has(id)){ m.remove(); mlMarkers.delete(id); }
   for (const s of vis){
     let m=mlMarkers.get(s.id);
@@ -84,10 +85,11 @@ function syncPins(){
       m=new maplibregl.Marker({element:e, anchor:'bottom'}).setLngLat([s.loc.lng,s.loc.lat]).addTo(mlMap); mlMarkers.set(s.id,m);
     } else m.setLngLat([s.loc.lng,s.loc.lat]);
     const e=m.getElement(), went=statusOf(s)==='went', sel=s.id===mapV.sel;
-    e.classList.toggle('went',went); e.classList.toggle('sel',sel); e.classList.toggle('pick',isPicked(s)); e.classList.toggle('nolabel',many && !sel);
+    e.classList.toggle('went',went); e.classList.toggle('sel',sel); e.classList.toggle('pick',isPicked(s)); 
     e.querySelector('.pl').textContent=s.name||''; e.setAttribute('aria-label',`${s.name||''}(${went?'行った':'行きたい'})`);
     e.style.zIndex = sel ? 3 : went ? 2 : 1;
   }
+  labelPins();
   if (mapV.here){
     if (!mlHere){ const h=el('div','herem'); mlHere=new maplibregl.Marker({element:h}).setLngLat([mapV.here.lng,mapV.here.lat]).addTo(mlMap); }
     else mlHere.setLngLat([mapV.here.lng,mapV.here.lat]);
@@ -154,4 +156,12 @@ function locSec(s){
     const clr=el('button','textbtn','記録した位置を消す'); clr.id='dLocClr'; clr.onclick=()=>{ patchShop(s.id,{loc:null}); toast('位置を消しました'); }; box.appendChild(clr);
   }
   return box;
+}
+
+// names next to the pins: all of them when few are in view (or zoomed in), otherwise only the picked one
+function labelPins(){
+  if (!mlMap) return;
+  const b=mlMap.getBounds(); let n=0; for (const [,mk] of mlMarkers) if (b.contains(mk.getLngLat())) n++;
+  const show = n<=25 || mlMap.getZoom()>=16;
+  for (const [,mk] of mlMarkers){ const e=mk.getElement(); e.classList.toggle('nolabel', !show && !e.classList.contains('sel')); }
 }
