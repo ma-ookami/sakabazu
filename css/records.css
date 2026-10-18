@@ -50,6 +50,5 @@
 
 /* 家飲み / 休肝日 on the calendar */
 .day .dnight{font-size:15px;line-height:1;margin-top:2px}
-.day.night-home,.day.night-rest{background:color-mix(in srgb,var(--indigo) 6%,var(--card))}
 .dl-night{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}
 .dl-night .cal-del{margin-left:auto}

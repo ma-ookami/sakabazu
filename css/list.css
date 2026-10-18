@@ -19,7 +19,6 @@
 .area{font-size:12px;color:var(--sub);margin-top:2px}
 .plan{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--red);margin-top:8px;font-weight:500}
 .plan::before{content:"";width:7px;height:9px;border-radius:45%;background:var(--red);box-shadow:0 0 0 2px color-mix(in srgb,var(--red) 20%,transparent)}
-.foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:10px}
 .faces{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub)}
 .stack{display:flex}
 .stack img{width:22px;height:22px;border-radius:50%;border:2px solid var(--card);margin-left:-6px;background:var(--faint)}
@@ -107,13 +106,9 @@ body:has(.toast:not([hidden])) .fab{transform:translateY(-68px)}
 .shop2 .sc-chips .starline .st-v{font-size:12.5px}
 .sc-side{display:flex;flex-direction:column;align-items:center;gap:4px}
 .shop2 .went-btn{width:44px;height:44px;font-size:12px}
-.sc-side .out-btn{pointer-events:auto;border:1px solid var(--line);background:transparent;color:var(--sub);border-radius:999px;padding:0 9px;font:inherit;font-size:11px;line-height:20px}
-.sc-side .out-btn:hover{color:var(--red);border-color:color-mix(in srgb,var(--red) 40%,var(--line))}
-.shop2 .foot{margin-top:8px}
 .shop2 .badges{margin-top:6px}
 .sc-side{flex-direction:row;gap:8px}
 .shop2 .sc-side .went-btn{width:44px;height:44px;font-size:11px;letter-spacing:0;padding:0}
-.sc-side .out-btn{white-space:nowrap}
 .swipe-act{position:absolute;inset:0;border-radius:var(--r-lg);display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-weight:700;font-size:14px;opacity:0;transition:opacity .15s}
 .swipe-act span{display:flex;align-items:center;gap:8px;transition:transform .2s var(--ease-spring)}
 .swipe.r .swipe-act{opacity:1;background:var(--red);color:var(--on-red)}

@@ -23,9 +23,6 @@ function renderHome(v0){
     t.innerHTML='<svg class="tb-ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>';
     t.appendChild(document.createTextNode('お店をリストに追加'));
     b.append(t, el('span','tb-s','エリア・料理から探す')); b.onclick=goAdd;
-    const u=el('button','url-tag'); u.type='button'; u.setAttribute('aria-label','URLで登録(LINEで送られたリンクなど)');
-    u.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.2 1.2"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/></svg>';
-    u.appendChild(document.createTextNode('URLで登録')); u.onclick=e=>{ e.stopPropagation(); openUrlAdd(); };
-    card.append(b,u); acts.appendChild(card); v.appendChild(acts); }
+    card.append(b); acts.appendChild(card); v.appendChild(acts); }
   openNowStrip(v);
 }

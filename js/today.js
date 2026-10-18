@@ -333,7 +333,7 @@ function openNowStrip(v){
     const top=el('button','now-top'); top.type='button'; top.onclick=()=>openDetail(s.id);
     top.append(el('span','crest now-crest',crestOf(s)), el('b','now-name',s.name||''));
     c.appendChild(top);
-    const ch=el('div','sc-chips now-chips'); hoursPill(ch,s); { const g=genreOf(s); if(g) pill(ch,'genre',g); } honPill(ch,s); c.appendChild(ch);
+    const ch=el('div','sc-chips now-chips'); hoursPill(ch,s); { const g=genreOf(s); if(g) pill(ch,'genre',g); } c.appendChild(ch);
     const acts=el('div','now-acts');
     const y=yoyakuUrl(s); if (y){ const a=el('a','sbtn now-yoyaku','ネット予約 ↗'); a.href=y; a.target='_blank'; a.rel='noopener noreferrer'; acts.appendChild(a); }
     if (!readOnly && me) acts.appendChild(pickBtn(s));
