@@ -39,7 +39,8 @@ function rebuildShops(){
       if (want) s.wants[fm]=true;
       if (went) s.went[fm]=went;
       const st=t.r && t.r[fm] && t.r[fm].star; if (typeof st==='number') s.r[fm]={star:st};   // their 星 only: no marks, memos or ひとこと
-      if (t.r && t.r[fm] && t.r[fm].hon) s.r[fm]={...(s.r[fm]||{}), hon:true};   // and whether it's their 本命
+      if (t.r && t.r[fm] && t.r[fm].hon) s.r[fm]={...(s.r[fm]||{}), hon:true};
+      if (t.r && t.r[fm] && t.r[fm].tsuke) s.r[fm]={...(s.r[fm]||{}), tsuke:true};   // and whether it's their 本命
       if (!s.loc && okLoc(t.loc)) s.loc={lat:t.loc.lat, lng:t.loc.lng, src:'link'};
     }
   }

@@ -1,6 +1,7 @@
 /* ---------- want / went lists and ranking ---------- */
 const listF={at:'',genre:'',star:0,hon:false};   // the lists' 時間 / ジャンル / 星 (same pickers as 今日どこ行く?)
 async function renderWant(v){
+  listF.tsuke=false;
   let arr=shops.filter(inWant);
   filterBar(v,listF,arr,render);
   arr=arr.filter(s=>fMatch(s,listF)).sort((a,b)=>{
@@ -43,12 +44,14 @@ function renderWent(v){
   for (const [val,txt] of [['new','新しい順'],['star','星が高い順'],['price','安い順']]){ const o=el('option',null,txt); o.value=val; o.selected=sort===val; sel.appendChild(o); }
   sel.onchange=()=>{sort=sel.value; render();}; lab.appendChild(sel); meta.appendChild(lab); v.appendChild(meta);
   const list=el('div','list'); v.appendChild(list);
-  if (!arr.length){ const e=el('div','empty'); e.appendChild(el('span','mincho', shops.some(inWent)?'条件に合う店がありません':'まだ記録がありません'));
+  if (!arr.length){ const e=el('div','empty'); const noT=listF.tsuke && !shops.some(x=>inWent(x)&&isTsuke(x)); e.appendChild(el('span','mincho', noT?'行きつけの店はまだありません':shops.some(inWent)?'条件に合う店がありません':'まだ記録がありません'));
+    if (noT) e.appendChild(document.createTextNode('行った店の名前の横のお猪口を押すと、お酒が満ちて行きつけになります。'));
     if(!shops.some(inWent)) e.appendChild(document.createTextNode('行きたいリストの店で「行った」を押すと、ここに溜まっていきます。'));
     list.appendChild(e); return; }
   const slots=[], badgeSlots=[];
   for (const s of arr){
     const {c,top,chips}=cardShell(s);
+    if (!readOnly && me && wentBy(s)[me]){ const nm=c.querySelector('.sc-main .name'); if(nm) nm.appendChild(tsukeBtn(s)); }
     if (!readOnly && me && wentBy(s)[me]){
       const x=el('button','out-btn','外す'); x.type='button'; x.setAttribute('aria-label',(s.name||'')+'をリストから外す'); x.onclick=e=>{ e.stopPropagation(); removeMine(s.id); };
       top.append(x); }

@@ -38,6 +38,7 @@ GitHub Pages + Firebase(匿名ログイン + Firestore)。お店検索は Cloudf
 - **追加**: お店を探す(ホットペッパー / Google)、URLで登録(Googleマップ・ホットペッパー・Google検索の共有リンク。LINEの文面ごと何件でも)、店名だけでも可。
 - **行った**: 「いつ行った?」(今日 / 日付を選ぶ / 覚えてない)。カレンダーは「行った」に連動。
 - **本命**: 行きたい店に提灯をともす。リストの上に並び、絞り込める。今日どこ行く?でも上に出て、おまかせで当たりやすい。飲み友の本命も見える。
+- **行きつけ**: 行った店にお猪口の印(押すとお酒が満ちる)。行ったリストで絞り込める。今日どこ行く?でも上に出て、おまかせで当たりやすい。飲み友の行きつけも見える。
 - **今日の候補と決定**: 候補を出し合い、2人とも選んだ店は「🍻 2人ともOK」。「ここにする」で決定すると決める画面に「今日はここ!」。翌日「ゆうべのお店、行った?」で記録。候補の日付は朝5時に切り替わる。
 - **評価**: 星(0〜5、0.1刻み)、項目ごとの◎○△×、特徴タグ、来店記録と会計・料金予想。
 
@@ -64,7 +65,7 @@ GitHub Pages + Firebase(匿名ログイン + Firestore)。お店検索は Cloudf
 
 ### `shops/{shopId}`
 `name, area, createdBy, createdAt, updatedAt, wants{uid:true}, went{uid:日付|true}, planDate, loc{lat,lng,src}, hours{open,close,closed[],note}, links[], hp{id,genre,budget,photo}, tags{}, visits{vid:{date,people,actual,guesses}}, r{uid:{star, hon, note:{t}, price:{m,t}...}}`
-- `r[uid]` はその人の評価・メモ・本命(`hon`)。飲み友の表示に使うのは `star` と `hon` だけ。
+- `r[uid]` はその人の評価・メモ・本命(`hon`)・行きつけ(`tsuke`)。飲み友の表示に使うのは `star`・`hon`・`tsuke` だけ(ほかは priv/ に分けて保存)。
 
 ### 書き込み
 `patchShop()` で画面を先に更新し、ドキュメントごとに順番に `set(..., {merge:true})` で保存する。

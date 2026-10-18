@@ -131,7 +131,7 @@ function honPill(ch,s){ const by=honBy(s); if(!by.length) return;
   pill(ch,'hon',t); ch.lastChild.prepend(lanEl()); }
 
 // ---------- private part of a shop (groups/{gid}/priv/{shopId}, readable only by me) ----------
-const PUBLIC_R = ['star','hon'];
+const PUBLIC_R = ['star','hon','tsuke'];
 function splitPriv(p){
   const pub={}, priv={};
   for (const k in p){
@@ -168,3 +168,20 @@ function movePrivOut(raw){
     enqueue(s.id,()=>db.doc('priv/'+s.id).update(JSON.parse(JSON.stringify(priv))).then(()=>db.doc('shops/'+s.id).update(del)).catch(e=>console.warn('priv move',e&&e.code)));
   }
 }
+
+// 行きつけ (shops I keep going back to): r[uid].tsuke. shown as a お猪口 that fills with sake
+const CHOKO='<svg class="choko" viewBox="0 0 24 22" aria-hidden="true"><path class="ck-body" d="M3.5 6.5h17l-2.3 10.2a2.4 2.4 0 0 1-2.3 1.8H8.1a2.4 2.4 0 0 1-2.3-1.8z"/><path class="ck-sake" d="M5.3 9.6h13.4l-1.6 6.6a1.5 1.5 0 0 1-1.4 1.1H8.3a1.5 1.5 0 0 1-1.4-1.1z"/><ellipse class="ck-ring" cx="12" cy="13.2" rx="3.1" ry="1.5"/><ellipse class="ck-dot" cx="12" cy="13.2" rx="1.2" ry=".55"/><path class="ck-foot" d="M9 18.5h6v1.6H9z"/><path class="ck-rim" d="M3.5 6.5h17"/></svg>';
+const chokoEl = () => { const t=document.createElement('template'); t.innerHTML=CHOKO; return t.content.firstChild; };
+const isTsuke = (s,u=me) => !!(s && s.r && s.r[u] && s.r[u].tsuke);
+const tsukeBy = s => inScope(Object.keys((s&&s.r)||{}).filter(u=>isTsuke(s,u)));
+function toggleTsuke(id){ const s=shops.find(x=>x.id===id); if(!s||!me||readOnly) return; const on=!isTsuke(s); buzz();
+  patchShop(id,{r:{[me]:{tsuke:on}}}); if (on) toast(`「${s.name}」を行きつけにしました`); }
+function tsukeBtn(s){
+  const on=isTsuke(s); const b=el('button','tsuke-btn'); b.appendChild(chokoEl()); b.type='button'; b.setAttribute('aria-pressed',String(on));
+  b.setAttribute('aria-label',(s.name||'')+(on?'の行きつけを外す':'を行きつけにする')); b.title=on?'行きつけ':'行きつけにする';
+  b.onclick=e=>{ e.stopPropagation(); toggleTsuke(s.id); }; return b;
+}
+// a label: 行きつけ / <nick>の行きつけ / 2人の行きつけ
+function tsukePill(ch,s){ const by=tsukeBy(s); if(!by.length) return;
+  const t = by.length>1 ? '2人の行きつけ' : by[0]===me ? '行きつけ' : `${(friendByMid(by[0])||{}).nick||'飲み友'}の行きつけ`;
+  pill(ch,'tsuke',t); ch.lastChild.prepend(chokoEl()); }
