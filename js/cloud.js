@@ -106,7 +106,7 @@ const newId = (n=20) => { const a='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuv
 const guestName = () => 'ゲスト' + (100 + (crypto.getRandomValues(new Uint16Array(1))[0] % 900));
 // no group yet: make one right away and go straight to the app
 async function autoStart(){
-  try{ await createGroup(guestName()); toast('名前は右上の「設定」から変えられます'); }
+  try{ await createGroup(guestName()); toast('名前とアイコンは右上の丸いアイコンから変えられます'); }
   catch(e){ console.warn(e); showGate({kind:'error', msg:'はじめられませんでした。通信状態を確認して、読み込み直してください。'}); }
 }
 function memberData(nick){

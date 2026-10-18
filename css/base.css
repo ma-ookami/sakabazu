@@ -66,3 +66,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center;justify-conten
 @media (prefers-reduced-motion:no-preference){ .skel i{animation:shimmer 1.4s linear infinite} }
 @keyframes shimmer{to{background-position:-150% 0}}
 .pagetitle{font-family:var(--serif);font-weight:700;font-size:24px;margin:20px 0 4px;letter-spacing:.04em}
+/* first paint: wait for the fonts (see the script before <body>), then fade in */
+html.fonts-wait body > *{opacity:0}
+body > *{transition:opacity .25s ease}
+.skel-home{gap:14px;margin-top:16px}

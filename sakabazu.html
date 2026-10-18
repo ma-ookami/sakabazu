@@ -26,6 +26,12 @@
 <link rel="stylesheet" href="css/list.css">
 <link rel="stylesheet" href="css/search.css">
 </head>
+<script>
+// show the page once its fonts are in (or after 1.2s at most), so the logo and text don't jump in size as they load
+(function(){ var d=document.documentElement; d.classList.add('fonts-wait'); var done=function(){ d.classList.remove('fonts-wait'); };
+  try{ var f=document.fonts; Promise.race([Promise.all([f.load('800 30px "Shippori Mincho B1"','酒場図'), f.load('600 12px "Josefin Sans"','SAKABA-ZU'), f.load('700 16px "Zen Old Mincho"','今日どこ行く'), f.load('500 14px "Zen Kaku Gothic New"','行きたい店')]), new Promise(function(r){ setTimeout(r,1200); })]).then(done,done); }catch(e){ done(); }
+})();
+</script>
 <body>
 <div class="minibar" id="minibar"><button class="mb-in" id="mbTop" aria-label="いちばん上へ"><svg class="mb-lan" viewBox="0 0 14 20" aria-hidden="true"><rect x="4" y="0" width="6" height="2.5" rx="1" fill="#1F1B19"/><ellipse cx="7" cy="10" rx="6.5" ry="7.5" fill="#D2412F"/><rect x="4" y="17.5" width="6" height="2.5" rx="1" fill="#1F1B19"/></svg><span class="mb-t">酒場図</span><span class="mb-s" id="mbStats"></span></button></div>
 <div class="wrap">
