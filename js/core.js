@@ -52,12 +52,6 @@ async function people(ids){
   const o={}; for(const id of ids) o[id]={id,name:(members[id]&&members[id].nick)||(id===me?'あなた':''),avatarUrl:(members[id]&&members[id].photo)||'',isMe:id===me}; return o;
 }
 const nameOf = (ps,id) => id===me ? 'あなた' : ((members[id]&&members[id].nick) || (friendByMid(id)||{}).nick || (ps[id]&&ps[id].name) || '飲み友');
-// "けん・あなたが行きたい" / "けん・ゆうほか2人が行きたい"
-function whoText(ids,what){
-  if (!ids.length) return '';
-  const ns=[...ids].sort((a,b)=>(a===me)-(b===me)).map(u=>nameOf({},u));
-  return (ns.length<=3 ? ns.join('・') : `${ns.slice(0,2).join('・')}ほか${ns.length-2}人`)+'が'+what;
-}
 // member icons (like ますせん): a color, a shape, and the first letter of the name or an emoji. { c, s, e } on the member doc
 const AV_VIVID = { 13:'#e60012', 14:'#0068d9', 15:'#ffd400' };
 const AV_ORDER = [0,1,2,3,4,5,6,7,8,9,10,11,13,14,15,12];

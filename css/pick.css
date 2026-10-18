@@ -87,3 +87,10 @@
 /* a result: the name gets the whole width, the buttons go on the line below */
 .slot.hit .sl-btns{grid-column:1 / -1;grid-row:auto;margin-top:8px;flex-wrap:wrap}
 .slot.hit .sl-n{white-space:normal;font-size:18px}
+
+/* a 飲み友's shop: add it to my list */
+.mine-row{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap}
+.mine-l{font-size:11.5px;color:var(--sub)}
+.mine-b{border:1px dashed color-mix(in srgb,var(--sub) 50%,var(--line));background:transparent;color:var(--ink);border-radius:999px;padding:3px 10px;font:inherit;font-size:12px;line-height:1.4}
+.mine-b:active{transform:scale(.95)}
+.pk-main{flex:1;min-width:0;display:grid}

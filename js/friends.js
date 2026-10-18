@@ -265,11 +265,6 @@ function whoBar(v){
 }
 function openFriends(){ setSub='friends'; setTab('set'); }
 
-// copy 飲み友's shops into my list (as 行きたい). one by one so each gets its details
-async function importToMine(ids){
-  let n=0; for (const id of ids){ const s=shops.find(x=>x.id===id); if(!s || !isFriendShop(s)) continue; const nid=await importShop(id); if(nid && !String(nid).startsWith('f~')) n++; }
-  if (n) toast(n===1 ? '自分のリストに入れました' : `${n}軒を自分のリストに入れました`);
-}
 
 // ---------- QR: my code as a link (…#add=CODE). the other phone's camera opens it and we ask "add as 飲み友?" ----------
 const addLink = c => location.origin+location.pathname+'#add='+c;

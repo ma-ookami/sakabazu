@@ -24,15 +24,6 @@ async function renderWant(v){
       x.onclick=e=>{ e.stopPropagation(); removeMine(s.id); }; top.appendChild(x); }
     if (s.planDate) pill(chips,'plan',fmtDate(s.planDate)+' に行く予定');
     hoursPill(chips,s); { const g=genreOf(s); if(g) pill(chips,'genre',g); } { const sl=starLine(s); if(sl) chips.appendChild(sl); }
-    const ids=wantIds(s).sort((a,b)=>(a===me)-(b===me));   // others first, me last (same as whoText)
-    if (groupMode()){
-    const foot=el('div','foot');
-    const faces=el('div','faces'); const st=el('span','stack'); faces.appendChild(st);
-    faces.appendChild(el('span',null, whoText(ids,'行きたい')));
-    foot.appendChild(faces); slots.push([st,ids.slice(0,5)]);
-    // only for shops the 飲み友 wants and I don't yet (whether I want it already shows in the faces line)
-    if (!readOnly && me && groupMode() && !(s.wants&&s.wants[me])){ const wb=el('button','want-btn live', isFriendShop(s)?'＋ 自分のリストに入れる':'私も行きたい'); wb.onclick=()=>toggleWant(s.id); foot.appendChild(wb); }
-    c.appendChild(foot); }
     list.appendChild(c);
   }
   fillFaces(slots);
@@ -67,9 +58,6 @@ function renderWent(v){
     { const sl=starLine(s); if(sl) chips.appendChild(sl); }
     { const last=visitList(s).find(x=>x.actual>0); if(last) pill(chips,'yen',`1人 ${yen(last.actual)}`); }
     const bd=el('div','badges'); c.appendChild(bd); badgeSlots.push([bd,s.id]);
-    const ids=recorders(s); if (ids.length || (isFriendShop(s) && !readOnly && me)){ const f=el('div','foot'); const fc=el('div','faces'); const st=el('span','stack'); fc.append(st, el('span',null,ids.length?`${ids.length}人が記録`:'')); f.appendChild(fc);
-      if (isFriendShop(s) && !readOnly && me){ const ib=el('button','want-btn live','＋ 自分のリストに入れる'); ib.onclick=()=>importToMine([s.id]); f.appendChild(ib); }
-      c.appendChild(f); slots.push([st,ids.slice(0,5)]); }
     // swipe right: back to 行きたい (rarely needed, so no button)
     list.appendChild(!readOnly && me && wentBy(s)[me] ? swipeable(c,{label:'↩ 行きたいに戻す', run:()=>backToWant(s.id)},null) : c);
   }

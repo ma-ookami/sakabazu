@@ -165,11 +165,18 @@ function buildPick(){
     const li=el('li'); const info=el('button','pinfo'); info.onclick=()=>openDetail(s.id);
     info.appendChild(el('span','pn',s.name||'(名前なし)'));
     info.appendChild(pickChips(s,true));
-    li.appendChild(info);
+    if (!readOnly && me && !mySt(s)){ const wrap=el('div','pk-main'); wrap.append(info, mineRow(s)); li.appendChild(wrap); } else li.appendChild(info);
     if (!readOnly && me) li.appendChild(pickBtn(s));
     ul.appendChild(li);
   }
   b.appendChild(ul);
+}
+// a 飲み友's shop: put it in my list too ("そういえば行った" / "行きたかった")
+function mineRow(s){
+  const r=el('span','mine-row'); r.appendChild(el('span','mine-l','自分も'));
+  const w=el('button','mine-b','＋ 行きたい'); w.type='button'; w.onclick=e=>{ e.stopPropagation(); patchShop(s.id,{wants:{[me]:true}}); toast(`「${s.name}」を自分の行きたいに入れました`); };
+  const g=el('button','mine-b','✓ 行った'); g.type='button'; g.onclick=e=>{ e.stopPropagation(); wentWhen(s.id); };
+  r.append(w,g); r.onclick=e=>e.stopPropagation(); return r;
 }
 // the 今日の候補 tab: mine and the 飲み友's picks together; shops both picked come first, marked 🍻
 function todayTab(b){
@@ -185,7 +192,7 @@ function todayTab(b){
     info.appendChild(el('span','pn',c.name||'(名前なし)'));
     if (c.shop) info.appendChild(pickChips(c.shop,false));
     const who=el('span','who-l'); for (const u of c.by){ const mid=u===me?me:(friends[u]||{}).mid, nm=u===me?'あなた':(friends[u]||{}).nick||'飲み友'; const t=el('span','who-t'+(u===me?' me':''),'✓'); t.prepend(avatar({},mid,'pl-av')); t.title=t.ariaLabel=nm+' ✓'; who.appendChild(t); } info.appendChild(who);
-    li.appendChild(info);
+    if (!readOnly && me && c.shop && !mySt(c.shop)){ const wrap=el('div','pk-main'); wrap.append(info, mineRow(c.shop)); li.appendChild(wrap); } else li.appendChild(info);
     if (!readOnly && me){ const side=el('div','cand-side'); const dc=decided(); const isGo=dc && dc.key===c.key;
       if (isGo){ li.classList.add('go'); side.appendChild(el('span','go-b','✓ ここに決定')); }
       else { const go=el('button','sbtn go-btn'+(both?' on':''),'ここにする'); go.onclick=()=>decide(c.shop,c); side.appendChild(go); }
