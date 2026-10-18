@@ -30,10 +30,7 @@ async function renderWant(v){
   fillFaces(slots);
 }
 
-let wentView='list';   // 行った: the list, or the calendar of visits
 function renderWent(v){
-  segBar(v,[['list','リスト'],['cal','カレンダー']],wentView,k=>{ wentView=k; },'subseg');
-  if (wentView==='cal'){ const sub=el('div'); v.appendChild(sub); renderCal(sub); return; }
   if (!readOnly) v.appendChild(el('p','hint','右にスワイプで「行きたい」に戻せます'));
   listF.hon=false; filterBar(v,listF,shops.filter(inWent),render);
   let arr=shops.filter(inWent).filter(s=>fMatch(s,listF));
