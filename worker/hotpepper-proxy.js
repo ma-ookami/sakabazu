@@ -2,9 +2,9 @@
 // - APIキーは Worker の「シークレット」HOTPEPPER_KEY に保存し、ページには載せない
 // - 呼べるのは ALLOWED に書いたページからだけ(ブラウザの Origin で判断)
 // - 渡すのは検索に使う項目だけ。結果は10分キャッシュして、APIの呼び出し回数を減らす
-// - ?resolve=<Googleマップの短縮URL> は、転送先の長いURLを返す(店名と位置を読み取るため)
+// - ?resolve=<Googleマップ / Google検索の共有URL> は、転送先の長いURLを返す(店名と位置を読み取るため)
 // - ?gq=<検索語> は Google のお店検索(Places API)。キーは Worker のシークレット GOOGLE_PLACES_KEY
-const VERSION = 3;
+const VERSION = 4;
 const ALLOWED = [
   'https://ma-ookami.github.io',
   /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/,
@@ -13,7 +13,7 @@ const PARAMS = ['keyword', 'name_any', 'id', 'lat', 'lng', 'range', 'order', 'co
   'large_area', 'middle_area', 'small_area',
   'budget', 'genre', 'free_drink', 'free_food', 'private_room', 'non_smoking', 'midnight', 'card'];
 const API = 'https://webservice.recruit.co.jp/hotpepper/gourmet/v1/';
-const SHORT = /^https:\/\/(maps\.app\.goo\.gl\/|goo\.gl\/maps\/)[A-Za-z0-9_-]+$/;
+const SHORT = /^https:\/\/(maps\.app\.goo\.gl\/|goo\.gl\/maps\/|g\.co\/kgs\/|share\.google\/)[A-Za-z0-9_-]+$/;
 
 const allowed = o => !!o && ALLOWED.some(a => typeof a === 'string' ? a === o : a.test(o));
 const reply = (body, status, origin) => new Response(JSON.stringify(body), {
@@ -31,7 +31,8 @@ async function resolve(u) {
     const loc = r.headers.get('location');
     if (!loc) return u;
     u = new URL(loc, u).toString();
-    if (/^https:\/\/(www\.)?google\.[a-z.]+\/maps\//.test(u)) return u;
+    if (/^https:\/\/consent\.google\./.test(u)) { const c = new URL(u).searchParams.get('continue'); if (c) return c; }
+    if (/^https:\/\/((www\.)?google\.[a-z.]+\/(maps|search)|maps\.google\.)/.test(u)) return u;
   }
   return u;
 }

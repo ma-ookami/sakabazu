@@ -147,6 +147,7 @@ async function runSearch(more){
 async function runUrls(text){
   const list=urlsIn(text); if(!list.length) return;
   const seq=++sx.seq; sx.state='loading'; sx.label='URL'; sx.urlRes=[]; renderResults();
+  const show=()=>{ const r=$('sxRes'); if(r) r.scrollIntoView({block:'start',behavior:'smooth'}); }; show();
   for (const [k,x] of list.entries()){
     sx.prog=`${k+1}/${list.length}`; renderResults();
     const r=await addFromUrl(x.u); if (seq!==sx.seq) return;
@@ -154,38 +155,55 @@ async function runUrls(text){
   }
   sx.prog=''; const ok=sx.urlRes.filter(r=>r.added);
   if (ok.length===list.length){ toast(ok.length===1 ? `「${ok[0].added}」を追加しました` : `${ok.length}軒を追加しました`); sx.kw=''; sx.state='idle'; closeSearch(); listSub='want'; setTab('list'); return; }
-  sx.state='urls'; renderResults();
+  sx.state='urls'; renderResults(); show();
 }
-const HP_SHORT = /^https:\/\/(maps\.app\.goo\.gl\/|goo\.gl\/maps\/)[A-Za-z0-9_-]+\/?$/;
-// -> {added} | {needName} | {msg}
+// short links: Googleマップの共有 (maps.app.goo.gl / goo.gl/maps) and Google検索の共有 (g.co/kgs, share.google)
+const HP_SHORT = /^https:\/\/(maps\.app\.goo\.gl\/|goo\.gl\/maps\/|g\.co\/kgs\/|share\.google\/)[A-Za-z0-9_-]+\/?$/;
+const G_URL = /^https:\/\/((www\.)?google\.[a-z.]+\/(maps|search)|maps\.google\.[a-z.]+\/)/i;
+// the shop's name in a Google link: /maps/place/<name>, /maps/search/<name>, ?q=<name, address>, ?query=<name>
+function gLinkName(u){
+  const p=parsePlaceUrl(u); if (p.name) return p.name;
+  let s=u; try{ s=decodeURIComponent(u.replace(/\+/g,' ')); }catch{}
+  let m=/\/maps\/search\/([^/@?]+)/.exec(s); if (m) return m[1].trim();
+  try{ const q=new URL(u).searchParams; const v=(q.get('q')||q.get('query')||'').trim();
+    if (v && !/^-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?$/.test(v)) return v.split(/[,、，]/)[0].replace(/〒?\d{3}-\d{4}.*/,'').trim(); }catch{}
+  return '';
+}
+// -> {added} | {needName, msg} | {msg}
 async function addFromUrl(u){
-  u=u.trim().replace(/[?&]g_st=\w+$/,'');
-  if (HP_SHORT.test(u)){
-    const long=await hpResolve(u.replace(/\/$/,''));
-    if (!long) return {msg:'短縮リンクを開けませんでした。Googleマップでお店を開き、アドレス欄の長いURLを貼ってください。'};
+  u=u.trim();
+  const sh=/^(https:\/\/(?:maps\.app\.goo\.gl|goo\.gl\/maps|g\.co\/kgs|share\.google)\/[A-Za-z0-9_-]+)\/?(?:[?#].*)?$/.exec(u);
+  if (sh){
+    const long=await hpResolve(sh[1]);
+    if (!long || long===sh[1] || HP_SHORT.test(long)) return {needName:true, msg:'リンクの行き先を開けませんでした。お店の名前を入れると、そのまま追加できます。'};
     u=long;
   }
-  if (/google\.[a-z.]+\/maps|maps\.google\./i.test(u)){
-    const p=parsePlaceUrl(u);
-    if (!p.name) return {msg:'このURLからは店名を読み取れませんでした。Googleマップでお店を開いたときのURLを貼ってください。'};
-    let extra={loc:p.loc, links:[u]}, name=p.name, area='';
+  // Google's consent page wraps the real link
+  if (/consent\.google\./.test(u)){ try{ const c=new URL(u).searchParams.get('continue'); if(c) u=c; }catch{} }
+  if (G_URL.test(u)){
+    const name=gLinkName(u), p=parsePlaceUrl(u);
+    if (!name) return {needName:true, msg:'このリンクからは店名を読み取れませんでした。お店の名前を入れると、そのまま追加できます。'};
+    let extra={loc:p.loc, links:[u]}, area='', nm=name;
     try{ // the same shop on Google (near the link's spot): genre, hours, the proper link
-      const q={gq:p.name}; if (p.loc) Object.assign(q,{lat:p.loc.lat,lng:p.loc.lng,r:300,rect:1});
+      const q={gq:name}; if (p.loc) Object.assign(q,{lat:p.loc.lat,lng:p.loc.lng,r:300,rect:1});
       const d=await hpCall(q); const ps=(d&&d.places)||[];
-      const g=ps.find(x=>x.displayName && norm(x.displayName.text)===norm(p.name)) || ps.find(x=>x.displayName && (norm(x.displayName.text).includes(norm(p.name))||norm(p.name).includes(norm(x.displayName.text)))) || (p.loc ? null : ps[0]);
-      if (g){ extra={...gExtra(g), loc:p.loc||gExtra(g).loc}; name=g.displayName.text; area=gArea(g); }
+      const g=ps.find(x=>x.displayName && norm(x.displayName.text)===norm(name)) || ps.find(x=>x.displayName && (norm(x.displayName.text).includes(norm(name))||norm(name).includes(norm(x.displayName.text)))) || (p.loc ? null : ps[0]);
+      if (g){ extra={...gExtra(g), loc:p.loc||gExtra(g).loc}; nm=g.displayName.text; area=gArea(g); }
     }catch(e){ /* Google search not set up yet: name + place only */ }
-    const id=await addOrBump(name,area,extra);
-    return id ? {added:name} : {msg:'追加できませんでした(もうリストにあるかもしれません)。'};
+    if (myShops.some(x=>norm(x.name)===norm(nm))) return {msg:`「${nm}」はもうリストにあります。`};
+    const id=await addOrBump(nm,area,extra);
+    return id ? {added:nm} : {msg:'追加できませんでした。通信状態を確認して、もう一度試してください。'};
   }
   const hp=/hotpepper\.jp\/str(J\d{9})/i.exec(u);
   if (hp && hpOn()){
     try{
       const r=await hpSearch({id:hp[1],count:'1'}); const h=r.shops[0];
-      if (h){ const id=await addOrBump(h.name,hpArea(h),hpShopExtra(h)); return id?{added:h.name}:{msg:'追加できませんでした(もうリストにあるかもしれません)。'}; }
-    }catch(e){ console.warn(e); }
+      if (h){ if (myShops.some(x=>norm(x.name)===norm(h.name))) return {msg:`「${h.name}」はもうリストにあります。`};
+        const id=await addOrBump(h.name,hpArea(h),hpShopExtra(h)); return id?{added:h.name}:{msg:'追加できませんでした。通信状態を確認して、もう一度試してください。'}; }
+      return {needName:true, msg:'ホットペッパーでこのお店が見つかりませんでした(閉店したお店かもしれません)。'};
+    }catch(e){ console.warn(e); return {needName:true, msg:'ホットペッパーにつながりませんでした。お店の名前を入れると、そのまま追加できます。'}; }
   }
-  return {needName:true};
+  return {needName:true, msg:'GoogleマップとホットペッパーのURL以外は、お店を読み取れません。お店の名前を入れると、リンク付きで追加できます。'};
 }
 
 const hpYes = v => typeof v==='string' && /^(あり|営業している|全面禁煙|利用可)/.test(v);
@@ -201,10 +219,10 @@ function renderResults(){
     box.appendChild(el('div','sx-head')).append(el('span','sx-lab','貼ったURL'), el('span','sx-n',`${ok}/${sx.urlRes.length}軒を追加`));
     const ul=el('ul','sx-urls');
     for (const r of sx.urlRes){
-      const li=el('li','sx-uitem'); li.appendChild(el('p','sx-urlu',r.u));
+      const li=el('li','sx-uitem'); let du=r.u; try{ du=decodeURI(r.u); }catch{} li.appendChild(el('p','sx-urlu',du.length>80?du.slice(0,78)+'…':du));
       if (r.added) li.prepend(el('p','sx-ok','✓ '+r.added));
       else if (r.needName){
-        li.prepend(el('p','sx-urlt','このリンクのお店の名前は?'));
+        li.prepend(el('p','sx-urlt','このリンクのお店の名前は?')); if (r.msg) li.prepend(el('p','sx-ng',r.msg));
         const f=el('form','quick quickadd'); f.noValidate=true;
         const i=el('input','field'); i.placeholder='お店の名前'; i.maxLength=60; i.autocomplete='off'; i.value=r.hint||''; i.setAttribute('aria-label','お店の名前');
         const b=el('button','btn btn-red','追加'); b.type='submit'; f.append(i,b);
