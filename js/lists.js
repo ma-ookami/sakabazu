@@ -2,6 +2,7 @@
 const listF={at:'',genre:'',star:0,hon:false};   // the lists' 時間 / ジャンル / 星 (same pickers as 今日どこ行く?)
 async function renderWant(v){
   listF.tsuke=false;
+  if (!readOnly) v.appendChild(el('p','hint','左にスワイプで外せます'));
   let arr=shops.filter(inWant);
   filterBar(v,listF,arr,render);
   arr=arr.filter(s=>fMatch(s,listF)).sort((a,b)=>{
@@ -22,17 +23,16 @@ async function renderWant(v){
     const {c,top,chips}=cardShell(s);
     if (!readOnly && me && s.wants && s.wants[me]){ const nm=c.querySelector('.sc-main .name'); if(nm) nm.appendChild(honBtn(s)); }
     if (!readOnly && me && !wentBy(s)[me]){ const w=el('button','went-btn live','行った'); w.setAttribute('aria-label',(s.name||'')+'に行った'); w.onclick=()=>wentWhen(s.id); top.appendChild(w); }
-    if (!readOnly && me && s.wants && s.wants[me] && !isFriendShop(s)){ const x=el('button','out-btn','外す'); x.type='button'; x.setAttribute('aria-label',(s.name||'')+'をリストから外す');
-      x.onclick=e=>{ e.stopPropagation(); removeMine(s.id); }; top.appendChild(x); }
     if (s.planDate) pill(chips,'plan',fmtDate(s.planDate)+' に行く予定');
     hoursPill(chips,s); { const g=genreOf(s); if(g) pill(chips,'genre',g); } { const sl=starLine(s); if(sl) chips.appendChild(sl); }
-    list.appendChild(c);
+    // swipe left: 外す (rarely used, so no button)
+    list.appendChild(!readOnly && me && s.wants && s.wants[me] && !isFriendShop(s) ? swipeable(c,null,{label:'外す',run:()=>removeMine(s.id)}) : c);
   }
   fillFaces(slots);
 }
 
 function renderWent(v){
-  if (!readOnly) v.appendChild(el('p','hint','右にスワイプで「行きたい」に戻せます'));
+  if (!readOnly) v.appendChild(el('p','hint','右にスワイプで「行きたい」に戻す、左で外す'));
   listF.hon=false; filterBar(v,listF,shops.filter(inWent),render);
   let arr=shops.filter(inWent).filter(s=>fMatch(s,listF));
   if (!['new','star','price'].includes(sort)) sort='new';
@@ -52,15 +52,12 @@ function renderWent(v){
   for (const s of arr){
     const {c,top,chips}=cardShell(s);
     if (!readOnly && me && wentBy(s)[me]){ const nm=c.querySelector('.sc-main .name'); if(nm) nm.appendChild(tsukeBtn(s)); }
-    if (!readOnly && me && wentBy(s)[me]){
-      const x=el('button','out-btn','外す'); x.type='button'; x.setAttribute('aria-label',(s.name||'')+'をリストから外す'); x.onclick=e=>{ e.stopPropagation(); removeMine(s.id); };
-      top.append(x); }
     hoursPill(chips,s); { const g=genreOf(s); if(g) pill(chips,'genre',g); }
     { const sl=starLine(s); if(sl) chips.appendChild(sl); }
     { const last=visitList(s).find(x=>x.actual>0); if(last) pill(chips,'yen',`1人 ${yen(last.actual)}`); }
     const bd=el('div','badges'); c.appendChild(bd); badgeSlots.push([bd,s.id]);
     // swipe right: back to 行きたい (rarely needed, so no button)
-    list.appendChild(!readOnly && me && wentBy(s)[me] ? swipeable(c,{label:'↩ 行きたいに戻す', run:()=>backToWant(s.id)},null) : c);
+    list.appendChild(!readOnly && me && wentBy(s)[me] ? swipeable(c,{label:'↩ 行きたいに戻す', run:()=>backToWant(s.id)},{label:'外す',run:()=>removeMine(s.id)}) : c);
   }
   fillFaces(slots); fillBadges(badgeSlots);
 }
