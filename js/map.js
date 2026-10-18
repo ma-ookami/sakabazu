@@ -47,6 +47,9 @@ function renderMap(v){
   const lg=el('div','chips'); lg.style.marginTop='18px';
   for (const [k,l] of [['went','行った'],['want','行きたい']]){ const n=all.filter(s=>statusOf(s)===k).length; const b=el('button','chip',`${l} ${n}`); b.setAttribute('aria-pressed',String(mapV.show[k])); b.onclick=()=>{ mapV.show[k]=!mapV.show[k]; render(); }; lg.appendChild(b); }
   if (all.some(isPicked)) lg.appendChild(el('span','map-pk','今日の候補'));
+  // shops with no place yet: a chip next to the filters opens their list (the map screen stays just the map)
+  { const un=shops.filter(s=>statusOf(s) && !okLoc(s.loc)); if (un.length){ const c=el('button','chip map-unloc',`📍未登録 ${un.length}`); c.type='button'; c.setAttribute('aria-label',`位置が未登録の店 ${un.length}軒`);
+    c.onclick=()=>actionSheet(`位置が未登録の店(${un.length}軒)`, un.map(s=>({label:(s.name||'(名前なし)')+(statusOf(s)==='went'?'　行った':'　行きたい'), run:()=>{ foldOpen.add('場所'); openDetail(s.id); }}))); lg.appendChild(c); } }
   v.appendChild(lg);
   const wrap=el('div','mapwrap');
   if (!mlBox) mlBox=el('div','mlmap');
@@ -63,8 +66,6 @@ function renderMap(v){
   const at=el('a','mapattr','© OpenFreeMap © OpenStreetMap'); at.href='https://www.openstreetmap.org/copyright'; at.target='_blank'; at.rel='noopener noreferrer'; wrap.appendChild(at);
   const info=el('div','mapinfo'); info.id='mapInfo'; wrap.appendChild(info);
   v.appendChild(wrap);
-  const un=shops.filter(s=>inWent(s)&&!s.loc);
-  if (un.length){ const u=el('div','unloc'); u.appendChild(el('p','hint',`位置が未登録の行った店(${un.length}軒)`)); const c=el('div','chips'); un.forEach(s=>{ const b=el('button','chip',s.name||'(名前なし)'); b.onclick=()=>openDetail(s.id); c.appendChild(b); }); u.appendChild(c); v.appendChild(u); }
   renderMapInfo();
   loadMapLib().then(()=>{
     ensureMap();
