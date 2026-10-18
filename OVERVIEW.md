@@ -106,6 +106,8 @@ GitHub Pages + Firebase(匿名ログイン + Firestore)。お店検索は Cloudf
 | `map.js` | 地図とピン、位置の記録 |
 | `visits.js` | 来店記録、料金予想、カレンダー |
 | `home.js` | 決める画面 |
+
+`guide.html` は使い方ページ(LP)。ヘッダーの「使い方」から開く。だるまの絵は埋め込み済み(daruma.js から書き出した SVG)。
 | `daruma.js` | だるま(パーツ・着せ替え・セリフ) |
 | `shop-info.js` | 営業時間、リンク、カードの骨組み、詳細の要約カード |
 | `detail.js` | 店の詳細 |

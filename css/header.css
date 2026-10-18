@@ -47,3 +47,7 @@ body.scrolled .minibar{transform:none;opacity:1;pointer-events:auto}
 .me-btn:active{transform:scale(.94)}
 .me-btn{position:relative}
 .me-btn.has-req::after{content:"";position:absolute;right:0;top:0;width:12px;height:12px;border-radius:50%;background:var(--red);box-shadow:0 0 0 2px var(--indigo)}
+.mast-r{display:flex;align-items:center;gap:10px;flex:none}
+.help-btn{display:grid;justify-items:center;gap:1px;color:#F6EBD6;text-decoration:none;font-size:10px;font-weight:700;letter-spacing:.06em;opacity:.9}
+.help-btn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
+.help-btn:active{transform:scale(.94)}
