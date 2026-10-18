@@ -458,8 +458,7 @@ function openUrlAdd(){
   if (!navigator.clipboard || !navigator.clipboard.readText) paste.hidden=true;
   const done=()=>{ if(d.isConnected){ d.close(); d.remove(); } };
   no.onclick=done; d.addEventListener('click',e=>{ if(e.target===d) done(); });
-  ok.onclick=()=>{ const t=ta.value; if (!urlsIn(t).length){ const n=t.trim(); if (n && n.length<=40 && !/
-/.test(n)){ done(); openSearch(n); toast('リンクが入っていなかったので、店名で探しました'); return; }
+  ok.onclick=()=>{ const t=ta.value; if (!urlsIn(t).length){ const n=t.trim(); if (n && n.length<=40 && !/\n/.test(n)){ done(); openSearch(n); toast('リンクが入っていなかったので、店名で探しました'); return; }
       err.textContent='URLが見つかりません。https:// から始まるリンクを貼ってください。'; return; }
     done(); sx.kw=''; openSearch(''); runUrls(t); };
   document.body.appendChild(d); d.showModal(); ta.focus();
