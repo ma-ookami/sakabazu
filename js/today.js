@@ -306,3 +306,28 @@ function nightBtns(v){
     b.onclick=()=>setNight(cur===k ? '' : k); row.appendChild(b); }
   v.appendChild(row);
 }
+
+// 決める: the shops on my lists that are open now (or open within the hour), to scroll through
+function openNowStrip(v){
+  const now=new Date();
+  const rank=s=>{ const h=hoursStatus(s,now); if(!h) return null; if(h.k==='open') return 0; if(h.k==='soon' && /分で開店/.test(h.t)) return 1; return null; };
+  const list=shops.filter(s=>statusOf(s) && rank(s)!=null)
+    .sort((a,b)=> rank(a)-rank(b) || (honBy(b).length+tsukeBy(b).length)-(honBy(a).length+tsukeBy(a).length) || ((starAvg(b)||{}).v||0)-((starAvg(a)||{}).v||0))
+    .slice(0,12);
+  if (!list.length) return;
+  const sec=el('section','now-sec');
+  const hd=el('div','now-h'); hd.append(el('h3','now-t','今あいてる店'), el('span','now-n',list.length+'軒')); sec.appendChild(hd);
+  const row=el('div','now-row');
+  for (const s of list){
+    const c=el('article','now-card'); c.style.setProperty('--c',crestColor(s));
+    const top=el('button','now-top'); top.type='button'; top.onclick=()=>openDetail(s.id);
+    top.append(el('span','crest now-crest',crestOf(s)), el('b','now-name',s.name||''));
+    c.appendChild(top);
+    const ch=el('div','sc-chips now-chips'); hoursPill(ch,s); { const g=genreOf(s); if(g) pill(ch,'genre',g); } honPill(ch,s); tsukePill(ch,s); c.appendChild(ch);
+    const acts=el('div','now-acts');
+    const y=yoyakuUrl(s); if (y){ const a=el('a','sbtn now-yoyaku','予約 ↗'); a.href=y; a.target='_blank'; a.rel='noopener noreferrer'; acts.appendChild(a); }
+    if (!readOnly && me) acts.appendChild(pickBtn(s));
+    c.appendChild(acts); row.appendChild(c);
+  }
+  sec.appendChild(row); v.appendChild(sec);
+}

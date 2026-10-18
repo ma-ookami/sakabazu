@@ -44,8 +44,12 @@ function fillInfo(s){
   if (!readOnly && me && mySt(s)==='went'){ const on=isTsuke(s); const h=el('button','d-link d-hon d-tsuke',on?'行きつけ':'行きつけにする'); h.type='button'; h.prepend(chokoEl()); h.setAttribute('aria-pressed',String(on)); h.onclick=()=>toggleTsuke(s.id); lr.appendChild(h); }
   else if (tsukeBy(s).length) tsukePill(lr,s);
   for (const u of (Array.isArray(s.links)?s.links:[]).map(safeUrl).filter(Boolean)){ const a=el('a','d-link',linkLabel(u)+' ↗'); a.href=u; a.target='_blank'; a.rel='noopener noreferrer'; lr.appendChild(a); }
+  { const y=yoyakuUrl(s); if (y){ const a=el('a','d-link d-yoyaku','予約する ↗'); a.href=y; a.target='_blank'; a.rel='noopener noreferrer'; lr.appendChild(a); } }
   if (s.loc || s.name){ const a=el('a','d-link','マップ ↗'); a.href=mapsUrl(s); a.target='_blank'; a.rel='noopener noreferrer'; lr.appendChild(a); }
   if (!readOnly && !hs && !ht && !genreOf(s)){ const b=el('button','d-link d-add','＋ ジャンル・営業時間を入れる'); b.type='button'; b.onclick=()=>openForm(s.id); lr.appendChild(b); }
   d.appendChild(lr);
 }
 setInterval(()=>{ const a=document.activeElement; if(swiping || (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName))) return; if(tab==='list'||tab==='home') render(); if(openId) fillInfo(shops.find(x=>x.id===openId)||{}); },60000);
+
+// ホットペッパー's reservation page for a shop (the free seats are checked there)
+const yoyakuUrl = s => s && s.hp && /^J\d{9}$/.test(s.hp.id||'') ? `https://www.hotpepper.jp/str${s.hp.id}/yoyaku/` : '';
