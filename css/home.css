@@ -205,3 +205,10 @@ body.gating .tabs{display:none}
 /* the だるま's words: room for two lines from the start, and they appear once the data is in (no jump) */
 .dm-bub{min-height:calc(1.5em * 2 + 20px);display:flex;align-items:center}
 .dm-bub.wait{color:transparent}
+
+/* 1人のとき: 家飲み / 休肝日 */
+.night-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.night-b{display:flex;align-items:center;justify-content:center;gap:8px;height:52px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--card);color:var(--ink);font:inherit;font-weight:700;font-size:15px;box-shadow:var(--shadow-1);transition:transform .16s var(--ease-out),background-color .2s,border-color .2s}
+.night-b:active{transform:scale(.97)}
+.nb-ic{font-size:20px;line-height:1}
+.night-b.on{background:color-mix(in srgb,var(--indigo) 10%,var(--card));border-color:var(--indigo);color:var(--indigo);box-shadow:0 0 0 2px color-mix(in srgb,var(--indigo) 20%,transparent)}

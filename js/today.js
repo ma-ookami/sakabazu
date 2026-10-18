@@ -281,3 +281,16 @@ function lastNightCard(v){
   const no=el('button','sbtn','行かなかった'); no.onclick=done;
   acts.append(yes,no); c.appendChild(acts); v.appendChild(c);
 }
+
+// ---------- 1人のとき: 今夜は 家飲み / 休肝日 (kept on this device until 5 a.m.) ----------
+const NIGHTS = { home:{ic:'🏠', l:'家飲み', on:'今日は家飲み', say:'今日は家飲みだね。のんびり乾杯!'}, rest:{ic:'🍵', l:'休肝日', on:'今日は休肝日', say:'休肝日えらい! 明日においしく飲もう'} };
+function nightOf(){ try{ const v=JSON.parse(localStorage.getItem('nm-night')||'null'); return v && v.date===nightKey() && NIGHTS[v.kind] ? v.kind : ''; }catch{ return ''; } }
+function setNight(k){ try{ if (k) localStorage.setItem('nm-night',JSON.stringify({date:nightKey(), kind:k})); else localStorage.removeItem('nm-night'); }catch{}
+  if (k){ buzz(); darumaCheer(NIGHTS[k].say); } render(); }
+function nightBtns(v){
+  const cur=nightOf(), row=el('div','night-row');
+  for (const [k,n] of Object.entries(NIGHTS)){ const b=el('button','night-b'+(cur===k?' on':'')); b.type='button'; b.setAttribute('aria-pressed',String(cur===k));
+    b.append(el('span','nb-ic',n.ic), el('span','nb-t', cur===k ? n.on : n.l));
+    b.onclick=()=>setNight(cur===k ? '' : k); row.appendChild(b); }
+  v.appendChild(row);
+}

@@ -14,6 +14,7 @@ function renderHome(v0){
   lastNightCard(v);
   whoBar(v);
   goCard(v);
+  if (!friendMode && !decided()) nightBtns(v);
   todayBlock(v);
   if (!readOnly){ const acts=el('div','homeacts'); const b=el('button','hact main'); const t=el('span','tb-t');
     t.innerHTML='<svg class="tb-ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>';

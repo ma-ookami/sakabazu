@@ -152,6 +152,7 @@ const DM_TIPS = [
 function darumaLine(){
   const h=new Date().getHours(), nw=shops.filter(inWant).length;
   { const r=Object.values(frReqs)[0]; if (r) return `「${r.nick}」から飲み友申請が来てるよ。右上のアイコンから見てね`; }
+  { const k=!friendMode && nightOf(); if (k) return NIGHTS[k].say; }
   const dc=decided(); if (dc) return dc.mine ? `今日は「${dc.name}」に決まり! 楽しんでね` : `${(friends[dc.by]||{}).nick||'飲み友'}が「${dc.name}」に決めたよ。どうする?`;
   const wf=activeFriends()[0];
   if (wf) return nw ? `${friends[wf].nick}と行きたい店が${nw}軒あるよ。どこにする?` : `${friends[wf].nick}とのリストはまだ空っぽ。行きたい店を入れてみよう`;
