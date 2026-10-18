@@ -100,4 +100,4 @@
 |---|---|---|
 | `firestore.rules` | 誰が何を読めるか・書けるか(リストは本人だけ、飲み友は承認制で読むだけ) | 更新済み。Firebase への貼り付けが必要 |
 | App Check | アクセスが本物のページから来ているか | キー設定済み。様子見のあと「適用」 |
-| Google Cloud の利用上限・予算アラート | Google の店検索(Places API)の料金 | 未設定(Google 検索を有効にするときに設定する) |
+| Google Cloud の利用上限・予算アラート | Google の店検索(Places API)の料金 | 未設定。手順は [google-places-limits.md](google-places-limits.md) |

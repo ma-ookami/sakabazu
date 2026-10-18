@@ -76,7 +76,7 @@ function enterGroup(mid, mine){
   gate=null; me=mid; db=groupDb; mode='db'; readOnly=false; isOwner = group.createdBy===mid;
   try{ localStorage.setItem('nm-gid',gid); }catch{}
   if (/[#&]g=/.test(location.hash)) history.replaceState(null,'',location.pathname+location.search);
-  if (!mine || mine.gid!==gid) fs.doc('users/'+uid).set({gid, owned:(mine&&mine.owned)||[]},{merge:true}).catch(console.warn);
+  if (!mine || mine.gid!==gid) fs.doc('users/'+uid).set({gid, ...(mine&&Array.isArray(mine.owned)?{owned:mine.owned}:{})},{merge:true}).catch(console.warn);
   showNotice(); render();
   const lost=e=>{ console.warn(e); if(e && e.code==='permission-denied'){ toast('このグループに入れなくなりました'); startGroup(); } else toast('共有データとの接続が切れました。ページを開き直してください。'); };
   cloudSubs.push(fs.doc('groups/'+gid).onSnapshot(d=>{ if(d.exists){ group=d.data(); isOwner=group.createdBy===me; } },()=>{}));
@@ -125,7 +125,8 @@ function memberData(nick){
 }
 async function createGroup(nick){
   let mine=null; try{ const u=await fs.doc('users/'+uid).get(); mine=u.exists?u.data():null; }catch{}
-  const owned=((mine&&mine.owned)||[]).slice(-2), id=newId();
+  const owned=((mine&&mine.owned)||[]), id=newId();
+  if (owned.length>=3) throw new Error('リストは1人3つまでしか作れません');
   const b=fs.batch();
   b.set(fs.doc('groups/'+id),{createdBy:uid, createdAt:Date.now()});
   b.set(fs.doc(`groups/${id}/members/${uid}`),memberData(nick));

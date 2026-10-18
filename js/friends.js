@@ -66,7 +66,7 @@ function watchFriends(){
 }
 function watchRequests(){
   cloudSubs.push(db.collection('requests').limit(100).onSnapshot(snap=>{
-    const o={}; for (const d of snap.docs){ const v=d.data()||{}; if(typeof v.gid==='string' && typeof v.mid==='string') o[d.id]={gid:v.gid, mid:v.mid, nick:String(v.nick||'だれか').slice(0,20), at:v.at||0}; }
+    const o={}; for (const d of snap.docs){ const v=d.data()||{}; if(typeof v.gid==='string' && typeof v.mid==='string') o[d.id]={gid:v.gid, mid:v.mid, nick:String(v.nick||'だれか').slice(0,20), from:typeof v.from==='string'?v.from:'', at:v.at||0}; }
     frReqs=o; render();
   },()=>{}));
   cloudSubs.push(db.collection('sent').limit(100).onSnapshot(snap=>{
@@ -135,8 +135,9 @@ async function addFriend(raw){
   if (v.gid===gid) return 'それはあなたのコードです';
   if (friends[v.mid]) return `「${v.nick||'飲み友'}」はもう飲み友です`;
   if (frReqs[v.mid]){ await approveReq(v.mid); return ''; }   // they already asked me: just approve
+  const from=await ensureCode(); if (!from) return '自分の飲み友コードを作れませんでした。もう一度どうぞ';
   const b=fs.batch();
-  b.set(fs.doc(`groups/${v.gid}/requests/${uid}`),{gid, mid:me, nick:(members[me]&&members[me].nick)||'', code:c, at:Date.now()});
+  b.set(fs.doc(`groups/${v.gid}/requests/${uid}`),{gid, mid:me, nick:(members[me]&&members[me].nick)||'', code:c, from, at:Date.now()});
   b.set(fs.doc(gpath('sent/'+v.mid)),{gid:v.gid, mid:v.mid, nick:String(v.nick||'飲み友').slice(0,20), at:Date.now()});
   try{ await b.commit(); }catch(e){ console.warn(e); return '申請できませんでした('+(e.code||'error')+')'; }
   return '';
@@ -166,9 +167,9 @@ function friendsSec(root){
   // 飲み友申請 to me
   const rq=Object.entries(frReqs).sort((a,b)=>a[1].at-b[1].at);
   if (rq.length){ const rs=sec('飲み友申請',rq.length+'件'); rs.classList.add('fr-req'); const ul=el('ul','mlist frlist');
-    for (const [k,r] of rq){ const li=el('li'); li.appendChild(avatar({[r.mid]:{name:r.nick}},r.mid,'fr-av')); const d=el('div'); d.style.flex='1'; d.appendChild(el('div','mn',r.nick)); d.appendChild(el('div','ms','飲み友になりたいそうです')); li.appendChild(d);
+    for (const [k,r] of rq){ const li=el('li'); li.appendChild(avatar({[r.mid]:{name:r.nick}},r.mid,'fr-av')); const d=el('div'); d.style.flex='1'; d.appendChild(el('div','mn',r.nick)); d.appendChild(el('div','ms', r.from ? `コード ${fmtCode(r.from)}` : 'コードなし(古い申請)')); li.appendChild(d);
       const ok=el('button','sbtn on','承認する'); ok.onclick=()=>approveReq(k); const no=el('button','sbtn','断る'); no.onclick=()=>declineReq(k); li.append(ok,no); ul.appendChild(li); }
-    rs.appendChild(ul); root.appendChild(rs); }
+    rs.appendChild(ul); rs.appendChild(el('p','hint','名前は申請した人が自由に付けられます。心当たりがなければ断ってください。本人に飲み友コードを聞いて、上のコードと同じか確かめると安心です。')); root.appendChild(rs); }
   const box=sec('飲み友を追加','相手のコードを入れて申請します'); box.id='secFriends'; root.appendChild(box);
   const mine=el('div','fr-code'); mine.appendChild(el('span','fr-cl','あなたの飲み友コード'));
   const cv=el('b','fr-cv','…'); mine.appendChild(cv);

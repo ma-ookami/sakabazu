@@ -167,11 +167,17 @@ service cloud.firestore {
       // 飲み友申請 to me: someone who has my code asks. nothing is shared until I approve
       match /requests/{rid} {
         allow read: if isMember(gid) || (signedIn() && rid == request.auth.uid);
+        // code = my code (the one they entered), from = their own code: it must be theirs, so the name can't be faked
         allow create, update: if signedIn() && rid == request.auth.uid
-          && validFriend(request.resource.data)
+          && request.resource.data.keys().hasOnly(['gid', 'mid', 'nick', 'code', 'from', 'at'])
+          && isText(request.resource.data.gid, 1, 64) && isText(request.resource.data.get('nick', ''), 0, 20)
+          && request.resource.data.at is int
           && request.resource.data.mid == request.auth.uid
           && exists(/databases/$(database)/documents/codes/$(request.resource.data.get('code', '-')))
-          && get(/databases/$(database)/documents/codes/$(request.resource.data.code)).data.gid == gid;
+          && get(/databases/$(database)/documents/codes/$(request.resource.data.code)).data.gid == gid
+          && exists(/databases/$(database)/documents/codes/$(request.resource.data.get('from', '-')))
+          && get(/databases/$(database)/documents/codes/$(request.resource.data.from)).data.mid == request.auth.uid
+          && get(/databases/$(database)/documents/codes/$(request.resource.data.from)).data.gid == request.resource.data.gid;
         allow delete: if isMember(gid) || (signedIn() && rid == request.auth.uid);
       }
 
@@ -255,7 +261,9 @@ service cloud.firestore {
         && isText(request.resource.data.get('code', ''), 0, 12)
         && isText(request.resource.data.get('gid', ''), 0, 64)
         && request.resource.data.get('owned', []) is list
-        && request.resource.data.get('owned', []).size() <= 3;
+        && request.resource.data.get('owned', []).size() <= 3
+        // lists I made stay on the record (so the limit of 3 can't be dodged by rewriting it)
+        && (resource == null || request.resource.data.get('owned', []).hasAll(resource.data.get('owned', [])));
     }
   }
 }
