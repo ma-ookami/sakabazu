@@ -12,7 +12,8 @@ async function renderWant(v){
   });
   const list=el('div','list'); v.appendChild(list);
   if (!arr.length){
-    const e=el('div','empty'); e.appendChild(el('span','mincho', fOn(listF)?'条件に合う店がありません':'行きたい店はまだありません'));
+    const e=el('div','empty'); e.appendChild(el('span','mincho', listF.hon&&!shops.some(x=>inWant(x)&&isHon(x)) ? '本命の店はまだありません' : fOn(listF)?'条件に合う店がありません':'行きたい店はまだありません'));
+    if (listF.hon&&!shops.some(x=>inWant(x)&&isHon(x))) e.appendChild(document.createTextNode('行きたい店の名前の横の提灯を押すと、灯りがともって本命になります。'));
     if(!fOn(listF)) e.appendChild(document.createTextNode('右下の「＋」から、気になる店を入れていきましょう。')); list.appendChild(e); return;
   }
   const slots=[];

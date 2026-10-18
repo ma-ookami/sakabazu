@@ -21,7 +21,7 @@ function fMatch(s,st){
 }
 function filterBar(box,st,base,redraw){
   const fl=el('div','pk-bar');
-  if (st.hon || base.some(s=>honBy(s).length)){ const h=el('button','pk-hon','本命'); h.prepend(lanEl()); h.type='button'; h.setAttribute('aria-pressed',String(!!st.hon)); h.setAttribute('aria-label','本命だけ');
+  if (st.hon || base.some(s=>honBy(s).length) || (st===listF && tab==='list' && listSub==='want')){ const h=el('button','pk-hon','本命'); h.prepend(lanEl()); h.type='button'; h.setAttribute('aria-pressed',String(!!st.hon)); h.setAttribute('aria-label','本命だけ');
     h.onclick=()=>{ st.hon=!st.hon; if(st===pick) pick.chosen=null; redraw(); }; fl.appendChild(h); }
   const sel=(label,items,cur,set)=>{ const w=el('label','pk-sel'+(String(cur)!==String(items[0][0])?' on':''));
     const s=el('select'); s.setAttribute('aria-label',label);
