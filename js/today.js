@@ -194,7 +194,13 @@ $('pBack').onclick=closePick;
 // the same little labels as the list cards: 行った/行きたい, 営業時間, ジャンル, 星
 function pickChips(s,withStatus){
   const ch=el('div','sc-chips pk-chips');
-  if (withStatus){ const w=statusOf(s)==='went'; pill(ch, w?'st-went':'st-want', w?'行った':'行きたい'); }
+  if (withStatus){
+    const fr=activeFriends();
+    if (fr.length){   // 飲み友と: each person's own 行った / 行きたい
+      const who=[[me,'あなた'], ...fr.map(f=>[friends[f].mid, friends[f].nick||'飲み友'])];
+      for (const [u,n] of who){ const st = wentBy(s)[u] ? 'went' : (s.wants&&s.wants[u]) ? 'want' : null; if(st) pill(ch,'st-'+st,`${n} ${st==='went'?'行った':'行きたい'}`); }
+    } else { const w=statusOf(s)==='went'; pill(ch, w?'st-went':'st-want', w?'行った':'行きたい'); }
+  }
   honPill(ch,s); hoursPill(ch,s); { const g=genreOf(s); if(g) pill(ch,'genre',g); }
   const sl=starLine(s); if(sl) ch.appendChild(sl);
   return ch;
