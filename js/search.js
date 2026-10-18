@@ -81,6 +81,7 @@ function guessName(seg){
   for (let i=lines.length-1;i>=0;i--){ const t=lines[i].split(/\s+[·・|｜]\s+/)[0].trim(); if (t && !looksAddr(t) && !looksNoise(t) && t.length<=40) return t; }
   return '';
 }
+const SHOP_LINK = /^https:\/\/((www\.)?google\.[a-z.]+\/(maps|search)|maps\.google\.|maps\.app\.goo\.gl\/|goo\.gl\/maps\/|g\.co\/kgs\/|share\.google\/|(www\.)?hotpepper\.jp\/)/i;
 const TABELOG = /^https?:\/\/(s\.)?tabelog\.com\//i;
 function parseTabelog(seg){
   for (const raw of seg.split(/\n/).map(x=>x.trim()).filter(Boolean).reverse()){
@@ -170,7 +171,8 @@ async function runUrls(text){
     let r = x.tb ? {needName:true, msg:''} : await addFromUrl(x.u); if (seq!==sx.seq) return;
     if (x.tb){ if (myShops.some(z=>norm(z.name)===norm(x.tb.name))) r={msg:`「${x.tb.name}」はもうリストにあります。`};
       else { const id=await addOrBump(x.tb.name, x.tb.area?x.tb.area.replace(/駅$/,'')+'駅':'', {links:[x.u], ...(x.tb.genre?{hp:{genre:x.tb.genre}}:{})}); if (id) r={added:x.tb.name}; } }
-    if (r.needName && x.hint){ const own=myShops.some(z=>norm(z.name)===norm(x.hint));
+    // only for shop links (Google / ホットペッパー): any other link keeps asking, so a chat line like 「見て!」 never becomes a shop
+    if (r.needName && x.hint && SHOP_LINK.test(x.u)){ const own=myShops.some(z=>norm(z.name)===norm(x.hint));
       if (own) r={msg:`「${x.hint}」はもうリストにあります。`}; else { const id=await addOrBump(x.hint,'',{links:[x.u]}); if (id) r={added:x.hint}; } }
     sx.urlRes.push({...x,...r});
   }
