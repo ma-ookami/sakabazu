@@ -109,18 +109,39 @@ function stopFriendSubs(){ for (const f of Object.keys(fSubs)){ try{ fSubs[f]();
 // my 飲み友コード: one per device, made the first time it is needed
 let codeP=null;
 function ensureCode(){ if (myCode) return Promise.resolve(myCode); if (!codeP) codeP=makeCode().finally(()=>{ codeP=null; }); return codeP; }
-async function makeCode(){
-  if (myCode) return myCode;
-  try{ const u=await fs.doc('users/'+uid).get(); const c=u.exists && u.data().code; if(c){ const d=await fs.doc('codes/'+c).get(); if(d.exists && d.data().gid===gid){ myCode=c; return c; } } }catch(e){ console.warn(e); }
+// a save that the server hasn't answered yet (slow or no signal) still goes through later: don't wait forever
+const settle = (p,ms=5000) => Promise.race([p, new Promise(r=>setTimeout(r,ms))]);
+const codeKey = () => 'nm-code-'+gid;
+async function newCode(){
   for (let i=0;i<4;i++){
     const b=crypto.getRandomValues(new Uint8Array(7)); const c=[...b].map(x=>CODE_ABC[x%CODE_ABC.length]).join('');
     try{
-      await fs.doc('codes/'+c).set({gid, mid:me, nick:(members[me]&&members[me].nick)||'', at:Date.now()});
-      await fs.doc('users/'+uid).set({code:c},{merge:true});
-      myCode=c; return c;
+      await settle(fs.doc('codes/'+c).set({gid, mid:me, nick:(members[me]&&members[me].nick)||'', at:Date.now()}));
+      settle(fs.doc('users/'+uid).set({code:c},{merge:true})).catch(e=>console.warn(e));
+      try{ localStorage.setItem(codeKey(),c); }catch{}
+      return c;
     }catch(e){ console.warn(e); if(e && e.code!=='permission-denied') break; }
   }
   return '';
+}
+async function makeCode(){
+  if (myCode) return myCode;
+  // shown at once from this device's memory, then checked quietly
+  let saved=''; try{ saved=localStorage.getItem(codeKey())||''; }catch{}
+  if (saved){ myCode=saved;
+    fs.doc('codes/'+saved).get().then(d=>{ if(!d.exists || d.data().gid!==gid){ try{ localStorage.removeItem(codeKey()); }catch{} myCode=''; render(); } }).catch(()=>{});
+    return saved; }
+  try{ const u=await settle(fs.doc('users/'+uid).get(),6000); const c=u && u.exists && u.data().code;
+    if(c){ const d=await settle(fs.doc('codes/'+c).get(),6000); if(d && d.exists && d.data().gid===gid){ myCode=c; try{ localStorage.setItem(codeKey(),c); }catch{} return c; } } }catch(e){ console.warn(e); }
+  const c=await newCode(); if (c) myCode=c; return c;
+}
+// a new code: the old code and its QR stop working (飲み友 already added stay)
+async function remakeCode(){
+  if (!(await ask('飲み友コードを作り直しますか? いまのコードとQRは使えなくなります。すでに飲み友になっている人はそのままです。','作り直す'))) return;
+  const old=myCode; try{ localStorage.removeItem(codeKey()); }catch{}
+  const c=await newCode(); if (!c){ toast('作り直せませんでした。通信状態を確認してください'); return; }
+  myCode=c; if (old) fs.doc('codes/'+old).delete().catch(e=>console.warn(e));
+  render(); toast('新しい飲み友コードにしました');
 }
 // keep the name on my code fresh (friends see it when they add me)
 function syncCodeNick(nick){ if(myCode) fs.doc('codes/'+myCode).set({gid, mid:me, nick, at:Date.now()}).catch(()=>{}); }
@@ -177,7 +198,9 @@ function friendsSec(root){
   cp.onclick=async()=>{ try{ await navigator.clipboard.writeText(fmtCode(myCode)); toast('コピーしました'); }catch{ toast(fmtCode(myCode)); } };
   // QR: a small button next to コピー; the code opens big in a window
   const qb=el('button','sbtn fr-qrb','QR'); qb.type='button'; qb.disabled=true; qb.setAttribute('aria-label','QRコードを表示'); qb.onclick=showQr;
-  mine.append(qb,cp); box.appendChild(mine);
+  mine.append(qb,cp);
+  const rm=el('button','textbtn fr-remake','コードを作り直す'); rm.type='button'; rm.onclick=remakeCode; mine.appendChild(rm);
+  box.appendChild(mine);
   box.appendChild(el('p','hint','相手のコードを入れると飲み友申請が届きます。相手が承認すると、お互いの店が見られるようになります。'));
   const showCode=()=>{ if(myCode){ cv.textContent=fmtCode(myCode); cp.disabled=false; qb.disabled=false; return; } cv.textContent='…';
     ensureCode().then(c=>{ if(c){ cv.textContent=fmtCode(c); cp.disabled=false; qb.disabled=false; return; }

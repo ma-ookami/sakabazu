@@ -195,3 +195,10 @@ body.gating .tabs{display:none}
 .sec.fr-req{background:color-mix(in srgb,var(--red) 6%,transparent);border-radius:var(--r-lg);padding:14px 12px;border:0;margin-top:10px}
 .fr-wait{opacity:.75}
 .fr-req .mlist li{border:0}
+
+/* 飲み友コード: 作り直す under it; the entry boxes and 申請する on one line */
+.fr-remake{flex-basis:100%;justify-self:start;text-align:left;font-size:12px;color:var(--sub);margin-top:2px}
+.codeform{flex-wrap:nowrap;gap:8px}
+.codeform .codebox{flex:1;min-width:0;gap:4px}
+.codeform .code-c{width:auto;flex:1;min-width:0;max-width:34px;height:44px}
+.codeform .btn{flex:none;padding:0 14px;white-space:nowrap}
