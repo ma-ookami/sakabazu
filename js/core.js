@@ -83,3 +83,6 @@ function rankList(uid){ const ids=(rankings[uid]&&rankings[uid].ids)||[]; return
 
 // a link we can open: only http(s) (a "javascript:" link saved in a shop must never run)
 const safeUrl = u => typeof u==='string' && /^https?:\/\//i.test(u.trim()) ? u.trim() : '';
+
+// a place we can put on the map: two real numbers in range (data from others is checked before use)
+const okLoc = l => !!l && typeof l==='object' && Number.isFinite(l.lat) && Number.isFinite(l.lng) && Math.abs(l.lat)<=90 && Math.abs(l.lng)<=180;

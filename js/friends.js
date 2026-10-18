@@ -30,14 +30,16 @@ function rebuildShops(){
       let s=byKey.get(key(t));
       if (!s){
         s={id:`f~${f}~${t.id}`, _friend:f, name:t.name, area:t.area||'', createdBy:fm, createdAt:t.createdAt||0, wants:{}, went:{}, r:{}};
-        for (const k of ['loc','hours','tags','links','hp']) if (t[k]) s[k]=JSON.parse(JSON.stringify(t[k]));   // basics only: no visits (prices)
+        for (const k of ['hours','tags','hp']) if (t[k] && typeof t[k]==='object' && !Array.isArray(t[k])) s[k]=JSON.parse(JSON.stringify(t[k]));   // basics only: no visits (prices)
+        if (okLoc(t.loc)) s.loc={lat:t.loc.lat, lng:t.loc.lng, src:'link'};
+        if (Array.isArray(t.links)) s.links=t.links.filter(u=>typeof u==='string').slice(0,5);
         out.push(s); byKey.set(key(t),s);
       }
       if (want) s.wants[fm]=true;
       if (went) s.went[fm]=went;
       const st=t.r && t.r[fm] && t.r[fm].star; if (typeof st==='number') s.r[fm]={star:st};   // their 星 only: no marks, memos or ひとこと
       if (t.r && t.r[fm] && t.r[fm].hon) s.r[fm]={...(s.r[fm]||{}), hon:true};   // and whether it's their 本命
-      if (!s.loc && t.loc) s.loc=t.loc;
+      if (!s.loc && okLoc(t.loc)) s.loc={lat:t.loc.lat, lng:t.loc.lng, src:'link'};
     }
   }
   shops=out;

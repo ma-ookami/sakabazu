@@ -191,6 +191,14 @@ service cloud.firestore {
         allow delete: if isMember(gid);
       }
 
+      // the private part of each shop: memos, ひとこと, ◎○ marks, visits and prices. only I can read it (飲み友 can't)
+      match /priv/{sid} {
+        allow read, delete: if isMember(gid);
+        allow create, update: if isMember(gid)
+          && request.resource.data.keys().hasOnly(['r', 'visits'])
+          && optMap(request.resource.data, 'r') && optMap(request.resource.data, 'visits');
+      }
+
       match /rankings/{mid} {
         allow read: if isMember(gid);
         allow create, update: if actsAs(gid, mid) && isMember(gid)

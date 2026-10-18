@@ -20,7 +20,7 @@ async function buildCrew(body){
   if (setSub==='rank'){ const sub=el('div'); body.appendChild(sub); renderRank(sub); return; }
   if (setSub==='friends') friendsSec(body);
   else if (setSub==='daruma'){ const dm=sec('だるま','ホームにいるだるまの見た目。この端末に保存されます'); dm.id='secDaruma'; darumaMaker(dm); body.appendChild(dm); }
-  else { const nk=sec('あなた'); profileSec(nk,mine); body.appendChild(nk); }
+  else { const nk=sec('あなた'); profileSec(nk,mine); body.appendChild(nk); backupSec(body); }
 }
 
 /* the screen before you are in a group: start your own, join by invite, or come back as yourself */
@@ -67,4 +67,52 @@ function profileSec(box,mine){
 async function saveIcon(ic){
   if (!me) return; members={...members,[me]:{...members[me],ic}}; render();
   if (mode==='db') enqueue('member:'+me,()=>db.doc('members/'+me).update({ic}));
+}
+
+// ---------- バックアップ (the list lives in this browser; a file keeps it safe when changing phones) ----------
+function backupSec(root){
+  const box=sec('バックアップ','端末を変えるときや、ブラウザのデータを消す前に'); root.appendChild(box);
+  box.appendChild(el('p','hint','あなたのリストは、この端末(ブラウザ)に結びついています。ファイルに保存しておけば、新しい端末で「戻す」と同じ店・星・メモ・来店記録を取り込めます。'));
+  const row=el('div','bk-row');
+  const sv=el('button','btn btn-ink','バックアップを保存'); sv.type='button'; sv.onclick=saveBackup;
+  const ld=el('label','btn btn-line bk-load','バックアップから戻す'); const fi=el('input'); fi.type='file'; fi.accept='application/json,.json'; fi.hidden=true;
+  fi.onchange=()=>{ const f=fi.files&&fi.files[0]; fi.value=''; if(f) loadBackup(f); }; ld.appendChild(fi);
+  row.append(sv,ld); box.appendChild(row);
+}
+function saveBackup(){
+  const data={app:'sakabazu', v:1, at:new Date().toISOString(), me, nick:(members[me]&&members[me].nick)||'', ic:(members[me]&&members[me].ic)||null, dm:dmCfg,
+    rank:(rankings[me]&&rankings[me].ids)||[], shops:myShops.map(s=>JSON.parse(JSON.stringify(s)))};
+  const blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});
+  const a=el('a'); a.href=URL.createObjectURL(blob); a.download=`sakabazu-${today()}.json`; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  toast(`${data.shops.length}軒をバックアップしました`);
+}
+// the old me in the file becomes the me of this device
+function remapMe(v,old){
+  if (Array.isArray(v)) return v.map(x=>remapMe(x,old));
+  if (!v || typeof v!=='object') return v;
+  const o={}; for (const k in v) o[k===old?me:k]=remapMe(v[k],old); return o;
+}
+async function loadBackup(file){
+  let d=null; try{ d=JSON.parse(await file.text()); }catch{ toast('ファイルを読めませんでした'); return; }
+  if (!d || d.app!=='sakabazu' || !Array.isArray(d.shops)){ toast('酒場図のバックアップではないようです'); return; }
+  const have=new Set(myShops.map(shopKey));
+  const add=d.shops.filter(s=>s && typeof s.name==='string' && s.name.trim() && !have.has(shopKey(s)));
+  if (!add.length){ toast('新しく戻す店はありません(全部リストにあります)'); return; }
+  if (!(await ask(`バックアップから${add.length}軒を戻します。すでにリストにある店はそのままです。`,'戻す'))) return;
+  let n=0;
+  for (const s0 of add){
+    const s=remapMe(s0, typeof d.me==='string' ? d.me : '');
+    const keep={}; for (const k of ['name','area','wants','went','r','tags','loc','planDate','hours','links','visits','hp']) if (s[k]!=null) keep[k]=s[k];
+    keep.name=String(keep.name).slice(0,60); if (keep.area!=null) keep.area=String(keep.area).slice(0,40);
+    if (keep.loc && !okLoc(keep.loc)) delete keep.loc; if (Array.isArray(keep.links)) keep.links=keep.links.filter(u=>typeof u==='string').slice(0,5); else delete keep.links;
+    const base={...keep, createdBy:me, createdAt:Number.isInteger(s.createdAt)?s.createdAt:Date.now(), updatedAt:Date.now()};
+    try{
+      if (mode==='db'){ const ref=db.collection('shops').doc(); const {pub,priv}=splitPriv(base); await fs.doc(gpath('shops/'+ref.id)).set(pub); if (priv) await writeShop(ref.id,priv); }
+      else { myShops.push({id:'l'+Date.now().toString(36)+n, ...base}); saveLocal(); }
+      n++;
+    }catch(e){ console.warn(e); }
+  }
+  if (d.dm) saveDm(d.dm);
+  afterChange(); toast(`${n}軒を戻しました`);
 }

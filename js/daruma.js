@@ -27,7 +27,7 @@ const DM_PRESETS = [
   ['ありがたい', { body:'kin', gara:'shippo', eye:'niko', brow:'futo', hige:'kuru', mouth:'niko', hoho:'ari', moji:'福', head:'nashi', kao:'nashi', item:'nashi', ushiro:'goko' }],
 ];
 const cleanDm = c => {
-  const o=Object.fromEntries(Object.entries(DM_PARTS).map(([k,p]) => [k, c && c[k]!=null && c[k] in p.opts ? c[k] : DM_DEFAULT[k]]));
+  const o=Object.fromEntries(Object.entries(DM_PARTS).map(([k,p]) => [k, c && typeof c[k]==='string' && Object.hasOwn(p.opts,c[k]) ? c[k] : DM_DEFAULT[k]]));
   if (c && c.item==='hachi' && o.head==='nashi') o.head='hachi';   // はちまき used to be a もちもの
   return o;
 };

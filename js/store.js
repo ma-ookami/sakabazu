@@ -16,7 +16,7 @@ function patchShop(id,patch){
   patch.updatedAt=Date.now();
   const s=myShops.find(x=>x.id===id); if(s) deepMerge(s,JSON.parse(JSON.stringify(patch)));
   afterChange();
-  if (mode==='db') return enqueue(id,()=>db.doc('shops/'+id).update(patch));
+  if (mode==='db') return enqueue(id,()=>writeShop(id,patch));
   saveLocal(); return Promise.resolve();
 }
 const buzz=()=>{ try{ navigator.vibrate && navigator.vibrate(8); }catch{} };
@@ -98,7 +98,7 @@ async function addShop(name,area){
 async function deleteShop(id){
   if (id.startsWith('f~')) return;
   myShops=myShops.filter(s=>s.id!==id); afterChange();
-  if (mode==='db') await enqueue(id,()=>db.doc('shops/'+id).delete()); else saveLocal();
+  if (mode==='db'){ await enqueue(id,()=>db.doc('shops/'+id).delete()); db.doc('priv/'+id).delete().catch(()=>{}); } else saveLocal();
   if (me && rankList(me).includes(id)) saveRank(rankList(me).filter(x=>x!==id));
 }
 function saveRank(ids){
@@ -129,3 +129,42 @@ function honBtn(s){
 function honPill(ch,s){ const by=honBy(s); if(!by.length) return;
   const t = by.length>1 ? '2人とも本命' : by[0]===me ? '本命' : `${(friendByMid(by[0])||{}).nick||'飲み友'}の本命`;
   pill(ch,'hon',t); ch.lastChild.prepend(lanEl()); }
+
+// ---------- private part of a shop (groups/{gid}/priv/{shopId}, readable only by me) ----------
+const PUBLIC_R = ['star','hon'];
+function splitPriv(p){
+  const pub={}, priv={};
+  for (const k in p){
+    if (k==='visits'){ priv.visits=p.visits; continue; }
+    if (k==='r' && p.r && typeof p.r==='object'){
+      for (const u in p.r){ const v=p.r[u];
+        if (!v || typeof v!=='object'){ (pub.r=pub.r||{})[u]=v; continue; }
+        for (const f in v){ const box = PUBLIC_R.includes(f) ? (pub.r=pub.r||{}) : (priv.r=priv.r||{}); (box[u]=box[u]||{})[f]=v[f]; } }
+      continue; }
+    pub[k]=p[k];
+  }
+  return {pub, priv: Object.keys(priv).length ? priv : null};
+}
+// write both halves. until the rules know priv/, the private half goes in the shop as before
+function writeShop(id,patch){
+  const {pub,priv}=splitPriv(patch);
+  return Promise.all([
+    Object.keys(pub).length ? db.doc('shops/'+id).update(pub) : null,
+    priv ? db.doc('priv/'+id).update(priv).catch(e=>{ if(e && e.code==='permission-denied') return db.doc('shops/'+id).update(priv); throw e; }) : null,
+  ]);
+}
+// shops written before: move their private part out of the shop (once, quietly). only after priv/ accepts writes
+let privMoved=new Set();
+function movePrivOut(raw){
+  for (const s of raw){
+    if (privMoved.has(s.id)) continue;
+    const r=s.r||{}, rp={}; let any=false;
+    for (const u in r){ const v=r[u]; if(!v||typeof v!=='object') continue; for (const f in v) if(!PUBLIC_R.includes(f)){ (rp[u]=rp[u]||{})[f]=v[f]; any=true; } }
+    const hasVisits = s.visits && typeof s.visits==='object' && Object.keys(s.visits).length;
+    if (!any && !hasVisits) continue;
+    privMoved.add(s.id);
+    const priv={}; if (any) priv.r=rp; if (hasVisits) priv.visits=s.visits;
+    const del={}; if (hasVisits) del.visits=null; if (any){ del.r={}; for (const u in rp){ del.r[u]={}; for (const f in rp[u]) del.r[u][f]=null; } }
+    enqueue(s.id,()=>db.doc('priv/'+s.id).update(JSON.parse(JSON.stringify(priv))).then(()=>db.doc('shops/'+s.id).update(del)).catch(e=>console.warn('priv move',e&&e.code)));
+  }
+}

@@ -80,9 +80,15 @@ function enterGroup(mid, mine){
   showNotice(); render();
   const lost=e=>{ console.warn(e); if(e && e.code==='permission-denied'){ toast('このグループに入れなくなりました'); startGroup(); } else toast('共有データとの接続が切れました。ページを開き直してください。'); };
   cloudSubs.push(fs.doc('groups/'+gid).onSnapshot(d=>{ if(d.exists){ group=d.data(); isOwner=group.createdBy===me; } },()=>{}));
+  // my shops = the shared part (shops/, 飲み友 can read) + my private part (priv/: memos, ◎○, visits)
+  let rawShops=null, privDocs={}, privOk=false;
+  const mergeShops=()=>{ if(!rawShops) return; myShops=rawShops.map(s=>{ const p=privDocs[s.id]; return p ? deepMerge(JSON.parse(JSON.stringify(s)),p) : s; }); afterChange(); if (privOk) movePrivOut(rawShops); };
   cloudSubs.push(db.collection('shops').orderBy('createdAt','desc').limit(1000).onSnapshot(snap=>{
-    myShops=snap.docs.map(d=>({id:d.id,...JSON.parse(JSON.stringify(d.data()||{}))})); afterChange();
+    rawShops=snap.docs.map(d=>({id:d.id,...JSON.parse(JSON.stringify(d.data()||{}))})); mergeShops();
   },lost));
+  cloudSubs.push(db.collection('priv').limit(1000).onSnapshot(snap=>{
+    const o={}; for (const d of snap.docs) o[d.id]=JSON.parse(JSON.stringify(d.data()||{})); privDocs=o; privOk=true; mergeShops();
+  },e=>{ console.warn('priv',e&&e.code); }));
   cloudSubs.push(db.collection('rankings').limit(200).onSnapshot(snap=>{
     const o={}; for(const d of snap.docs){ const v=d.data()||{}; o[d.id]={ids:Array.isArray(v.ids)?[...v.ids]:[]}; } rankings=o; render();
   },()=>{}));
