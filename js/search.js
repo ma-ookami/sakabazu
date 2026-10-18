@@ -127,10 +127,31 @@ async function clipRead(){
       const t=clipJoin(plain,uri,html); if (t) return t; }catch(e){ /* fall back to plain text */ } }
   return navigator.clipboard.readText();
 }
+// the address in a shared text (Google's share: name / address / link)
+function guessAddr(seg){
+  for (const raw of seg.split(/\n/).map(x=>x.trim()).filter(Boolean).reverse()){
+    for (const part of raw.split(/\s+[·・|｜]\s+/)){ const t=part.replace(/^〒?\s*\d{3}-?\d{4}\s*/,'').trim();
+      if (/^(北海道|東京都|大阪府|京都府|.{2,3}県)/.test(t) || /^.{1,6}[市区町村].{1,20}\d/.test(t)) return t.slice(0,80); }
+  }
+  return '';
+}
+// address -> place, with 国土地理院's free address search (no key)
+async function geocode(addr){
+  if (!addr) return null;
+  try{ const r=await Promise.race([fetch('https://msearch.gsi.go.jp/address-search/AddressSearch?q='+encodeURIComponent(addr)), new Promise(z=>setTimeout(()=>z(null),4000))]);
+    if (!r || !r.ok) return null; const d=await r.json(); const c=d && d[0] && d[0].geometry && d[0].geometry.coordinates;
+    if (Array.isArray(c) && okLoc({lat:+c[1], lng:+c[0]})) return {lat:+c[1], lng:+c[0], src:'addr'}; }catch(e){ console.warn('geocode',e); }
+  return null;
+}
+// the nearest named area (すすきの, 札幌駅…) within 1.5km
+function areaNear(loc){
+  let best=null, bd=1500; for (const a of HP_AREAS){ if(!a.at) continue; const d=distM(loc,a.at); if (d<bd){ bd=d; best=a; } }
+  return best ? best.label : '';
+}
 function urlsIn(text){
   const out=[]; let m, last=0; URL_RE.lastIndex=0;
   while ((m=URL_RE.exec(text))){ const u=m[0].replace(/[。、,.]+$/,''), seg=text.slice(last,m.index); const tb=TABELOG.test(u)?parseTabelog(seg):null;
-    out.push({u, hint:(tb?tb.name:guessName(seg)).slice(0,40), tb}); last=m.index+m[0].length; }
+    out.push({u, hint:(tb?tb.name:guessName(seg)).slice(0,40), tb, addr:guessAddr(seg)}); last=m.index+m[0].length; }
   const seen=new Set(); return out.filter(x=>!seen.has(x.u) && seen.add(x.u));
 }
 
@@ -206,13 +227,16 @@ async function runUrls(text){
     sx.prog=`${k+1}/${list.length}`; renderResults();
     let r = x.tb ? {needName:true, msg:''} : await addFromUrl(x.u); if (seq!==sx.seq) return;
     if (x.tb){ if (inMine(x.tb.name)) r={msg:`「${x.tb.name}」はもうリストにあります。`};
-      else { const id=await addOrBump(x.tb.name, x.tb.area?x.tb.area.replace(/駅$/,'')+'駅':'', {links:[x.u], ...(x.tb.genre?{hp:{genre:x.tb.genre}}:{})}); if (id) r={added:x.tb.name}; } }
+      else { const id=await addOrBump(x.tb.name, x.tb.area?x.tb.area.replace(/駅$/,'')+'駅':'', {links:[x.u], ...(x.tb.genre?{hp:{genre:x.tb.genre}}:{})}); if (id) r={added:x.tb.name, id}; } }
     // only for shop links (Google / ホットペッパー): any other link keeps asking, so a chat line like 「見て!」 never becomes a shop
     if (r.needName && x.hint && SHOP_LINK.test(x.u)){ const own=inMine(x.hint);
-      if (own) r={msg:`「${x.hint}」はもうリストにあります。`}; else { const ex=await enrichByName(x.hint, r.loc); const id=await addOrBump(x.hint, ex.area||'', {...ex.extra, links:[r.long||x.u, ...((ex.extra&&ex.extra.links)||[])].slice(0,5), ...(r.loc?{loc:r.loc}:{})}); if (id) r={added:x.hint}; } }
+      if (own) r={msg:`「${x.hint}」はもうリストにあります。`}; else { if (!r.loc && x.addr) r.loc=await geocode(x.addr); const ex=await enrichByName(x.hint, r.loc); const id=await addOrBump(x.hint, ex.area||'', {...ex.extra, links:[r.long||x.u, ...((ex.extra&&ex.extra.links)||[])].slice(0,5), ...(r.loc?{loc:r.loc}:{})}); if (id) r={added:x.hint, id}; } }
+    if (r.id) await fillAfter(r.id, x);
     sx.urlRes.push({...x,...r});
   }
   sx.prog=''; const ok=sx.urlRes.filter(r=>r.added);
+  const noGenre=sx.urlRes.filter(r=>r.id).map(r=>myShops.find(z=>z.id===r.id)).filter(z=>z && !genreOf(z)).slice(0,3);
+  if (noGenre.length) setTimeout(()=>askGenres(noGenre),400);
   if (ok.length===list.length){ toast(ok.length===1 ? `「${ok[0].added}」を追加しました` : `${ok.length}軒を追加しました`); sx.kw=''; sx.state='idle'; closeSearch(); listSub='want'; setTab('list'); return; }
   sx.state='urls'; renderResults(); show();
 }
@@ -251,14 +275,14 @@ async function addFromUrl(u){
     }catch(e){ /* Google search not set up yet: name + place only */ }
     if (inMine(nm)) return {msg:`「${nm}」はもうリストにあります。`};
     const id=await addOrBump(nm,area,extra);
-    return id ? {added:nm} : {msg:'追加できませんでした。通信状態を確認して、もう一度試してください。'};
+    return id ? {added:nm, id} : {msg:'追加できませんでした。通信状態を確認して、もう一度試してください。'};
   }
   const hp=/hotpepper\.jp\/str(J\d{9})/i.exec(u);
   if (hp && hpOn()){
     try{
       const r=await hpSearch({id:hp[1],count:'1'}); const h=r.shops[0];
       if (h){ if (inMine(h.name)) return {msg:`「${h.name}」はもうリストにあります。`};
-        const id=await addOrBump(h.name,hpArea(h),hpShopExtra(h)); return id?{added:h.name}:{msg:'追加できませんでした。通信状態を確認して、もう一度試してください。'}; }
+        const id=await addOrBump(h.name,hpArea(h),hpShopExtra(h)); return id?{added:h.name, id}:{msg:'追加できませんでした。通信状態を確認して、もう一度試してください。'}; }
       return {needName:true, msg:'ホットペッパーでこのお店が見つかりませんでした(閉店したお店かもしれません)。'};
     }catch(e){ console.warn(e); return {needName:true, msg:'ホットペッパーにつながりませんでした。お店の名前を入れると、そのまま追加できます。'}; }
   }
@@ -481,4 +505,31 @@ function openUrlAdd(){
       err.textContent='URLが見つかりません。https:// から始まるリンクを貼ってください。'; return; }
     done(); sx.kw=''; openSearch(''); runUrls(t); };
   document.body.appendChild(d); d.showModal(); ta.focus();
+}
+
+// a shop added from a link: its place from the address (if the link didn't give one), and an area name
+async function fillAfter(id,x){
+  const sh=myShops.find(z=>z.id===id); if(!sh) return;
+  const p={}; let loc=sh.loc;
+  if (!okLoc(loc) && x.addr){ loc=await geocode(x.addr); if (loc) p.loc=loc; }
+  if (!sh.area && okLoc(loc)){ const a=areaNear(loc); if (a) p.area=a; }
+  if (Object.keys(p).length) patchShop(id,p);
+}
+// "ジャンルは?" right after adding, one tap (or later)
+async function askGenres(list){ for (const sh of list){ if (!(await askGenre(sh))) break; } }
+function askGenre(sh){
+  return new Promise(res=>{
+    const d=el('dialog','ask genre-ask'); const box=el('div','ask-in');
+    box.appendChild(el('p',null,`「${sh.name}」のジャンルは?`));
+    const n={}; for (const z of myShops){ const g=genreOf(z); if(g) n[g]=(n[g]||0)+1; }
+    const list=[...Object.keys(n).sort((a,b)=>n[b]-n[a]), ...HP_GENRES.filter(g=>!n[g])].slice(0,16);
+    const ch=el('div','chips g-chips');
+    const done=v=>{ if(!d.isConnected) return; d.close(); d.remove(); res(v); };
+    for (const g of list){ const b=el('button','chip',g); b.type='button'; b.onclick=()=>{ patchShop(sh.id,{hp:{genre:g}}); toast(`「${sh.name}」を${g}にしました`); done(true); }; ch.appendChild(b); }
+    box.appendChild(ch);
+    const a=el('div','actions'); a.style.marginTop='12px'; const later=el('button','btn btn-line','あとで'); later.type='button'; later.onclick=()=>done(false); a.appendChild(later); box.appendChild(a);
+    d.appendChild(box); document.body.appendChild(d);
+    d.addEventListener('cancel',e=>{ e.preventDefault(); done(false); }); d.addEventListener('click',e=>{ if(e.target===d) done(false); });
+    d.showModal(); box.tabIndex=-1; box.focus({preventScroll:true});
+  });
 }

@@ -80,3 +80,5 @@ const safeUrl = u => typeof u==='string' && /^https?:\/\//i.test(u.trim()) ? u.t
 
 // a place we can put on the map: two real numbers in range (data from others is checked before use)
 const okLoc = l => !!l && typeof l==='object' && Number.isFinite(l.lat) && Number.isFinite(l.lng) && Math.abs(l.lat)<=90 && Math.abs(l.lng)<=180;
+// meters between two places
+function distM(a,b){ const R=6371000, r=x=>x*Math.PI/180; const dLat=r(b.lat-a.lat), dLng=r(b.lng-a.lng); const h=Math.sin(dLat/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dLng/2)**2; return 2*R*Math.asin(Math.sqrt(h)); }

@@ -86,3 +86,4 @@
 .sheet-in:focus,.as-panel:focus{outline:none}
 .bk-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .bk-load{cursor:pointer}
+.ask-in:focus{outline:none}
