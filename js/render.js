@@ -23,7 +23,8 @@ function render(){
   // looking with a 飲み友: the whole screen turns pale blue (with big faint ripples), so it reads as another mode
   document.documentElement.classList.toggle('fmode', mode==='db' && friendMode && tab==='home');
   if (mode==='gate'){ renderGate(v); return; }
-  if (mode==='loading'){ const k=el('div','skel'+(tab==='home'?' skel-home':'')); k.setAttribute('role','status'); k.setAttribute('aria-label','読み込み中'); for(const h of (tab==='home'?[84,42,98,100,66]:[96,132,132,132])){ const i=el('i'); i.style.setProperty('--h',h+'px'); k.appendChild(i); } v.appendChild(k); return; }
+  // 決める waits (up to 3s) until shops, today's picks and the 飲み友's come in, so nothing pops in and pushes the screen down
+  if (mode==='loading' || (tab==='home' && !homeReady())){ const k=el('div','skel'+(tab==='home'?' skel-home':'')); k.setAttribute('role','status'); k.setAttribute('aria-label','読み込み中'); for(const h of (tab==='home'?[84,42,98,100,66]:[96,132,132,132])){ const i=el('i'); i.style.setProperty('--h',h+'px'); k.appendChild(i); } v.appendChild(k); return; }
   if (tab==='set'){ v.appendChild(el('h2','pagetitle','自分')); const b=el('div'); b.id='setBody'; v.appendChild(b); buildCrew(b); return; }
   if (tab==='home') renderHome(v);
   else if (tab==='list'){ addFab(v); listSeg(v); if(listSub==='want') renderWant(v); else renderWent(v); }
@@ -68,3 +69,14 @@ function meBtn(){
   else b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.2" r="3.6"/><path d="M4.8 20.2c.9-3.9 3.7-6 7.2-6s6.3 2.1 7.2 6"/></svg>';
 }
 $('meBtn').onclick=()=>{ if (Object.keys(frReqs).length) setSub='friends'; setTab('set'); };
+
+// 決める is ready when everything it shows has arrived (or after 3 seconds, whatever is there)
+let homeSince=0;
+function homeReady(){
+  if (mode!=='db') return true;
+  if (!homeSince){ homeSince=Date.now(); setTimeout(render,3100); }
+  if (Date.now()-homeSince>3000) return true;
+  if (!shopsLoaded || !todayLoaded) return false;
+  if (friendMode){ if (!friendsLoaded) return false; const wf=mixedFriends()[0]; if (wf && !(wf in fToday)) return false; }
+  return true;
+}

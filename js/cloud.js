@@ -2,7 +2,7 @@
 // Every device signs in anonymously. A member id ("me") is the uid of the device that joined.
 // Another device becomes the same member with links/<uid> (needs the passcode if one is set),
 // or by signing in with Google when that member linked Google to their account.
-let shopsLoaded=false;
+let shopsLoaded=false, todayLoaded=false;
 let fs=null, auth=null, uid=null, gid=null, group=null, cloudSubs=[], gate=null;
 const useEmu = () => /[?&]emu\b/.test(location.search) && /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 const cloudOn = () => !!(window.firebase && (useEmu() || (window.FIREBASE_CONFIG && Object.keys(window.FIREBASE_CONFIG).length)));
@@ -82,7 +82,7 @@ function enterGroup(mid, mine){
   const lost=e=>{ console.warn(e); if(e && e.code==='permission-denied'){ toast('このグループに入れなくなりました'); startGroup(); } else toast('共有データとの接続が切れました。ページを開き直してください。'); };
   cloudSubs.push(fs.doc('groups/'+gid).onSnapshot(d=>{ if(d.exists){ group=d.data(); isOwner=group.createdBy===me; } },()=>{}));
   // my shops = the shared part (shops/, 飲み友 can read) + my private part (priv/: memos, ◎○, visits)
-  let rawShops=null, privDocs={}, privOk=false; shopsLoaded=false; friendsLoaded=false;
+  let rawShops=null, privDocs={}, privOk=false; shopsLoaded=false; friendsLoaded=false; todayLoaded=false; homeSince=0;
   const mergeShops=()=>{ if(!rawShops) return; shopsLoaded=true; myShops=rawShops.map(s=>{ const p=privDocs[s.id]; return p ? deepMerge(JSON.parse(JSON.stringify(s)),p) : s; }); afterChange(); if (privOk) movePrivOut(rawShops); };
   cloudSubs.push(db.collection('shops').orderBy('createdAt','desc').limit(1000).onSnapshot(snap=>{
     rawShops=snap.docs.map(d=>({id:d.id,...JSON.parse(JSON.stringify(d.data()||{}))})); mergeShops();
@@ -105,7 +105,7 @@ function enterGroup(mid, mine){
     const o={}; const t=nightKey(), y=lastNightKey();
     for (const d of snap.docs){ const v=JSON.parse(JSON.stringify(d.data()||{})); if(typeof v.shopId!=='string') continue; o[d.id]=v;
       if (v.date && v.date<t && !(v.go && v.date===y) && v.by===me && !cleaned.has(d.id)){ cleaned.add(d.id); enqueue('today:'+d.id,()=>db.doc('today/'+d.id).delete()); } }
-    todayDocs=o; afterChange();
+    todayDocs=o; todayLoaded=true; afterChange();
   },()=>{}));
 }
 function stopSubs(){ cloudSubs.forEach(f=>{ try{ f(); }catch{} }); cloudSubs=[]; stopFriendSubs(); }
