@@ -139,3 +139,7 @@ textarea.memo,.field{box-sizing:border-box;max-width:100%}
 .mi-l{font-size:12px}
 .mlist textarea.memo::placeholder{font-size:13px}
 .d-main textarea.memo::placeholder{font-size:14px}
+/* the 行きたい | 行った switch sits under the name, so the name gets the full width */
+.d-top{display:grid;gap:8px;justify-items:start}
+.d-card .d-name{font-size:clamp(24px,7vw,32px)}
+.d-seg{margin:0}
