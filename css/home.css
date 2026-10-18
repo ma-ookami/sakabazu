@@ -212,3 +212,13 @@ body.gating .tabs{display:none}
 .night-b:active{transform:scale(.97)}
 .nb-ic{font-size:20px;line-height:1}
 .night-b.on{background:color-mix(in srgb,var(--indigo) 10%,var(--card));border-color:var(--indigo);color:var(--indigo);box-shadow:0 0 0 2px color-mix(in srgb,var(--indigo) 20%,transparent)}
+/* お店をリストに追加: the whole card searches; a small tag at its corner opens URLで登録 */
+.homestack .hact.main.add-card{display:block;padding:0;position:relative}
+.add-main{display:grid;justify-items:start;gap:2px;width:100%;padding:18px 20px 52px;border:0;background:transparent;color:inherit;font:inherit;text-align:left;border-radius:inherit;position:relative;z-index:1}
+.url-tag{position:absolute;right:14px;bottom:12px;z-index:2;display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 13px;border-radius:999px;border:1px solid color-mix(in srgb,var(--on-red) 55%,transparent);background:color-mix(in srgb,var(--on-red) 12%,transparent);color:var(--on-red);font:inherit;font-size:13px;font-weight:700;letter-spacing:.02em}
+.url-tag svg{width:16px;height:16px}
+.url-tag:active{transform:scale(.96)}
+/* the tag sits in the same grid cell as the card's button, at its bottom right */
+.homestack .hact.main.add-card{display:grid}
+.add-card > .add-main,.add-card > .url-tag{grid-area:1/1}
+.add-card > .url-tag{position:relative;right:auto;bottom:auto;justify-self:end;align-self:end;margin:0 14px 12px 0}
