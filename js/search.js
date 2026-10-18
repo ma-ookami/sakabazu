@@ -92,9 +92,15 @@ function parseTabelog(seg){
   return null;
 }
 // all the text in a paste: the plain text, plus any link that came as its own piece (text/uri-list) or inside html
-// details for a shop known only by name (Google search isn't on): the same shop on ホットペッパー, if it's there
+// details for a shop known only by name: the same shop on Google (when its key is set) or ホットペッパー
 async function enrichByName(name, loc){
   if (!hpOn()) return {extra:{}};
+  // Google first (most shops; needs the Worker's GOOGLE_PLACES_KEY), then ホットペッパー
+  try{
+    const c=loc||hpAreaOf().at||SAPPORO; const d=await Promise.race([hpCall({gq:name, lat:c.lat, lng:c.lng, r:loc?500:5000}), new Promise(z=>setTimeout(()=>z(null),3000))]);
+    const g=d && Array.isArray(d.places) && d.places.find(x=>x.displayName && (norm(x.displayName.text)===norm(name) || norm(x.displayName.text).startsWith(norm(name)) || norm(name).startsWith(norm(x.displayName.text))));
+    if (g) return {extra:gExtra(g), area:gArea(g)};
+  }catch(e){ /* Google search not set up: fall through */ }
   try{
     const q={name_any:name, count:'10'}; if (loc){ q.lat=String(loc.lat); q.lng=String(loc.lng); q.range='3'; } else { const c=hpAreaOf().at||SAPPORO; q.lat=String(c.lat); q.lng=String(c.lng); q.range='5'; }
     const r=await Promise.race([hpSearch(q), new Promise(z=>setTimeout(()=>z(null),3000))]);
