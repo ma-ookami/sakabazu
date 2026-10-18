@@ -116,7 +116,8 @@ function afterChange(){ rebuildShops(); render(); if(openId) patchDetail(); if(i
 // 本命 (the shops you most want to go to): r[uid].hon. shown as a 提灯 that lights up
 const LANTERN='<svg class="lan" viewBox="0 0 20 28" aria-hidden="true"><rect class="lan-cap" x="6" y="2" width="8" height="3" rx="1"/><ellipse class="lan-body" cx="10" cy="14" rx="7.2" ry="9"/><path class="lan-rib" d="M3.6 10.5Q10 12.5 16.4 10.5M3 14.5Q10 16.5 17 14.5M3.6 18.5Q10 20.5 16.4 18.5"/><rect class="lan-cap" x="6" y="22.5" width="8" height="3" rx="1"/><path class="lan-tas" d="M10 25.5v2.3"/></svg>';
 const lanEl = () => { const t=document.createElement('template'); t.innerHTML=LANTERN; return t.content.firstChild; };
-const isHon = (s,u=me) => !!(s && s.r && s.r[u] && s.r[u].hon);
+// 本命 is for shops still wanted: once you've been there it no longer counts (行きつけ takes over)
+const isHon = (s,u=me) => !!(s && s.r && s.r[u] && s.r[u].hon) && !wentBy(s)[u];
 const honBy = s => inScope(Object.keys((s&&s.r)||{}).filter(u=>isHon(s,u)));
 function toggleHon(id){ const s=shops.find(x=>x.id===id); if(!s||!me||readOnly) return; const on=!isHon(s); buzz();
   patchShop(id,{r:{[me]:{hon:on}}}); if (on) toast(`「${s.name}」を本命にしました`); }
