@@ -205,6 +205,15 @@ service cloud.firestore {
           && optMap(request.resource.data, 'r') && optMap(request.resource.data, 'visits');
       }
 
+      // 家飲み / 休肝日 of each night (only me)
+      match /nights/{day} {
+        allow read, delete: if isMember(gid);
+        allow create, update: if isMember(gid) && isDay(day)
+          && request.resource.data.keys().hasOnly(['kind', 'at'])
+          && request.resource.data.kind in ['home', 'rest']
+          && request.resource.data.at is int;
+      }
+
       match /rankings/{mid} {
         allow read: if isMember(gid);
         allow create, update: if actsAs(gid, mid) && isMember(gid)

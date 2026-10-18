@@ -284,9 +284,18 @@ function lastNightCard(v){
 
 // ---------- 1人のとき: 今夜は 家飲み / 休肝日 (kept on this device until 5 a.m.) ----------
 const NIGHTS = { home:{ic:'🏠', l:'家飲み', on:'今日は家飲み', say:'今日は家飲みだね。のんびり乾杯!'}, rest:{ic:'🍵', l:'休肝日', on:'今日は休肝日', say:'休肝日えらい! 明日においしく飲もう'} };
-function nightOf(){ try{ const v=JSON.parse(localStorage.getItem('nm-night')||'null'); return v && v.date===nightKey() && NIGHTS[v.kind] ? v.kind : ''; }catch{ return ''; } }
-function setNight(k){ try{ if (k) localStorage.setItem('nm-night',JSON.stringify({date:nightKey(), kind:k})); else localStorage.removeItem('nm-night'); }catch{}
-  if (k){ buzz(); darumaCheer(NIGHTS[k].say); } render(); }
+let nightsDb={};   // from Firestore: date -> 'home' | 'rest'
+const nightsLocal = () => { try{ const o=JSON.parse(localStorage.getItem('nm-nights')||'{}'); return o&&typeof o==='object'?o:{}; }catch{ return {}; } };
+// every 家飲み / 休肝日 night I've marked: date -> kind
+function nightsAll(){ const o={...nightsLocal(), ...nightsDb}; for (const k in o) if (!NIGHTS[o[k]]) delete o[k]; return o; }
+function nightOf(){ return nightsAll()[nightKey()] || ''; }
+function setNight(k,date){
+  const d=date||nightKey();
+  try{ const o=nightsLocal(); if (k) o[d]=k; else delete o[d]; localStorage.setItem('nm-nights',JSON.stringify(o)); }catch{}
+  if (k) nightsDb={...nightsDb,[d]:k}; else { const o={...nightsDb}; delete o[d]; nightsDb=o; }
+  if (mode==='db') (k ? db.doc('nights/'+d).set({kind:k, at:Date.now()}) : db.doc('nights/'+d).delete()).catch(e=>console.warn('nights',e&&e.code));
+  if (k && !date){ buzz(); darumaCheer(NIGHTS[k].say); } render();
+}
 function nightBtns(v){
   const cur=nightOf(), row=el('div','night-row');
   for (const [k,n] of Object.entries(NIGHTS)){ const b=el('button','night-b'+(cur===k?' on':'')); b.type='button'; b.setAttribute('aria-pressed',String(cur===k));

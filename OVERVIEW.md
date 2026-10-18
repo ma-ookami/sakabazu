@@ -51,6 +51,7 @@ GitHub Pages + Firebase(匿名ログイン + Firestore)。お店検索は Cloudf
 | `groups/{gid}/members/{uid}` | `{nick, joinedAt, ic, dm}` 名前・アイコン・だるま | ログインした人 / 本人(作るのはリストを作った本人だけ) |
 | `groups/{gid}/shops/{id}` | 店(下記) | 本人・飲み友 / 本人 |
 | `groups/{gid}/priv/{shopId}` | 店の非公開部分 `{r:{uid:{メモ・ひとこと・◎○}}, visits}`。アプリでは shops と合わせて1つの店として扱う | 本人 / 本人 |
+| `groups/{gid}/nights/{date}` | 1人のときの「家飲み」「休肝日」`{kind:home|rest}`。カレンダーに出る | 本人 / 本人 |
 | `groups/{gid}/today/{date}_{shopId}` | 今日の候補 `{shopId, date, by, name, key, go}`(go = ここに決定) | 本人・飲み友 / 本人 |
 | `groups/{gid}/friends/{uid}` | 飲み友 `{gid, mid, nick, at}`(ここにいる人が自分の店を読める) | 本人・その飲み友 / 本人 |
 | `groups/{gid}/requests/{uid}` | 自分への飲み友申請(相手がコードを入れると届く) | 本人・申請した人 / 申請した人が作る、本人が承認・削除 |

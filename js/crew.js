@@ -81,7 +81,7 @@ function backupSec(root){
 }
 function saveBackup(){
   const data={app:'sakabazu', v:1, at:new Date().toISOString(), me, nick:(members[me]&&members[me].nick)||'', ic:(members[me]&&members[me].ic)||null, dm:dmCfg,
-    rank:(rankings[me]&&rankings[me].ids)||[], shops:myShops.map(s=>JSON.parse(JSON.stringify(s)))};
+    rank:(rankings[me]&&rankings[me].ids)||[], nights:nightsAll(), shops:myShops.map(s=>JSON.parse(JSON.stringify(s)))};
   const blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});
   const a=el('a'); a.href=URL.createObjectURL(blob); a.download=`sakabazu-${today()}.json`; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href),4000);
@@ -98,7 +98,7 @@ async function loadBackup(file){
   if (!d || d.app!=='sakabazu' || !Array.isArray(d.shops)){ toast('酒場図のバックアップではないようです'); return; }
   const have=new Set(myShops.map(shopKey));
   const add=d.shops.filter(s=>s && typeof s.name==='string' && s.name.trim() && !have.has(shopKey(s)));
-  if (!add.length){ toast('新しく戻す店はありません(全部リストにあります)'); return; }
+  if (!add.length && !(d.nights && Object.keys(d.nights).length)){ toast('新しく戻す店はありません(全部リストにあります)'); return; }
   if (!(await ask(`バックアップから${add.length}軒を戻します。すでにリストにある店はそのままです。`,'戻す'))) return;
   let n=0;
   for (const s0 of add){
@@ -114,5 +114,6 @@ async function loadBackup(file){
     }catch(e){ console.warn(e); }
   }
   if (d.dm) saveDm(d.dm);
+  if (d.nights && typeof d.nights==='object'){ const have=nightsAll(); for (const [day,k] of Object.entries(d.nights)) if (/^\d{4}-\d{2}-\d{2}$/.test(day) && NIGHTS[k] && !have[day]) setNight(k,day); }
   afterChange(); toast(`${n}軒を戻しました`);
 }

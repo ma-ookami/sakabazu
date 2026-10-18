@@ -94,6 +94,7 @@ function enterGroup(mid, mine){
     const o={}; for(const d of snap.docs){ const v=d.data()||{}; o[d.id]={ids:Array.isArray(v.ids)?[...v.ids]:[]}; } rankings=o; render();
   },()=>{}));
   watchFriends(); watchRequests();
+  cloudSubs.push(db.collection('nights').limit(1000).onSnapshot(snap=>{ const o={}; for (const d of snap.docs){ const v=d.data()||{}; if (NIGHTS[v.kind]) o[d.id]=v.kind; } nightsDb=o; render(); },()=>{}));
   cloudSubs.push(db.collection('members').limit(200).onSnapshot(snap=>{
     const o={}; for(const d of snap.docs){ const v=d.data()||{}; if(typeof v.nick==='string' && v.nick.trim()) o[d.id]={nick:v.nick.trim().slice(0,20),joinedAt:v.joinedAt||0,hasPin:!!v.hasPin,google:!!v.google,photo:v.photo||'',ic:(v.ic&&typeof v.ic==='object')?v.ic:null,dm:(v.dm&&typeof v.dm==='object')?v.dm:null}; }
     members=o; membersLoaded=true;
