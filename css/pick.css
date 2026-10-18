@@ -67,3 +67,6 @@
 .pill.st-who{gap:4px;padding-left:3px}
 .pl-av{width:17px;height:17px;font-size:9.5px;flex:none;border:0;margin:0}
 .who-t{display:inline-flex;align-items:center;gap:3px;padding-left:3px}
+/* 行った = 紺, 行きたい = 赤 (same as the search screen); icons get a white ring so any color stands out */
+.pk-chips .pill.st-went{background:var(--indigo);border-color:var(--indigo);color:var(--on-indigo)}
+.pl-av{box-shadow:0 0 0 1.5px #fff}
