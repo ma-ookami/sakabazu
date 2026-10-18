@@ -156,14 +156,29 @@ service cloud.firestore {
 
       // my friends. I add them (when I enter their code), and they add themselves (when they enter mine:
       // they must send the code, and it must be the code of this list)
+      // my 飲み友. only I add them (when I approve their request, or when they approved mine).
+      // the friend can see their own entry (to know they were approved) and remove it
       match /friends/{fid} {
         allow read: if isMember(gid) || (signedIn() && fid == request.auth.uid);
-        allow create, update: if validFriend(request.resource.data)
-          && (isMember(gid)
-              || (signedIn() && fid == request.auth.uid
-                  && exists(/databases/$(database)/documents/codes/$(request.resource.data.get('code', '-')))
-                  && get(/databases/$(database)/documents/codes/$(request.resource.data.code)).data.gid == gid));
+        allow create, update: if isMember(gid) && validFriend(request.resource.data);
         allow delete: if isMember(gid) || (signedIn() && fid == request.auth.uid);
+      }
+
+      // 飲み友申請 to me: someone who has my code asks. nothing is shared until I approve
+      match /requests/{rid} {
+        allow read: if isMember(gid) || (signedIn() && rid == request.auth.uid);
+        allow create, update: if signedIn() && rid == request.auth.uid
+          && validFriend(request.resource.data)
+          && request.resource.data.mid == request.auth.uid
+          && exists(/databases/$(database)/documents/codes/$(request.resource.data.get('code', '-')))
+          && get(/databases/$(database)/documents/codes/$(request.resource.data.code)).data.gid == gid;
+        allow delete: if isMember(gid) || (signedIn() && rid == request.auth.uid);
+      }
+
+      // 申請中: requests I sent (only I see them)
+      match /sent/{sid} {
+        allow read, delete: if isMember(gid);
+        allow create, update: if isMember(gid) && validFriend(request.resource.data);
       }
 
       match /shops/{sid} {

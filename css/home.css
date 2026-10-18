@@ -192,3 +192,6 @@ body.gating .tabs{display:none}
 .gc-acts .sbtn{background:rgba(255,255,255,.14);color:inherit;border-color:rgba(255,255,255,.35);box-shadow:none;text-decoration:none}
 .gc-acts .sbtn.on{background:#FFF8F0;color:var(--red);border-color:#FFF8F0}
 .gocard.ln .gc-acts .sbtn.on{color:var(--indigo)}
+.sec.fr-req{background:color-mix(in srgb,var(--red) 6%,transparent);border-radius:var(--r-lg);padding:14px 12px;border:0;margin-top:10px}
+.fr-wait{opacity:.75}
+.fr-req .mlist li{border:0}

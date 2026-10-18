@@ -2,6 +2,7 @@
    myShops: my own shops (the only ones I write). shops: what the screens show = mine + the friends I mix in.
    A friend-only shop is read-only (id "f~<fid>~<shopId>"); acting on it first copies it into my list. */
 let myShops=[], friends={}, fShops={}, fDenied={}, fSubs={}, myCode='';
+let frReqs={}, frSent={}, sentSubs={};   // 飲み友申請: to me / from me (waiting)
 // the friend whose list I'm looking at together with mine (one at a time: "けんとのリスト")
 let mix = new Set((()=>{ try{ return JSON.parse(localStorage.getItem('nm-mix')||'[]').slice(0,1); }catch{ return []; } })());
 const saveMix = () => { try{ localStorage.setItem('nm-mix',JSON.stringify([...mix])); }catch{} };
@@ -61,6 +62,25 @@ function watchFriends(){
     syncFriendSubs(); rebuildShops(); render();
   },()=>{}));
 }
+function watchRequests(){
+  cloudSubs.push(db.collection('requests').limit(100).onSnapshot(snap=>{
+    const o={}; for (const d of snap.docs){ const v=d.data()||{}; if(typeof v.gid==='string' && typeof v.mid==='string') o[d.id]={gid:v.gid, mid:v.mid, nick:String(v.nick||'だれか').slice(0,20), at:v.at||0}; }
+    frReqs=o; render();
+  },()=>{}));
+  cloudSubs.push(db.collection('sent').limit(100).onSnapshot(snap=>{
+    const o={}; for (const d of snap.docs){ const v=d.data()||{}; if(typeof v.gid==='string' && typeof v.mid==='string') o[d.id]={gid:v.gid, mid:v.mid, nick:String(v.nick||'飲み友').slice(0,20), at:v.at||0}; }
+    frSent=o; syncSentSubs(); render();
+  },()=>{}));
+}
+// for each request I sent: when they add me (= approved), I add them too, and the request is done
+function syncSentSubs(){
+  for (const k of Object.keys(sentSubs)) if (!frSent[k]){ try{ sentSubs[k](); }catch{} delete sentSubs[k]; }
+  for (const [k,s] of Object.entries(frSent)) if (!sentSubs[k]){
+    sentSubs[k]=fs.doc(`groups/${s.gid}/friends/${uid}`).onSnapshot(d=>{ if(!d.exists) return;
+      const b=fs.batch(); b.set(fs.doc(gpath('friends/'+s.mid)),{gid:s.gid, mid:s.mid, nick:s.nick, at:Date.now()}); b.delete(fs.doc(gpath('sent/'+k)));
+      b.commit().then(()=>toast(`「${s.nick}」が飲み友申請を承認しました`)).catch(e=>console.warn(e)); },()=>{});
+  }
+}
 function syncFriendSubs(){
   for (const f of Object.keys(fSubs)) if (!mix.has(f) || !friends[f]){ try{ fSubs[f](); }catch{} delete fSubs[f]; delete fShops[f]; delete fToday[f]; }
   for (const f of mixedFriends()) if (!fSubs[f]){
@@ -81,7 +101,8 @@ function fetchFriend(f){
   fs.doc(`groups/${fr.gid}/members/${fr.mid}`).get().then(d=>{ if(!d.exists || !friends[f]) return; const v=d.data()||{};
     if (v.nick) friends[f].nick=String(v.nick).slice(0,20); if (v.ic && typeof v.ic==='object') friends[f].ic=v.ic; if (v.dm && typeof v.dm==='object') friends[f].dm=v.dm; render(); }).catch(()=>{});
 }
-function stopFriendSubs(){ for (const f of Object.keys(fSubs)){ try{ fSubs[f](); }catch{} } fSubs={}; fShops={}; fToday={}; }
+function stopFriendSubs(){ for (const f of Object.keys(fSubs)){ try{ fSubs[f](); }catch{} } fSubs={}; fShops={}; fToday={};
+  for (const k of Object.keys(sentSubs)){ try{ sentSubs[k](); }catch{} } sentSubs={}; frReqs={}; frSent={}; }
 
 // my 飲み友コード: one per device, made the first time it is needed
 let codeP=null;
@@ -102,7 +123,7 @@ async function makeCode(){
 // keep the name on my code fresh (friends see it when they add me)
 function syncCodeNick(nick){ if(myCode) fs.doc('codes/'+myCode).set({gid, mid:me, nick, at:Date.now()}).catch(()=>{}); }
 
-// enter a friend's code: we both become friends (I write my entry into their list and theirs into mine)
+// enter a friend's code: it sends them a 飲み友申請 (nothing is shared until they approve)
 async function addFriend(raw){
   const c=cleanCode(raw);
   if (c.length!==7) return '7文字のコードを入れてください';
@@ -110,13 +131,25 @@ async function addFriend(raw){
   if (!d.exists) return 'そのコードは見つかりませんでした';
   const v=d.data();
   if (v.gid===gid) return 'それはあなたのコードです';
+  if (friends[v.mid]) return `「${v.nick||'飲み友'}」はもう飲み友です`;
+  if (frReqs[v.mid]){ await approveReq(v.mid); return ''; }   // they already asked me: just approve
   const b=fs.batch();
-  b.set(fs.doc(`groups/${v.gid}/friends/${uid}`),{gid, mid:me, nick:(members[me]&&members[me].nick)||'', code:c, at:Date.now()});
-  b.set(fs.doc(gpath('friends/'+v.mid)),{gid:v.gid, mid:v.mid, nick:String(v.nick||'飲み友').slice(0,20), at:Date.now()});
-  try{ await b.commit(); }catch(e){ console.warn(e); return '追加できませんでした('+(e.code||'error')+')'; }
-  friendMode=true; lastFriend=v.mid; mix=new Set([v.mid]); saveMix(); saveWho();
+  b.set(fs.doc(`groups/${v.gid}/requests/${uid}`),{gid, mid:me, nick:(members[me]&&members[me].nick)||'', code:c, at:Date.now()});
+  b.set(fs.doc(gpath('sent/'+v.mid)),{gid:v.gid, mid:v.mid, nick:String(v.nick||'飲み友').slice(0,20), at:Date.now()});
+  try{ await b.commit(); }catch(e){ console.warn(e); return '申請できませんでした('+(e.code||'error')+')'; }
   return '';
 }
+async function approveReq(k){
+  const r=frReqs[k]; if(!r) return;
+  const b=fs.batch(); b.set(fs.doc(gpath('friends/'+r.mid)),{gid:r.gid, mid:r.mid, nick:r.nick, at:Date.now()}); b.delete(fs.doc(gpath('requests/'+k)));
+  try{ await b.commit(); toast(`「${r.nick}」と飲み友になりました`); }catch(e){ onWriteError(e); }
+}
+async function declineReq(k){ const r=frReqs[k]; if(!r) return;
+  if (!(await ask(`「${r.nick}」からの飲み友申請を断りますか?`,'断る',true))) return;
+  fs.doc(gpath('requests/'+k)).delete().catch(onWriteError); }
+async function cancelSent(k){ const s=frSent[k]; if(!s) return;
+  await fs.doc(gpath('sent/'+k)).delete().catch(onWriteError);
+  fs.doc(`groups/${s.gid}/requests/${uid}`).delete().catch(()=>{}); toast('申請を取り消しました'); }
 async function removeFriend(f){
   const fr=friends[f]; if(!fr) return;
   if (!(await ask(`「${fr.nick}」を飲み友から外します。お互いのリストが見えなくなります。`,'外す',true))) return;
@@ -128,7 +161,13 @@ async function removeFriend(f){
 // 設定 → 飲み友
 // 設定 → 飲み友: two blocks, 「飲み友を追加」(my code + enter theirs) and 「飲み友リスト」
 function friendsSec(root){
-  const box=sec('飲み友を追加','コードを教え合うと、2人のリストが見られます'); box.id='secFriends'; root.appendChild(box);
+  // 飲み友申請 to me
+  const rq=Object.entries(frReqs).sort((a,b)=>a[1].at-b[1].at);
+  if (rq.length){ const rs=sec('飲み友申請',rq.length+'件'); rs.classList.add('fr-req'); const ul=el('ul','mlist frlist');
+    for (const [k,r] of rq){ const li=el('li'); li.appendChild(avatar({[r.mid]:{name:r.nick}},r.mid,'fr-av')); const d=el('div'); d.style.flex='1'; d.appendChild(el('div','mn',r.nick)); d.appendChild(el('div','ms','飲み友になりたいそうです')); li.appendChild(d);
+      const ok=el('button','sbtn on','承認する'); ok.onclick=()=>approveReq(k); const no=el('button','sbtn','断る'); no.onclick=()=>declineReq(k); li.append(ok,no); ul.appendChild(li); }
+    rs.appendChild(ul); root.appendChild(rs); }
+  const box=sec('飲み友を追加','相手のコードを入れて申請します'); box.id='secFriends'; root.appendChild(box);
   const mine=el('div','fr-code'); mine.appendChild(el('span','fr-cl','あなたの飲み友コード'));
   const cv=el('b','fr-cv','…'); mine.appendChild(cv);
   const cp=el('button','sbtn','コピー'); cp.type='button'; cp.disabled=true;
@@ -136,7 +175,7 @@ function friendsSec(root){
   // QR: a small button next to コピー; the code opens big in a window
   const qb=el('button','sbtn fr-qrb','QR'); qb.type='button'; qb.disabled=true; qb.setAttribute('aria-label','QRコードを表示'); qb.onclick=showQr;
   mine.append(qb,cp); box.appendChild(mine);
-  box.appendChild(el('p','hint','このコードを相手の「飲み友のコードを入れる」に入れてもらうか、相手のコードを下に入れると飲み友になれます。上の「飲み友と」から、2人の店を合わせたリストが見られます。'));
+  box.appendChild(el('p','hint','相手のコードを入れると飲み友申請が届きます。相手が承認すると、お互いの店が見られるようになります。'));
   const showCode=()=>{ if(myCode){ cv.textContent=fmtCode(myCode); cp.disabled=false; qb.disabled=false; return; } cv.textContent='…';
     ensureCode().then(c=>{ if(c){ cv.textContent=fmtCode(c); cp.disabled=false; qb.disabled=false; return; }
       cv.textContent=''; const r=el('button','sbtn','もう一度'); r.type='button'; r.onclick=showCode; cv.append(el('span','fr-err','作れませんでした '),r); }); };
@@ -150,7 +189,7 @@ function friendsSec(root){
   i.setAttribute('aria-label','飲み友のコード(7文字)');
   const cells=[]; for (let k=0;k<7;k++){ if(k===4) cb.appendChild(el('span','code-dash','-')); const c=el('span','code-c'); cells.push(c); cb.appendChild(c); }
   cb.appendChild(i);
-  const b=el('button','btn btn-red','追加'); b.type='submit'; b.disabled=true;
+  const b=el('button','btn btn-red','申請する'); b.type='submit'; b.disabled=true;
   // never rewrite what the keyboard typed: phone keyboards keep the word they are typing, and changing the
   // text under them makes them type it again (doubled letters). the boxes just show it in capitals
   const draw=()=>{ const v=cleanCode(i.value).slice(0,7);
@@ -164,12 +203,14 @@ function friendsSec(root){
   f.onsubmit=async e=>{ e.preventDefault(); if(cleanCode(i.value).length!==7){ i.focus(); return; } b.disabled=true;
     const err=await addFriend(i.value); b.disabled=false;
     if (err){ toast(err); i.focus(); return; }
-    i.value=''; draw(); toast('飲み友になりました。「飲み友と」から2人のリストが見られます'); };
+    i.value=''; draw(); toast('飲み友申請を送りました。相手が承認すると、2人の店が見られるようになります'); };
   box.appendChild(el('h4','fr-h','飲み友のコードを入れる')); box.appendChild(f);
 
-  const ids=Object.keys(friends).sort((a,b)=>friends[a].at-friends[b].at);
+  const ids=Object.keys(friends).sort((a,b)=>friends[a].at-friends[b].at), sent=Object.entries(frSent).filter(([k])=>!friends[k]);
   const lst=sec('飲み友リスト', ids.length ? ids.length+'人' : ''); root.appendChild(lst);
-  if (!ids.length) lst.appendChild(el('p','hint','まだ飲み友がいません。上のコードを教え合うと、ここに並びます。'));
+  if (!ids.length && !sent.length) lst.appendChild(el('p','hint','まだ飲み友がいません。相手のコードを入れて申請すると、ここに並びます。'));
+  if (sent.length){ const ul=el('ul','mlist frlist'); for (const [k,s] of sent){ const li=el('li','fr-wait'); li.appendChild(avatar({[s.mid]:{name:s.nick}},s.mid,'fr-av')); const d=el('div'); d.style.flex='1'; d.appendChild(el('div','mn',s.nick)); d.appendChild(el('div','ms','承認待ち')); li.appendChild(d);
+    const x=el('button','sbtn','取り消す'); x.onclick=()=>cancelSent(k); li.appendChild(x); ul.appendChild(li); } lst.appendChild(ul); }
   if (ids.length){
     const ul=el('ul','mlist frlist');
     for (const id of ids){ const fr=friends[id]; const li=el('li');
@@ -257,7 +298,8 @@ async function checkAddLink(){
   const v=d.data();
   if (v.gid===gid){ toast('これはあなたの飲み友コードです'); return; }
   if (friends[v.mid]){ toast(`「${v.nick||'飲み友'}」はもう飲み友です`); setWho(true,v.mid); return; }
-  if (!(await ask(`「${v.nick||'この人'}」を飲み友に追加しますか? お互いのリストが見られるようになります。`,'追加する'))) return;
+  if (frSent[v.mid]){ toast(`「${v.nick||'この人'}」には申請済みです。承認を待っています`); return; }
+  if (!(await ask(`「${v.nick||'この人'}」に飲み友申請を送りますか? 承認されると、お互いの店が見られるようになります。`,'申請する'))) return;
   const err=await addFriend(c); if (err){ toast(err); return; }
-  toast(`「${v.nick||'飲み友'}」と飲み友になりました`); setWho(true,v.mid);
+  toast(`「${v.nick||'この人'}」に飲み友申請を送りました`);
 }

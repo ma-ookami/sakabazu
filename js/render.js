@@ -63,7 +63,8 @@ function parsePlaceUrl(u){
 function meBtn(){
   const b=$('meBtn'); if(!b) return;
   b.textContent=''; b.setAttribute('aria-pressed',String(tab==='set'));
+  const nReq=Object.keys(frReqs).length; b.classList.toggle('has-req',nReq>0); b.setAttribute('aria-label', nReq ? `自分(飲み友申請 ${nReq}件)` : '自分(プロフィール・飲み友・設定)');
   if (me && members[me]) b.appendChild(avatar({},me,'me-av'));
   else b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.2" r="3.6"/><path d="M4.8 20.2c.9-3.9 3.7-6 7.2-6s6.3 2.1 7.2 6"/></svg>';
 }
-$('meBtn').onclick=()=>setTab('set');
+$('meBtn').onclick=()=>{ if (Object.keys(frReqs).length) setSub='friends'; setTab('set'); };

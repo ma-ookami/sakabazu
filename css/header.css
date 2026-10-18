@@ -45,3 +45,5 @@ body.scrolled .minibar{transform:none;opacity:1;pointer-events:auto}
 .me-btn .me-av{width:36px;height:36px;font-size:16px;font-weight:700}
 .me-btn[aria-pressed="true"]{border-color:#F6EBD6;box-shadow:0 0 0 3px color-mix(in srgb,#F6EBD6 18%,transparent)}
 .me-btn:active{transform:scale(.94)}
+.me-btn{position:relative}
+.me-btn.has-req::after{content:"";position:absolute;right:0;top:0;width:12px;height:12px;border-radius:50%;background:var(--red);box-shadow:0 0 0 2px var(--indigo)}
