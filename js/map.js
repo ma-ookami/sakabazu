@@ -59,6 +59,7 @@ function renderMap(v){
   zb('現在地','現在地を表示',showHere,'wide');
   wrap.appendChild(ctl);
   if (!all.length) wrap.appendChild(el('div','mapempty','まだ位置を記録した店がありません。店の詳細の「場所」から記録できます。'));
+  document.querySelectorAll('.mapattr').forEach(x=>x.remove());   // one credit only, however often the map is redrawn
   const at=el('a','mapattr','© OpenFreeMap © OpenStreetMap'); at.href='https://www.openstreetmap.org/copyright'; at.target='_blank'; at.rel='noopener noreferrer'; wrap.appendChild(at);
   const info=el('div','mapinfo'); info.id='mapInfo'; wrap.appendChild(info);
   v.appendChild(wrap);

@@ -54,3 +54,4 @@
 .map-pk::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 2px #fff,0 0 0 3px color-mix(in srgb,var(--gold) 50%,transparent)}
 .mapcard .acts{flex-wrap:nowrap}.mapcard .acts .sbtn{white-space:nowrap}
 .mapcard .acts{gap:5px}.mapcard .acts .sbtn{padding:6px 9px;min-width:0}
+.maplibregl-ctrl-attrib{display:none!important}

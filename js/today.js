@@ -322,10 +322,11 @@ function openNowStrip(v){
   if (nowGenre && !genres.includes(nowGenre)) nowGenre='';
   const list=open.filter(s=>!nowGenre || genreOf(s)===nowGenre)
     .sort((a,b)=> rank(a)-rank(b) || (honBy(b).length+tsukeBy(b).length)-(honBy(a).length+tsukeBy(a).length) || ((starAvg(b)||{}).v||0)-((starAvg(a)||{}).v||0))
-    .slice(0,12);
+    ;
+  const more=Math.max(0,list.length-12); list.length=Math.min(list.length,12);
   if (!open.length) return;
   const sec=el('section','now-sec');
-  const hd=el('div','now-h'); hd.append(el('h3','now-t','今あいてる店'), el('span','now-n',list.length+'軒'));
+  const hd=el('div','now-h'); hd.append(el('h3','now-t','営業中の店'), el('span','now-n',(list.length+more)+'軒'));
   if (genres.length>1){ const w=el('label','pk-sel now-g'+(nowGenre?' on':'')); const sel=el('select'); sel.setAttribute('aria-label','ジャンルで絞る');
     for (const [v,l] of [['','ジャンル'],...genres.map(g=>[g,g])]){ const o=el('option',null,l); o.value=v; o.selected=v===nowGenre; sel.appendChild(o); }
     sel.onchange=()=>{ nowGenre=sel.value; render(); }; w.appendChild(sel); hd.appendChild(w); }
@@ -342,5 +343,6 @@ function openNowStrip(v){
     if (!readOnly && me) acts.appendChild(pickBtn(s));
     c.appendChild(acts); row.appendChild(c);
   }
-  sec.appendChild(row); v.appendChild(sec);
+  if (more){ const m=el('button','now-more'); m.type='button'; m.append(el('b',null,`ほか${more}軒`), el('span',null,'一覧で見る ›')); m.onclick=()=>{ pick.want=true; pick.went=true; pick.genre=nowGenre||''; pick.at=''; openPick('find'); }; row.appendChild(m); }
+  sec.appendChild(row); sec.appendChild(el('p','now-note','営業時間内の店です。空席はお店で確認してください')); v.appendChild(sec);
 }
