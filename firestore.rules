@@ -183,7 +183,7 @@ service cloud.firestore {
       match /today/{tid} {
         allow read: if isMember(gid) || isFriend(gid);
         allow create: if isMember(gid)
-          && request.resource.data.keys().hasOnly(['shopId', 'date', 'by', 'time', 'createdAt', 'votes', 'name', 'key'])
+          && request.resource.data.keys().hasOnly(['shopId', 'date', 'by', 'time', 'createdAt', 'votes', 'name', 'key', 'go'])
           && isText(request.resource.data.shopId, 1, 64)
           && isDay(request.resource.data.date)
           && tid == request.resource.data.date + '_' + request.resource.data.shopId
@@ -191,14 +191,16 @@ service cloud.firestore {
           && isText(request.resource.data.get('time', ''), 0, 5)
           && request.resource.data.createdAt is int
           && request.resource.data.get('votes', {}) is map
-          && isText(request.resource.data.get('name', ''), 0, 60) && isText(request.resource.data.get('key', ''), 0, 80);
+          && isText(request.resource.data.get('name', ''), 0, 60) && isText(request.resource.data.get('key', ''), 0, 80)
+          && request.resource.data.get('go', false) is bool;
         allow update: if isMember(gid)
-          && request.resource.data.keys().hasOnly(['shopId', 'date', 'by', 'time', 'createdAt', 'votes', 'name', 'key'])
+          && request.resource.data.keys().hasOnly(['shopId', 'date', 'by', 'time', 'createdAt', 'votes', 'name', 'key', 'go'])
           && request.resource.data.shopId == resource.data.shopId
           && request.resource.data.date == resource.data.date
           && request.resource.data.by == resource.data.by
           && isText(request.resource.data.get('time', ''), 0, 5)
-          && request.resource.data.get('votes', {}) is map;
+          && request.resource.data.get('votes', {}) is map
+          && request.resource.data.get('go', false) is bool;
         allow delete: if isMember(gid);
       }
     }

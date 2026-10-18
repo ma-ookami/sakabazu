@@ -70,3 +70,11 @@
 /* 行った = 紺, 行きたい = 赤 (same as the search screen); icons get a white ring so any color stands out */
 .pk-chips .pill.st-went{background:var(--indigo);border-color:var(--indigo);color:var(--on-indigo)}
 .pl-av{box-shadow:0 0 0 1.5px #fff}
+
+/* 今日の候補: ここにする */
+.cand-side{display:flex;flex-direction:column;align-items:stretch;gap:6px;flex:none}
+.cand-side .sbtn{white-space:nowrap}
+.cand-side .sbtn.sm{font-size:11.5px;padding:4px 10px;box-shadow:none;background:transparent}
+.go-btn:not(.on){background:var(--card);color:var(--red);border-color:color-mix(in srgb,var(--red) 45%,var(--line))}
+#pBody .plist li.go{border-color:var(--red);box-shadow:0 0 0 2px color-mix(in srgb,var(--red) 25%,transparent)}
+.go-b{font-size:12.5px;font-weight:700;color:var(--red);text-align:center;padding:4px 0}

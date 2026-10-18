@@ -11,7 +11,9 @@ function goAdd(){ listSub='want'; setTab('list'); openSearch(''); }
 function renderHome(v0){
   const v=el('div','homestack'); v0.appendChild(v);
   darumaGreet(v);
+  lastNightCard(v);
   whoBar(v);
+  goCard(v);
   todayBlock(v);
   if (!readOnly){ const acts=el('div','homeacts'); const b=el('button','hact main'); const t=el('span','tb-t');
     t.innerHTML='<svg class="tb-ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>';

@@ -151,8 +151,7 @@ const DM_TIPS = [
 // what the だるま says when the home screen opens
 function darumaLine(){
   const h=new Date().getHours(), nw=shops.filter(inWant).length;
-  const td=Object.values(todayDocs||{}).find(d=>d.date===today());
-  if (td){ const s=shops.find(x=>x.id===td.shopId); if(s) return `今日は「${s.name}」だね。楽しんで!`; }
+  const dc=decided(); if (dc) return dc.mine ? `今日は「${dc.name}」に決まり! 楽しんでね` : `${(friends[dc.by]||{}).nick||'飲み友'}が「${dc.name}」に決めたよ。どうする?`;
   const wf=activeFriends()[0];
   if (wf) return nw ? `${friends[wf].nick}と行きたい店が${nw}軒あるよ。どこにする?` : `${friends[wf].nick}とのリストはまだ空っぽ。行きたい店を入れてみよう`;
   if (!myShops.length) return 'はじめまして! まずは行きたい店を1軒入れてみよう。下の赤いボタンからどうぞ';

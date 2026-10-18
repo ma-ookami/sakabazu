@@ -1,5 +1,9 @@
 /* ---------- today ---------- */
 let todayDocs={}; const cleaned=new Set();
+// tonight: the day changes at 5 a.m., so picks made at 1 a.m. still belong to last night
+const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const nightKey = () => ymd(new Date(Date.now()-5*36e5));
+const lastNightKey = () => ymd(new Date(Date.now()-29*36e5));
 const pick={want:true,went:true,fopen:false,src:'find',at:'',genre:'',star:0,near:false,here:null,chosen:null,proposing:null,time:'19:00'};
 // 今日どこ行く? narrows by: the time you'd go (open then), the genre, and the stars
 const PICK_TIMES=['15:00','17:00','18:00','19:00','21:00','23:00'];
@@ -48,10 +52,10 @@ function candidates(){
    with a 飲み友's list on, both sides' picks are merged, and shops both picked are "🍻 2人ともOK" */
 const shopKey = s => (s && s.hp && s.hp.id) ? 'hp:'+s.hp.id : 'n:'+norm((s&&s.name)||'');
 let fToday={};   // 飲み友 -> their picks for today
-function myPickDocs(){ const t=today(); return Object.entries(todayDocs).filter(([,d])=>d.date===t && d.by===me).map(([id,d])=>({...d,_id:id})); }
+function myPickDocs(){ const t=nightKey(); return Object.entries(todayDocs).filter(([,d])=>d.date===t && d.by===me).map(([id,d])=>({...d,_id:id})); }
 function docKey(d){ if (d.key) return d.key; const s=shops.find(x=>x.id===d.shopId); return s ? shopKey(s) : 'id:'+d.shopId; }
 function todayCands(){
-  const map=new Map(), t=today();
+  const map=new Map(), t=nightKey();
   const add=(d,who)=>{ if(d.date!==t) return; const k=docKey(d); let c=map.get(k);
     if (!c){ c={key:k, name:d.name||'', by:new Set(), time:''}; map.set(k,c); }
     c.by.add(who); if (who===me) c.mine=d; if (!c.name && d.name) c.name=d.name; if (d.time && !c.time) c.time=d.time; };
@@ -73,8 +77,8 @@ function togglePick(s, c){
     toast(`「${back.name||'この店'}」を今日の候補から外しました`,'元に戻す',()=>{ todayDocs={...todayDocs,[mine._id]:back}; afterChange();
       if (mode==='db') enqueue('today:'+mine._id,()=>db.doc('today/'+mine._id).set(back)); else saveLocal(); });
     return; }
-  const shopId = s ? s.id : ('k:'+key).slice(0,60), id=`${today()}_${shopId}`;
-  const data={shopId, date:today(), by:me, time:'', createdAt:Date.now(), votes:{}, name:((s&&s.name)||c.name||'').slice(0,60), key:key.slice(0,80)};
+  const shopId = s ? s.id : ('k:'+key).slice(0,60), id=`${nightKey()}_${shopId}`;
+  const data={shopId, date:nightKey(), by:me, time:'', createdAt:Date.now(), votes:{}, name:((s&&s.name)||c.name||'').slice(0,60), key:key.slice(0,80)};
   todayDocs={...todayDocs,[id]:data}; afterChange();
   if (mode==='db') enqueue('today:'+id,()=>db.doc('today/'+id).set(data)); else saveLocal();
 }
@@ -152,7 +156,8 @@ function buildPick(){
   else slot.append(el('span','sl-k',`${cands.length}軒の中から`), el('span','sl-n','迷ったら、おまかせ'));
   const ob=el('div','sl-btns');
   const spin=el('button','btn btn-ink',chosen?'もう一回':'🎲 おまかせ'); spin.disabled=!cands.length; spin.onclick=()=>omakase(cands); ob.appendChild(spin);
-  if (chosen && !readOnly && me){ const on=isPicked(chosen.s); const go=el('button','btn btn-red', on?'✓ 候補':'候補に入れる'); go.onclick=()=>togglePick(chosen.s); ob.appendChild(go); }
+  if (chosen && !readOnly && me){ const on=isPicked(chosen.s); const go=el('button','btn btn-red', on?'✓ 候補':'候補に入れる'); go.onclick=()=>togglePick(chosen.s); ob.appendChild(go);
+    const here=el('button','btn btn-line','ここにする'); here.onclick=()=>{ decide(chosen.s); closePick(); }; ob.appendChild(here); }
   slot.appendChild(ob); om.appendChild(slot); b.appendChild(om);
   if (!cands.length){ b.appendChild(el('p','empty', shops.length?'条件に合う店がありません。条件を外してみてください。':'まだ店がありません。リストの「＋」から行きたい店を入れてみましょう。')); return; }
   const ul=el('ul','plist');
@@ -181,12 +186,13 @@ function todayTab(b){
     if (c.shop) info.appendChild(pickChips(c.shop,false));
     const who=el('span','who-l'); for (const u of c.by){ const mid=u===me?me:(friends[u]||{}).mid, nm=u===me?'あなた':(friends[u]||{}).nick||'飲み友'; const t=el('span','who-t'+(u===me?' me':''),'✓'); t.prepend(avatar({},mid,'pl-av')); t.title=t.ariaLabel=nm+' ✓'; who.appendChild(t); } info.appendChild(who);
     li.appendChild(info);
-    if (!readOnly && me){ const on=c.by.has(me); const g=el('button','sbtn'+(on?'':' on'), on?'候補から外す':'＋ 私も'); g.onclick=()=>togglePick(c.shop,c); li.appendChild(g); }
+    if (!readOnly && me){ const side=el('div','cand-side'); const dc=decided(); const isGo=dc && dc.key===c.key;
+      if (isGo){ li.classList.add('go'); side.appendChild(el('span','go-b','✓ ここに決定')); }
+      else { const go=el('button','sbtn go-btn'+(both?' on':''),'ここにする'); go.onclick=()=>decide(c.shop,c); side.appendChild(go); }
+      const on=c.by.has(me); const g=el('button','sbtn sm'+(on?'':''), on?'候補から外す':'＋ 私も'); g.onclick=()=>togglePick(c.shop,c); side.appendChild(g); li.appendChild(side); }
     ul.appendChild(li);
   }
   b.appendChild(ul);
-  const both=cs.filter(c=>c.by.size>1);
-  if (both.length && both[0].shop){ const sh=el('button','btn btn-line sx-alt','🍻 決まった店をLINEなどで送る'); sh.onclick=()=>shareShop(both[0].shop,''); b.appendChild(sh); }
 }
 $('pBack').onclick=closePick;
 
@@ -204,4 +210,67 @@ function pickChips(s,withStatus){
   honPill(ch,s); hoursPill(ch,s); { const g=genreOf(s); if(g) pill(ch,'genre',g); }
   const sl=starLine(s); if(sl) ch.appendChild(sl);
   return ch;
+}
+
+// ---------- 決定: one of tonight's picks becomes "今日はここ" (go:true on my pick for it) ----------
+function decided(){
+  const mine=myPickDocs().find(d=>d.go);
+  const wf=activeFriends()[0], theirs=wf && (fToday[wf]||[]).find(d=>d.go && d.date===nightKey());
+  const d=mine||theirs; if(!d) return null;
+  const key=docKey(d), shop=shops.find(s=>shopKey(s)===key) || shops.find(s=>s.id===d.shopId) || null;
+  return {key, name:d.name||(shop&&shop.name)||'', shop, by: mine ? me : wf, mine:!!mine, time:d.time||''};
+}
+function writePick(id,data){ todayDocs={...todayDocs,[id]:data}; if (mode==='db') enqueue('today:'+id,()=>db.doc('today/'+id).set(data)); }
+function decide(s,c){
+  if (!me || readOnly) return;
+  const key = s ? shopKey(s) : c.key;
+  if (!myPickDocs().some(d=>docKey(d)===key)){   // not one of mine yet: pick it first
+    const shopId = s ? s.id : ('k:'+key).slice(0,60), id=`${nightKey()}_${shopId}`;
+    todayDocs={...todayDocs,[id]:{shopId, date:nightKey(), by:me, time:'', createdAt:Date.now(), votes:{}, name:((s&&s.name)||(c&&c.name)||'').slice(0,60), key:key.slice(0,80)}};
+  }
+  for (const d of myPickDocs()){ const go=docKey(d)===key; if (!!d.go===go && !(go && !d.createdAt)) continue; const {_id,...data}=d; writePick(_id,{...data,go}); }
+  if (mode!=='db') saveLocal();
+  buzz(); afterChange();
+  const name=(s&&s.name)||(c&&c.name)||'';
+  darumaCheer(`今日は「${name}」に決まり! 楽しんで`);
+  toast(`今日は「${name}」に決定!`,'取り消す',()=>undecide());
+}
+function undecide(){
+  for (const d of myPickDocs()){ if(!d.go) continue; const {_id,...data}=d; writePick(_id,{...data,go:false}); }
+  if (mode!=='db') saveLocal(); afterChange();
+}
+// 決める: the decided shop on top
+function goCard(v){
+  const dc=decided(); if(!dc) return;
+  const c=el('section','gocard');
+  c.appendChild(el('span','gc-k', dc.mine ? '今日はここ!' : `${(friends[dc.by]||{}).nick||'飲み友'}が決めました`));
+  const n=el('button','gc-n',dc.name||'(名前なし)'); if (dc.shop) n.onclick=()=>openDetail(dc.shop.id); c.appendChild(n);
+  if (dc.shop){ const ch=pickChips(dc.shop,false); c.appendChild(ch); }
+  const acts=el('div','gc-acts');
+  const target=dc.shop||{name:dc.name};
+  const m=el('a','sbtn','マップ ↗'); m.href=mapsUrl(target); m.target='_blank'; m.rel='noopener noreferrer'; acts.appendChild(m);
+  const sh=el('button','sbtn','LINEで送る'); sh.onclick=()=>shareShop(target,dc.time); acts.appendChild(sh);
+  if (!readOnly && me){
+    if (dc.mine){ const x=el('button','sbtn gc-x','やめる'); x.onclick=()=>undecide(); acts.appendChild(x); }
+    else { const ok=el('button','sbtn on','ここにする'); ok.onclick=()=>decide(dc.shop,{key:dc.key,name:dc.name}); acts.appendChild(ok); }
+  }
+  c.appendChild(acts); v.appendChild(c);
+}
+// the morning after: "昨日の◯◯、行った?"
+function lastNightCard(v){
+  if (!me || readOnly) return;
+  const y=lastNightKey(); const e=Object.entries(todayDocs).find(([,d])=>d.go && d.by===me && d.date===y); if(!e) return;
+  const [id,d]=e;
+  const c=el('section','gocard ln');
+  c.appendChild(el('span','gc-k','ゆうべのお店'));
+  c.appendChild(el('p','gc-q',`昨日の「${d.name||'お店'}」、行った?`));
+  const done=()=>{ const o={...todayDocs}; delete o[id]; todayDocs=o; if (mode==='db') enqueue('today:'+id,()=>db.doc('today/'+id).delete()); else saveLocal(); afterChange(); };
+  const acts=el('div','gc-acts');
+  const yes=el('button','sbtn on','行った'); yes.onclick=async()=>{ yes.disabled=true;
+    let s=myShops.find(x=>x.id===d.shopId) || myShops.find(x=>shopKey(x)===d.key);
+    let sid=s&&s.id; if (!sid) sid=await addOrBump(d.name||'お店','',{});
+    if (sid){ markWent(sid,true,d.date); toast(`「${d.name}」を${fmtDate(d.date)}に行ったと記録しました`); }
+    done(); };
+  const no=el('button','sbtn','行かなかった'); no.onclick=done;
+  acts.append(yes,no); c.appendChild(acts); v.appendChild(c);
 }
