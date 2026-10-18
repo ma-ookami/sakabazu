@@ -151,7 +151,7 @@ function buildPick(){
   const cands=candidates();
   const om=el('div','omakase'); const slot=el('div','slot'); slot.id='pSlot'; slot.setAttribute('aria-live','polite');
   const chosen=pick.chosen && cands.find(x=>x.s.id===pick.chosen);
-  if (chosen){ slot.classList.add('hit'); if(pick.fresh){ slot.classList.add('fresh'); pick.fresh=false; } slot.append(el('span','sl-k','今日はここ'), el('span','sl-n',chosen.s.name||''));
+  if (chosen){ slot.classList.add('hit'); if(pick.fresh){ slot.classList.add('fresh'); pick.fresh=false; } slot.append(el('span','sl-k','🎲 ここはどう?'), el('span','sl-n',chosen.s.name||''));
     const sub=[genreOf(chosen.s), chosen.s.area].filter(Boolean).join('　'); if(sub) slot.appendChild(el('span','sl-a',sub)); }
   else slot.append(el('span','sl-k',`${cands.length}軒の中から`), el('span','sl-n','迷ったら、おまかせ'));
   const ob=el('div','sl-btns');

@@ -84,3 +84,6 @@
 .pill.st-who,.who-t{align-items:center;line-height:1}
 .pill.st-who,.who-t{padding-left:4px}
 .pk-chips .pill.st-want{background:color-mix(in srgb,var(--red) 8%,var(--card));border-color:color-mix(in srgb,var(--red) 35%,transparent);color:var(--red);font-weight:700}
+/* a result: the name gets the whole width, the buttons go on the line below */
+.slot.hit .sl-btns{grid-column:1 / -1;grid-row:auto;margin-top:8px;flex-wrap:wrap}
+.slot.hit .sl-n{white-space:normal;font-size:18px}
