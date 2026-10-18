@@ -21,7 +21,7 @@ async function renderWant(v){
     if (!readOnly && me && s.wants && s.wants[me] && !isFriendShop(s)){ const x=el('button','out-btn','外す'); x.type='button'; x.setAttribute('aria-label',(s.name||'')+'をリストから外す');
       x.onclick=e=>{ e.stopPropagation(); removeMine(s.id); }; top.appendChild(x); }
     if (s.planDate) pill(chips,'plan',fmtDate(s.planDate)+' に行く予定');
-    hoursPill(chips,s); { const sl=starLine(s); if(sl) chips.appendChild(sl); }
+    hoursPill(chips,s); { const g=genreOf(s); if(g) pill(chips,'genre',g); } { const sl=starLine(s); if(sl) chips.appendChild(sl); }
     const ids=wantIds(s).sort((a,b)=>(a===me)-(b===me));   // others first, me last (same as whoText)
     if (groupMode()){
     const foot=el('div','foot');
@@ -61,9 +61,9 @@ function renderWent(v){
     if (!readOnly && me && wentBy(s)[me]){
       const x=el('button','out-btn','外す'); x.type='button'; x.setAttribute('aria-label',(s.name||'')+'をリストから外す'); x.onclick=e=>{ e.stopPropagation(); removeMine(s.id); };
       top.append(x); }
-    hoursPill(chips,s);
+    hoursPill(chips,s); { const g=genreOf(s); if(g) pill(chips,'genre',g); }
+    { const sl=starLine(s); if(sl) chips.appendChild(sl); }
     { const last=visitList(s).find(x=>x.actual>0); if(last) pill(chips,'yen',`1人 ${yen(last.actual)}`); }
-    { const sl=starLine(s); if(sl) chips.insertBefore(sl, chips.children[1]||null); }
     const bd=el('div','badges'); c.appendChild(bd); badgeSlots.push([bd,s.id]);
     const ids=recorders(s); if (ids.length || (isFriendShop(s) && !readOnly && me)){ const f=el('div','foot'); const fc=el('div','faces'); const st=el('span','stack'); fc.append(st, el('span',null,ids.length?`${ids.length}人が記録`:'')); f.appendChild(fc);
       if (isFriendShop(s) && !readOnly && me){ const ib=el('button','want-btn live','＋ 自分のリストに入れる'); ib.onclick=()=>importToMine([s.id]); f.appendChild(ib); }

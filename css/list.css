@@ -121,3 +121,4 @@ body:has(.toast:not([hidden])) .fab{transform:translateY(-68px)}
 .swipe.r .swipe-act .sa-l,.swipe.l .swipe-act .sa-r{display:none}
 .swipe.armed .swipe-act span{transform:scale(1.12)}
 .swipe > .card.settle{transition:transform .32s var(--ease-out)}
+.shop2 .sc-chips .pill.genre{background:transparent;border-color:color-mix(in srgb,var(--c) 35%,var(--line));color:var(--ink)}
