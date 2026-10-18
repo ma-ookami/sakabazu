@@ -155,8 +155,7 @@ function buildPick(){
   for (const {s} of cands){
     const li=el('li'); const info=el('button','pinfo'); info.onclick=()=>openDetail(s.id);
     info.appendChild(el('span','pn',s.name||'(名前なし)'));
-    info.appendChild(el('span','pm',[statusOf(s)==='went'?'行った':'行きたい', genreOf(s), (hoursStatus(s)||{}).t, s.area].filter(Boolean).join('　')));
-    const sl=starLine(s); if(sl) info.appendChild(sl);
+    info.appendChild(pickChips(s,true));
     li.appendChild(info);
     if (!readOnly && me) li.appendChild(pickBtn(s));
     ul.appendChild(li);
@@ -175,7 +174,7 @@ function todayTab(b){
     const info=el('button','pinfo'); if (c.shop) info.onclick=()=>openDetail(c.shop.id);
     if (both) info.appendChild(el('span','both-b','🍻 2人ともOK'));
     info.appendChild(el('span','pn',c.name||'(名前なし)'));
-    const sub=[c.shop&&genreOf(c.shop), c.shop&&(hoursStatus(c.shop)||{}).t, c.shop&&c.shop.area].filter(Boolean).join('　'); if(sub) info.appendChild(el('span','pm',sub));
+    if (c.shop) info.appendChild(pickChips(c.shop,false));
     const who=el('span','who-l'); for (const u of c.by){ const t=el('span','who-t'+(u===me?' me':''), (u===me?'あなた':(friends[u]||{}).nick||'飲み友')+' ✓'); who.appendChild(t); } info.appendChild(who);
     li.appendChild(info);
     if (!readOnly && me){ const on=c.by.has(me); const g=el('button','sbtn'+(on?'':' on'), on?'候補から外す':'＋ 私も'); g.onclick=()=>togglePick(c.shop,c); li.appendChild(g); }
@@ -187,3 +186,12 @@ function todayTab(b){
 }
 $('pBack').onclick=closePick;
 
+
+// the same little labels as the list cards: 行った/行きたい, 営業時間, ジャンル, 星
+function pickChips(s,withStatus){
+  const ch=el('div','sc-chips pk-chips');
+  if (withStatus){ const w=statusOf(s)==='went'; pill(ch, w?'st-went':'st-want', w?'行った':'行きたい'); }
+  hoursPill(ch,s); { const g=genreOf(s); if(g) pill(ch,'genre',g); }
+  const sl=starLine(s); if(sl) ch.appendChild(sl);
+  return ch;
+}
