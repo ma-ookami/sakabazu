@@ -81,9 +81,19 @@ function guessName(seg){
   for (let i=lines.length-1;i>=0;i--){ const t=lines[i].split(/\s+[·・|｜]\s+/)[0].trim(); if (t && !looksAddr(t) && !looksNoise(t) && t.length<=40) return t; }
   return '';
 }
+const TABELOG = /^https?:\/\/(s\.)?tabelog\.com\//i;
+function parseTabelog(seg){
+  for (const raw of seg.split(/\n/).map(x=>x.trim()).filter(Boolean).reverse()){
+    const m=/^(.+?)\s*(?:\(|（|-|－)\s*([^/／()（）]+?)\s*[/／]\s*([^()（）\[\]［］]+?)\s*(?:\)|）)?\s*(?:[-－|｜]\s*食べログ|\[食べログ\]|［食べログ］)\s*$/.exec(raw);
+    if (m) return {name:m[1].trim().slice(0,60), area:m[2].trim().slice(0,40), genre:m[3].split(/[、,]/)[0].trim().slice(0,20)};
+    const n=/^(.+?)\s*(?:[-－|｜]\s*食べログ|\[食べログ\]|［食べログ］)\s*$/.exec(raw); if (n) return {name:n[1].trim().slice(0,60), area:'', genre:''};
+  }
+  return null;
+}
 function urlsIn(text){
   const out=[]; let m, last=0; URL_RE.lastIndex=0;
-  while ((m=URL_RE.exec(text))){ out.push({u:m[0].replace(/[。、,.]+$/,''), hint:guessName(text.slice(last,m.index)).slice(0,40)}); last=m.index+m[0].length; }
+  while ((m=URL_RE.exec(text))){ const u=m[0].replace(/[。、,.]+$/,''), seg=text.slice(last,m.index); const tb=TABELOG.test(u)?parseTabelog(seg):null;
+    out.push({u, hint:(tb?tb.name:guessName(seg)).slice(0,40), tb}); last=m.index+m[0].length; }
   const seen=new Set(); return out.filter(x=>!seen.has(x.u) && seen.add(x.u));
 }
 
@@ -157,7 +167,9 @@ async function runUrls(text){
   const show=()=>{ const r=$('sxRes'); if(r) r.scrollIntoView({block:'start',behavior:'smooth'}); }; show();
   for (const [k,x] of list.entries()){
     sx.prog=`${k+1}/${list.length}`; renderResults();
-    let r=await addFromUrl(x.u); if (seq!==sx.seq) return;
+    let r = x.tb ? {needName:true, msg:''} : await addFromUrl(x.u); if (seq!==sx.seq) return;
+    if (x.tb){ if (myShops.some(z=>norm(z.name)===norm(x.tb.name))) r={msg:`「${x.tb.name}」はもうリストにあります。`};
+      else { const id=await addOrBump(x.tb.name, x.tb.area?x.tb.area.replace(/駅$/,'')+'駅':'', {links:[x.u], ...(x.tb.genre?{hp:{genre:x.tb.genre}}:{})}); if (id) r={added:x.tb.name}; } }
     if (r.needName && x.hint){ const own=myShops.some(z=>norm(z.name)===norm(x.hint));
       if (own) r={msg:`「${x.hint}」はもうリストにあります。`}; else { const id=await addOrBump(x.hint,'',{links:[x.u]}); if (id) r={added:x.hint}; } }
     sx.urlRes.push({...x,...r});
@@ -212,6 +224,7 @@ async function addFromUrl(u){
       return {needName:true, msg:'ホットペッパーでこのお店が見つかりませんでした(閉店したお店かもしれません)。'};
     }catch(e){ console.warn(e); return {needName:true, msg:'ホットペッパーにつながりませんでした。お店の名前を入れると、そのまま追加できます。'}; }
   }
+  if (TABELOG.test(u)) return {needName:true, msg:'食べログのリンクだけでは店名が分かりません。お店の名前を入れると、リンク付きで追加できます(食べログの「共有」でコピーした文ごと貼ると、店名も入ります)。'};
   return {needName:true, msg:'GoogleマップとホットペッパーのURL以外は、お店を読み取れません。お店の名前を入れると、リンク付きで追加できます。'};
 }
 
