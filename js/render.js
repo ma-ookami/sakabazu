@@ -5,7 +5,7 @@ document.querySelectorAll('.tab[data-tab]').forEach(b => b.onclick = () => setTa
 function counts(){
   // my own counts (the 決める tab may have a 飲み友's shops mixed in)
   const w=mode==='db'&&me ? myShops.filter(s=>mySt(s)==='want').length : shops.filter(inWant).length, g=mode==='db'&&me ? myShops.filter(s=>mySt(s)==='went').length : shops.filter(inWent).length;
-  $('sWant').textContent=w; $('sWent').textContent=g; $('tWant').textContent=w||''; $('tWent').textContent=g||'';
+  $('sWant').textContent=w; $('sWent').textContent=g;
   const mb=$('mbStats'); mb.textContent=''; mb.append('行きたい', el('b',null,String(w)), '・行った', el('b',null,String(g)));
 }
 // Japanese input: while a word is still being composed, rebuilding the screen under the cursor makes the
