@@ -92,6 +92,17 @@ function parseTabelog(seg){
   return null;
 }
 // all the text in a paste: the plain text, plus any link that came as its own piece (text/uri-list) or inside html
+// details for a shop known only by name (Google search isn't on): the same shop on ホットペッパー, if it's there
+async function enrichByName(name, loc){
+  if (!hpOn()) return {extra:{}};
+  try{
+    const q={name_any:name, count:'10'}; if (loc){ q.lat=String(loc.lat); q.lng=String(loc.lng); q.range='3'; } else { const c=hpAreaOf().at||SAPPORO; q.lat=String(c.lat); q.lng=String(c.lng); q.range='5'; }
+    const r=await Promise.race([hpSearch(q), new Promise(z=>setTimeout(()=>z(null),3000))]);
+    const h=r && r.shops && r.shops.find(x=>norm(x.name)===norm(name) || norm(x.name).startsWith(norm(name)) || norm(name).startsWith(norm(x.name)));
+    if (h) return {extra:hpShopExtra(h), area:hpArea(h)};
+  }catch(e){ console.warn(e); }
+  return {extra:{}};
+}
 function clipJoin(plain,uriList,html){
   let t=plain||''; const more=[];
   for (const u of String(uriList||'').split(/\r?\n/)) if (/^https?:\/\//i.test(u.trim())) more.push(u.trim());
@@ -190,7 +201,7 @@ async function runUrls(text){
       else { const id=await addOrBump(x.tb.name, x.tb.area?x.tb.area.replace(/駅$/,'')+'駅':'', {links:[x.u], ...(x.tb.genre?{hp:{genre:x.tb.genre}}:{})}); if (id) r={added:x.tb.name}; } }
     // only for shop links (Google / ホットペッパー): any other link keeps asking, so a chat line like 「見て!」 never becomes a shop
     if (r.needName && x.hint && SHOP_LINK.test(x.u)){ const own=myShops.some(z=>norm(z.name)===norm(x.hint));
-      if (own) r={msg:`「${x.hint}」はもうリストにあります。`}; else { const id=await addOrBump(x.hint,'',{links:[x.u]}); if (id) r={added:x.hint}; } }
+      if (own) r={msg:`「${x.hint}」はもうリストにあります。`}; else { const ex=await enrichByName(x.hint, r.loc); const id=await addOrBump(x.hint, ex.area||'', {...ex.extra, links:[r.long||x.u, ...((ex.extra&&ex.extra.links)||[])].slice(0,5), ...(r.loc?{loc:r.loc}:{})}); if (id) r={added:x.hint}; } }
     sx.urlRes.push({...x,...r});
   }
   sx.prog=''; const ok=sx.urlRes.filter(r=>r.added);
@@ -222,7 +233,7 @@ async function addFromUrl(u){
   if (/consent\.google\./.test(u)){ try{ const c=new URL(u).searchParams.get('continue'); if(c) u=c; }catch{} }
   if (G_URL.test(u)){
     const name=gLinkName(u), p=parsePlaceUrl(u);
-    if (!name) return {needName:true, msg:'このリンクからは店名を読み取れませんでした。お店の名前を入れると、そのまま追加できます。'};
+    if (!name) return {needName:true, loc:p.loc, long:u, msg:'このリンクからは店名を読み取れませんでした。お店の名前を入れると、そのまま追加できます。'};
     let extra={loc:p.loc, links:[u]}, area='', nm=name;
     try{ // the same shop on Google (near the link's spot): genre, hours, the proper link
       const q={gq:name}; if (p.loc) Object.assign(q,{lat:p.loc.lat,lng:p.loc.lng,r:300,rect:1});
