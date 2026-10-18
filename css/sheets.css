@@ -26,7 +26,6 @@
 .back b{font-size:26px;font-weight:300;line-height:1;margin-top:-3px}
 .sheet-head .btn{padding:7px 14px;font-size:13px;border-radius:999px}
 .d-name{font-family:var(--serif);font-weight:700;font-size:clamp(26px,7.5vw,36px);line-height:1.25;margin:4px 0 2px;word-break:break-word}
-.d-area{color:var(--sub);margin:0;font-size:13px}
 .sec{padding:18px 0;border-bottom:1px solid var(--line)}
 .sec:last-of-type{border-bottom:0}
 .sec-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:10px}
@@ -51,9 +50,7 @@
 .wd[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:700}
 .lrow{display:flex;gap:6px;align-items:center;margin-bottom:6px}
 .lrow .field{flex:1;min-width:0}
-.htext{font-size:13px;color:var(--sub)}
 .links{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.linkbtn{padding:8px 14px;font-size:13px;border-radius:999px}
 
 /* confirm dialog (replaces window.confirm) */
 .ask{border:0;padding:0;background:transparent;color:var(--ink);max-width:min(88vw,380px);width:100%;overflow:visible}

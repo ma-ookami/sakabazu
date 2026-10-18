@@ -67,16 +67,18 @@
   <div class="sheet-in">
     <div class="sheet-head">
       <button class="back" id="dBack"><b>‹</b>戻る</button>
-      <button class="btn btn-line" id="dEdit">情報を編集</button>
+      <button class="more-btn d-more" id="dMore" type="button" aria-label="このお店の操作">…</button>
     </div>
-    <h2 class="d-name" id="dName"></h2>
-    <p class="d-area" id="dArea"></p>
-    <div class="seg" id="dSeg" role="group" aria-label="ステータス">
-      <button data-s="want">行きたい</button><button data-s="went">行った</button>
+    <div class="d-card">
+      <div class="d-top">
+        <h2 class="d-name" id="dName"></h2>
+        <div class="seg d-seg" id="dSeg" role="group" aria-label="ステータス">
+          <button data-s="want">行きたい</button><button data-s="went">行った</button>
+        </div>
+      </div>
+      <div id="dInfo"></div>
     </div>
-    <button class="textbtn d-out" id="dOut" hidden>自分のリストから外す</button>
     <div id="dBody"></div>
-    <button class="danger" id="dDel">この店を削除</button>
   </div>
 </section>
 

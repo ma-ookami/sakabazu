@@ -26,9 +26,7 @@ const TAGS=[
   {k:'otoshi',l:'お通しあり',c:'お金・会計'},{k:'nootoshi',l:'お通しなし',c:'お金・会計'},{k:'senbero',l:'せんべろ',c:'お金・会計'},{k:'payseat',l:'会計は席で',c:'お金・会計'},{k:'payregi',l:'会計はレジで',c:'お金・会計'},{k:'card',l:'カード可',c:'お金・会計'},{k:'cashless',l:'電子マネー可',c:'お金・会計'},{k:'cashonly',l:'現金のみ',c:'お金・会計'},
   {k:'nosmoke',l:'禁煙',c:'たばこ・場所'},{k:'smoke',l:'喫煙可',c:'たばこ・場所'},{k:'station',l:'駅近',c:'たばこ・場所'},
 ];
-const tagsOf = s => TAGS.filter(t => s.tags && s.tags[t.k]);
 const norm = x => (x||'').normalize('NFKC').toLowerCase().replace(/\s+/g,'');
-function tagLine(s){ const ts=tagsOf(s); if(!ts.length) return null; const d=el('div','tags'); ts.forEach(t=>d.appendChild(el('span',null,t.l))); return d; }
 const $ = id => document.getElementById(id);
 const el = (tag, cls, text) => { const e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; };
 

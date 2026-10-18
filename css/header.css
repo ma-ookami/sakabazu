@@ -13,8 +13,6 @@
 .lg-k{font-family:"Shippori Mincho B1",var(--serif);font-weight:800;font-size:clamp(28px,8vw,34px);letter-spacing:.12em}
 .lg-r{display:flex;justify-content:space-between;font-family:"Josefin Sans",sans-serif;font-weight:600;font-size:10px;opacity:.75;padding-left:1px}   /* spread to the width of 酒場図 + lantern */
 .mast .stats{display:none}
-.flaps{position:relative;display:flex;flex:none}
-.flaps::-webkit-scrollbar{display:none}
 
 /* lantern = menu button */
 @keyframes sway{from{transform:rotate(-2.5deg)}to{transform:rotate(2.5deg)}}

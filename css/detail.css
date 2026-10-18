@@ -75,14 +75,55 @@ textarea.memo,.field{box-sizing:border-box;max-width:100%}
 .memos.sec{padding:6px 0}
 .memos summary{padding:10px 0}
 .memos + .sec{padding-top:12px}
-.d-out{display:block;margin:6px 0 0;font-size:12px;color:var(--sub)}
 /* folded sections in 詳細 */
 .fold > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:2px 0;font-weight:700;font-size:15px}
 .fold > summary::-webkit-details-marker{display:none}
 .fold > summary::after{content:"＋";margin-left:auto;color:var(--sub);font-weight:400}
 .fold[open] > summary::after{content:"−"}
-.fd-n{font-size:11px;font-weight:700;color:var(--red);background:color-mix(in srgb,var(--red) 10%,var(--card));border-radius:999px;padding:1px 8px}
 .fold > .sec{border:0;padding:8px 0 0}
 .fold > .sec > .sec-h{display:none}
 .fold > div{padding-top:10px}
 #dBody .grid .stamp{width:44px;height:44px;min-width:0;padding:0;aspect-ratio:1;box-sizing:border-box;flex:none}
+/* ---- detail, compact: a summary card, 星 + ひとこと, then one line per thing ---- */
+.d-card{margin-top:4px;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-1)}
+.d-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.d-card .d-name{margin:0;font-size:clamp(22px,6.4vw,30px);flex:1;min-width:0}
+.d-seg{flex:none;margin:2px 0 0}
+.d-seg button{padding:5px 10px;font-size:12px}
+.d-chips{margin-top:10px;gap:5px}
+.d-chips .pill{height:24px;box-sizing:border-box;padding:0 9px;font-size:12px;line-height:1;margin:0}
+.d-chips .pill.genre{color:var(--ink)}
+.d-hours{margin:6px 0 0;font-size:12px;color:var(--sub);line-height:1.5}
+.d-links{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.d-links:empty{display:none}
+.d-link{display:inline-flex;align-items:center;height:28px;padding:0 11px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-size:12.5px;text-decoration:none}
+.d-add{color:var(--red);border-style:dashed}
+.d-more{width:40px;height:36px;font-size:20px;color:var(--ink)}
+.d-main{display:grid;gap:10px;padding:14px 2px 6px}
+.d-main .others:empty{display:none}
+.d-main textarea.memo{margin:0}
+.d-star .starin{display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap;margin:0}
+.d-star .st-lab{display:none}
+.d-star .st-row{gap:10px}
+.d-star .st-num{font-size:22px;min-width:1.8em}
+.d-star .st-adj{margin:0 0 0 auto;gap:6px}
+.d-star .st-step{width:34px;height:30px;font-size:16px}
+.d-star .hint{flex-basis:100%;margin:0}
+.d-rows{margin-top:6px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
+.d-rows .fold{border:0;border-top:1px solid var(--line);padding:0}
+.d-rows .fold:first-child{border-top:0}
+.d-rows .fold > summary{display:flex;align-items:center;gap:10px;padding:13px 14px;font-weight:700;font-size:14.5px}
+.d-rows .fold > summary::after{content:"›";margin-left:6px;color:var(--sub);font-weight:400;font-size:18px;transition:transform .2s}
+.d-rows .fold[open] > summary::after{content:"›";transform:rotate(90deg)}
+.fd-i{width:22px;text-align:center;flex:none;font-size:15px}
+.fd-t{flex:1;min-width:0}
+.fd-v{color:var(--sub);font-weight:400;font-size:13px}
+.d-rows .fd-body{padding:0 14px 14px}
+.d-rows .fd-body > div{padding-top:0}
+.locbox .loctxt{margin:0 0 8px}
+.d-went{position:sticky;bottom:calc(12px + env(safe-area-inset-bottom,0px));margin-top:16px;z-index:2;box-shadow:var(--shadow-2)}
+.fd-body > .sec{border:0;padding:0}.fd-body > .sec > .sec-h{display:none}
+.d-star .stars.big{--sz:30px}
+.d-star .st-adj .textbtn{font-size:12px}
+.sheet-head .d-more{border:0;background:transparent;border-radius:50%;box-shadow:none;padding:0 0 8px;width:40px;height:40px}
+.sheet-head .d-more:hover{background:var(--faint)}

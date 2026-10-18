@@ -29,8 +29,12 @@ $('form').onsubmit=e=>{ e.preventDefault(); const name=$('fName').value.trim(), 
 $('fBack').onclick=closeForm; $('fCancel').onclick=closeForm;
 $('sBack').onclick=closeSearch;
 
-$('dBack').onclick=closeDetail; $('dEdit').onclick=()=>openForm(openId);
-$('dDel').onclick=async()=>{ const s=shops.find(x=>x.id===openId); if(!s) return; if(!(await ask(`「${s.name}」と、この店の記録(メンバー全員分)を削除します。元に戻せません。`,'削除する',true))) return; const id=openId; closeDetail(); await deleteShop(id); toast('削除しました'); };
+$('dBack').onclick=closeDetail;
+$('dMore').onclick=()=>{ const s=shops.find(x=>x.id===openId); if(!s) return; const items=[{label:'情報を編集(店名・ジャンル・営業時間・リンク)', run:()=>openForm(s.id)}];
+  if (me && mySt(s)) items.push({label:'自分のリストから外す', run:()=>{ closeDetail(); removeMine(s.id); }});
+  if (!isFriendShop(s)) items.push({label:'この店を削除', danger:true, run:()=>deleteFromDetail()});
+  actionSheet(s.name||'このお店',items); };
+async function deleteFromDetail(){ const s=shops.find(x=>x.id===openId); if(!s) return; if(!(await ask(`「${s.name}」を、星・メモ・来店記録ごと削除します。元に戻せません。`,'削除する',true))) return; const id=openId; closeDetail(); await deleteShop(id); toast('削除しました'); }
 document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !asking()){ if(isOpen('searchSheet')) closeSearch(); else if(isOpen('formSheet')) closeForm(); else if(openId) closeDetail(); else if(isOpen('pickSheet')) closePick(); } });
 window.addEventListener('pagehide',flushMemos);
 window.addEventListener('resize',()=>{ if(tab==='map') scheduleMap(); });

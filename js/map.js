@@ -140,7 +140,7 @@ function parseMapUrl(u){
   return {err:'このURLからは位置を読み取れませんでした。Googleマップでお店を表示したときのURLを貼ってください'};
 }
 function locSec(s){
-  const box=sec('場所'); const t=el('p','loctxt'); t.id='dLocTxt'; box.appendChild(t);
+  const box=el('div','locbox'); const t=el('p','loctxt'); t.id='dLocTxt'; box.appendChild(t);
   const row=el('div','locrow');
   if (!readOnly){ const g=el('button','btn btn-line','ここを記録'); g.onclick=()=>{ g.disabled=true; g.textContent='取得中…'; getHere(h=>{ g.disabled=false; g.textContent='ここを記録'; if(!h) return; patchShop(s.id,{loc:{lat:h.lat,lng:h.lng,src:'gps',acc:h.acc}}); toast(h.acc>200?'現在地を記録しました(誤差が大きめです)':'現在地を記録しました'); }); }; row.appendChild(g); }
   const a=el('a','btn btn-line','地図で開く'); a.id='dMapLink'; a.target='_blank'; a.rel='noopener noreferrer'; row.appendChild(a);

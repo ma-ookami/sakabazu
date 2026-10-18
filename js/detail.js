@@ -11,34 +11,35 @@ function memoBox(box,k,ph){
 }
 function buildDetail(s){
   const st=statusOf(s)||'want'; builtStatus=st+'|'+mySt(s)+'|'+[...mix].join();
-  $('dEdit').hidden=readOnly; $('dDel').hidden=readOnly;
+  $('dMore').hidden=readOnly||!me;
   $('dSeg').setAttribute('aria-label','あなたの状態');
-  for (const b of $('dSeg').children){ b.disabled=readOnly||!me; b.onclick=()=>{ const cur=shops.find(x=>x.id===s.id); if(!cur) return; const m=mySt(cur); if(m===b.dataset.s) return;   // already that: tapping again does nothing (外す is its own button below)
+  for (const b of $('dSeg').children){ b.disabled=readOnly||!me; b.onclick=()=>{ const cur=shops.find(x=>x.id===s.id); if(!cur) return; const m=mySt(cur); if(m===b.dataset.s) return;
     (b.dataset.s==='went'?wentWhen(s.id,true):markWant(s.id)); }; }
-  $('dOut').onclick=()=>removeMine(s.id);
   const body=$('dBody'); body.textContent='';
-  // the basics first (where, when it's open, links), then what matters most: 星 and ひとこと.
-  // the rest is folded away, opened only by people who want it
-  body.appendChild(infoSec());
-  body.appendChild(locSec(s));
+  // on top: 星 and ひとこと (went) or the memo (want), with no headings. below: one line per thing, opened on tap
   const rr=s.r||{}, mine=rr[me]||{};
+  const top=el('div','d-main'); body.appendChild(top);
+  const rows=el('div','d-rows');
   if (st==='want'){
-    const n=sec('気になっている理由・メモ'); memoBox(n,'note','例: 飲み友のおすすめ、金曜は要予約'); body.appendChild(n);
-    const p=sec('行く予定日'); const d=el('input','dateinput'); d.type='date'; d.id='dPlan'; d.disabled=readOnly; d.onchange=()=>patchShop(s.id,{planDate:d.value}); p.appendChild(d); body.appendChild(p);
-    if (groupMode()){ const w=sec('行きたい人'); const wl=el('div','faces'); wl.id='dWants'; w.appendChild(wl);
+    memoBox(top,'note','メモ(気になっている理由など)');
+    const p=el('div'); const dt=el('input','dateinput'); dt.type='date'; dt.id='dPlan'; dt.disabled=readOnly; dt.setAttribute('aria-label','行く予定日'); dt.onchange=()=>patchShop(s.id,{planDate:dt.value}); p.appendChild(dt);
+    rows.appendChild(fold('行く予定日',p,'','📅','dPlanV'));
+    rows.appendChild(fold('場所',locSec(s),'','📍','dLocV'));
+    if (groupMode()){ const w=el('div'); const wl=el('div','faces'); wl.id='dWants'; w.appendChild(wl);
       if(!readOnly&&me){ const b=el('button','want-btn'); b.id='dWantBtn'; b.style.marginTop='10px'; b.onclick=()=>toggleWant(s.id); w.appendChild(b); }
-      body.appendChild(w); }
-    body.appendChild(fold('特徴', tagSec(s), tagCount(s)));
-    if(!readOnly){ const g=el('button','btn btn-red big-went','行った'); g.onclick=()=>wentWhen(s.id,true); body.appendChild(g); }
+      rows.appendChild(fold('行きたい人',w,'','👥')); }
+    rows.appendChild(fold('特徴',tagSec(s),cnt(tagCount(s)),'🏷'));
+    body.appendChild(rows);
+    if(!readOnly){ const g=el('button','btn btn-red big-went d-went','行った'); g.onclick=()=>wentWhen(s.id,true); body.appendChild(g); }
   } else {
-    const rs=sec('評価', me&&!readOnly ? '星はなぞって0.1刻みで' : ''); rs.appendChild(starInput(s)); body.appendChild(rs);
-    const n=sec('ひとこと'); memoBox(n,'note','例: 金曜は混むので予約必須'); body.appendChild(n);
-    const p=sec('行った日'); const wb=el('div','faces'); wb.id='dWentBy'; if (groupMode()) p.appendChild(wb);
-    if (wentBy(s)[me] && !readOnly){ const d=el('input','dateinput'); d.type='date'; d.id='dWent';
-      d.onchange=()=>{ const cur=shops.find(x=>x.id===s.id); if(!cur) return; const from=wentBy(cur)[me]; patchShop(s.id,Object.assign({went:wentPatch(cur,me,d.value||true)}, moveMyVisit(cur,from,d.value))); }; p.appendChild(d); }
-    else if (!readOnly && me){ const g=el('button','btn btn-red'); g.textContent='私も行った'; g.style.marginTop='12px'; g.onclick=()=>wentWhen(s.id,true); p.appendChild(g); }
-    body.appendChild(p);
-    // folded: ◎○ by item, 特徴, 来店記録と会計, memos by item
+    const sw=el('div','d-star'); sw.appendChild(starInput(s)); top.appendChild(sw);
+    memoBox(top,'note','ひとこと(例: 金曜は要予約)');
+    const p=el('div'); const wb=el('div','faces'); wb.id='dWentBy'; if (groupMode()) p.appendChild(wb);
+    if (wentBy(s)[me] && !readOnly){ const dt=el('input','dateinput'); dt.type='date'; dt.id='dWent'; dt.max=today(); dt.setAttribute('aria-label','行った日');
+      dt.onchange=()=>{ const cur=shops.find(x=>x.id===s.id); if(!cur) return; const from=wentBy(cur)[me]; patchShop(s.id,Object.assign({went:wentPatch(cur,me,dt.value||true)}, moveMyVisit(cur,from,dt.value))); }; p.appendChild(dt); }
+    else if (!readOnly && me){ const g=el('button','btn btn-red'); g.textContent='私も行った'; g.onclick=()=>wentWhen(s.id,true); p.appendChild(g); }
+    rows.appendChild(fold('行った日',p,'','📅','dWentV'));
+    rows.appendChild(fold('場所',locSec(s),'','📍','dLocV'));
     const ms=el('div');
     const grid=el('div','grid');
     for (const it of ITEMS){
@@ -49,19 +50,22 @@ function buildDetail(s){
       grid.appendChild(stp);
     }
     ms.appendChild(el('p','hint','タップで付ける・もう一度で取り消し')); ms.appendChild(grid); const tb=el('div'); tb.id='dTable'; ms.appendChild(tb);
-    body.appendChild(fold('項目ごとの評価(◎○△×)', ms, ITEMS.filter(it=>mine[it.k]&&mine[it.k].m).length));
-    body.appendChild(fold('特徴', tagSec(s), tagCount(s)));
-    body.appendChild(fold('来店記録・会計', visitSec(s), visitList(s).length));
+    rows.appendChild(fold('項目ごとの評価',ms,cnt(ITEMS.filter(it=>mine[it.k]&&mine[it.k].m).length),'◎'));
+    rows.appendChild(fold('特徴',tagSec(s),cnt(tagCount(s)),'🏷'));
+    rows.appendChild(fold('来店記録・会計',visitSec(s),cnt(visitList(s).length),'🧾'));
     const mm=el('div'); for (const it of ITEMS){ const mi=el('div','mi'); mi.appendChild(el('h4',null,it.label)); memoBox(mi,it.k,it.ph); mm.appendChild(mi); }
-    body.appendChild(fold('項目ごとのメモ', mm, ITEMS.filter(it=>Object.values(rr).some(p=>p&&p[it.k]&&(p[it.k].t||'').trim())).length));
+    rows.appendChild(fold('項目ごとのメモ',mm,cnt(ITEMS.filter(it=>Object.values(rr).some(p=>p&&p[it.k]&&(p[it.k].t||'').trim())).length),'✎'));
+    body.appendChild(rows);
   }
 }
-// a folded section: opens on tap, remembers being open while you look at shops; n = how many things are in it
+const cnt = n => n ? n+'件' : '';
+// one line of the list: icon, title, a short value on the right; tap to open (remembered while you look at shops)
 const foldOpen=new Set();
-function fold(title,node,n){
-  const d=el('details','fold sec'); d.open=foldOpen.has(title);
-  const sm=el('summary'); sm.append(el('span','fd-t',title)); if(n) sm.appendChild(el('span','fd-n',String(n)));
-  d.appendChild(sm); d.appendChild(node);
+function fold(title,node,val,icon,vid){
+  const d=el('details','fold'); d.open=foldOpen.has(title);
+  const sm=el('summary'); if(icon) sm.appendChild(el('span','fd-i',icon)); sm.appendChild(el('span','fd-t',title));
+  const v=el('span','fd-v',val||''); if(vid) v.id=vid; sm.appendChild(v);
+  d.appendChild(sm); const inner=el('div','fd-body'); inner.appendChild(node); d.appendChild(inner);
   d.ontoggle=()=>{ if(d.open) foldOpen.add(title); else foldOpen.delete(title); };
   return d;
 }
@@ -69,13 +73,15 @@ const tagCount = s => TAGS.filter(t=>s.tags&&s.tags[t.k]).length;
 async function patchDetail(){
   const s=shops.find(x=>x.id===openId); if(!s){ if(openId) closeDetail(); return; }
   if (builtStatus!==(statusOf(s)||'want')+'|'+mySt(s)+'|'+[...mix].join()) buildDetail(s);
-  $('dName').textContent=s.name||'(名前なし)'; $('dArea').textContent=s.area||'';
+  $('dName').textContent=s.name||'(名前なし)';
   for (const b of $('dSeg').children) b.setAttribute('aria-pressed',String(b.dataset.s===mySt(s)));
-  $('dOut').hidden = readOnly || !me || !mySt(s);
+  { const v=$('dWentV'); if(v){ const w=wentBy(s)[me]; v.textContent = typeof w==='string' ? fmtDate(w) : w ? '日付なし' : ''; } }
+  { const v=$('dPlanV'); if(v) v.textContent = s.planDate ? fmtDate(s.planDate) : '未定'; }
+  { const v=$('dLocV'); if(v) v.textContent = s.loc ? '記録済み' : '未記録'; }
   const plan=$('dPlan'); if(plan && document.activeElement!==plan) plan.value=s.planDate||'';
   const went=$('dWent'); if(went && document.activeElement!==went){ const v=wentBy(s)[me]; went.value=typeof v==='string'?v:''; }
   const dwb=$('dWentBy'); if(dwb){ const ids=wentIds(s); const pw=await people(ids); if(openId!==s.id) return; dwb.textContent=''; if(ids.length){ const st=el('span','stack'); ids.slice(0,6).forEach(u=>st.appendChild(avatar(pw,u))); dwb.appendChild(st); dwb.appendChild(el('span',null,ids.map(u=>nameOf(pw,u)).join('、'))); } else dwb.appendChild(el('span',null,'まだいません')); }
-  const lt=$('dLocTxt'); if(lt) lt.textContent = s.loc ? (s.loc.src==='gps' ? '現在地で位置を記録済み。地図タブに表示されます。' : 'リンクから位置を記録済み。地図タブに表示されます。') : '位置はまだ記録されていません。お店にいるときは「ここを記録」が便利です。';
+  const lt=$('dLocTxt'); if(lt) lt.textContent = s.loc ? (s.loc.src==='gps' ? '現在地で記録済み(地図タブに表示)' : 'リンクから記録済み(地図タブに表示)') : 'お店にいるときは「ここを記録」が便利です。';
   const ml=$('dMapLink'); if(ml) ml.href=mapsUrl(s);
   const lc=$('dLocClr'); if(lc) lc.hidden=!s.loc;
   const r=s.r||{}; const others=inScope(Object.keys(r)).filter(u=>u!==me); const wl=wantIds(s);

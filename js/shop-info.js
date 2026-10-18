@@ -31,16 +31,17 @@ function hoursStatus(s,now){
 function hoursPill(chips,s){ const h=hoursStatus(s); if(h) pill(chips,'h-'+h.k,h.t); }
 function hoursText(s){ const h=s.hours||{}; const p=[]; if(h.open&&h.close) p.push(`${h.open}〜${h.close}`); if(Array.isArray(h.closed)&&h.closed.length) p.push('定休日 '+h.closed.slice().sort().map(i=>'日月火水木金土'[i]).join('、')); return p.join('　'); }
 function linkLabel(u){ try{ const h=new URL(u).hostname.replace(/^www\./,''); const map=[[/tabelog\./,'食べログ'],[/hotpepper\./,'ホットペッパー'],[/instagram\./,'Instagram'],[/(^|\.)x\.com$|twitter\./,'X'],[/google\.[^/]+$|goo\.gl|maps\.app/,'Googleマップ'],[/retty\./,'Retty'],[/gnavi\./,'ぐるなび'],[/facebook\./,'Facebook'],[/line\.me/,'LINE']]; for(const [r,l] of map) if(r.test(h)) return l; return h; }catch{ return 'リンク'; } }
-function infoSec(){ const box=sec('お店の情報'); const d=el('div'); d.id='dInfo'; box.appendChild(d); return box; }
 function fillInfo(s){
   const d=$('dInfo'); if(!d) return; d.textContent='';
-  const hs=hoursStatus(s); const ht=hoursText(s);
-  if (hs || ht){ const r=el('div','sc-chips'); r.style.marginTop='0'; if(hs) pill(r,'h-'+hs.k,hs.t); if(ht) r.appendChild(el('span','htext',ht)); d.appendChild(r); }
-  if (s.hp && (s.hp.genre || s.hp.budget)){ const r=el('div','sc-chips'); r.style.marginTop='0'; r.style.marginBottom='8px'; if(s.hp.genre) pill(r,'tag',s.hp.genre); if(s.hp.budget) pill(r,'yen','予算 '+s.hp.budget); d.prepend(r); }
-  if (s.hours && s.hours.note) d.appendChild(el('p','loctxt',s.hours.note));
-  const ls=Array.isArray(s.links)?s.links:[];
-  if (ls.length){ const r=el('div','links'); for(const u of ls){ const a=el('a','btn btn-line linkbtn',linkLabel(u)+' ↗'); a.href=u; a.target='_blank'; a.rel='noopener noreferrer'; r.appendChild(a); } d.appendChild(r); }
-  if (!hs && !ht && !ls.length && !(s.hours&&s.hours.note) && !s.hp){ const p=el('p','loctxt','営業時間やお店のリンクはまだありません。'); d.appendChild(p);
-    if(!readOnly){ const b=el('button','sbtn','＋ 情報を入れる'); b.onclick=()=>openForm(s.id); d.appendChild(b); } }
+  const hs=hoursStatus(s), ht=hoursText(s);
+  const r=el('div','sc-chips d-chips');
+  { const g=genreOf(s); if(g) pill(r,'genre',g); } if(hs) pill(r,'h-'+hs.k,hs.t); if(s.area) pill(r,'area',s.area); if(s.hp&&s.hp.budget) pill(r,'yen','予算 '+s.hp.budget);
+  if (r.children.length) d.appendChild(r);
+  const note=[ht, s.hours&&s.hours.note].filter(Boolean).join('　'); if (note) d.appendChild(el('p','d-hours',note));
+  const lr=el('div','d-links');
+  for (const u of (Array.isArray(s.links)?s.links:[])){ const a=el('a','d-link',linkLabel(u)+' ↗'); a.href=u; a.target='_blank'; a.rel='noopener noreferrer'; lr.appendChild(a); }
+  if (s.loc || s.name){ const a=el('a','d-link','マップ ↗'); a.href=mapsUrl(s); a.target='_blank'; a.rel='noopener noreferrer'; lr.appendChild(a); }
+  if (!readOnly && !hs && !ht && !genreOf(s)){ const b=el('button','d-link d-add','＋ ジャンル・営業時間を入れる'); b.type='button'; b.onclick=()=>openForm(s.id); lr.appendChild(b); }
+  d.appendChild(lr);
 }
 setInterval(()=>{ const a=document.activeElement; if(swiping || (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName))) return; if(tab==='list'||tab==='home') render(); if(openId) fillInfo(shops.find(x=>x.id===openId)||{}); },60000);
