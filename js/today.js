@@ -297,7 +297,9 @@ function setNight(k,date){
   try{ const o=nightsLocal(); if (k) o[d]=k; else delete o[d]; localStorage.setItem('nm-nights',JSON.stringify(o)); }catch{}
   if (k) nightsDb={...nightsDb,[d]:k}; else { const o={...nightsDb}; delete o[d]; nightsDb=o; }
   if (mode==='db') (k ? db.doc('nights/'+d).set({kind:k, at:Date.now()}) : db.doc('nights/'+d).delete()).catch(e=>console.warn('nights',e&&e.code));
-  if (k && !date){ buzz(); darumaCheer(NIGHTS[k].say); } render();
+  if (k && !date){ buzz(); darumaCheer(NIGHTS[k].say); toast(`今日を「${NIGHTS[k].l}」としてカレンダーに記録しました`,'カレンダー',()=>{ listSub='cal'; setTab('list'); }); }
+  else if (!k && !date) toast('今日の記録を取り消しました');
+  render();
 }
 function nightBtns(v){
   const cur=nightOf(), row=el('div','night-row');
@@ -305,6 +307,7 @@ function nightBtns(v){
     b.append(el('span','nb-ic',n.ic), el('span','nb-t', cur===k ? n.on : n.l));
     b.onclick=()=>setNight(cur===k ? '' : k); row.appendChild(b); }
   v.appendChild(row);
+  v.appendChild(el('p','night-cap', cur ? `カレンダーに記録しました。もう一度押すと取り消せます` : '飲みに行かない日は、押すとカレンダーに残せます'));
 }
 
 // 決める: the shops on my lists that are open now (or open within the hour), to scroll through

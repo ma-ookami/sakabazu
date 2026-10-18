@@ -243,3 +243,4 @@ body.gating .tabs{display:none}
 .now-card .crest.now-crest{width:30px;height:30px;font-size:15px;box-shadow:0 0 0 2px color-mix(in srgb,var(--c) 20%,transparent)}
 .now-card{width:200px;padding:11px 12px}
 .now-row{scroll-padding-left:18px}
+.night-cap{margin:-6px 0 0;text-align:center;font-size:11.5px;color:var(--sub)}
