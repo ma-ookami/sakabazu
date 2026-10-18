@@ -168,7 +168,8 @@ let dmEl=null, dmTipI=Math.floor(Math.random()*DM_TIPS.length), dmSay='';
 function darumaGreet(v){
   const row=el('div','dm-row');
   const b=el('button','daruma'+(dmSleepy()?' sleep':'')); b.type='button'; b.setAttribute('aria-label','だるま'); b.innerHTML=darumaSvg();
-  const bub=el('p','dm-bub',dmSay||darumaLine()); bub.id='dmBub';
+  const ready = mode!=='db' || (shopsLoaded && (!friendMode || friendsLoaded));
+  const bub=el('p','dm-bub'+(ready?'':' wait'), ready ? (dmSay||darumaLine()) : '…'); bub.id='dmBub';
   b.onclick=()=>{ b.classList.remove('sleep'); dmSay=DM_TIPS[dmTipI++%DM_TIPS.length]; bub.textContent=dmSay; darumaDo(b,'wobble',true); };
   row.append(b,bub); v.appendChild(row); dmEl=b;
 }

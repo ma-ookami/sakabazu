@@ -202,3 +202,6 @@ body.gating .tabs{display:none}
 .codeform .codebox{flex:1;min-width:0;gap:4px}
 .codeform .code-c{width:auto;flex:1;min-width:0;max-width:34px;height:44px}
 .codeform .btn{flex:none;padding:0 14px;white-space:nowrap}
+/* the だるま's words: room for two lines from the start, and they appear once the data is in (no jump) */
+.dm-bub{min-height:calc(1.5em * 2 + 20px);display:flex;align-items:center}
+.dm-bub.wait{color:transparent}

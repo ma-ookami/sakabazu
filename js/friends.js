@@ -2,7 +2,8 @@
    myShops: my own shops (the only ones I write). shops: what the screens show = mine + the friends I mix in.
    A friend-only shop is read-only (id "f~<fid>~<shopId>"); acting on it first copies it into my list. */
 let myShops=[], friends={}, fShops={}, fDenied={}, fSubs={}, myCode='';
-let frReqs={}, frSent={}, sentSubs={};   // 飲み友申請: to me / from me (waiting)
+let frReqs={}, frSent={}, sentSubs={};
+let friendsLoaded=false;   // the first list of 飲み友 has arrived   // 飲み友申請: to me / from me (waiting)
 // the friend whose list I'm looking at together with mine (one at a time: "けんとのリスト")
 let mix = new Set((()=>{ try{ return JSON.parse(localStorage.getItem('nm-mix')||'[]').slice(0,1); }catch{ return []; } })());
 const saveMix = () => { try{ localStorage.setItem('nm-mix',JSON.stringify([...mix])); }catch{} };
@@ -59,7 +60,7 @@ function watchFriends(){
   cloudSubs.push(db.collection('friends').limit(200).onSnapshot(snap=>{
     const o={}; for (const d of snap.docs){ const v=d.data()||{}; if(typeof v.gid==='string' && typeof v.mid==='string') o[d.id]={gid:v.gid, mid:v.mid, nick:String(v.nick||'飲み友').slice(0,20), at:v.at||0}; }
     for (const f in o){ const was=friends[f]; if (was && was.fetched){ o[f].nick=was.nick; o[f].ic=was.ic; o[f].dm=was.dm; o[f].fetched=true; } }
-    friends=o; for (const f in o) if (!o[f].fetched) fetchFriend(f);
+    friends=o; friendsLoaded=true; for (const f in o) if (!o[f].fetched) fetchFriend(f);
     if (!addChecked) setTimeout(checkAddLink,300);
     syncFriendSubs(); rebuildShops(); render();
   },()=>{}));
