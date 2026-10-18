@@ -13,7 +13,7 @@ window.FIREBASE_CONFIG = {
 
 // App Check(本物のアプリ以外からのアクセスを防ぐ)の reCAPTCHA Enterprise のキー(サイトキー)。
 // README.md の「App Check を設定する」で作ったキーを "" の中に貼り付けてください。空のままなら使いません。
-window.APPCHECK_SITE_KEY = "";
+window.APPCHECK_SITE_KEY = "6LcDmfQtAAAAAF0AceHpWpptW1WT7UiSd1u-1ysy";
 
 // ホットペッパー検索の中継(Cloudflare Worker)のURL。README.md の「ホットペッパー検索の中継を作る」で作ったURLを貼り付けてください。
 // APIキーそのものはここに書かないでください(Worker 側に保存します)。
