@@ -3,21 +3,45 @@
 // v: the Worker's version. v1 only knows keyword/lat/lng; v2 also knows area codes, name_any, id and resolve
 const hpOn = () => !!window.HOTPEPPER_PROXY;
 // where the search looks. kw: added to the keyword / sa: ホットペッパーの小エリア code (at: fallback point for an old Worker) / here: current location
+// city: which big area it belongs to (札幌 / 東京). center: the middle of the city (for searches around a point)
+const HP_CITIES = [{id:'sapporo', label:'札幌'}, {id:'tokyo', label:'東京'}];
 const HP_AREAS = [
-  {id:'sapporo', label:'札幌', kw:'札幌市'},
-  {id:'eki', label:'札幌駅', sa:'X501', at:{lat:43.0686, lng:141.3508}},
-  {id:'odori', label:'大通', sa:'X502', at:{lat:43.0607, lng:141.3545}},
-  {id:'susukino', label:'すすきの', sa:'X500', at:{lat:43.0556, lng:141.3536}},
-  {id:'kotoni', label:'琴似', sa:'X510', at:{lat:43.0817, lng:141.3065}},
-  {id:'maruyama', label:'円山', sa:'XIIC', at:{lat:43.0553, lng:141.3175}},
-  {id:'shinsapporo', label:'新札幌', sa:'X508', at:{lat:43.0393, lng:141.4766}},
-  {id:'asabu', label:'麻生', sa:'XII6', at:{lat:43.1069, lng:141.3384}},
+  {id:'sapporo', label:'札幌', city:'sapporo', kw:'札幌市', center:{lat:43.0607, lng:141.3545}},
+  {id:'eki', label:'札幌駅', city:'sapporo', sa:'X501', at:{lat:43.0686, lng:141.3508}},
+  {id:'odori', label:'大通', city:'sapporo', sa:'X502', at:{lat:43.0607, lng:141.3545}},
+  {id:'susukino', label:'すすきの', city:'sapporo', sa:'X500', at:{lat:43.0556, lng:141.3536}},
+  {id:'kotoni', label:'琴似', city:'sapporo', sa:'X510', at:{lat:43.0817, lng:141.3065}},
+  {id:'maruyama', label:'円山', city:'sapporo', sa:'XIIC', at:{lat:43.0553, lng:141.3175}},
+  {id:'shinsapporo', label:'新札幌', city:'sapporo', sa:'X508', at:{lat:43.0393, lng:141.4766}},
+  {id:'asabu', label:'麻生', city:'sapporo', sa:'XII6', at:{lat:43.1069, lng:141.3384}},
+  {id:'tokyo', label:'東京', city:'tokyo', kw:'東京都', center:{lat:35.6812, lng:139.7671}},
+  {id:'shinjuku', label:'新宿', city:'tokyo', at:{lat:35.6909, lng:139.7003}},
+  {id:'shibuya', label:'渋谷', city:'tokyo', at:{lat:35.6580, lng:139.7016}},
+  {id:'ikebukuro', label:'池袋', city:'tokyo', at:{lat:35.7295, lng:139.7109}},
+  {id:'shimbashi', label:'新橋', city:'tokyo', at:{lat:35.6662, lng:139.7583}},
+  {id:'ginza', label:'銀座・有楽町', city:'tokyo', at:{lat:35.6717, lng:139.7650}},
+  {id:'tokyoeki', label:'東京駅', city:'tokyo', at:{lat:35.6812, lng:139.7671}},
+  {id:'kanda', label:'神田', city:'tokyo', at:{lat:35.6918, lng:139.7709}},
+  {id:'ueno', label:'上野', city:'tokyo', at:{lat:35.7138, lng:139.7773}},
+  {id:'asakusa', label:'浅草', city:'tokyo', at:{lat:35.7119, lng:139.7983}},
+  {id:'ebisu', label:'恵比寿', city:'tokyo', at:{lat:35.6467, lng:139.7101}},
+  {id:'roppongi', label:'六本木', city:'tokyo', at:{lat:35.6628, lng:139.7314}},
+  {id:'shinagawa', label:'品川', city:'tokyo', at:{lat:35.6285, lng:139.7388}},
+  {id:'nakano', label:'中野', city:'tokyo', at:{lat:35.7056, lng:139.6657}},
+  {id:'kichijoji', label:'吉祥寺', city:'tokyo', at:{lat:35.7031, lng:139.5797}},
+  {id:'akabane', label:'赤羽', city:'tokyo', at:{lat:35.7779, lng:139.7209}},
+  {id:'kitasenju', label:'北千住', city:'tokyo', at:{lat:35.7497, lng:139.8049}},
   {id:'here', label:'現在地', here:true},
   {id:'any', label:'指定なし'},
 ];
 let hpArea_ = (()=>{ try{ return localStorage.getItem('nm-hparea')||'sapporo'; }catch{ return 'sapporo'; } })();
 const hpAreaOf = () => HP_AREAS.find(a=>a.id===hpArea_) || HP_AREAS[0];
-function setHpArea(id){ hpArea_=id; try{ localStorage.setItem('nm-hparea',id); }catch{} }
+function setHpArea(id){ hpArea_=id; try{ localStorage.setItem('nm-hparea',id); }catch{} const c=(HP_AREAS.find(x=>x.id===id)||{}).city; if (c) setCity(c); }
+// the big area being looked at (札幌 / 東京), and its middle
+let city_ = (()=>{ try{ return localStorage.getItem('nm-city')||''; }catch{ return ''; } })() || (HP_AREAS.find(a=>a.id===hpArea_)||{}).city || 'sapporo';
+function setCity(c){ city_=c; try{ localStorage.setItem('nm-city',c); }catch{} }
+const curCity = () => city_;
+const cityCenter = () => (HP_AREAS.find(a=>a.city===city_ && a.center)||HP_AREAS[0]).center;
 let hpVer = 0;   // learned from the first answer
 async function hpCall(params){
   const q=new URLSearchParams(params);

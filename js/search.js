@@ -31,6 +31,7 @@ function buildSearch(){
   if (mode==='name'){ namePane(body); return; }
 
   if (!HP_AREAS.some(p=>p.id===hpArea_)){ setHpArea(hpAreaOf().id); }
+  { const ac=hpAreaOf().city; if (ac && ac!==curCity()) setCity(ac); }
   sx.areaText='';
   const searched = sx.state!=='idle' && sx.state!=='urls' && !sx.editing;
   // after a search: the conditions fold into one line, results right below
@@ -41,9 +42,13 @@ function buildSearch(){
     sum.onclick=()=>{ sx.editing=true; buildSearch(); const k=$('sxKw'); if(k) k.focus({preventScroll:true}); };
     body.appendChild(sum);
   } else {
-    body.appendChild(el('h3','sx-h sx-h1','エリア'));
+    const eh=el('div','sx-eh'); eh.appendChild(el('h3','sx-h sx-h1','エリア'));
+    const cs=el('div','seg sx-city'); cs.setAttribute('role','group'); cs.setAttribute('aria-label','都市');
+    for (const c of HP_CITIES){ const x=el('button',null,c.label); x.type='button'; x.setAttribute('aria-pressed',String(curCity()===c.id));
+      x.onclick=()=>{ if(curCity()===c.id) return; setCity(c.id); setHpArea(c.id); buildSearch(); }; cs.appendChild(x); }
+    eh.appendChild(cs); body.appendChild(eh);
     const ar=el('div','chips sx-areas'); ar.id='sxAreas'; ar.setAttribute('aria-label','エリア');
-    for (const p of HP_AREAS){ const c=el('button','chip',p.label); c.type='button'; c.dataset.id=p.id;
+    for (const p of HP_AREAS.filter(p=>!p.city || p.city===curCity())){ const c=el('button','chip',p.label); c.type='button'; c.dataset.id=p.id;
       c.onclick=()=>{ setHpArea(p.id); markAreas(); };
       ar.appendChild(c); }
     body.appendChild(ar); markAreas();
@@ -154,12 +159,12 @@ async function enrichByName(name, loc){
   if (!hpOn()) return {extra:{}};
   // Google first (most shops; needs the Worker's GOOGLE_PLACES_KEY), then ホットペッパー
   try{
-    const c=loc||hpAreaOf().at||SAPPORO; const d=await Promise.race([hpCall({gq:name, lat:c.lat, lng:c.lng, r:loc?500:5000}), new Promise(z=>setTimeout(()=>z(null),3000))]);
+    const c=loc||hpAreaOf().at||cityCenter(); const d=await Promise.race([hpCall({gq:name, lat:c.lat, lng:c.lng, r:loc?500:5000}), new Promise(z=>setTimeout(()=>z(null),3000))]);
     const g=d && Array.isArray(d.places) && d.places.find(x=>x.displayName && (norm(x.displayName.text)===norm(name) || norm(x.displayName.text).startsWith(norm(name)) || norm(name).startsWith(norm(x.displayName.text))));
     if (g) return {extra:gExtra(g), area:gArea(g)};
   }catch(e){ /* Google search not set up: fall through */ }
   try{
-    const q={name_any:name, count:'10'}; if (loc){ q.lat=String(loc.lat); q.lng=String(loc.lng); q.range='3'; } else { const c=hpAreaOf().at||SAPPORO; q.lat=String(c.lat); q.lng=String(c.lng); q.range='5'; }
+    const q={name_any:name, count:'10'}; if (loc){ q.lat=String(loc.lat); q.lng=String(loc.lng); q.range='3'; } else { const c=hpAreaOf().at||cityCenter(); q.lat=String(c.lat); q.lng=String(c.lng); q.range='5'; }
     const r=await Promise.race([hpSearch(q), new Promise(z=>setTimeout(()=>z(null),3000))]);
     const h=r && r.shops && r.shops.find(x=>norm(x.name)===norm(name) || norm(x.name).startsWith(norm(name)) || norm(name).startsWith(norm(x.name)));
     if (h) return {extra:hpShopExtra(h), area:hpArea(h)};
@@ -227,7 +232,7 @@ function sxQuery(){
   for (const [k] of HP_FLAGS) if (sx.flags[k]) extra[k]='1';
   const q={...where,...extra}; if (kw) q.keyword=[where.keyword,kw].filter(Boolean).join(' ');
   // shop-name matches: searched around a point (fast, and stays in the area). by area code it is slow and ignores the area
-  const pt = a.at ? {lat:a.at.lat,lng:a.at.lng,range:'3'} : (!place && a.kw) ? {lat:SAPPORO.lat,lng:SAPPORO.lng,range:'5'} : where.here ? {here:true,range:'3'} : where.lat ? {lat:where.lat,lng:where.lng,range:'3'} : null;
+  const pt = a.at ? {lat:a.at.lat,lng:a.at.lng,range:'3'} : (!place && a.kw) ? {lat:(a.center||cityCenter()).lat,lng:(a.center||cityCenter()).lng,range:'5'} : where.here ? {here:true,range:'3'} : where.lat ? {lat:where.lat,lng:where.lng,range:'3'} : null;
   const nk=sxWords(sx.kw||'');   // shop names: only what was typed (not the genre)
   const nameQ = (nk && pt) ? {...pt,...extra,name_any:nk} : null;
   const label=[place||(a.id!=='any'?a.label:''), kw].filter(Boolean).join(' × ');
@@ -454,8 +459,8 @@ function gQuery(){
   const a=hpAreaOf(), kw=sxWords(sxKwAll()), place=sxWords(sx.areaText);
   const near = place || (a.id!=='any' && !a.here && a.id!=='sapporo' ? a.label : '');
   const q={gq:[near, kw||'居酒屋'].filter(Boolean).join(' ')};
-  if (place) Object.assign(q,{lat:SAPPORO.lat,lng:SAPPORO.lng,r:30000});
-  else if (a.id==='sapporo') Object.assign(q,{lat:SAPPORO.lat,lng:SAPPORO.lng,r:12000,rect:1});
+  if (place) Object.assign(q,{lat:cityCenter().lat,lng:cityCenter().lng,r:30000});
+  else if (a.center) Object.assign(q,{lat:a.center.lat,lng:a.center.lng,r:a.id==='tokyo'?20000:12000,rect:1});
   else if (a.at) Object.assign(q,{lat:a.at.lat,lng:a.at.lng,r:1000,rect:1});
   else if (a.here) Object.assign(q,{here:1,r:1500,rect:1});
   const label=[place||(a.id!=='any'?a.label:''), kw].filter(Boolean).join(' × ');
