@@ -29,7 +29,7 @@ function buildSearch(){
   const r2=el('label','sx-row'); r2.appendChild(el('span','sx-ic','🔍'));
   const ki=el('input','sx-in'); ki.id='sxKw'; ki.type='search'; ki.placeholder='店名・料理'; ki.autocomplete='off'; ki.maxLength=5000; ki.value=sx.kw;
   ki.oninput=()=>{ sx.kw=ki.value; };
-  ki.addEventListener('paste',e=>{ const t=(e.clipboardData||window.clipboardData)?.getData('text')||''; if (!hasUrl(t)) return; e.preventDefault(); ki.value=''; sx.kw=''; runUrls(t); });
+  ki.addEventListener('paste',e=>{ const t=clipFromEvent(e); if (!hasUrl(t)) return; e.preventDefault(); ki.value=''; sx.kw=''; runUrls(t); });
   r2.appendChild(ki); f.appendChild(r2);
   const go=el('button','btn btn-red sx-go','検索'); go.type='submit'; f.appendChild(go);
   f.onsubmit=e=>{ e.preventDefault(); ki.blur(); runSearch(); };
@@ -90,6 +90,23 @@ function parseTabelog(seg){
     const n=/^(.+?)\s*(?:[-－|｜]\s*食べログ|\[食べログ\]|［食べログ］)\s*$/.exec(raw); if (n) return {name:n[1].trim().slice(0,60), area:'', genre:''};
   }
   return null;
+}
+// all the text in a paste: the plain text, plus any link that came as its own piece (text/uri-list) or inside html
+function clipJoin(plain,uriList,html){
+  let t=plain||''; const more=[];
+  for (const u of String(uriList||'').split(/\r?\n/)) if (/^https?:\/\//i.test(u.trim())) more.push(u.trim());
+  if (html){ const re=/href\s*=\s*["']([^"']+)["']/gi; let m; while((m=re.exec(html))) if(/^https?:\/\//i.test(m[1])) more.push(m[1].replace(/&amp;/g,'&')); }
+  for (const u of more) if (!t.includes(u)) t += (t?'\n':'') + u;
+  return t;
+}
+const clipFromEvent = e => { const d=e.clipboardData||window.clipboardData; if(!d) return ''; return clipJoin(d.getData('text/plain')||d.getData('text'), d.getData('text/uri-list'), d.getData('text/html')); };
+async function clipRead(){
+  if (navigator.clipboard && navigator.clipboard.read){
+    try{ const items=await navigator.clipboard.read(); let plain='', uri='', html='';
+      for (const it of items){ for (const ty of it.types){ const v=await (await it.getType(ty)).text();
+        if (ty==='text/plain') plain+=(plain?'\n':'')+v; else if (ty==='text/uri-list') uri+='\n'+v; else if (ty==='text/html') html+=v; } }
+      const t=clipJoin(plain,uri,html); if (t) return t; }catch(e){ /* fall back to plain text */ } }
+  return navigator.clipboard.readText();
 }
 function urlsIn(text){
   const out=[]; let m, last=0; URL_RE.lastIndex=0;
@@ -429,17 +446,21 @@ function openUrlAdd(){
   box.appendChild(el('h3','ua-t','URLで登録'));
   box.appendChild(el('p','hint','ホットペッパーやGoogleマップのお店のURLを貼ってください。LINEの文面ごと、何件まとめてでもOK。'));
   const ta=el('textarea','ua-in'); ta.rows=4; ta.placeholder='https://…'; ta.setAttribute('aria-label','お店のURL'); box.appendChild(ta);
+  ta.addEventListener('paste',e=>{ const t=clipFromEvent(e), plain=(e.clipboardData&&e.clipboardData.getData('text/plain'))||''; if (t===plain) return;
+    e.preventDefault(); const a=ta.selectionStart, b=ta.selectionEnd; ta.value=ta.value.slice(0,a)+t+ta.value.slice(b); });
   const err=el('p','ua-err'); err.setAttribute('aria-live','polite'); box.appendChild(err);
   const a=el('div','actions');
   const paste=el('button','btn btn-line','📋 貼り付け'); paste.type='button';
-  paste.onclick=async()=>{ try{ const t=await navigator.clipboard.readText(); if(t){ ta.value=(ta.value?ta.value+'\n':'')+t; err.textContent=''; } }catch{ err.textContent='貼り付けできませんでした。入力欄を長押しして貼り付けてください。'; ta.focus(); } };
+  paste.onclick=async()=>{ try{ const t=await clipRead(); if(t){ ta.value=(ta.value?ta.value+'\n':'')+t; err.textContent=''; } }catch{ err.textContent='貼り付けできませんでした。入力欄を長押しして貼り付けてください。'; ta.focus(); } };
   const no=el('button','btn btn-line','やめる'); no.type='button';
   const ok=el('button','btn btn-red','登録'); ok.type='button';
   a.append(paste,no,ok); box.appendChild(a); d.appendChild(box);
   if (!navigator.clipboard || !navigator.clipboard.readText) paste.hidden=true;
   const done=()=>{ if(d.isConnected){ d.close(); d.remove(); } };
   no.onclick=done; d.addEventListener('click',e=>{ if(e.target===d) done(); });
-  ok.onclick=()=>{ const t=ta.value; if (!urlsIn(t).length){ err.textContent='URLが見つかりません。https:// から始まるリンクを貼ってください。'; return; }
+  ok.onclick=()=>{ const t=ta.value; if (!urlsIn(t).length){ const n=t.trim(); if (n && n.length<=40 && !/
+/.test(n)){ done(); openSearch(n); toast('リンクが入っていなかったので、店名で探しました'); return; }
+      err.textContent='URLが見つかりません。https:// から始まるリンクを貼ってください。'; return; }
     done(); sx.kw=''; openSearch(''); runUrls(t); };
   document.body.appendChild(d); d.showModal(); ta.focus();
 }
