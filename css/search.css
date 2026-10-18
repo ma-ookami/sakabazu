@@ -67,3 +67,26 @@
 .sx-h.sx-h1{margin-top:6px}
 .sx-box .sx-row{border-bottom-color:transparent}
 .sx-box{margin-top:12px}
+
+/* お店を追加: 探す / URLを貼る / 名前だけ */
+.add-ways{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 14px}
+.add-way{display:grid;justify-items:center;gap:2px;padding:10px 4px 9px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--card);color:var(--sub);font:inherit;box-shadow:var(--shadow-1)}
+.add-way svg{width:22px;height:22px;margin-bottom:2px}
+.add-way b{font-size:14px;color:var(--ink)}
+.add-way small{font-size:10.5px}
+.add-way[aria-selected="true"]{border-color:var(--red);background:color-mix(in srgb,var(--red) 7%,var(--card));color:var(--red);box-shadow:0 0 0 2px color-mix(in srgb,var(--red) 18%,transparent)}
+.add-way[aria-selected="true"] b{color:var(--red)}
+/* after a search: one line of conditions */
+.sx-sum{display:flex;align-items:center;gap:8px;width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--card);font:inherit;text-align:left;box-shadow:var(--shadow-1)}
+.sx-sum-t{flex:1;min-width:0;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sx-sum-e{flex:none;font-size:12px;color:var(--red);font-weight:700}
+.sx-opts{display:flex;align-items:center;gap:8px;margin-top:16px;flex-wrap:wrap}
+.sx-opts .sx-src{margin:0}
+.sx-fb.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.sx-filters{margin-top:10px}
+.ua-row{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+.ua-name{margin-top:8px}
+.sx-notfound{margin-top:18px;padding:14px;border:1.5px dashed var(--line);border-radius:var(--r-lg);text-align:center}
+.sx-nf-t{margin:0 0 8px;font-weight:700}
+.sx-nf-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.sx-sum ~ .sx-res .sx-head .sx-lab{display:none}

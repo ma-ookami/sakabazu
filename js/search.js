@@ -11,55 +11,109 @@ function openSearch(kw){
   showSheet('searchSheet'); buildSearch();
   if (sx.kw.trim()) runSearch(); else { const k=$('sxKw'); if(k) k.focus({preventScroll:true}); }
 }
-function closeSearch(){ hideSheet('searchSheet'); }
+function closeSearch(){ hideSheet('searchSheet'); sx.mode='find'; sx.editing=false; }
 
 function buildSearch(){
   const body=$('sBody'); body.textContent='';
-  if (!hpOn()){ body.appendChild(el('p','hint','お店検索はまだ設定されていません(firebase-config.js の HOTPEPPER_PROXY)。')); return; }
-  // エリア (chips) first, then the keyword box
+  if (!hpOn() && (sx.mode||'find')==='find') sx.mode='url';
+  const mode=sx.mode||'find';
+  // how to add: three ways, side by side
+  const ways=el('div','add-ways'); ways.setAttribute('role','tablist'); ways.setAttribute('aria-label','追加のしかた');
+  const ICON={find:'<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/>', url:'<path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.2 1.2"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/>', name:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>'};
+  for (const [k,l,sub] of [['find','探す','エリア・料理'],['url','URLを貼る','LINEのリンク'],['name','名前だけ','載っていない店']]){
+    const w=el('button','add-way'); w.type='button'; w.setAttribute('role','tab'); w.setAttribute('aria-selected',String(mode===k));
+    w.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+ICON[k]+'</svg>';
+    w.append(el('b',null,l), el('small',null,sub));
+    w.onclick=()=>{ if (sx.mode===k) return; sx.mode=k; buildSearch(); const f=$('sBody').querySelector('input,textarea'); if(f && k!=='find') f.focus({preventScroll:true}); };
+    ways.appendChild(w); }
+  body.appendChild(ways);
+  if (mode==='url'){ urlPane(body); return; }
+  if (mode==='name'){ namePane(body); return; }
+
   if (!HP_AREAS.some(p=>p.id===hpArea_)){ setHpArea(hpAreaOf().id); }
   sx.areaText='';
-  body.appendChild(el('h3','sx-h sx-h1','エリア'));
-  const ar=el('div','chips sx-areas'); ar.id='sxAreas'; ar.setAttribute('aria-label','エリア');
-  for (const p of HP_AREAS){ const c=el('button','chip',p.label); c.type='button'; c.dataset.id=p.id;
-    c.onclick=()=>{ setHpArea(p.id); markAreas(); if(sx.state==='done'||sx.state==='error') runSearch(); };
-    ar.appendChild(c); }
-  body.appendChild(ar); markAreas();
-  const f=el('form','sx-box'); f.noValidate=true;
-  const r2=el('label','sx-row'); r2.appendChild(el('span','sx-ic','🔍'));
-  const ki=el('input','sx-in'); ki.id='sxKw'; ki.type='search'; ki.placeholder='店名・料理'; ki.autocomplete='off'; ki.maxLength=5000; ki.value=sx.kw;
-  ki.oninput=()=>{ sx.kw=ki.value; };
-  ki.addEventListener('paste',e=>{ const t=clipFromEvent(e); if (!hasUrl(t)) return; e.preventDefault(); ki.value=''; sx.kw=''; runUrls(t); });
-  r2.appendChild(ki); f.appendChild(r2);
-  const go=el('button','btn btn-red sx-go','検索'); go.type='submit'; f.appendChild(go);
-  f.onsubmit=e=>{ e.preventDefault(); ki.blur(); runSearch(); };
-  body.appendChild(f);
-  { const u=el('button','sx-urlbtn','🔗 URLで登録(LINEで送られたリンクなど)'); u.type='button'; u.onclick=()=>openUrlAdd(); body.appendChild(u); }
-
-  body.appendChild(el('h3','sx-h','ジャンルから探す'));
-  const gs=el('div','sx-genres');
-  for (const g of HP_GENRES){ const c=el('button','sx-genre',g); c.type='button'; c.onclick=()=>{ sx.kw=g; ki.value=g; runSearch(); }; gs.appendChild(c); }
-  body.appendChild(gs);
-
-  // where to search: Google (most shops) or ホットペッパー (budget / 飲み放題 filters)
-  const srcSeg=el('div','seg sx-src'); srcSeg.setAttribute('role','group'); srcSeg.setAttribute('aria-label','検索先');
-  for (const [k,l] of [['g','Google'],['hp','ホットペッパー']]){ const x=el('button',null,l); x.type='button'; x.setAttribute('aria-pressed',String(sx.src===k));
-    x.onclick=()=>{ if(sx.src===k) return; sx.src=k; buildSearch(); if(sx.state!=='idle') runSearch(); }; srcSeg.appendChild(x); }
-  body.appendChild(srcSeg);
-  if (sx.src==='hp') body.appendChild(el('h3','sx-h','こだわり条件(ホットペッパー)'));
-  const fl=el('div','chips sx-filters'); fl.setAttribute('aria-label','こだわり条件'); if (sx.src!=='hp') fl.hidden=true;
-  const bs=el('select','sx-budget'); bs.setAttribute('aria-label','予算(夜)');
-  for (const [v,l] of HP_BUDGETS){ const o=el('option',null,l); o.value=v; o.selected=sx.budget===v; bs.appendChild(o); }
-  bs.classList.toggle('on',!!sx.budget);
-  bs.onchange=()=>{ sx.budget=bs.value; bs.classList.toggle('on',!!sx.budget); if(sx.state==='done') runSearch(); };
-  fl.appendChild(bs);
-  for (const [k,l] of HP_FLAGS){ const c=el('button','chip',l); c.type='button'; c.setAttribute('aria-pressed',String(!!sx.flags[k]));
-    c.onclick=()=>{ sx.flags[k]=!sx.flags[k]; c.setAttribute('aria-pressed',String(sx.flags[k])); if(sx.state==='done') runSearch(); };
-    fl.appendChild(c); }
-  body.appendChild(fl);
-
+  const searched = sx.state!=='idle' && sx.state!=='urls' && !sx.editing;
+  // after a search: the conditions fold into one line, results right below
+  if (searched){
+    const sum=el('button','sx-sum'); sum.type='button';
+    const on=[hpAreaOf().label, sxWords(sx.kw), sx.budget&&(HP_BUDGETS.find(x=>x[0]===sx.budget)||[])[1], ...HP_FLAGS.filter(([k])=>sx.flags[k]).map(x=>x[1])].filter(Boolean);
+    sum.append(el('span','sx-sum-ic','🔍'), el('span','sx-sum-t',on.join(' × ')), el('span','sx-sum-e','✎ 条件を変える'));
+    sum.onclick=()=>{ sx.editing=true; buildSearch(); const k=$('sxKw'); if(k) k.focus({preventScroll:true}); };
+    body.appendChild(sum);
+  } else {
+    body.appendChild(el('h3','sx-h sx-h1','エリア'));
+    const ar=el('div','chips sx-areas'); ar.id='sxAreas'; ar.setAttribute('aria-label','エリア');
+    for (const p of HP_AREAS){ const c=el('button','chip',p.label); c.type='button'; c.dataset.id=p.id;
+      c.onclick=()=>{ setHpArea(p.id); markAreas(); };
+      ar.appendChild(c); }
+    body.appendChild(ar); markAreas();
+    const f=el('form','sx-box'); f.noValidate=true;
+    const r2=el('label','sx-row'); r2.appendChild(el('span','sx-ic','🔍'));
+    const ki=el('input','sx-in'); ki.id='sxKw'; ki.type='search'; ki.placeholder='店名・料理'; ki.autocomplete='off'; ki.maxLength=5000; ki.value=sx.kw;
+    ki.oninput=()=>{ sx.kw=ki.value; };
+    ki.addEventListener('paste',e=>{ const t=clipFromEvent(e); if (!hasUrl(t)) return; e.preventDefault(); ki.value=''; sx.kw=''; runUrls(t); });
+    r2.appendChild(ki); f.appendChild(r2);
+    const go=el('button','btn btn-red sx-go','検索'); go.type='submit'; f.appendChild(go);
+    f.onsubmit=e=>{ e.preventDefault(); ki.blur(); runSearch(); };
+    body.appendChild(f);
+    body.appendChild(el('h3','sx-h','ジャンルから探す'));
+    const gs=el('div','sx-genres');
+    for (const g of HP_GENRES){ const c=el('button','sx-genre',g); c.type='button'; c.onclick=()=>{ sx.kw=g; ki.value=g; runSearch(); }; gs.appendChild(c); }
+    body.appendChild(gs);
+    // where to search, and the conditions (folded behind ⚙)
+    const row=el('div','sx-opts');
+    const srcSeg=el('div','seg sx-src'); srcSeg.setAttribute('role','group'); srcSeg.setAttribute('aria-label','検索先');
+    for (const [k,l] of [['g','Google'],['hp','ホットペッパー']]){ const x=el('button',null,l); x.type='button'; x.setAttribute('aria-pressed',String(sx.src===k));
+      x.onclick=()=>{ if(sx.src===k) return; sx.src=k; buildSearch(); }; srcSeg.appendChild(x); }
+    row.appendChild(srcSeg);
+    if (sx.src==='hp'){ const n=(sx.budget?1:0)+HP_FLAGS.filter(([k])=>sx.flags[k]).length;
+      const fb=el('button','chip sx-fb'+(n?' on':''), '⚙ 条件'+(n?' '+n:'')); fb.type='button'; fb.setAttribute('aria-expanded',String(!!sx.fopen));
+      fb.onclick=()=>{ sx.fopen=!sx.fopen; buildSearch(); }; row.appendChild(fb); }
+    body.appendChild(row);
+    if (sx.src==='hp' && sx.fopen){
+      const fl=el('div','chips sx-filters'); fl.setAttribute('aria-label','こだわり条件');
+      const bs=el('select','sx-budget'); bs.setAttribute('aria-label','予算(夜)');
+      for (const [v,l] of HP_BUDGETS){ const o=el('option',null,l); o.value=v; o.selected=sx.budget===v; bs.appendChild(o); }
+      bs.classList.toggle('on',!!sx.budget);
+      bs.onchange=()=>{ sx.budget=bs.value; bs.classList.toggle('on',!!sx.budget); };
+      fl.appendChild(bs);
+      for (const [k,l] of HP_FLAGS){ const c=el('button','chip',l); c.type='button'; c.setAttribute('aria-pressed',String(!!sx.flags[k]));
+        c.onclick=()=>{ sx.flags[k]=!sx.flags[k]; c.setAttribute('aria-pressed',String(sx.flags[k])); };
+        fl.appendChild(c); }
+      body.appendChild(fl);
+    }
+  }
   const res=el('div','sx-res'); res.id='sxRes'; res.setAttribute('aria-live','polite'); body.appendChild(res);
   renderResults();
+}
+// URLを貼る: right here in the add screen
+function urlPane(body){
+  body.appendChild(el('p','hint','ホットペッパー・Googleマップ・食べログのお店のリンクを貼ってください。LINEの文面ごと、何件まとめてでもOK。'));
+  const ta=el('textarea','ua-in'); ta.id='uaIn'; ta.rows=4; ta.placeholder='https://…'; ta.setAttribute('aria-label','お店のURL'); body.appendChild(ta);
+  ta.addEventListener('paste',e=>{ const t=clipFromEvent(e), plain=(e.clipboardData&&e.clipboardData.getData('text/plain'))||''; if (t===plain) return;
+    e.preventDefault(); const a=ta.selectionStart, b=ta.selectionEnd; ta.value=ta.value.slice(0,a)+t+ta.value.slice(b); });
+  const err=el('p','ua-err'); err.setAttribute('aria-live','polite'); body.appendChild(err);
+  const row=el('div','ua-row');
+  const paste=el('button','btn btn-line','📋 貼り付け'); paste.type='button';
+  paste.onclick=async()=>{ try{ const t=await clipRead(); if(t){ ta.value=(ta.value?ta.value+'\n':'')+t; err.textContent=''; } }catch{ err.textContent='貼り付けできませんでした。入力欄を長押しして貼り付けてください。'; ta.focus(); } };
+  if (!navigator.clipboard || !navigator.clipboard.readText) paste.hidden=true;
+  const ok=el('button','btn btn-red','登録'); ok.type='button';
+  ok.onclick=()=>{ const t=ta.value; if (!urlsIn(t).length){ const n=t.trim(); if (n && n.length<=40 && !/\n/.test(n)){ sx.mode='find'; sx.kw=n; buildSearch(); runSearch(); toast('リンクが入っていなかったので、店名で探しました'); return; }
+      err.textContent='URLが見つかりません。https:// から始まるリンクを貼ってください。'; return; }
+    runUrls(t); };
+  row.append(paste,ok); body.appendChild(row);
+  const res=el('div','sx-res'); res.id='sxRes'; res.setAttribute('aria-live','polite'); body.appendChild(res);
+  if (sx.state==='urls' || (sx.state==='loading' && sx.label==='URL')) renderResults();
+}
+// 名前だけ: a shop that isn't on any site
+function namePane(body){
+  body.appendChild(el('p','hint','検索に出てこない個人のお店などは、名前だけで追加できます。あとからジャンルや場所も入れられます。'));
+  const f=el('form','quick quickadd ua-name'); f.noValidate=true;
+  const i=el('input','field'); i.placeholder='お店の名前'; i.maxLength=60; i.autocomplete='off'; i.setAttribute('aria-label','お店の名前');
+  const b=el('button','btn btn-red','追加'); b.type='submit'; f.append(i,b);
+  f.onsubmit=async e=>{ e.preventDefault(); const n=i.value.trim(); if(!n){ i.focus(); return; } b.disabled=true;
+    if (await addManual(n)){ sx.kw=''; closeSearch(); listSub='want'; setTab('list'); } else b.disabled=false; };
+  body.appendChild(f);
 }
 function markAreas(){ const ar=$('sxAreas'); if(!ar) return; const id=hpArea_;
   ar.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',String(c.dataset.id===id))); }
@@ -176,12 +230,13 @@ function sxQuery(){
   return {q,nameQ,label,usedSa};
 }
 async function runSearch(more){
+  if (!more){ sx.editing=false; sx.mode='find'; }
   if (hasUrl(sx.kw)) return runUrls(sx.kw);
   if (sx.src==='g') return runGoogle(more);
   const {q,nameQ,label,usedSa}=sxQuery();
   if (!q.keyword && !q.lat && !q.here && !q.small_area){ sx.state='error'; sx.msg='エリアかキーワードを入れてください。'; renderResults(); return; }
   const seq=++sx.seq;
-  if (!more){ sx.state='loading'; sx.results=[]; sx.total=0; sx.mainN=0; sx.label=label; renderResults(); }
+  if (!more){ sx.state='loading'; sx.results=[]; sx.total=0; sx.mainN=0; sx.label=label; buildSearch(); }
   else { sx.more=true; renderResults(); }
   if (q.here){
     const here=await new Promise(r=>getHere(r)); if (seq!==sx.seq) return;
@@ -203,7 +258,8 @@ async function runSearch(more){
       : w.lat ? Math.hypot((+r.lat-w.lat)*111000,(+r.lng-w.lng)*111000*Math.cos(w.lat*Math.PI/180)) <= (w.range==='5'?3200:1500)
       : w.keyword==='札幌市' ? /札幌市/.test(r.address||'') : true;
     const names = (byName && byName.v>=2) ? byName.shops.filter(inArea) : [];
-    for (const r of names) r._name=true;
+    const genreWord = HP_GENRES.includes(sx.kw.trim()) || /^(居酒屋|酒場|飲み屋|バー|立ち?飲み|焼き?鳥|寿司|ラーメン|焼肉|海鮮)$/.test(sx.kw.trim());
+    if (!genreWord) for (const r of names) r._name=true;
     const seen=new Set(more ? sx.results.map(r=>r.id) : names.map(r=>r.id));
     const add=main.shops.filter(r=>!seen.has(r.id));
     sx.results = more ? sx.results.concat(add) : names.concat(add);
@@ -372,10 +428,14 @@ function renderResults(){
   if (sx.results.length && sx.results.length<sx.total){
     const m=el('button','btn btn-line sx-more', sx.more?'読み込んでいます…':'もっと見る'); m.disabled=sx.more; m.onclick=()=>runSearch(true); box.appendChild(m);
   }
-  // not on ホットペッパー: add the name as typed
+  // not found? paste its link, or add it by name
   const kw=sxWords(sx.kw);
-  if (kw && !readOnly){ const m=el('button','btn '+(sx.results.length?'btn-line':'btn-red')+' sx-alt',`「${kw}」をこの名前で行きたいに追加`);
-    m.onclick=async()=>{ m.disabled=true; if(await addManual(kw)){ closeSearch(); listSub='want'; setTab('list'); } else m.disabled=false; }; box.appendChild(m); }
+  if (!readOnly){ const nf=el('div','sx-notfound'); nf.appendChild(el('p','sx-nf-t','見つからない?'));
+    const row=el('div','sx-nf-row');
+    const u=el('button','btn btn-line','🔗 URLを貼る'); u.onclick=()=>{ sx.mode='url'; buildSearch(); const t=$('uaIn'); if(t) t.focus({preventScroll:true}); }; row.appendChild(u);
+    const m=el('button','btn '+(sx.results.length?'btn-line':'btn-red'), kw?`「${kw}」を名前だけで追加`:'名前だけで追加');
+    m.onclick=async()=>{ if(!kw){ sx.mode='name'; buildSearch(); return; } m.disabled=true; if(await addManual(kw)){ closeSearch(); listSub='want'; setTab('list'); } else m.disabled=false; }; row.appendChild(m);
+    nf.appendChild(row); box.appendChild(nf); }
   const ft=el('p','caution');
   const c=el('a','credit','Powered by ホットペッパーグルメ Webサービス'); c.href='https://webservice.recruit.co.jp/'; c.target='_blank'; c.rel='noopener noreferrer'; ft.appendChild(c);
   const gq=(sx.label||'札幌').replace(/ × /g,' ')+(/居酒屋|飲み|バー|酒場/.test(sx.label||'')?'':' 居酒屋');
@@ -484,28 +544,7 @@ function resultActions(li,ac,name,area,extra,own,redraw){
 }
 
 // URLで登録: paste links (LINE messages and all), then they're read in the search screen
-function openUrlAdd(){
-  const d=el('dialog','ask urladd'); const box=el('div','ask-in');
-  box.appendChild(el('h3','ua-t','URLで登録'));
-  box.appendChild(el('p','hint','ホットペッパーやGoogleマップのお店のURLを貼ってください。LINEの文面ごと、何件まとめてでもOK。'));
-  const ta=el('textarea','ua-in'); ta.rows=4; ta.placeholder='https://…'; ta.setAttribute('aria-label','お店のURL'); box.appendChild(ta);
-  ta.addEventListener('paste',e=>{ const t=clipFromEvent(e), plain=(e.clipboardData&&e.clipboardData.getData('text/plain'))||''; if (t===plain) return;
-    e.preventDefault(); const a=ta.selectionStart, b=ta.selectionEnd; ta.value=ta.value.slice(0,a)+t+ta.value.slice(b); });
-  const err=el('p','ua-err'); err.setAttribute('aria-live','polite'); box.appendChild(err);
-  const a=el('div','actions');
-  const paste=el('button','btn btn-line','📋 貼り付け'); paste.type='button';
-  paste.onclick=async()=>{ try{ const t=await clipRead(); if(t){ ta.value=(ta.value?ta.value+'\n':'')+t; err.textContent=''; } }catch{ err.textContent='貼り付けできませんでした。入力欄を長押しして貼り付けてください。'; ta.focus(); } };
-  const no=el('button','btn btn-line','やめる'); no.type='button';
-  const ok=el('button','btn btn-red','登録'); ok.type='button';
-  a.append(paste,no,ok); box.appendChild(a); d.appendChild(box);
-  if (!navigator.clipboard || !navigator.clipboard.readText) paste.hidden=true;
-  const done=()=>{ if(d.isConnected){ d.close(); d.remove(); } };
-  no.onclick=done; d.addEventListener('click',e=>{ if(e.target===d) done(); });
-  ok.onclick=()=>{ const t=ta.value; if (!urlsIn(t).length){ const n=t.trim(); if (n && n.length<=40 && !/\n/.test(n)){ done(); openSearch(n); toast('リンクが入っていなかったので、店名で探しました'); return; }
-      err.textContent='URLが見つかりません。https:// から始まるリンクを貼ってください。'; return; }
-    done(); sx.kw=''; openSearch(''); runUrls(t); };
-  document.body.appendChild(d); d.showModal(); ta.focus();
-}
+function openUrlAdd(){ sx.mode='url'; sx.state='idle'; sx.kw=''; openSearch(''); setTimeout(()=>{ const t=$('uaIn'); if(t) t.focus({preventScroll:true}); },350); }
 
 // a shop added from a link: its place from the address (if the link didn't give one), and an area name
 async function fillAfter(id,x){
