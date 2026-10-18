@@ -61,7 +61,9 @@ async function startGroup(){
   const mids=await memberList();
   let mid = mids[uid] ? uid : null;
   if (!mid){ try{ const l=await fs.doc(gpath('links/'+uid)).get(); if(l.exists && mids[l.data().mid]) mid=l.data().mid; }catch(e){ console.warn(e); } }
-  if (!mid){ showGate({kind:'join', members:mids}); return; }
+  // not my list: lists can't be joined any more (飲み友 connect with a code instead)
+  if (!mid){ try{ localStorage.removeItem('nm-gid'); }catch{}
+    if (invited) showGate({kind:'error', msg:'この招待リンクは使えなくなりました。飲み友とは、右上のアイコン →「飲み友」のコードでつながれます。'}); else autoStart(); return; }
   enterGroup(mid, mine);
 }
 async function memberList(){
@@ -124,24 +126,6 @@ async function createGroup(nick){
   b.set(fs.doc('users/'+uid),{gid:id, owned:[...owned,id]},{merge:true});
   await b.commit();
   gid=id; group={createdBy:uid}; enterGroup(uid,{gid:id,owned:[...owned,id]});
-}
-async function joinGroup(nick){
-  const b=fs.batch();
-  b.set(fs.doc(gpath('members/'+uid)),memberData(nick));
-  b.set(fs.doc('users/'+uid),{gid},{merge:true});
-  await b.commit();
-  enterGroup(uid,{gid});
-}
-// become an existing member on this device. Returns false when the passcode is wrong.
-async function claimMember(mid, pin){
-  const ref=fs.doc(gpath('links/'+uid));
-  try{
-    await ref.set(pin ? {mid, at:Date.now(), pin, verified:true} : {mid, at:Date.now(), verified:false});
-    if (pin) await ref.set({mid, at:Date.now(), verified:true});   // keep "verified", drop the passcode itself
-  }catch(e){ if(e && e.code==='permission-denied') return false; throw e; }
-  await fs.doc('users/'+uid).set({gid},{merge:true});
-  enterGroup(mid,{gid});
-  return true;
 }
 
 // Google: the member's own device links Google to its anonymous account (uid stays the same).

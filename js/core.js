@@ -80,3 +80,6 @@ const avgMark = v => v==null ? null : MARKS[3-Math.round(v)];
 const wantIds = s => inScope(wantBy(s));
 function recorders(s){ const r=s.r||{}; return Object.keys(r).filter(u => r[u] && Object.values(r[u]).some(x => x && (x.m || (x.t||'').trim()))); }
 function rankList(uid){ const ids=(rankings[uid]&&rankings[uid].ids)||[]; return ids.filter(id => shops.some(s => s.id===id && wentBy(s)[uid])); }
+
+// a link we can open: only http(s) (a "javascript:" link saved in a shop must never run)
+const safeUrl = u => typeof u==='string' && /^https?:\/\//i.test(u.trim()) ? u.trim() : '';

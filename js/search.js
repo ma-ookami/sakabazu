@@ -267,7 +267,7 @@ function renderResults(){
     const top=el('div','sx-top');
     const tx=el('div','sx-tx');
     if (r._name) tx.appendChild(el('span','sx-hit','店名が一致'));
-    const nm=el('a','sx-nm',r.name); if(r.urls&&r.urls.pc){ nm.href=r.urls.pc; nm.target='_blank'; nm.rel='noopener noreferrer'; } tx.appendChild(nm);
+    const nm=el('a','sx-nm',r.name); if(r.urls&&safeUrl(r.urls.pc)){ nm.href=safeUrl(r.urls.pc); nm.target='_blank'; nm.rel='noopener noreferrer'; } tx.appendChild(nm);
     const sub=[hpArea(r), r.genre&&r.genre.name].filter(Boolean).join(' / '); if(sub) tx.appendChild(el('span','sx-sub',sub));
     const bd=hpBudget(r); if(bd) tx.appendChild(el('span','sx-bud','🌙 '+bd));
     top.appendChild(tx);
@@ -281,7 +281,7 @@ function renderResults(){
     const ac=el('div','sx-ac');
     const own=myShops.find(s=>(s.hp&&s.hp.id===r.id) || norm(s.name)===norm(r.name));
     resultActions(li,ac,r.name,hpArea(r),()=>hpShopExtra(r),own,renderResults);
-    if (r.urls && r.urls.pc){ const a=el('a','sbtn','お店のページ'); a.href=r.urls.pc; a.target='_blank'; a.rel='noopener noreferrer'; ac.appendChild(a); }
+    if (r.urls && safeUrl(r.urls.pc)){ const a=el('a','sbtn','お店のページ'); a.href=safeUrl(r.urls.pc); a.target='_blank'; a.rel='noopener noreferrer'; ac.appendChild(a); }
     li.appendChild(ac); ul.appendChild(li);
   }
   box.appendChild(ul);
@@ -356,7 +356,7 @@ function renderGoogle(){
   for (const p of sx.gres){
     const name=(p.displayName&&p.displayName.text)||''; if(!name) continue;
     const li=el('li','sx-card'), tx=el('div','sx-tx');
-    const nm=el('a','sx-nm',name); if(p.googleMapsUri){ nm.href=p.googleMapsUri; nm.target='_blank'; nm.rel='noopener noreferrer'; } tx.appendChild(nm);
+    const nm=el('a','sx-nm',name); if(safeUrl(p.googleMapsUri)){ nm.href=safeUrl(p.googleMapsUri); nm.target='_blank'; nm.rel='noopener noreferrer'; } tx.appendChild(nm);
     const sub=[p.primaryTypeDisplayName&&p.primaryTypeDisplayName.text, gArea(p)].filter(Boolean).join(' / '); if(sub) tx.appendChild(el('span','sx-sub',sub));
     if (p.rating){ const r=el('div','starline'); r.append(starsView(p.rating), el('b','st-v',p.rating.toFixed(1)), el('small',null,`(${(p.userRatingCount||0).toLocaleString()}件)`)); if(G_PRICE[p.priceLevel]) r.appendChild(el('small','g-price',G_PRICE[p.priceLevel])); tx.appendChild(r); }
     const wds=p.regularOpeningHours&&p.regularOpeningHours.weekdayDescriptions; if (wds&&wds[wd]) tx.appendChild(el('span','sx-acc','今日 '+wds[wd].replace(/^[^:：]+[:：]\s*/,'')));
@@ -364,7 +364,7 @@ function renderGoogle(){
     const ac=el('div','sx-ac');
     const own=myShops.find(s=>norm(s.name)===norm(name) || (Array.isArray(s.links)&&p.googleMapsUri&&s.links.includes(p.googleMapsUri)));
     resultActions(li,ac,name,gArea(p),()=>gExtra(p),own,renderGoogle);
-    if (p.googleMapsUri){ const a=el('a','sbtn','Googleマップ'); a.href=p.googleMapsUri; a.target='_blank'; a.rel='noopener noreferrer'; ac.appendChild(a); }
+    if (safeUrl(p.googleMapsUri)){ const a=el('a','sbtn','Googleマップ'); a.href=safeUrl(p.googleMapsUri); a.target='_blank'; a.rel='noopener noreferrer'; ac.appendChild(a); }
     li.appendChild(ac); ul.appendChild(li);
   }
   box.appendChild(ul);

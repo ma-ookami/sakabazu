@@ -11,14 +11,6 @@ function nickForm(label,value,onSave){
   f.onsubmit=e=>{ e.preventDefault(); const n=i.value.trim(); if(!n){ i.focus(); toast('ニックネームを入れてください'); return; } busyBtn(b,()=>onSave(n)); };
   return f;
 }
-function pinForm(label,onSave){
-  const f=el('form','quick'); f.style.margin='0'; f.noValidate=true;
-  const i=el('input','field'); i.inputMode='numeric'; i.maxLength=4; i.placeholder='4桁の数字'; i.setAttribute('aria-label','合言葉(4桁の数字)'); i.autocomplete='off';
-  i.oninput=()=>{ i.value=i.value.replace(/\D/g,'').slice(0,4); };
-  const b=el('button','btn btn-ink',label); b.type='submit'; f.append(i,b);
-  f.onsubmit=e=>{ e.preventDefault(); if(!/^\d{4}$/.test(i.value)){ i.focus(); toast('4桁の数字を入れてください'); return; } busyBtn(b,()=>onSave(i.value)); };
-  return f;
-}
 let setSub='me';   // 設定 tab: あなた / 飲み友 / だるま
 async function buildCrew(body){
   body.textContent='';
@@ -42,30 +34,8 @@ function renderGate(v){
   const card=el('div','gate-card');
   if (g.kind==='welcome'){
     card.appendChild(el('h2','gate-t','酒場図をはじめる'));
-    card.appendChild(el('p','hint','行きたい店と行った店を記録して、「今日どこ行く?」をすぐ決められるようにします。あとから飲み友を招待すると、グループのリストとして合わさります。'));
+    card.appendChild(el('p','hint','行きたい店と行った店を記録して、「今日どこ行く?」をすぐ決められるようにします。あとから飲み友とつながると、2人の店から一緒に選べます。'));
     card.appendChild(nickForm('はじめる','',n=>createGroup(n)));
-  } else {
-    card.appendChild(el('h2','gate-t','飲み仲間のグループに招待されています'));
-    const ids=Object.keys(g.members||{}).sort((a,b)=>(g.members[a].joinedAt||0)-(g.members[b].joinedAt||0));
-    if (ids.length) card.appendChild(el('p','hint','メンバー: '+ids.map(id=>g.members[id].nick).join('、')));
-    card.appendChild(el('p','hint','名前はあとから「設定」で変えられます。'));
-    const jb=el('button','btn btn-red gate-join','参加する'); jb.onclick=()=>busyBtn(jb,()=>joinGroup(guestName())); card.appendChild(jb);
-    if (ids.length){
-      const back=el('details','gate-back'); back.appendChild(el('summary',null,'前に参加した人として入る'));
-      back.appendChild(el('p','hint','別の端末で参加していた人は、自分の名前を選んでください。合言葉を設定している人は合言葉が必要です。'));
-      const list=el('div','gate-members');
-      for (const id of ids){ const m=g.members[id]; const b=el('button','chip',m.nick+(m.hasPin?' 🔒':''));
-        b.onclick=async()=>{
-          list.querySelectorAll('.chip').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
-          const slot=back.querySelector('.gate-pin'); if(slot) slot.remove();
-          if (!m.hasPin){ if(await ask(`「${m.nick}」として入りますか?`,'入る')) busyBtn(b,()=>claimMember(id,null)); return; }
-          const w=el('div','gate-pin'); w.appendChild(el('p','hint',`「${m.nick}」の合言葉`));
-          w.appendChild(pinForm('入る',async p=>{ if(!(await claimMember(id,p))) toast('合言葉が違います'); }));
-          back.appendChild(w); const pi=w.querySelector('input'); if(pi) pi.focus();
-        };
-        list.appendChild(b); }
-      back.appendChild(list); card.appendChild(back);
-    }
   }
   box.appendChild(card);
   if (GOOGLE_ON){

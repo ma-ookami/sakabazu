@@ -1,6 +1,9 @@
 rules_version = '2';
 
 // 酒場図 のデータを守るルール。
+// - リストは1人1つ(作った本人だけがメンバー)。ほかの人がメンバーとして入ることはできない
+// - 飲み友(友達コードでつながった人)は、相手の店と今日の候補を読めるだけ(書けない)
+// - 以下は以前のグループ機能の説明。参加・別端末の追加(links)・合言葉(pins)は、今は新しく作れない
 // - グループは「招待リンク(グループID)を知っている人(ログイン済み)」だけが1件ずつ読める。一覧での取り出しは禁止
 // - メンバーの一覧は参加画面に必要なので、グループIDを知っている人が読める
 // - 店・ランキング・今日の提案は、メンバーだけが読み書きできる
@@ -113,8 +116,10 @@ service cloud.firestore {
 
       match /members/{mid} {
         allow read: if signedIn();
+        // only the person who creates the list (in the same batch) becomes its member: nobody can join someone else's list
         allow create: if signedIn() && request.auth.uid == mid
           && existsAfter(groupPath(gid))
+          && getAfter(groupPath(gid)).data.createdBy == request.auth.uid
           && validMember(request.resource.data);
         allow update: if actsAs(gid, mid) && validMember(request.resource.data);
         allow delete: if actsAs(gid, mid) || isCreator(gid);
@@ -123,7 +128,7 @@ service cloud.firestore {
       // passcode hashes: never readable by anyone, only checked by these rules
       match /pins/{mid} {
         allow read: if false;
-        allow create, update: if actsAs(gid, mid)
+        allow create, update: if false   // passcodes are no longer used
           && request.resource.data.keys().hasOnly(['hash'])
           && request.resource.data.hash is string
           && request.resource.data.hash.matches('^[0-9a-f]{64}$');
@@ -135,7 +140,8 @@ service cloud.firestore {
       match /links/{lid} {
         allow get: if signedIn() && lid == request.auth.uid;
         allow list: if isCreator(gid);
-        allow create, update: if signedIn() && lid == request.auth.uid
+        // adding another device as an existing member is closed (it let anyone who knew the list's ID in)
+        allow create, update: if false
           && request.resource.data.keys().hasOnly(['mid', 'at', 'pin', 'verified'])
           && isText(request.resource.data.mid, 1, 128)
           && request.resource.data.at is int
