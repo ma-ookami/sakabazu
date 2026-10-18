@@ -23,11 +23,11 @@ function fMatch(s,st){
 }
 function filterBar(box,st,base,redraw){
   const fl=el('div','pk-bar');
-  if (st===pick){ const n=el('button','pk-hon pk-new','はじめての店'); n.type='button'; n.setAttribute('aria-pressed',String(!!st.fresh1)); n.setAttribute('aria-label', activeFriends().length?'選んだメンバーの誰も行っていない店だけ':'まだ行っていない店だけ');
+  if (false){ const n=el('button','pk-hon pk-new','初めての店'); n.type='button'; n.setAttribute('aria-pressed',String(!!st.fresh1)); n.setAttribute('aria-label', activeFriends().length?'選んだメンバーの誰も行っていない店だけ':'まだ行っていない店だけ');
     n.onclick=()=>{ st.fresh1=!st.fresh1; pick.chosen=null; redraw(); }; fl.appendChild(n); }
-  if (!(st===listF && listSub==='went') && (st.hon || base.some(s=>honBy(s).length) || (st===listF && tab==='list' && listSub==='want'))){ const h=el('button','pk-hon','本命'); h.prepend(lanEl()); h.type='button'; h.setAttribute('aria-pressed',String(!!st.hon)); h.setAttribute('aria-label','本命だけ');
+  if (st!==pick && !(st===listF && listSub==='went') && (st.hon || base.some(s=>honBy(s).length) || (st===listF && tab==='list' && listSub==='want'))){ const h=el('button','pk-hon','本命'); h.prepend(lanEl()); h.type='button'; h.setAttribute('aria-pressed',String(!!st.hon)); h.setAttribute('aria-label','本命だけ');
     h.onclick=()=>{ st.hon=!st.hon; if(st===pick) pick.chosen=null; redraw(); }; fl.appendChild(h); }
-  if (!(st===listF && listSub==='want') && (st.tsuke || base.some(s=>tsukeBy(s).length) || (st===listF && tab==='list' && listSub==='went'))){ const h=el('button','pk-hon pk-tsuke','行きつけ'); h.prepend(chokoEl()); h.type='button'; h.setAttribute('aria-pressed',String(!!st.tsuke)); h.setAttribute('aria-label','行きつけだけ');
+  if (st!==pick && !(st===listF && listSub==='want') && (st.tsuke || base.some(s=>tsukeBy(s).length) || (st===listF && tab==='list' && listSub==='went'))){ const h=el('button','pk-hon pk-tsuke','行きつけ'); h.prepend(chokoEl()); h.type='button'; h.setAttribute('aria-pressed',String(!!st.tsuke)); h.setAttribute('aria-label','行きつけだけ');
     h.onclick=()=>{ st.tsuke=!st.tsuke; if(st===pick) pick.chosen=null; redraw(); }; fl.appendChild(h); }
   const sel=(label,items,cur,set)=>{ const w=el('label','pk-sel'+(String(cur)!==String(items[0][0])?' on':''));
     const s=el('select'); s.setAttribute('aria-label',label);
@@ -150,8 +150,13 @@ function buildPick(){
   // 行きたい / 行った and a ⚙ that opens the filters
   const tg=el('div','dc-tg');
   pick.want=true; pick.went=true;   // always both: who wanted / who went shows on each card
-  const on=[pick.fresh1&&'はじめての店', pick.hon&&'本命', pick.tsuke&&'行きつけ', pick.at&&(+pick.at.slice(0,2))+'時〜', pick.genre, pick.star&&'★'+pick.star+'〜'].filter(Boolean);
-  const fb=el('button','chip dc-fb'+(on.length?' on':''), '⚙ '+(on.length?on.join('・'):'絞り込み')); fb.type='button'; fb.setAttribute('aria-expanded',String(pick.fopen));
+  { const base=shops.filter(statusOf);
+    const tog=(k,l,ic,cls,label)=>{ const x=el('button','chip pk-t '+cls,l); x.type='button'; if(ic) x.prepend(ic); x.setAttribute('aria-pressed',String(!!pick[k])); x.setAttribute('aria-label',label); x.onclick=()=>{ pick[k]=!pick[k]; pick.chosen=null; buildPick(); }; tg.appendChild(x); };
+    tog('fresh1','初めての店',null,'pk-new', activeFriends().length?'選んだメンバーの誰も行っていない店だけ':'まだ行っていない店だけ');
+    if (pick.hon || base.some(s=>honBy(s).length)) tog('hon','本命',lanEl(),'pk-honc','本命の店だけ');
+    if (pick.tsuke || base.some(s=>tsukeBy(s).length)) tog('tsuke','行きつけ',chokoEl(),'pk-tsukec','行きつけの店だけ'); }
+  const on=[pick.at&&(+pick.at.slice(0,2))+'時〜', pick.genre, pick.star&&'★'+pick.star+'〜'].filter(Boolean);
+  const fb=el('button','chip dc-fb'+(on.length?' on':''), '⚙'+(on.length?' '+on.length:'')); fb.type='button'; fb.setAttribute('aria-label','絞り込み(時間・ジャンル・星)'+(on.length?'：'+on.join('・'):'')); fb.title='時間・ジャンル・星で絞り込み'; fb.setAttribute('aria-expanded',String(pick.fopen));
   fb.onclick=()=>{ pick.fopen=!pick.fopen; buildPick(); }; tg.appendChild(fb);
   b.appendChild(tg);
   if (pick.fopen) filterBar(b,pick,shops.filter(s=>(pick.want&&inWant(s))||(pick.went&&inWent(s))),buildPick);

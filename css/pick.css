@@ -97,3 +97,13 @@
 .pk-new[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
 #pBody .pk-bar{flex-wrap:wrap}
 .pk-hon.pk-new[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+/* 今日どこ行く?: the often-used toggles sit outside ⚙ */
+.pk-t{display:inline-flex;align-items:center;gap:4px;padding:5px 11px}
+.pk-t .lan{width:11px;height:15px}
+.pk-t .choko{width:13px;height:12px}
+.pk-t.pk-new[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.pk-t.pk-honc[aria-pressed="true"]{background:color-mix(in srgb,var(--red) 10%,var(--card));border-color:var(--red);color:var(--red);font-weight:700}
+.pk-t.pk-tsukec[aria-pressed="true"]{background:color-mix(in srgb,#2E5FA8 10%,var(--card));border-color:#2E5FA8;color:#2E5FA8;font-weight:700}
+.pk-t.pk-honc[aria-pressed="true"] .lan-body{fill:var(--red);stroke:#7A1A14;stroke-width:.8}
+.pk-t.pk-tsukec[aria-pressed="true"] .ck-sake{opacity:1;fill:#CFE2F3}
+#pBody .dc-tg{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}#pBody .dc-tg::-webkit-scrollbar{display:none}#pBody .dc-tg .chip{flex:none}#pBody .dc-fb{margin-left:auto;min-width:40px;justify-content:center}
