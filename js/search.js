@@ -29,6 +29,7 @@ function buildSearch(){
   const r2=el('label','sx-row'); r2.appendChild(el('span','sx-ic','🔍'));
   const ki=el('input','sx-in'); ki.id='sxKw'; ki.type='search'; ki.placeholder='店名・料理'; ki.autocomplete='off'; ki.maxLength=5000; ki.value=sx.kw;
   ki.oninput=()=>{ sx.kw=ki.value; };
+  ki.addEventListener('paste',e=>{ const t=(e.clipboardData||window.clipboardData)?.getData('text')||''; if (!hasUrl(t)) return; e.preventDefault(); ki.value=''; sx.kw=''; runUrls(t); });
   r2.appendChild(ki); f.appendChild(r2);
   const go=el('button','btn btn-red sx-go','検索'); go.type='submit'; f.appendChild(go);
   f.onsubmit=e=>{ e.preventDefault(); ki.blur(); runSearch(); };
@@ -73,10 +74,16 @@ const isUrl = s => /^https?:\/\/\S+$/i.test(s.trim());
 const URL_RE = /https?:\/\/[^\s<>"'「」()（）]+/g;
 const hasUrl = s => URL_RE.test(s) && !(URL_RE.lastIndex=0);
 // each link with a name guess: the words just before it in the pasted text (LINE shares are "店名 URL")
+const looksAddr = t => /^〒|^\d{3}-\d{4}|[都道府県].{0,6}[市区町村郡]|丁目|\d+-\d+(-\d+)?$|^[0-9０-９\-‐ー()（）+ ]{8,}$/.test(t);
+const looksNoise = t => /google\s*マップ|google\s*maps|^https?:|見る$|共有$|^★|レビュー|クチコミ/i.test(t);
+function guessName(seg){
+  const lines=seg.split(/\n/).map(x=>x.trim().replace(/^[・\-–—>＞\s]+/,'').replace(/\s*[(（][^)）]*[)）]\s*$/,'')).filter(Boolean);
+  for (let i=lines.length-1;i>=0;i--){ const t=lines[i].split(/\s+[·・|｜]\s+/)[0].trim(); if (t && !looksAddr(t) && !looksNoise(t) && t.length<=40) return t; }
+  return '';
+}
 function urlsIn(text){
   const out=[]; let m, last=0; URL_RE.lastIndex=0;
-  while ((m=URL_RE.exec(text))){ const before=text.slice(last,m.index).split(/\n/).map(x=>x.trim()).filter(Boolean).pop()||'';
-    out.push({u:m[0].replace(/[。、,.]+$/,''), hint:before.replace(/^[・\-–—>＞\s]+/,'').replace(/\s*[(（][^)）]*[)）]\s*$/,'').slice(0,40)}); last=m.index+m[0].length; }
+  while ((m=URL_RE.exec(text))){ out.push({u:m[0].replace(/[。、,.]+$/,''), hint:guessName(text.slice(last,m.index)).slice(0,40)}); last=m.index+m[0].length; }
   const seen=new Set(); return out.filter(x=>!seen.has(x.u) && seen.add(x.u));
 }
 
@@ -150,7 +157,9 @@ async function runUrls(text){
   const show=()=>{ const r=$('sxRes'); if(r) r.scrollIntoView({block:'start',behavior:'smooth'}); }; show();
   for (const [k,x] of list.entries()){
     sx.prog=`${k+1}/${list.length}`; renderResults();
-    const r=await addFromUrl(x.u); if (seq!==sx.seq) return;
+    let r=await addFromUrl(x.u); if (seq!==sx.seq) return;
+    if (r.needName && x.hint){ const own=myShops.some(z=>norm(z.name)===norm(x.hint));
+      if (own) r={msg:`「${x.hint}」はもうリストにあります。`}; else { const id=await addOrBump(x.hint,'',{links:[x.u]}); if (id) r={added:x.hint}; } }
     sx.urlRes.push({...x,...r});
   }
   sx.prog=''; const ok=sx.urlRes.filter(r=>r.added);
