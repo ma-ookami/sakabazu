@@ -39,7 +39,7 @@ function fillInfo(s){
   if (r.children.length) d.appendChild(r);
   const note=[ht, s.hours&&s.hours.note].filter(Boolean).join('　'); if (note) d.appendChild(el('p','d-hours',note));
   const lr=el('div','d-links');
-  if (!readOnly && me && mySt(s)==='want'){ const on=isHon(s); const h=el('button','d-link d-hon',on?'🔥 本命':'🔥 本命にする'); h.type='button'; h.setAttribute('aria-pressed',String(on)); h.onclick=()=>toggleHon(s.id); lr.appendChild(h); }
+  if (!readOnly && me && mySt(s)==='want'){ const on=isHon(s); const h=el('button','d-link d-hon',on?'本命':'本命にする'); h.prepend(lanEl()); h.type='button'; h.setAttribute('aria-pressed',String(on)); h.onclick=()=>toggleHon(s.id); lr.appendChild(h); }
   else if (honBy(s).length) honPill(lr,s);
   for (const u of (Array.isArray(s.links)?s.links:[])){ const a=el('a','d-link',linkLabel(u)+' ↗'); a.href=u; a.target='_blank'; a.rel='noopener noreferrer'; lr.appendChild(a); }
   if (s.loc || s.name){ const a=el('a','d-link','マップ ↗'); a.href=mapsUrl(s); a.target='_blank'; a.rel='noopener noreferrer'; lr.appendChild(a); }

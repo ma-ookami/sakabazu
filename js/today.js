@@ -17,7 +17,7 @@ function fMatch(s,st){
 }
 function filterBar(box,st,base,redraw){
   const fl=el('div','pk-bar');
-  if (st.hon || base.some(s=>honBy(s).length)){ const h=el('button','pk-hon','🔥本命'); h.type='button'; h.setAttribute('aria-pressed',String(!!st.hon)); h.setAttribute('aria-label','本命だけ');
+  if (st.hon || base.some(s=>honBy(s).length)){ const h=el('button','pk-hon','本命'); h.prepend(lanEl()); h.type='button'; h.setAttribute('aria-pressed',String(!!st.hon)); h.setAttribute('aria-label','本命だけ');
     h.onclick=()=>{ st.hon=!st.hon; if(st===pick) pick.chosen=null; redraw(); }; fl.appendChild(h); }
   const sel=(label,items,cur,set)=>{ const w=el('label','pk-sel'+(String(cur)!==String(items[0][0])?' on':''));
     const s=el('select'); s.setAttribute('aria-label',label);
@@ -139,7 +139,7 @@ function buildPick(){
   const cur = pick.want&&pick.went ? 'all' : pick.want ? 'want' : 'went';
   for (const [k,l] of [['all','すべて'],['want','行きたい'],['went','行った']]){ const x=el('button','chip',l); x.type='button'; x.setAttribute('aria-pressed',String(cur===k));
     x.onclick=()=>{ pick.want=k!=='went'; pick.went=k!=='want'; pick.chosen=null; buildPick(); }; tg.appendChild(x); }
-  const on=[pick.hon&&'🔥本命', pick.at&&(+pick.at.slice(0,2))+'時〜', pick.genre, pick.star&&'★'+pick.star+'〜'].filter(Boolean);
+  const on=[pick.hon&&'本命', pick.at&&(+pick.at.slice(0,2))+'時〜', pick.genre, pick.star&&'★'+pick.star+'〜'].filter(Boolean);
   const fb=el('button','chip dc-fb'+(on.length?' on':''), '⚙ '+(on.length?on.join('・'):'絞り込み')); fb.type='button'; fb.setAttribute('aria-expanded',String(pick.fopen));
   fb.onclick=()=>{ pick.fopen=!pick.fopen; buildPick(); }; tg.appendChild(fb);
   b.appendChild(tg);

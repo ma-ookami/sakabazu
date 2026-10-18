@@ -113,17 +113,19 @@ function loadLocal(){ try{ const v=JSON.parse(localStorage.getItem(LKEY)||'{}');
 function saveLocal(){ if(mode!=='local') return; try{ localStorage.setItem(LKEY,JSON.stringify({shops:myShops,rankings,today:todayDocs})); }catch{} }
 function afterChange(){ rebuildShops(); render(); if(openId) patchDetail(); if(isOpen('pickSheet')) buildPick(); }
 
-// 本命 (the shops you most want to go to): r[uid].hon
+// 本命 (the shops you most want to go to): r[uid].hon. shown as a 提灯 that lights up
+const LANTERN='<svg class="lan" viewBox="0 0 20 28" aria-hidden="true"><rect class="lan-cap" x="6" y="2" width="8" height="3" rx="1"/><ellipse class="lan-body" cx="10" cy="14" rx="7.2" ry="9"/><path class="lan-rib" d="M3.6 10.5Q10 12.5 16.4 10.5M3 14.5Q10 16.5 17 14.5M3.6 18.5Q10 20.5 16.4 18.5"/><rect class="lan-cap" x="6" y="22.5" width="8" height="3" rx="1"/><path class="lan-tas" d="M10 25.5v2.3"/></svg>';
+const lanEl = () => { const t=document.createElement('template'); t.innerHTML=LANTERN; return t.content.firstChild; };
 const isHon = (s,u=me) => !!(s && s.r && s.r[u] && s.r[u].hon);
 const honBy = s => inScope(Object.keys((s&&s.r)||{}).filter(u=>isHon(s,u)));
 function toggleHon(id){ const s=shops.find(x=>x.id===id); if(!s||!me||readOnly) return; const on=!isHon(s); buzz();
   patchShop(id,{r:{[me]:{hon:on}}}); if (on) toast(`「${s.name}」を本命にしました`); }
 function honBtn(s){
-  const on=isHon(s); const b=el('button','hon-btn', '🔥'); b.type='button'; b.setAttribute('aria-pressed',String(on));
+  const on=isHon(s); const b=el('button','hon-btn'); b.appendChild(lanEl()); b.type='button'; b.setAttribute('aria-pressed',String(on));
   b.setAttribute('aria-label',(s.name||'')+(on?'の本命を外す':'を本命にする')); b.title=on?'本命':'本命にする';
   b.onclick=e=>{ e.stopPropagation(); toggleHon(s.id); }; return b;
 }
 // a label: 本命 / <nick>の本命 / 2人とも本命
 function honPill(ch,s){ const by=honBy(s); if(!by.length) return;
-  const t = by.length>1 ? '🔥 2人とも本命' : by[0]===me ? '🔥 本命' : `🔥 ${(friendByMid(by[0])||{}).nick||'飲み友'}の本命`;
-  pill(ch,'hon',t); }
+  const t = by.length>1 ? '2人とも本命' : by[0]===me ? '本命' : `${(friendByMid(by[0])||{}).nick||'飲み友'}の本命`;
+  pill(ch,'hon',t); ch.lastChild.prepend(lanEl()); }
