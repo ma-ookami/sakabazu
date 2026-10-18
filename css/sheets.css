@@ -85,3 +85,4 @@
 .as-i{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:14px;font:inherit;font-size:15px;font-weight:700;color:var(--ink);text-align:left}
 .as-danger{color:var(--red)}
 .as-cancel{text-align:center;font-weight:500;color:var(--sub);margin-top:4px}
+.g-chips{flex-wrap:wrap;margin-top:8px;gap:6px}.g-chips .chip{padding:4px 11px;font-size:12.5px}

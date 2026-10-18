@@ -89,6 +89,9 @@
       <input id="fName" class="field" required maxlength="60" autocomplete="off">
       <label for="fArea">エリア・最寄り駅</label>
       <input id="fArea" class="field" maxlength="40" placeholder="例: 駅前の路地裏" autocomplete="off">
+      <label for="fGenre">ジャンル</label>
+      <input id="fGenre" class="field" maxlength="20" placeholder="例: 居酒屋、ラーメン" autocomplete="off">
+      <div class="chips g-chips" id="fGenres" role="group" aria-label="ジャンルを選ぶ"></div>
       <label for="fOpen">営業時間</label>
       <div class="hrow"><input id="fOpen" type="time" class="dateinput" aria-label="開店時間"><span>〜</span><input id="fClose" type="time" class="dateinput" aria-label="閉店時間"></div>
       <p class="hint fhint">深夜まで営業している店は、閉店に「2:00」のように翌日の時刻を入れてください。</p>

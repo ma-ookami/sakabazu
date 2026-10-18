@@ -4,10 +4,20 @@ function renderDays(){ const w=$('fDays'); w.textContent=''; [...'日月火水�
 function addLinkRow(val){ const r=el('div','lrow'); const i=el('input','field'); i.type='url'; i.inputMode='url'; i.autocomplete='off'; i.placeholder='https://（食べログ、Instagram、公式サイトなど）'; i.value=val||''; i.setAttribute('aria-label','お店のリンク');
   const x=el('button','ic','✕'); x.type='button'; x.setAttribute('aria-label','このリンクを消す'); x.onclick=()=>r.remove(); r.append(i,x); $('fLinks').appendChild(r); return i; }
 $('fAddLink').onclick=()=>{ if($('fLinks').children.length>=5){ toast('リンクは5つまでです'); return; } addLinkRow('').focus(); };
-function openForm(id){ editingId=id; const s=shops.find(x=>x.id===id); if(!s) return; $('fName').value=s.name||''; $('fArea').value=s.area||'';
+function openForm(id){ editingId=id; const s=shops.find(x=>x.id===id); if(!s) return; $('fName').value=s.name||''; $('fArea').value=s.area||''; $('fGenre').value=genreOf(s); renderGenres();
   const h=s.hours||{}; $('fOpen').value=h.open||''; $('fClose').value=h.close||''; $('fHNote').value=h.note||''; formDays=Array.isArray(h.closed)?h.closed.filter(n=>Number.isInteger(n)&&n>=0&&n<7):[]; renderDays();
   $('fLinks').textContent=''; const ls=Array.isArray(s.links)?s.links:[]; if(ls.length) ls.forEach(u=>addLinkRow(u)); else addLinkRow('');
   showSheet('formSheet'); $('fName').focus({preventScroll:true}); }
+// ジャンル: the ones already in my list first (most used), then the usual ones; tap to fill in
+function renderGenres(){
+  const box=$('fGenres'); if(!box) return; box.textContent='';
+  const n={}; for (const s of myShops){ const g=genreOf(s); if(g) n[g]=(n[g]||0)+1; }
+  const list=[...Object.keys(n).sort((a,b)=>n[b]-n[a]), ...HP_GENRES.filter(g=>!n[g])];
+  const cur=$('fGenre').value.trim();
+  for (const g of list){ const b=el('button','chip',g); b.type='button'; b.setAttribute('aria-pressed',String(g===cur));
+    b.onclick=()=>{ $('fGenre').value = $('fGenre').value.trim()===g ? '' : g; renderGenres(); }; box.appendChild(b); }
+}
+$('fGenre').addEventListener('input',()=>{ const cur=$('fGenre').value.trim(); for (const b of $('fGenres').children) b.setAttribute('aria-pressed',String(b.textContent===cur)); });
 function normUrl(u){ u=(u||'').trim(); if(!u) return ''; if(!/^https?:\/\//i.test(u)){ if(/^[\w.-]+\.[a-z]{2,}(\/.*)?$/i.test(u)) u='https://'+u; else return null; } try{ const x=new URL(u); return (x.protocol==='https:'||x.protocol==='http:') ? x.href : null; }catch{ return null; } }
 function closeForm(){ hideSheet('formSheet'); }
 $('form').onsubmit=e=>{ e.preventDefault(); const name=$('fName').value.trim(), area=$('fArea').value.trim(); if(!name){ $('fName').focus(); toast('店名を入れてください'); return; }
@@ -15,7 +25,7 @@ $('form').onsubmit=e=>{ e.preventDefault(); const name=$('fName').value.trim(), 
   const open=$('fOpen').value, close=$('fClose').value;
   if ((open&&!close)||(!open&&close)){ toast('開店と閉店の両方を入れてください'); return; }
   const hours={open,close,closed:formDays.slice().sort(),note:$('fHNote').value.trim()};
-  patchShop(editingId,{name,area,hours,links:links.slice(0,5)}); closeForm(); toast('お店の情報を保存しました'); };
+  patchShop(editingId,{name,area,hours,links:links.slice(0,5),hp:{genre:$('fGenre').value.trim()}}); closeForm(); toast('お店の情報を保存しました'); };
 $('fBack').onclick=closeForm; $('fCancel').onclick=closeForm;
 $('sBack').onclick=closeSearch;
 
