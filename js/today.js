@@ -11,9 +11,10 @@ const PICK_STARS=[3,3.5,4];
 const genreOf = s => (s.hp && s.hp.genre) || '';
 // open at "HH:MM" today? null when the hours are unknown
 // the same 3 pickers (時間 / ジャンル / 星) on 今日どこ行く? and on the lists. st: {at, genre, star}
-const fOn = st => !!(st.at || st.genre || st.star || st.hon || st.tsuke);
+const fOn = st => !!(st.at || st.genre || st.star || st.hon || st.tsuke || st.fresh1);
 function fMatch(s,st){
   if (st.hon && !honBy(s).length) return false;
+  if (st.fresh1 && wentIds(s).length) return false;   // はじめての店: nobody in this group has been
   if (st.tsuke && !tsukeBy(s).length) return false;
   if (st.at && openAt(s,st.at)===false) return false;   // unknown hours stay in
   if (st.genre && genreOf(s)!==st.genre) return false;
@@ -22,6 +23,8 @@ function fMatch(s,st){
 }
 function filterBar(box,st,base,redraw){
   const fl=el('div','pk-bar');
+  if (st===pick){ const n=el('button','pk-hon pk-new','はじめての店'); n.type='button'; n.setAttribute('aria-pressed',String(!!st.fresh1)); n.setAttribute('aria-label', activeFriends().length?'選んだメンバーの誰も行っていない店だけ':'まだ行っていない店だけ');
+    n.onclick=()=>{ st.fresh1=!st.fresh1; pick.chosen=null; redraw(); }; fl.appendChild(n); }
   if (!(st===listF && listSub==='went') && (st.hon || base.some(s=>honBy(s).length) || (st===listF && tab==='list' && listSub==='want'))){ const h=el('button','pk-hon','本命'); h.prepend(lanEl()); h.type='button'; h.setAttribute('aria-pressed',String(!!st.hon)); h.setAttribute('aria-label','本命だけ');
     h.onclick=()=>{ st.hon=!st.hon; if(st===pick) pick.chosen=null; redraw(); }; fl.appendChild(h); }
   if (!(st===listF && listSub==='want') && (st.tsuke || base.some(s=>tsukeBy(s).length) || (st===listF && tab==='list' && listSub==='went'))){ const h=el('button','pk-hon pk-tsuke','行きつけ'); h.prepend(chokoEl()); h.type='button'; h.setAttribute('aria-pressed',String(!!st.tsuke)); h.setAttribute('aria-label','行きつけだけ');
@@ -146,10 +149,8 @@ function buildPick(){
   if (pick.src==='today'){ todayTab(b); return; }
   // 行きたい / 行った and a ⚙ that opens the filters
   const tg=el('div','dc-tg');
-  const cur = pick.want&&pick.went ? 'all' : pick.want ? 'want' : 'went';
-  for (const [k,l] of [['all','すべて'],['want','行きたい'],['went','行った']]){ const x=el('button','chip',l); x.type='button'; x.setAttribute('aria-pressed',String(cur===k));
-    x.onclick=()=>{ pick.want=k!=='went'; pick.went=k!=='want'; pick.chosen=null; buildPick(); }; tg.appendChild(x); }
-  const on=[pick.hon&&'本命', pick.tsuke&&'行きつけ', pick.at&&(+pick.at.slice(0,2))+'時〜', pick.genre, pick.star&&'★'+pick.star+'〜'].filter(Boolean);
+  pick.want=true; pick.went=true;   // always both: who wanted / who went shows on each card
+  const on=[pick.fresh1&&'はじめての店', pick.hon&&'本命', pick.tsuke&&'行きつけ', pick.at&&(+pick.at.slice(0,2))+'時〜', pick.genre, pick.star&&'★'+pick.star+'〜'].filter(Boolean);
   const fb=el('button','chip dc-fb'+(on.length?' on':''), '⚙ '+(on.length?on.join('・'):'絞り込み')); fb.type='button'; fb.setAttribute('aria-expanded',String(pick.fopen));
   fb.onclick=()=>{ pick.fopen=!pick.fopen; buildPick(); }; tg.appendChild(fb);
   b.appendChild(tg);
