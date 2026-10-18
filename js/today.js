@@ -107,7 +107,7 @@ function openPick(src){
   if (tab!=='home') setTab('home');
   pick.chosen=null; pick.proposing=null; if (src) pick.src = src==='today' ? 'today' : 'find';
   const wf=activeFriends()[0]; $('pTitle').textContent = wf ? '飲み友とどこ行く?' : '今日どこ行く?';
-  showSheet('pickSheet'); buildPick(); $('pBack').focus({preventScroll:true});
+  showSheet('pickSheet'); buildPick(); focusIn('pickSheet');
 }
 function closePick(){ hideSheet('pickSheet'); }
 function omakase(cands){

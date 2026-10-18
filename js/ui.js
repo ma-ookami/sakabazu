@@ -116,7 +116,7 @@ function actionSheet(title, items, onCancel){
   for (const it of items){ const b=el('button','as-i'+(it.danger?' as-danger':''),it.label); b.type='button'; b.onclick=()=>{ close(); it.run(); }; p.appendChild(b); }
   const c=el('button','as-i as-cancel','キャンセル'); c.type='button'; c.onclick=cancel; p.appendChild(c);
   bg.onclick=e=>{ if(e.target===bg) cancel(); }; document.addEventListener('keydown',esc);
-  bg.appendChild(p); document.body.appendChild(bg); const f=p.querySelector('.as-i'); if(f) f.focus({preventScroll:true});
+  bg.appendChild(p); document.body.appendChild(bg); p.tabIndex=-1; p.focus({preventScroll:true});
 }
 
 // a date, asked in a small dialog (up to today). -> 'YYYY-MM-DD' or null when cancelled
@@ -133,3 +133,5 @@ function askDate(title){
     d.showModal(); i.focus();
   });
 }
+// move focus into an opened sheet without drawing a focus ring on its first button (keyboard users still start inside it)
+function focusIn(id){ const p=$(id) && $(id).querySelector('.sheet-in'); if(!p) return; p.tabIndex=-1; p.focus({preventScroll:true}); }

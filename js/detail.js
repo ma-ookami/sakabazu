@@ -1,6 +1,6 @@
 /* ---------- detail ---------- */
 const memoTimers={}, pendingMemo={};
-function openDetail(id,opts){ openId=id; builtStatus=null; showSheet('detail',opts); patchDetail(); $('dBack').focus({preventScroll:true}); }
+function openDetail(id,opts){ openId=id; builtStatus=null; showSheet('detail',opts); patchDetail(); focusIn('detail'); }
 function closeDetail(){ flushMemos(); openId=null; hideSheet('detail'); render(); }
 function myVal(id,k){ const s=shops.find(x=>x.id===id); return (s&&s.r&&me&&s.r[me]&&s.r[me][k])||{}; }
 function sec(title,hint){ const box=el('section','sec'); const h=el('div','sec-h'); h.appendChild(el('h3',null,title)); if(hint) h.appendChild(el('small',null,hint)); box.appendChild(h); return box; }
