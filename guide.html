@@ -126,6 +126,14 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:0 0 28px}
 .bt b{font-size:15px}
 .bring-lg{display:flex;gap:8px;justify-content:flex-end;margin:6px 0 14px}
 .lg{font-size:11px;font-weight:700;border-radius:999px;padding:0 8px}
+.tgl{margin-bottom:2px}
+.tgl .gear{margin-left:auto}
+.mg{display:flex;align-items:center;gap:8px}
+.mg-l{flex:1;min-width:0;display:grid;gap:4px}
+.mg-l b{font-family:var(--serif);font-size:14px}
+.mg-b{flex:none;padding:6px 10px}
+.lan-off svg{width:12px;height:17px;vertical-align:-2px}
+.lan-off .lan-body{fill:none;stroke:#B5A898}.lan-off .lan-cap{fill:#B5A898}.lan-off .lan-rib{stroke:#B5A898}.lan-off .lan-tas{stroke:#B5A898}
 .sub-h{margin:18px 0 10px;font-size:16px}
 .who{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .seg.sm{flex:0 0 auto;width:180px}
@@ -159,8 +167,7 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:0 0 28px}
 .merge-ar svg{width:100%;max-width:330px;height:46px;display:block;margin:0 auto}
 .merge-ar small,.bring-ar small{display:block;color:var(--sub);font-size:12px;font-weight:700;letter-spacing:0}
 .merged{background:var(--card);border:2px solid var(--red);border-radius:16px;padding:12px;display:grid;gap:6px;margin-top:6px;box-shadow:0 6px 16px rgba(178,50,42,.08)}
-.mg{display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:6px 8px;border-radius:10px;background:#fff;border:1px solid var(--line)}
-.mg b{font-family:var(--serif);font-size:14px;margin-right:4px;flex-basis:100%}
+.mg{padding:8px 10px;border-radius:10px;background:#fff;border:1px solid var(--line)}
 .end-lan{display:flex;gap:14px;justify-content:center;margin-bottom:10px}
 .end-lan svg{width:30px;height:42px;filter:drop-shadow(0 0 10px rgba(255,179,71,.5))}
 </style>
@@ -240,7 +247,7 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:0 0 28px}
     <div class="mock">
       <span class="mock-t">リスト</span>
       <div class="seg"><span class="on">行きたい 8</span><span>行った 23</span><span>カレンダー</span></div>
-      <div class="shop"><span class="crest" style="background:#B85A6E">居</span><div class="mid"><span class="nm">居酒屋 酒場図</span><div class="pills"><span class="p open">営業中 〜24:00</span><span class="p">居酒屋</span></div></div><span class="stamp">行った</span></div>
+      <div class="shop"><span class="crest" style="background:#B85A6E">居</span><div class="mid"><span class="nm">居酒屋 酒場図 <span class="lan-off"><svg class="lan" viewBox="0 0 20 28" aria-hidden="true"><rect class="lan-cap" x="6" y="2" width="8" height="3" rx="1"/><ellipse class="lan-body" cx="10" cy="14" rx="7.2" ry="9"/><path class="lan-rib" d="M3.6 10.5Q10 12.5 16.4 10.5M3 14.5Q10 16.5 17 14.5M3.6 18.5Q10 20.5 16.4 18.5"/><rect class="lan-cap" x="6" y="22.5" width="8" height="3" rx="1"/><path class="lan-tas" d="M10 25.5v2.3"/></svg></span></span><div class="pills"><span class="p open">営業中 〜24:00</span><span class="p">居酒屋</span></div></div><span class="stamp">行った</span></div>
       <div class="shop"><span class="crest" style="background:#3E6E8E">大</span><div class="mid"><span class="nm">大衆居酒屋 SAKABAZU</span><div class="pills"><span class="p">17:00から</span><span class="p">大衆酒場</span></div></div><span class="stamp">行った</span></div>
     </div>
   </section>
@@ -272,7 +279,10 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:0 0 28px}
   </svg></span><p class="bub">エリアとジャンルを選んで「この条件で探す」。<span class="mk">ホットペッパーのお店から探せる</span>よ。</p></div>
     <div class="mock">
       <span class="mock-t">お店を追加 › 探す</span>
+      <div class="seg" style="width:160px;align-self:end"><span class="on">札幌</span><span>東京</span></div>
       <div class="pills"><span class="p went">すすきの</span><span class="p">札幌駅</span><span class="p">大通</span><span class="p went">焼き鳥</span><span class="p">居酒屋</span></div>
+      <span class="btn red" style="display:block;text-align:center;padding:9px">🔍 この条件で探す</span>
+      <div class="arrow">↓ 結果</div>
       <div class="shop"><div class="mid"><span class="nm">居酒屋 酒場図</span><div class="pills"><span class="p">すすきの駅 / 居酒屋</span><span class="p">🌙 3,000円</span></div></div></div>
       <div><span class="btn red">＋ 行きたい</span> <span class="btn navy">✓ 行った</span></div>
     </div>
@@ -368,10 +378,11 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:0 0 28px}
     <div class="merge-ar"><svg viewBox="0 0 300 54" aria-hidden="true"><path d="M50 2 C50 30 150 22 150 50 M150 2 V50 M250 2 C250 30 150 22 150 50" fill="none" stroke="#B2322A" stroke-width="2.4" stroke-linecap="round"/><path d="M143 43 L150 52 L157 43" fill="none" stroke="#B2322A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><small>3人のリストが、1つにまとまる</small></div>
     <p class="bring-lg" style="margin:4px 0 0"><span class="lg wa">行きたい</span><span class="lg we">行った</span></p>
     <div class="merged"><span class="mock-t">みんなのリスト(飲み友とどこ行く? › 探す)</span>
-      <div class="mg"><b>居酒屋 酒場図</b><span class="p want"><span class="av" style="background:#B8322A">あ</span>行きたい</span><span class="p want"><span class="av" style="background:#2FA7A8">け</span>行きたい</span><span class="p went"><span class="av" style="background:#7A3FB0">た</span>行った</span></div>
-      <div class="mg"><b>大衆居酒屋 SAKABAZU</b><span class="p want"><span class="av" style="background:#2FA7A8">け</span>行きたい</span></div>
-      <div class="mg"><b>焼鳥の店</b><span class="p went"><span class="av" style="background:#B8322A">あ</span>行った</span></div>
-      <div class="mg"><b>海鮮の店</b><span class="p want"><span class="av" style="background:#7A3FB0">た</span>行きたい</span></div>
+      <div class="pills tgl"><span class="p">初めての店</span><span class="p">本命</span><span class="p">行きつけ</span><span class="p gear">⚙</span></div>
+      <div class="mg"><div class="mg-l"><b>居酒屋 酒場図</b><div class="pills"><span class="p want"><span class="av" style="background:#B8322A">あ</span>行きたい</span><span class="p want"><span class="av" style="background:#2FA7A8">け</span>行きたい</span><span class="p went"><span class="av" style="background:#7A3FB0">た</span>行った</span></div></div><span class="btn red mg-b">＋ 候補</span></div>
+      <div class="mg"><div class="mg-l"><b>大衆居酒屋 SAKABAZU</b><div class="pills"><span class="p want"><span class="av" style="background:#2FA7A8">け</span>行きたい</span></div></div><span class="btn red mg-b">＋ 候補</span></div>
+      <div class="mg"><div class="mg-l"><b>焼鳥の店</b><div class="pills"><span class="p went"><span class="av" style="background:#B8322A">あ</span>行った</span></div></div><span class="btn red mg-b">＋ 候補</span></div>
+      <div class="mg"><div class="mg-l"><b>海鮮の店</b><div class="pills"><span class="p want"><span class="av" style="background:#7A3FB0">た</span>行きたい</span></div></div><span class="btn red mg-b">＋ 候補</span></div>
     </div>
     <div class="bring-ar">↓<small>この中から、それぞれ「＋候補」を出し合う</small></div>
     <div class="bring-to"><span class="mock-t">今日の候補</span>
@@ -455,7 +466,7 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:0 0 28px}
     <div class="more">
       <div class="mo"><i><svg class="lan" viewBox="0 0 20 28" aria-hidden="true"><rect class="lan-cap" x="6" y="2" width="8" height="3" rx="1"/><ellipse class="lan-body" cx="10" cy="14" rx="7.2" ry="9"/><path class="lan-rib" d="M3.6 10.5Q10 12.5 16.4 10.5M3 14.5Q10 16.5 17 14.5M3.6 18.5Q10 20.5 16.4 18.5"/><rect class="lan-cap" x="6" y="22.5" width="8" height="3" rx="1"/><path class="lan-tas" d="M10 25.5v2.3"/></svg></i><b>本命</b><span>行きたい店の「絶対ここ」に提灯を</span></div>
       <div class="mo"><i><svg class="choko" viewBox="0 0 24 22" aria-hidden="true"><path class="ck-body" d="M3.5 6.5h17l-2.3 10.2a2.4 2.4 0 0 1-2.3 1.8H8.1a2.4 2.4 0 0 1-2.3-1.8z"/><path class="ck-sake" d="M5.3 9.6h13.4l-1.6 6.6a1.5 1.5 0 0 1-1.4 1.1H8.3a1.5 1.5 0 0 1-1.4-1.1z"/><ellipse class="ck-ring" cx="12" cy="13.2" rx="3.1" ry="1.5"/><ellipse class="ck-dot" cx="12" cy="13.2" rx="1.2" ry=".55"/><path class="ck-foot" d="M9 18.5h6v1.6H9z"/><path class="ck-rim" d="M3.5 6.5h17"/></svg></i><b>行きつけ</b><span>また行きたい店にお猪口を</span></div>
-      <div class="mo"><i>🟢</i><b>営業中の店</b><span>今あいてる時間の店を一覧で</span></div>
+      <div class="mo"><i>🟢</i><b>営業中の店</b><span>営業時間内の店を決める画面に</span></div>
       <div class="mo"><i>🎲</i><b>おまかせ</b><span>迷ったらルーレットで</span></div>
       <div class="mo"><i>📅</i><b>カレンダー</b><span>家飲み・休肝日も記録</span></div>
       <div class="mo"><i>🔗</i><b>URLで登録</b><span>LINEの文面ごと貼ってOK</span></div>
