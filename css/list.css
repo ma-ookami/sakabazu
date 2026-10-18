@@ -122,3 +122,16 @@ body:has(.toast:not([hidden])) .fab{transform:translateY(-68px)}
 .swipe.armed .swipe-act span{transform:scale(1.12)}
 .swipe > .card.settle{transition:transform .32s var(--ease-out)}
 .shop2 .sc-chips .pill.genre{background:transparent;border-color:color-mix(in srgb,var(--c) 35%,var(--line));color:var(--ink)}
+
+/* 本命 */
+.hon-btn{pointer-events:auto;display:inline-grid;place-items:center;width:26px;height:26px;margin-left:6px;vertical-align:2px;padding:0;border:0;border-radius:50%;background:transparent;font-size:15px;line-height:1;filter:grayscale(1);opacity:.35;transition:transform .2s var(--ease-spring),opacity .2s,filter .2s}
+.hon-btn[aria-pressed="true"]{filter:none;opacity:1;background:color-mix(in srgb,var(--red) 10%,transparent)}
+.hon-btn:active{transform:scale(.85)}
+.pill.hon{color:var(--red);border-color:color-mix(in srgb,var(--red) 45%,transparent);background:color-mix(in srgb,var(--red) 7%,var(--card));font-weight:700}
+.pk-hon{flex:none;height:38px;padding:0 10px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--sub);font:inherit;font-size:13px}
+.pk-hon[aria-pressed="true"]{background:var(--red);border-color:var(--red);color:var(--on-red);font-weight:700}
+.d-hon[aria-pressed="true"]{background:color-mix(in srgb,var(--red) 10%,var(--card));border-color:color-mix(in srgb,var(--red) 45%,transparent);color:var(--red);font-weight:700}
+.pk-bar:has(.pk-hon){gap:5px}
+.pk-bar:has(.pk-hon) .pk-sel{padding:0 18px 0 9px}
+.pk-bar:has(.pk-hon) .pk-sel::after{right:7px}
+.pk-hon{padding:0 8px;font-size:12.5px}

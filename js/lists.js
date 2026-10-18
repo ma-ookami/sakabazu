@@ -1,9 +1,10 @@
 /* ---------- want / went lists and ranking ---------- */
-const listF={at:'',genre:'',star:0};   // the lists' 時間 / ジャンル / 星 (same pickers as 今日どこ行く?)
+const listF={at:'',genre:'',star:0,hon:false};   // the lists' 時間 / ジャンル / 星 (same pickers as 今日どこ行く?)
 async function renderWant(v){
   let arr=shops.filter(inWant);
   filterBar(v,listF,arr,render);
   arr=arr.filter(s=>fMatch(s,listF)).sort((a,b)=>{
+    const ha=isHon(a), hb=isHon(b); if (ha!==hb) return ha?-1:1;
     const pa=a.planDate||'', pb=b.planDate||'';
     if (pa&&!pb) return -1; if (pb&&!pa) return 1; if (pa!==pb) return pa<pb?-1:1;
     const wa=wantIds(a).length, wb=wantIds(b).length; if(wa!==wb) return wb-wa;
@@ -17,6 +18,7 @@ async function renderWant(v){
   const slots=[];
   for (const s of arr){
     const {c,top,chips}=cardShell(s);
+    if (!readOnly && me && s.wants && s.wants[me]){ const nm=c.querySelector('.sc-main .name'); if(nm) nm.appendChild(honBtn(s)); }
     if (!readOnly && me && !wentBy(s)[me]){ const w=el('button','went-btn live','行った'); w.setAttribute('aria-label',(s.name||'')+'に行った'); w.onclick=()=>wentWhen(s.id); top.appendChild(w); }
     if (!readOnly && me && s.wants && s.wants[me] && !isFriendShop(s)){ const x=el('button','out-btn','外す'); x.type='button'; x.setAttribute('aria-label',(s.name||'')+'をリストから外す');
       x.onclick=e=>{ e.stopPropagation(); removeMine(s.id); }; top.appendChild(x); }
@@ -41,7 +43,7 @@ function renderWent(v){
   segBar(v,[['list','リスト'],['cal','カレンダー']],wentView,k=>{ wentView=k; },'subseg');
   if (wentView==='cal'){ const sub=el('div'); v.appendChild(sub); renderCal(sub); return; }
   if (!readOnly) v.appendChild(el('p','hint','右にスワイプで「行きたい」に戻せます'));
-  filterBar(v,listF,shops.filter(inWent),render);
+  listF.hon=false; filterBar(v,listF,shops.filter(inWent),render);
   let arr=shops.filter(inWent).filter(s=>fMatch(s,listF));
   if (!['new','star','price'].includes(sort)) sort='new';
   const key = sort==='price'?'price':null;

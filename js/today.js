@@ -7,8 +7,9 @@ const PICK_STARS=[3,3.5,4];
 const genreOf = s => (s.hp && s.hp.genre) || '';
 // open at "HH:MM" today? null when the hours are unknown
 // the same 3 pickers (時間 / ジャンル / 星) on 今日どこ行く? and on the lists. st: {at, genre, star}
-const fOn = st => !!(st.at || st.genre || st.star);
+const fOn = st => !!(st.at || st.genre || st.star || st.hon);
 function fMatch(s,st){
+  if (st.hon && !honBy(s).length) return false;
   if (st.at && openAt(s,st.at)===false) return false;   // unknown hours stay in
   if (st.genre && genreOf(s)!==st.genre) return false;
   if (st.star){ const a=starAvg(s); if(!a || a.v<st.star) return false; }
@@ -16,6 +17,8 @@ function fMatch(s,st){
 }
 function filterBar(box,st,base,redraw){
   const fl=el('div','pk-bar');
+  if (st.hon || base.some(s=>honBy(s).length)){ const h=el('button','pk-hon','🔥本命'); h.type='button'; h.setAttribute('aria-pressed',String(!!st.hon)); h.setAttribute('aria-label','本命だけ');
+    h.onclick=()=>{ st.hon=!st.hon; if(st===pick) pick.chosen=null; redraw(); }; fl.appendChild(h); }
   const sel=(label,items,cur,set)=>{ const w=el('label','pk-sel'+(String(cur)!==String(items[0][0])?' on':''));
     const s=el('select'); s.setAttribute('aria-label',label);
     for (const [v,l] of items){ const o=el('option',null,l); o.value=String(v); o.selected=String(cur)===String(v); s.appendChild(o); }
@@ -37,7 +40,7 @@ function openAt(s,t){
 function candidates(){
   let arr=shops.filter(s=>(pick.want&&inWant(s)) || (pick.went&&inWent(s)));
   arr=arr.filter(s=>fMatch(s,pick));
-  const score=s=>(avg(s,'again')??1.2)*2 + wantIds(s).length*0.6 + (statusOf(s)==='want'?0.8:0);
+  const score=s=>honBy(s).length*4 + (avg(s,'again')??1.2)*2 + wantIds(s).length*0.6 + (statusOf(s)==='want'?0.8:0);
   const out=arr.map(s=>({s,d:Infinity})); out.sort((a,b)=>score(b.s)-score(a.s));
   return out;
 }
@@ -105,7 +108,8 @@ function openPick(src){
 function closePick(){ hideSheet('pickSheet'); }
 function omakase(cands){
   if (!cands.length) return;
-  const one=()=>cands[Math.floor(Math.random()*cands.length)].s;
+  const bag=cands.flatMap(x=>Array(1+honBy(x.s).length*2).fill(x));   // 本命 comes up about 3x as often
+  const one=()=>bag[Math.floor(Math.random()*bag.length)].s;
   let final=one(); if (cands.length>1) while(final.id===pick.chosen) final=one();
   pick.proposing=null;
   const slot=$('pSlot'); const land=()=>{ pick.chosen=final.id; pick.fresh=true; buzz(); buildPick(); };
@@ -135,7 +139,7 @@ function buildPick(){
   const cur = pick.want&&pick.went ? 'all' : pick.want ? 'want' : 'went';
   for (const [k,l] of [['all','すべて'],['want','行きたい'],['went','行った']]){ const x=el('button','chip',l); x.type='button'; x.setAttribute('aria-pressed',String(cur===k));
     x.onclick=()=>{ pick.want=k!=='went'; pick.went=k!=='want'; pick.chosen=null; buildPick(); }; tg.appendChild(x); }
-  const on=[pick.at&&(+pick.at.slice(0,2))+'時〜', pick.genre, pick.star&&'★'+pick.star+'〜'].filter(Boolean);
+  const on=[pick.hon&&'🔥本命', pick.at&&(+pick.at.slice(0,2))+'時〜', pick.genre, pick.star&&'★'+pick.star+'〜'].filter(Boolean);
   const fb=el('button','chip dc-fb'+(on.length?' on':''), '⚙ '+(on.length?on.join('・'):'絞り込み')); fb.type='button'; fb.setAttribute('aria-expanded',String(pick.fopen));
   fb.onclick=()=>{ pick.fopen=!pick.fopen; buildPick(); }; tg.appendChild(fb);
   b.appendChild(tg);
@@ -191,7 +195,7 @@ $('pBack').onclick=closePick;
 function pickChips(s,withStatus){
   const ch=el('div','sc-chips pk-chips');
   if (withStatus){ const w=statusOf(s)==='went'; pill(ch, w?'st-went':'st-want', w?'行った':'行きたい'); }
-  hoursPill(ch,s); { const g=genreOf(s); if(g) pill(ch,'genre',g); }
+  honPill(ch,s); hoursPill(ch,s); { const g=genreOf(s); if(g) pill(ch,'genre',g); }
   const sl=starLine(s); if(sl) ch.appendChild(sl);
   return ch;
 }

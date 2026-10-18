@@ -112,3 +112,18 @@ const LKEY='nomiya-memo-v2';
 function loadLocal(){ try{ const v=JSON.parse(localStorage.getItem(LKEY)||'{}'); return {shops:Array.isArray(v.shops)?v.shops:[], rankings:v.rankings||{}, today:v.today||{}}; }catch{ return {shops:[],rankings:{},today:{}}; } }
 function saveLocal(){ if(mode!=='local') return; try{ localStorage.setItem(LKEY,JSON.stringify({shops:myShops,rankings,today:todayDocs})); }catch{} }
 function afterChange(){ rebuildShops(); render(); if(openId) patchDetail(); if(isOpen('pickSheet')) buildPick(); }
+
+// 本命 (the shops you most want to go to): r[uid].hon
+const isHon = (s,u=me) => !!(s && s.r && s.r[u] && s.r[u].hon);
+const honBy = s => inScope(Object.keys((s&&s.r)||{}).filter(u=>isHon(s,u)));
+function toggleHon(id){ const s=shops.find(x=>x.id===id); if(!s||!me||readOnly) return; const on=!isHon(s); buzz();
+  patchShop(id,{r:{[me]:{hon:on}}}); if (on) toast(`「${s.name}」を本命にしました`); }
+function honBtn(s){
+  const on=isHon(s); const b=el('button','hon-btn', '🔥'); b.type='button'; b.setAttribute('aria-pressed',String(on));
+  b.setAttribute('aria-label',(s.name||'')+(on?'の本命を外す':'を本命にする')); b.title=on?'本命':'本命にする';
+  b.onclick=e=>{ e.stopPropagation(); toggleHon(s.id); }; return b;
+}
+// a label: 本命 / <nick>の本命 / 2人とも本命
+function honPill(ch,s){ const by=honBy(s); if(!by.length) return;
+  const t = by.length>1 ? '🔥 2人とも本命' : by[0]===me ? '🔥 本命' : `🔥 ${(friendByMid(by[0])||{}).nick||'飲み友'}の本命`;
+  pill(ch,'hon',t); }
