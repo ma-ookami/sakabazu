@@ -311,7 +311,7 @@ function renderResults(){
         const i=el('input','field'); i.placeholder='お店の名前'; i.maxLength=60; i.autocomplete='off'; i.value=r.hint||''; i.setAttribute('aria-label','お店の名前');
         const b=el('button','btn btn-red','追加'); b.type='submit'; f.append(i,b);
         f.onsubmit=async e=>{ e.preventDefault(); const n=i.value.trim(); if(!n){ i.focus(); return; } b.disabled=true;
-          const id=await addOrBump(n,'',{links:[r.u]}); b.disabled=false; if(id){ r.added=n; r.needName=false; renderResults(); } };
+          const id=await addOrBump(n,'',{links:[r.u]}); b.disabled=false; if(id){ r.added=n; r.needName=false; { const sh=myShops.find(z=>z.id===id); if (sh && !genreOf(sh)) setTimeout(()=>askGenres([sh]),300); } renderResults(); } };
         li.appendChild(f);
       } else li.prepend(el('p','sx-ng',r.msg||'読み取れませんでした'));
       ul.appendChild(li);

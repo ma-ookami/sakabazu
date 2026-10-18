@@ -124,7 +124,10 @@ async function addManual(raw){
     toast(r.msg); return false;
   }
   const [name,area='']=raw.split(/[@＠]/).map(x=>x.trim()); if(!name) return false;
-  return !!(await addOrBump(name,area));
+  const id=await addOrBump(name,area);
+  // no genre yet: ask it right away (one tap, or later)
+  if (id){ const sh=myShops.find(z=>z.id===id); if (sh && !genreOf(sh)) setTimeout(()=>askGenres([sh]),400); }
+  return !!id;
 }
 
 
