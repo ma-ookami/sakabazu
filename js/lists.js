@@ -32,7 +32,7 @@ async function renderWant(v){
 }
 
 function renderWent(v){
-  if (!readOnly) v.appendChild(el('p','hint','右にスワイプで「行きたい」に戻す、左で外す'));
+  if (!readOnly) v.appendChild(el('p','hint','右にスワイプで ↩行きたい、左で外す'));
   listF.hon=false; filterBar(v,listF,shops.filter(inWent),render);
   let arr=shops.filter(inWent).filter(s=>fMatch(s,listF));
   if (!['new','star','price'].includes(sort)) sort='new';
@@ -57,7 +57,7 @@ function renderWent(v){
     { const last=visitList(s).find(x=>x.actual>0); if(last) pill(chips,'yen',`1人 ${yen(last.actual)}`); }
     const bd=el('div','badges'); c.appendChild(bd); badgeSlots.push([bd,s.id]);
     // swipe right: back to 行きたい (rarely needed, so no button)
-    list.appendChild(!readOnly && me && wentBy(s)[me] ? swipeable(c,{label:'↩ 行きたいに戻す', run:()=>backToWant(s.id)},{label:'外す',run:()=>removeMine(s.id)}) : c);
+    list.appendChild(!readOnly && me && wentBy(s)[me] ? swipeable(c,{label:'↩ 行きたい', run:()=>backToWant(s.id)},{label:'外す',run:()=>removeMine(s.id)}) : c);
   }
   fillFaces(slots); fillBadges(badgeSlots);
 }
