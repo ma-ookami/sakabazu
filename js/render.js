@@ -41,7 +41,9 @@ async function addOrBump(name,area,extra){
   if (dup){
     if (wentBy(dup)[me]) toast(`「${dup.name}」は行った店に記録済みです`, '開く', ()=>openDetail(dup.id));
     else if (dup.wants && dup.wants[me]) toast(`「${dup.name}」はもう行きたいに入っています`);
-    else if (me){ patchShop(dup.id,{wants:{[me]:true}}); const others=wentIds(dup).filter(u=>u!==me).length; toast(`「${dup.name}」を行きたいに入れました${others?`(${others}人が行ったことあり)`:''}`); }
+    else if (me){   // a shop I took out before: back in as 行きたい, with the new details
+      const p={wants:{[me]:true}}; if (extra){ for (const k of ['loc','hours','tags','hp']) if (extra[k] && !dup[k]) p[k]=extra[k]; if (Array.isArray(extra.links)) p.links=[...new Set([...(Array.isArray(dup.links)?dup.links:[]), ...extra.links])].slice(0,5); }
+      patchShop(dup.id,p); return dup.id; }
     return null;
   }
   const id=await addShop(name,area);

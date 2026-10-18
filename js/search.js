@@ -103,6 +103,8 @@ async function enrichByName(name, loc){
   }catch(e){ console.warn(e); }
   return {extra:{}};
 }
+// in my list now (行きたい or 行った). a shop I took out (外した) is not
+const inMine = name => myShops.some(z=>mySt(z) && norm(z.name)===norm(name));
 function clipJoin(plain,uriList,html){
   let t=plain||''; const more=[];
   for (const u of String(uriList||'').split(/\r?\n/)) if (/^https?:\/\//i.test(u.trim())) more.push(u.trim());
@@ -197,10 +199,10 @@ async function runUrls(text){
   for (const [k,x] of list.entries()){
     sx.prog=`${k+1}/${list.length}`; renderResults();
     let r = x.tb ? {needName:true, msg:''} : await addFromUrl(x.u); if (seq!==sx.seq) return;
-    if (x.tb){ if (myShops.some(z=>norm(z.name)===norm(x.tb.name))) r={msg:`「${x.tb.name}」はもうリストにあります。`};
+    if (x.tb){ if (inMine(x.tb.name)) r={msg:`「${x.tb.name}」はもうリストにあります。`};
       else { const id=await addOrBump(x.tb.name, x.tb.area?x.tb.area.replace(/駅$/,'')+'駅':'', {links:[x.u], ...(x.tb.genre?{hp:{genre:x.tb.genre}}:{})}); if (id) r={added:x.tb.name}; } }
     // only for shop links (Google / ホットペッパー): any other link keeps asking, so a chat line like 「見て!」 never becomes a shop
-    if (r.needName && x.hint && SHOP_LINK.test(x.u)){ const own=myShops.some(z=>norm(z.name)===norm(x.hint));
+    if (r.needName && x.hint && SHOP_LINK.test(x.u)){ const own=inMine(x.hint);
       if (own) r={msg:`「${x.hint}」はもうリストにあります。`}; else { const ex=await enrichByName(x.hint, r.loc); const id=await addOrBump(x.hint, ex.area||'', {...ex.extra, links:[r.long||x.u, ...((ex.extra&&ex.extra.links)||[])].slice(0,5), ...(r.loc?{loc:r.loc}:{})}); if (id) r={added:x.hint}; } }
     sx.urlRes.push({...x,...r});
   }
@@ -241,7 +243,7 @@ async function addFromUrl(u){
       const g=ps.find(x=>x.displayName && norm(x.displayName.text)===norm(name)) || ps.find(x=>x.displayName && (norm(x.displayName.text).includes(norm(name))||norm(name).includes(norm(x.displayName.text)))) || (p.loc ? null : ps[0]);
       if (g){ extra={...gExtra(g), loc:p.loc||gExtra(g).loc}; nm=g.displayName.text; area=gArea(g); }
     }catch(e){ /* Google search not set up yet: name + place only */ }
-    if (myShops.some(x=>norm(x.name)===norm(nm))) return {msg:`「${nm}」はもうリストにあります。`};
+    if (inMine(nm)) return {msg:`「${nm}」はもうリストにあります。`};
     const id=await addOrBump(nm,area,extra);
     return id ? {added:nm} : {msg:'追加できませんでした。通信状態を確認して、もう一度試してください。'};
   }
@@ -249,7 +251,7 @@ async function addFromUrl(u){
   if (hp && hpOn()){
     try{
       const r=await hpSearch({id:hp[1],count:'1'}); const h=r.shops[0];
-      if (h){ if (myShops.some(x=>norm(x.name)===norm(h.name))) return {msg:`「${h.name}」はもうリストにあります。`};
+      if (h){ if (inMine(h.name)) return {msg:`「${h.name}」はもうリストにあります。`};
         const id=await addOrBump(h.name,hpArea(h),hpShopExtra(h)); return id?{added:h.name}:{msg:'追加できませんでした。通信状態を確認して、もう一度試してください。'}; }
       return {needName:true, msg:'ホットペッパーでこのお店が見つかりませんでした(閉店したお店かもしれません)。'};
     }catch(e){ console.warn(e); return {needName:true, msg:'ホットペッパーにつながりませんでした。お店の名前を入れると、そのまま追加できます。'}; }
