@@ -127,3 +127,15 @@ textarea.memo,.field{box-sizing:border-box;max-width:100%}
 .d-star .st-adj .textbtn{font-size:12px}
 .sheet-head .d-more{border:0;background:transparent;border-radius:50%;box-shadow:none;padding:0 0 8px;width:40px;height:40px}
 .sheet-head .d-more:hover{background:var(--faint)}
+/* 項目ごとのメモ: label on the left, a one-line memo on the right */
+.mlist{display:grid;gap:6px}
+.mlist .mi{display:grid;grid-template-columns:4.6em minmax(0,1fr);align-items:start;gap:4px 8px;margin:0}
+.mi-l{font-size:12.5px;font-weight:700;color:var(--sub);padding-top:9px}
+.mlist textarea.memo{min-height:0;padding:7px 10px;border-radius:10px;line-height:1.45;resize:none;overflow:hidden}
+.mlist .others{grid-column:2}
+.mlist .others:empty{display:none}
+.d-main textarea.memo{resize:none;overflow:hidden}
+.mlist .mi{grid-template-columns:52px minmax(0,1fr);gap:4px 6px}
+.mi-l{font-size:12px}
+.mlist textarea.memo::placeholder{font-size:13px}
+.d-main textarea.memo::placeholder{font-size:14px}

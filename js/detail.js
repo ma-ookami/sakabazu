@@ -4,9 +4,11 @@ function openDetail(id,opts){ openId=id; builtStatus=null; showSheet('detail',op
 function closeDetail(){ flushMemos(); openId=null; hideSheet('detail'); render(); }
 function myVal(id,k){ const s=shops.find(x=>x.id===id); return (s&&s.r&&me&&s.r[me]&&s.r[me][k])||{}; }
 function sec(title,hint){ const box=el('section','sec'); const h=el('div','sec-h'); h.appendChild(el('h3',null,title)); if(hint) h.appendChild(el('small',null,hint)); box.appendChild(h); return box; }
+// memos start one line tall and grow with what you write
+const grow = ta => { ta.style.height='auto'; if (ta.scrollHeight) ta.style.height=ta.scrollHeight+2+'px'; };
 function memoBox(box,k,ph){
   if (!readOnly && me){ const ta=el('textarea','memo'); ta.rows=1; ta.placeholder=ph; ta.maxLength=300; ta.dataset.k=k; ta.setAttribute('aria-label','メモ');
-    ta.oninput=()=>queueMemo(openId,k,ta.value); ta.onblur=()=>flushMemos(); box.appendChild(ta); }
+    ta.oninput=()=>{ grow(ta); queueMemo(openId,k,ta.value); }; ta.onblur=()=>flushMemos(); box.appendChild(ta); }
   const o=el('div','others'); o.dataset.k=k; box.appendChild(o);
 }
 function buildDetail(s){
@@ -53,7 +55,7 @@ function buildDetail(s){
     rows.appendChild(fold('項目ごとの評価',ms,cnt(ITEMS.filter(it=>mine[it.k]&&mine[it.k].m).length),'◎'));
     rows.appendChild(fold('特徴',tagSec(s),cnt(tagCount(s)),'🏷'));
     rows.appendChild(fold('来店記録・会計',visitSec(s),cnt(visitList(s).length),'🧾'));
-    const mm=el('div'); for (const it of ITEMS){ const mi=el('div','mi'); mi.appendChild(el('h4',null,it.label)); memoBox(mi,it.k,it.ph); mm.appendChild(mi); }
+    const mm=el('div','mlist'); for (const it of ITEMS){ const mi=el('div','mi'); mi.appendChild(el('span','mi-l',it.label)); memoBox(mi,it.k,it.ph.replace(/^例: /,'')); mm.appendChild(mi); }
     rows.appendChild(fold('項目ごとのメモ',mm,cnt(ITEMS.filter(it=>Object.values(rr).some(p=>p&&p[it.k]&&(p[it.k].t||'').trim())).length),'✎'));
     body.appendChild(rows);
   }
@@ -95,7 +97,7 @@ async function patchDetail(){
       for (const u of raters){ const tr=el('tr'); const w=el('td','who'); w.appendChild(avatar(ps,u)); w.appendChild(document.createTextNode(nameOf(ps,u))); tr.appendChild(w);
         ITEMS.forEach(it=>tr.appendChild(el('td',null,(r[u][it.k]&&r[u][it.k].m)||'–'))); t.appendChild(tr); }
       tb.appendChild(t); } }
-  for (const ta of document.querySelectorAll('#dBody textarea')){ const k=ta.dataset.k; if(document.activeElement!==ta && !memoTimers[s.id+'|'+k]) ta.value=myVal(s.id,k).t||''; }
+  for (const ta of document.querySelectorAll('#dBody textarea')){ const k=ta.dataset.k; if(document.activeElement!==ta && !memoTimers[s.id+'|'+k]) ta.value=myVal(s.id,k).t||''; grow(ta); }
   for (const o of document.querySelectorAll('#dBody .others')){ const k=o.dataset.k; o.textContent='';
     for (const u of others){ const v=r[u]&&r[u][k]; if(!v||(!v.m&&!(v.t||'').trim())) continue;
       const row=el('div','other'); row.appendChild(avatar(ps,u)); row.appendChild(el('span','om',v.m||''));
