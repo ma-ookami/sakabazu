@@ -35,7 +35,7 @@ function buildDetail(s){
     const n=sec('ひとこと'); memoBox(n,'note','例: 金曜は混むので予約必須'); body.appendChild(n);
     const p=sec('行った日'); const wb=el('div','faces'); wb.id='dWentBy'; if (groupMode()) p.appendChild(wb);
     if (wentBy(s)[me] && !readOnly){ const d=el('input','dateinput'); d.type='date'; d.id='dWent';
-      d.onchange=()=>{ const cur=shops.find(x=>x.id===s.id); if(cur) patchShop(s.id,{went:wentPatch(cur,me,d.value||true)}); }; p.appendChild(d); }
+      d.onchange=()=>{ const cur=shops.find(x=>x.id===s.id); if(!cur) return; const from=wentBy(cur)[me]; patchShop(s.id,Object.assign({went:wentPatch(cur,me,d.value||true)}, moveMyVisit(cur,from,d.value))); }; p.appendChild(d); }
     else if (!readOnly && me){ const g=el('button','btn btn-red'); g.textContent='私も行った'; g.style.marginTop='12px'; g.onclick=()=>wentWhen(s.id,true); p.appendChild(g); }
     body.appendChild(p);
     // folded: ◎○ by item, 特徴, 来店記録と会計, memos by item

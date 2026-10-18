@@ -67,8 +67,20 @@ function unvisit(id,date,vid){ const s=shops.find(x=>x.id===id); if(!s||!me) ret
     const u={}; if (vid) u.visits={[vid]:{people:{[me]:true}}}; if (wd){ u.went=wentPatch(cur,me,wd); u.wants={[me]:wasWant}; } patchShop(id,u); }); }
 function markWant(id){ const s=shops.find(x=>x.id===id); if(!s||!me) return; patchShop(id,{wants:{[me]:true}, went:wentPatch(s,me,null)}); }
 function removeMine(id){ const s=shops.find(x=>x.id===id); if(!s||!me||isFriendShop(s)) return; const was={want:!!(s.wants&&s.wants[me]), went:wentBy(s)[me]||null};
-  patchShop(id,{wants:{[me]:false}, went:wentPatch(s,me,null)});
-  toast('あなたのリストから外しました','元に戻す',()=>{ const cur=shops.find(x=>x.id===id); if(cur) patchShop(id,{wants:{[me]:was.want}, went:wentPatch(cur,me,was.went)}); }); }
+  const mine=visitList(s).filter(v=>v.people&&v.people[me]).map(v=>v.vid);
+  const vis=on=>mine.length?{visits:Object.fromEntries(mine.map(vid=>[vid,{people:{[me]:on}}]))}:{};
+  patchShop(id,{wants:{[me]:false}, went:wentPatch(s,me,null), ...vis(false)});
+  toast('あなたのリストから外しました','元に戻す',()=>{ const cur=shops.find(x=>x.id===id); if(cur) patchShop(id,{wants:{[me]:was.want}, went:wentPatch(cur,me,was.went), ...vis(true)}); }); }
+// 行った日 changed in the detail: the visit on the old day moves to the new one (only mine moves if others were there too)
+function moveMyVisit(s,from,to){
+  if (!to) return {};
+  const v=typeof from==='string' && visitList(s).find(x=>x.date===from && x.people&&x.people[me]);
+  if (!v) return ensureVisit(s,to).patch;
+  if (visitList(s).some(x=>x.vid!==v.vid && x.date===to && x.people&&x.people[me])) return {visits:{[v.vid]:{people:{[me]:false}}}};
+  const others=Object.keys(v.people).filter(u=>u!==me && v.people[u]);
+  if (!others.length) return {visits:{[v.vid]:{date:to}}};
+  const nv=ensureVisit(s,to).patch; nv.visits[v.vid]={people:{[me]:false}}; return nv;
+}
 function queueMemo(id,k,t){ const key=id+'|'+k; pendingMemo[key]={id,k,t}; clearTimeout(memoTimers[key]); memoTimers[key]=setTimeout(()=>flushOne(key),700); }
 function flushOne(key){ clearTimeout(memoTimers[key]); delete memoTimers[key]; const p=pendingMemo[key]; if(!p) return; delete pendingMemo[key]; patchShop(p.id,{r:{[me]:{[p.k]:{t:p.t}}}}); }
 function flushMemos(){ for(const key of Object.keys(pendingMemo)) flushOne(key); }

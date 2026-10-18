@@ -107,7 +107,8 @@ function calEntries(){
   const P=SP(); const out=[];
   for (const s of shops){
     const seen=new Set();
-    for (const v of visitList(s)){ const ppl=Object.keys(v.people||{}).filter(u=>v.people[u] && (!P||P.has(u))); if(!ppl.length) continue; out.push({date:v.date,s,ppl,actual:v.actual,vid:v.vid}); seen.add(v.date); }
+    const wbAll=wentBy(s);
+    for (const v of visitList(s)){ const ppl=Object.keys(v.people||{}).filter(u=>v.people[u] && wbAll[u] && (!P||P.has(u))); if(!ppl.length) continue; out.push({date:v.date,s,ppl,actual:v.actual,vid:v.vid}); seen.add(v.date); }
     const wb=wentBy(s); const byD={};
     for (const u of wentIds(s)){ const d=wb[u]; if(typeof d==='string' && /^\d{4}-\d{2}-\d{2}$/.test(d) && !seen.has(d)) (byD[d]=byD[d]||[]).push(u); }
     for (const d in byD) out.push({date:d,s,ppl:byD[d],actual:null});
