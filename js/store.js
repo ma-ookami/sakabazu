@@ -130,7 +130,7 @@ function honBtn(s){
 // a label: 本命 / <nick>の本命 / 2人とも本命
 function honPill(ch,s){ const by=honBy(s); if(!by.length) return;
   const t = by.length>1 ? (by.length===2?'2人とも本命':`${by.length}人とも本命`) : by[0]===me ? '本命' : `${(friendByMid(by[0])||{}).nick||'飲み友'}の本命`;
-  pill(ch,'hon',t); ch.lastChild.prepend(lanEl()); }
+  pill(ch,'hon',t); ch.lastChild.prepend(lanEl()); whoIcons(ch.lastChild,by,'本命'); }
 
 // ---------- private part of a shop (groups/{gid}/priv/{shopId}, readable only by me) ----------
 const PUBLIC_R = ['star','hon','tsuke'];
@@ -186,4 +186,12 @@ function tsukeBtn(s){
 // a label: 行きつけ / <nick>の行きつけ / 2人の行きつけ
 function tsukePill(ch,s){ const by=tsukeBy(s); if(!by.length) return;
   const t = by.length>1 ? (by.length===2?'2人の行きつけ':`${by.length}人の行きつけ`) : by[0]===me ? '行きつけ' : `${(friendByMid(by[0])||{}).nick||'飲み友'}の行きつけ`;
-  pill(ch,'tsuke',t); ch.lastChild.prepend(chokoEl()); }
+  pill(ch,'tsuke',t); ch.lastChild.prepend(chokoEl()); whoIcons(ch.lastChild,by,'行きつけ'); }
+
+// with 飲み友: whose it is, as overlapping icons after the mark ("🏮(け)(ま) 本命")
+function whoIcons(p,by,word){
+  if (!activeFriends().length) return;
+  const stk=el('span','pl-stack'); by.forEach(u=>stk.appendChild(avatar({},u,'pl-av')));
+  p.firstChild.after(stk); p.lastChild.textContent=word;
+  p.title=p.ariaLabel=by.map(u=>u===me?'あなた':(friendByMid(u)||{}).nick||'飲み友').join('・')+'の'+word;
+}
