@@ -84,6 +84,7 @@
 .as-cancel{text-align:center;font-weight:500;color:var(--sub);margin-top:4px}
 .g-chips{flex-wrap:wrap;margin-top:8px;gap:6px}.g-chips .chip{padding:4px 11px;font-size:12.5px}
 .sheet-in:focus,.as-panel:focus{outline:none}
-.bk-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.bk-row{display:flex;gap:8px;margin-top:10px}
+.bk-row .btn{flex:1 1 0;min-width:0;justify-content:center;text-align:center;padding-left:8px;padding-right:8px;font-size:13px;white-space:nowrap}
 .bk-load{cursor:pointer}
 .ask-in:focus{outline:none}
