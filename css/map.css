@@ -54,3 +54,7 @@
 .mapcard .acts{gap:5px}.mapcard .acts .sbtn{padding:6px 9px;min-width:0}
 .maplibregl-ctrl-attrib{display:none!important}
 .map-unloc{margin-left:auto;color:var(--sub);border-style:dashed}
+/* 今日の候補: a bright yellow pin */
+.pinm.pick .pm-b{fill:#FFC21A;stroke:#fff;stroke-width:1.8}
+.pinm.pick .pm-d{fill:#5A4300}
+.map-pk::before{background:#FFC21A;box-shadow:0 0 0 2px #fff,0 0 0 3px #E0A800}
