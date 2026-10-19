@@ -160,7 +160,6 @@ function buildPick(){
   const fb=el('button','chip dc-fb'+(on.length?' on':''), '⚙'+(on.length?' '+on.length:'')); fb.type='button'; fb.setAttribute('aria-label','絞り込み(時間・ジャンル・星)'+(on.length?'：'+on.join('・'):'')); fb.title='時間・ジャンル・星で絞り込み'; fb.setAttribute('aria-expanded',String(pick.fopen));
   fb.onclick=()=>{ pick.fopen=!pick.fopen; buildPick(); }; tg.appendChild(fb);
   b.appendChild(tg);
-  if (activeFriends().length) b.appendChild(el('p','pk-legend','アイコンの右下の印:🏮本命・お猪口=行きつけ'));
   if (pick.fopen) filterBar(b,pick,shops.filter(s=>(pick.want&&inWant(s))||(pick.went&&inWent(s))),buildPick);
   const cands=candidates();
   const om=el('div','omakase'); const slot=el('div','slot'); slot.id='pSlot'; slot.setAttribute('aria-live','polite');
@@ -221,29 +220,25 @@ $('pBack').onclick=closePick;
 // the same little labels as the list cards: 行った/行きたい, 営業時間, ジャンル, 星
 // a shop's lines in 今日どこ行く?: the shop in one line of text (営業中 〜24:00 ・ 居酒屋 ・ ★4.0),
 // then (with 飲み友) who: icons ringed red (行きたい) / navy (行った), with a small 提灯 / お猪口 for 本命 / 行きつけ
+// a shop in 今日どこ行く?: 営業時間・ジャンル・★ on one line, then 行きたい / 行った (with whose icons)
 function pickChips(s,withStatus){
   const box=el('div','pk-lines'), fr=activeFriends();
-  const row=el('div','sc-chips pk-chips');
+  const top=el('div','pk-top');
+  hoursPill(top,s);
+  { const g=genreOf(s); if(g) top.appendChild(el('span','pk-g',g)); }
+  { const st=starAvg(s); if(st) top.appendChild(el('span','pk-star','★'+st.v.toFixed(1))); }
+  if (top.children.length) box.appendChild(top);
   if (withStatus){
-    if (fr.length){   // 飲み友と: one label per kind, everyone's icons on it; 本命 / 行きつけ as a small mark on the icon
+    const row=el('div','sc-chips pk-chips');
+    if (fr.length){
       const who=[[me,'あなた'], ...fr.map(f=>[friends[f].mid, friends[f].nick||'飲み友'])];
       for (const st of ['want','went']){ const ppl=who.filter(([u])=> st==='went' ? !!wentBy(s)[u] : !wentBy(s)[u] && !!(s.wants&&s.wants[u])); if(!ppl.length) continue;
         pill(row,'st-'+st+' st-who', st==='went'?'行った':'行きたい'); const p=row.lastChild; const stk=el('span','pl-stack');
-        for (const [u] of ppl){ const w=el('span','pk-p'); w.appendChild(avatar({},u,'pl-av'));
-          if (isHon(s,u)){ const m=el('span','pk-mark hon'); m.appendChild(lanEl()); w.appendChild(m); }
-          else if (isTsuke(s,u)){ const m=el('span','pk-mark tsuke'); m.appendChild(chokoEl()); w.appendChild(m); }
-          stk.appendChild(w); }
-        p.prepend(stk);
-        p.title=p.ariaLabel=ppl.map(([u,n])=>n+(isHon(s,u)?'(本命)':isTsuke(s,u)?'(行きつけ)':'')).join('・')+' '+(st==='went'?'行った':'行きたい'); }
-    } else { const w=statusOf(s)==='went'; pill(row, w?'st-went':'st-want', w?'行った':'行きたい'); }
+        for (const [u] of ppl) stk.appendChild(avatar({},u,'pl-av'));
+        p.prepend(stk); p.title=p.ariaLabel=ppl.map(x=>x[1]).join('・')+' '+(st==='went'?'行った':'行きたい'); }
+    } else { const w=statusOf(s)==='went'; pill(row, w?'st-went':'st-want', w?'行った':'行きたい'); if (isHon(s)) honPill(row,s); if (isTsuke(s)) tsukePill(row,s); }
+    if (row.children.length) box.appendChild(row);
   }
-  hoursPill(row,s);
-  if (row.children.length) box.appendChild(row);
-  const info=el('div','pk-info'); const add=(node)=>{ if(info.childNodes.length) info.appendChild(el('span','pk-dot','・')); info.appendChild(node); };
-  { const g=genreOf(s); if(g) add(el('span',null,g)); }
-  { const st=starAvg(s); if(st) add(el('span','pk-star','★'+st.v.toFixed(1))); }
-  if (!fr.length){ if (isHon(s)) add(el('span','pk-hon1','本命')); if (isTsuke(s)) add(el('span','pk-tsuke1','行きつけ')); }
-  if (info.childNodes.length) box.appendChild(info);
   return box;
 }
 
