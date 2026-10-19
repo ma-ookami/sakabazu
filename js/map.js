@@ -63,7 +63,9 @@ function renderMap(v){
   wrap.appendChild(ctl);
   if (!all.length) wrap.appendChild(el('div','mapempty','まだ位置を記録した店がありません。店の詳細の「場所」から記録できます。'));
   document.querySelectorAll('.mapattr').forEach(x=>x.remove());   // one credit only, however often the map is redrawn
-  const at=el('a','mapattr','© OpenFreeMap © OpenStreetMap'); at.href='https://www.openstreetmap.org/copyright'; at.target='_blank'; at.rel='noopener noreferrer'; wrap.appendChild(at);
+  // the map's credit, as OpenFreeMap asks: OpenFreeMap (tiles), OpenMapTiles (the map data format), OpenStreetMap (the data)
+  const at=el('div','mapattr'); const lk=(t,u)=>{ const x=el('a',null,t); x.href=u; x.target='_blank'; x.rel='noopener noreferrer'; return x; };
+  at.append(lk('OpenFreeMap','https://openfreemap.org'),' ',lk('© OpenMapTiles','https://www.openmaptiles.org/'),' Data from ',lk('OpenStreetMap','https://www.openstreetmap.org/copyright')); wrap.appendChild(at);
   const info=el('div','mapinfo'); info.id='mapInfo'; wrap.appendChild(info);
   v.appendChild(wrap);
   renderMapInfo();
