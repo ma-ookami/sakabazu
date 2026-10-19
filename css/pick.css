@@ -110,3 +110,26 @@
 .pl-stack{display:inline-flex;margin-right:2px}
 .pl-stack .pl-av + .pl-av{margin-left:-6px}
 .pk-t:disabled{opacity:.35;cursor:not-allowed}
+
+/* calm cards: one line of text for the shop, icons for the people */
+.pk-lines{display:grid;gap:6px;margin-top:4px}
+.pk-info{font-size:12.5px;color:var(--sub);line-height:1.5}
+.pk-dot{margin:0 4px;opacity:.6}
+.pk-h.open{color:var(--green);font-weight:700}
+.pk-h.soon{color:var(--gold);font-weight:700}
+.pk-star{color:#C98A1E;font-weight:700}
+.pk-st.want,.pk-hon1{color:var(--red);font-weight:700}
+.pk-st.went{color:var(--indigo);font-weight:700}
+.pk-tsuke1{color:#2E5FA8;font-weight:700}
+.pk-people{display:flex;flex-wrap:wrap;gap:8px}
+.pk-p{position:relative;display:inline-grid}
+.pk-p .pl-av{width:24px;height:24px;font-size:11px;box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--ring)}
+.pk-p.want{--ring:var(--red)}
+.pk-p.went{--ring:var(--indigo)}
+.pk-mark{position:absolute;right:-7px;bottom:-5px;width:15px;height:15px;border-radius:50%;background:var(--card);display:grid;place-items:center;box-shadow:0 0 0 1px var(--line)}
+.pk-mark .lan{width:8px;height:11px}
+.pk-mark .choko{width:10px;height:9px}
+.pk-mark.hon .lan-body{fill:var(--red);stroke:#7A1A14;stroke-width:.8}
+.pk-mark.hon .lan-cap{fill:#1F1B19}
+.pk-mark.tsuke .ck-body{fill:#FFFDF8;stroke:#27211D}.pk-mark.tsuke .ck-sake{opacity:1;fill:#CFE2F3}.pk-mark.tsuke .ck-ring{opacity:1;fill:none;stroke:#2E5FA8;stroke-width:1.2}.pk-mark.tsuke .ck-dot{opacity:1;fill:#2E5FA8}.pk-mark.tsuke .ck-foot{fill:#27211D}
+.pk-legend{margin:8px 0 0;font-size:11px;color:var(--sub)}
