@@ -97,12 +97,12 @@ function buildSearch(){
 function urlPane(body){
   body.appendChild(el('p','hint','ホットペッパー・Googleマップ・食べログのお店のリンクを貼ってください。LINEの文面ごと、何件まとめてでもOK。'));
   const ta=el('textarea','ua-in'); ta.id='uaIn'; ta.rows=4; ta.placeholder='https://…'; ta.setAttribute('aria-label','お店のURL'); body.appendChild(ta);
-  ta.addEventListener('paste',e=>{ const t=clipFromEvent(e), plain=(e.clipboardData&&e.clipboardData.getData('text/plain'))||''; if (t===plain) return;
+  ta.addEventListener('paste',e=>{ const t=tidyBox(clipFromEvent(e)); if (!t) return;
     e.preventDefault(); const a=ta.selectionStart, b=ta.selectionEnd; ta.value=ta.value.slice(0,a)+t+ta.value.slice(b); });
   const err=el('p','ua-err'); err.setAttribute('aria-live','polite'); body.appendChild(err);
   const row=el('div','ua-row');
   const paste=el('button','btn btn-line','📋 貼り付け'); paste.type='button';
-  paste.onclick=async()=>{ try{ const t=await clipRead(); if(t){ ta.value=(ta.value?ta.value+'\n':'')+t; err.textContent=''; } }catch{ err.textContent='貼り付けできませんでした。入力欄を長押しして貼り付けてください。'; ta.focus(); } };
+  paste.onclick=async()=>{ try{ const t=await clipRead(); if(t){ ta.value=tidyBox((ta.value?ta.value+'\n':'')+t); err.textContent=''; } }catch{ err.textContent='貼り付けできませんでした。入力欄を長押しして貼り付けてください。'; ta.focus(); } };
   if (!navigator.clipboard || !navigator.clipboard.readText) paste.hidden=true;
   const ok=el('button','btn btn-red','登録'); ok.type='button';
   ok.onclick=()=>{ const t=ta.value; if (!urlsIn(t).length){ const n=t.trim(); if (n && n.length<=40 && !/\n/.test(n)){ sx.mode='find'; sx.kw=n; buildSearch(); runSearch(); toast('リンクが入っていなかったので、店名で探しました'); return; }
@@ -173,6 +173,8 @@ async function enrichByName(name, loc){
 }
 // in my list now (行きたい or 行った). a shop I took out (外した) is not
 const inMine = name => myShops.some(z=>mySt(z) && norm(z.name)===norm(name));
+// pasted into the URL box: tidied, without the empty lines (Google's copy adds two)
+const tidyBox = t => tidyPaste(t).split('\n').map(x=>x.trim()).filter(Boolean).join('\n');
 function clipJoin(plain,uriList,html){
   let t=plain||''; const more=[];
   for (const u of String(uriList||'').split(/\r?\n/)) if (/^https?:\/\//i.test(u.trim())) more.push(u.trim());
