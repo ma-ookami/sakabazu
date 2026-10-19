@@ -171,4 +171,4 @@
 .slot .sl-x:hover{background:rgba(255,255,255,.28)}
 
 .hint .hint-who{display:inline-flex;align-items:center;gap:4px;vertical-align:baseline;position:relative;top:-1px;margin:1px 1px;padding:1px 8px 1px 3px;border:1px solid var(--line);border-radius:999px;background:var(--faint);color:var(--sub);font-weight:500;line-height:1.5}
-.hint .hint-who .pl-av{box-shadow:none}
+.hint .hint-who .pl-av{box-shadow:none;display:inline-flex;align-items:center;justify-content:center;line-height:1;padding:0 0 2px;box-sizing:border-box;margin:0}
