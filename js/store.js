@@ -188,10 +188,10 @@ function tsukePill(ch,s){ const by=tsukeBy(s); if(!by.length) return;
   const t = by.length>1 ? (by.length===2?'2人の行きつけ':`${by.length}人の行きつけ`) : by[0]===me ? '行きつけ' : `${(friendByMid(by[0])||{}).nick||'飲み友'}の行きつけ`;
   pill(ch,'tsuke',t); ch.lastChild.prepend(chokoEl()); whoIcons(ch.lastChild,by,'行きつけ'); }
 
-// with 飲み友: whose it is, as overlapping icons after the mark ("🏮(け)(ま) 本命")
+// with 飲み友: whose it is, as overlapping icons before the mark ("(け)(ま)🏮 本命")
 function whoIcons(p,by,word){
   if (!activeFriends().length) return;
   const stk=el('span','pl-stack'); by.forEach(u=>stk.appendChild(avatar({},u,'pl-av')));
-  p.firstChild.after(stk); p.lastChild.textContent=word;
+  p.prepend(stk); p.lastChild.textContent=word;   // whose first, then the mark
   p.title=p.ariaLabel=by.map(u=>u===me?'あなた':(friendByMid(u)||{}).nick||'飲み友').join('・')+'の'+word;
 }
