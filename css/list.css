@@ -173,3 +173,5 @@ body:has(.toast:not([hidden])) .fab{transform:translateY(-68px)}
 .pk-bar:has(.pk-hon) .pk-sel:nth-of-type(2){flex:1.45}
 .pk-bar:has(.pk-hon) .pk-sel:nth-of-type(3){flex:.8}
 .pk-bar:has(.pk-hon) .pk-sel select{font-size:14px}
+/* Zen Antique sits a little low: lift the letter to the middle of the crest */
+.crest{line-height:1;padding-bottom:.1em;box-sizing:border-box}
