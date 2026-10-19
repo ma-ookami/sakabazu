@@ -30,7 +30,7 @@ function hoursStatus(s,now){
 }
 function hoursPill(chips,s){ const h=hoursStatus(s); if(h) pill(chips,'h-'+h.k,h.t); }
 function hoursText(s){ const h=s.hours||{}; const p=[]; if(h.open&&h.close) p.push(`${h.open}〜${h.close}`); if(Array.isArray(h.closed)&&h.closed.length) p.push('定休日 '+h.closed.slice().sort().map(i=>'日月火水木金土'[i]).join('、')); return p.join('　'); }
-function linkLabel(u){ try{ const h=new URL(u).hostname.replace(/^www\./,''); const map=[[/tabelog\./,'食べログ'],[/hotpepper\./,'ホットペッパー'],[/instagram\./,'Instagram'],[/(^|\.)x\.com$|twitter\./,'X'],[/google\.[^/]+$|goo\.gl|maps\.app/,'Googleマップ'],[/retty\./,'Retty'],[/gnavi\./,'ぐるなび'],[/facebook\./,'Facebook'],[/line\.me/,'LINE']]; for(const [r,l] of map) if(r.test(h)) return l; return h; }catch{ return 'リンク'; } }
+function linkLabel(u){ try{ const h=new URL(u).hostname.replace(/^www\./,''); const map=[[/tabelog\./,'食べログ'],[/hotpepper\./,'ホットペッパーグルメ'],[/instagram\./,'Instagram'],[/(^|\.)x\.com$|twitter\./,'X'],[/google\.[^/]+$|goo\.gl|maps\.app/,'Googleマップ'],[/retty\./,'Retty'],[/gnavi\./,'ぐるなび'],[/facebook\./,'Facebook'],[/line\.me/,'LINE']]; for(const [r,l] of map) if(r.test(h)) return l; return h; }catch{ return 'リンク'; } }
 function fillInfo(s){
   const d=$('dInfo'); if(!d) return; d.textContent='';
   const hs=hoursStatus(s), ht=hoursText(s);
@@ -44,7 +44,7 @@ function fillInfo(s){
   if (!readOnly && me && mySt(s)==='went'){ const on=isTsuke(s); const h=el('button','d-link d-hon d-tsuke',on?'行きつけ':'行きつけにする'); h.type='button'; h.prepend(chokoEl()); h.setAttribute('aria-pressed',String(on)); h.onclick=()=>toggleTsuke(s.id); lr.appendChild(h); }
   else if (tsukeBy(s).length) tsukePill(lr,s);
   for (const u of (Array.isArray(s.links)?s.links:[]).map(safeUrl).filter(Boolean)){ const a=el('a','d-link',linkLabel(u)+' ↗'); a.href=u; a.target='_blank'; a.rel='noopener noreferrer'; lr.appendChild(a); }
-  if (s.hp && /^J\d{9}$/.test(s.hp.id||'') && !(Array.isArray(s.links) && s.links.some(u=>/hotpepper\.jp/.test(u)))){ const a=el('a','d-link','ホットペッパー ↗'); a.href=`https://www.hotpepper.jp/str${s.hp.id}/`; a.target='_blank'; a.rel='noopener noreferrer'; lr.appendChild(a); }
+  if (s.hp && /^J\d{9}$/.test(s.hp.id||'') && !(Array.isArray(s.links) && s.links.some(u=>/hotpepper\.jp/.test(u)))){ const a=el('a','d-link','ホットペッパーグルメ ↗'); a.href=`https://www.hotpepper.jp/str${s.hp.id}/`; a.target='_blank'; a.rel='noopener noreferrer'; lr.appendChild(a); }
   { const y=yoyakuUrl(s); if (y){ const a=el('a','d-link d-yoyaku','ネット予約 ↗'); a.href=y; a.target='_blank'; a.rel='noopener noreferrer'; lr.appendChild(a); } }
   if (s.loc || s.name){ const a=el('a','d-link','マップ ↗'); a.href=mapsUrl(s); a.target='_blank'; a.rel='noopener noreferrer'; lr.appendChild(a); }
   if (!readOnly && !hs && !ht && !genreOf(s)){ const b=el('button','d-link d-add','＋ ジャンル・営業時間を入れる'); b.type='button'; b.onclick=()=>openForm(s.id); lr.appendChild(b); }

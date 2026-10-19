@@ -68,7 +68,7 @@ function buildSearch(){
     // where to search, and the conditions (folded behind ⚙)
     const row=el('div','sx-opts');
     const srcSeg=el('div','seg sx-src'); srcSeg.setAttribute('role','group'); srcSeg.setAttribute('aria-label','検索先');
-    for (const [k,l] of [['g','Google'],['hp','ホットペッパー']]){ const x=el('button',null,l); x.type='button'; x.setAttribute('aria-pressed',String(sx.src===k));
+    for (const [k,l] of [['g','Google'],['hp','ホットペッパーグルメ']]){ const x=el('button',null,l); x.type='button'; x.setAttribute('aria-pressed',String(sx.src===k));
       x.onclick=()=>{ if(sx.src===k) return; sx.src=k; buildSearch(); }; srcSeg.appendChild(x); }
     row.appendChild(srcSeg);
     if (sx.src==='hp'){ const n=(sx.budget?1:0)+HP_FLAGS.filter(([k])=>sx.flags[k]).length;
@@ -95,7 +95,7 @@ function buildSearch(){
 }
 // URLを貼る: right here in the add screen
 function urlPane(body){
-  body.appendChild(el('p','hint','ホットペッパー・Googleマップ・食べログのお店のリンクを貼ってください。LINEの文面ごと、何件まとめてでもOK。'));
+  body.appendChild(el('p','hint','ホットペッパーグルメ・Googleマップ・食べログのお店のリンクを貼ってください。LINEの文面ごと、何件まとめてでもOK。'));
   const ta=el('textarea','ua-in'); ta.id='uaIn'; ta.rows=4; ta.placeholder='https://…'; ta.setAttribute('aria-label','お店のURL'); body.appendChild(ta);
   ta.addEventListener('paste',e=>{ const t=tidyBox(clipFromEvent(e)); if (!t) return;
     e.preventDefault(); const a=ta.selectionStart, b=ta.selectionEnd; ta.value=ta.value.slice(0,a)+t+ta.value.slice(b); });
@@ -351,11 +351,11 @@ async function addFromUrl(u){
       const r=await hpSearch({id:hp[1],count:'1'}); const h=r.shops[0];
       if (h){ if (inMine(h.name)) return {msg:`「${h.name}」はもうリストにあります。`};
         const id=await addOrBump(h.name,hpArea(h),hpShopExtra(h)); return id?{added:h.name, id}:{msg:'追加できませんでした。通信状態を確認して、もう一度試してください。'}; }
-      return {needName:true, msg:'ホットペッパーでこのお店が見つかりませんでした(閉店したお店かもしれません)。'};
-    }catch(e){ console.warn(e); return {needName:true, msg:'ホットペッパーにつながりませんでした。お店の名前を入れると、そのまま追加できます。'}; }
+      return {needName:true, msg:'ホットペッパーグルメでこのお店が見つかりませんでした(閉店したお店かもしれません)。'};
+    }catch(e){ console.warn(e); return {needName:true, msg:'ホットペッパーグルメにつながりませんでした。お店の名前を入れると、そのまま追加できます。'}; }
   }
   if (TABELOG.test(u)) return {needName:true, msg:'食べログのリンクだけでは店名が分かりません。お店の名前を入れると、リンク付きで追加できます(食べログの「共有」でコピーした文ごと貼ると、店名も入ります)。'};
-  return {needName:true, msg:'GoogleマップとホットペッパーのURL以外は、お店を読み取れません。お店の名前を入れると、リンク付きで追加できます。'};
+  return {needName:true, msg:'GoogleマップとホットペッパーグルメのURL以外は、お店を読み取れません。お店の名前を入れると、リンク付きで追加できます。'};
 }
 
 const hpYes = v => typeof v==='string' && /^(あり|営業している|全面禁煙|利用可)/.test(v);
@@ -411,7 +411,7 @@ function renderResults(){
     s.onchange=()=>{ sx.near=s.value==='near'; runSearch(); }; h.appendChild(s); }
   box.appendChild(h);
   if (!sx.results.length){
-    box.appendChild(el('p','smsg','見つかりませんでした。ホットペッパーに載っていない店は出てきません。条件を減らすか、言い方を変えてみてください。'));
+    box.appendChild(el('p','smsg','見つかりませんでした。ホットペッパーグルメに載っていない店は出てきません。条件を減らすか、言い方を変えてみてください。'));
     const any=Object.values(sx.flags).some(Boolean)||sx.budget;
     if (any){ const c=el('button','btn btn-line sx-alt','こだわり条件を外して探す'); c.onclick=()=>{ sx.flags={}; sx.budget=''; buildSearch(); runSearch(); }; box.appendChild(c); }
   }
@@ -484,7 +484,7 @@ async function runGoogle(more){
     sx.gres = more ? sx.gres.concat(d.places) : d.places; sx.gnext=d.next||''; sx.state='done';
   }catch(e){
     if (seq!==sx.seq) return; console.warn(e);
-    sx.state='error'; sx.msg = (e.code==='old'||e.code==='nogkey') ? 'Google検索はまだ準備中です(Worker の更新と Google のキーの設定が必要です)。上で「ホットペッパー」に切り替えると探せます。'
+    sx.state='error'; sx.msg = (e.code==='old'||e.code==='nogkey') ? 'Google検索はまだ準備中です(Worker の更新と Google のキーの設定が必要です)。上で「ホットペッパーグルメ」に切り替えると探せます。'
       : e.code==='api' ? 'Google検索でエラーが出ました: '+e.message : 'お店を探せませんでした。通信状態を確認して、もう一度どうぞ。';
   }
   sx.more=false; renderResults();
