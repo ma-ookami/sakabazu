@@ -217,8 +217,11 @@ service cloud.firestore {
       match /rankings/{mid} {
         allow read: if isMember(gid);
         allow create, update: if actsAs(gid, mid) && isMember(gid)
-          && request.resource.data.keys().hasOnly(['ids', 'updatedAt'])
+          // ids = 総合, cheap = 安い・チェーン, date = デートに使える (10 each)
+          && request.resource.data.keys().hasOnly(['ids', 'cheap', 'date', 'updatedAt'])
           && request.resource.data.ids is list && request.resource.data.ids.size() <= 10
+          && request.resource.data.get('cheap', []) is list && request.resource.data.get('cheap', []).size() <= 10
+          && request.resource.data.get('date', []) is list && request.resource.data.get('date', []).size() <= 10
           && request.resource.data.updatedAt is int;
         allow delete: if actsAs(gid, mid) || isCreator(gid);
       }

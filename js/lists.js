@@ -71,51 +71,48 @@ async function fillBadges(slots){
     for (const u of holders){ const i=rankList(u).indexOf(id); if(i>-1 && i<3 && n<3){ bd.appendChild(el('span','badge',`${nameOf(ps,u)}の${i+1}位`)); n++; } } }
 }
 
+let rankCat='ids';
 async function renderRank(v){
-  const holders=Object.keys(rankings).filter(u=>rankList(u).length);
-  const ids = groupMode() ? [...new Set([me,...Object.keys(members),...holders.filter(u=>members[u])].filter(Boolean))] : [me].filter(Boolean);
-  if (!rankWho || !ids.includes(rankWho)) rankWho = me || ids[0] || null;
-  const ps=await people(ids);
   if (tab!=='set' || setSub!=='rank' || !v.isConnected) return;
   v.textContent='';
-  if (!ids.length){ const e=el('div','empty'); e.appendChild(el('span','mincho','ランキングはまだありません')); v.appendChild(e); return; }
-  const row=el('div','people'); row.setAttribute('role','group'); row.setAttribute('aria-label','誰のランキング');
-  for (const id of ids){ const b=el('button','person'); b.setAttribute('aria-pressed',String(id===rankWho)); b.appendChild(avatar(ps,id)); b.appendChild(el('span',null,nameOf(ps,id))); b.onclick=()=>{rankWho=id; render();}; row.appendChild(b); }
-  v.appendChild(row);
-  const mine = rankWho===me && !readOnly;
-  v.appendChild(el('h2','rank-title', rankWho===me ? 'あなたの好きな居酒屋' : `${nameOf(ps,rankWho)}さんの好きな居酒屋`));
-  const list=rankList(rankWho);
-  if (!list.length){
-    v.appendChild(el('p','hint', mine ? '「行った」店から、好きな順に最大10軒まで選べます。' : 'まだ選ばれていません。'));
-  } else {
+  if (!me){ const e=el('div','empty'); e.appendChild(el('span','mincho','ランキングはまだありません')); v.appendChild(e); return; }
+  // the category: 総合 / 安い・チェーン / デート
+  const seg=el('div','seg rank-cats'); seg.setAttribute('role','group'); seg.setAttribute('aria-label','ランキングの種類');
+  for (const [k,l2] of RANK_CATS){ const b=el('button',null,l2); b.type='button'; b.setAttribute('aria-pressed',String(rankCat===k)); b.onclick=()=>{ rankCat=k; render(); }; seg.appendChild(b); }
+  v.appendChild(seg);
+  const [,,title]=RANK_CATS.find(x=>x[0]===rankCat);
+  v.appendChild(el('h2','rank-title','あなたの'+title));
+  const list=rankList(me,rankCat), mine=!readOnly;
+  if (!list.length) v.appendChild(el('p','hint','「行った」店から、好きな順に最大10軒まで選べます。'));
+  else {
     const ol=el('ol','rank');
     list.forEach((id,i)=>{ const s=shops.find(x=>x.id===id); const li=el('li');
       li.appendChild(el('span','num',KANJI[i]));
       const mid=el('div'); const nm=el('button','nm',s.name||'(名前なし)'); nm.onclick=()=>openDetail(id); mid.appendChild(nm);
-      const sub=[s.area, avgMark(avg(s,'again'))?'また行く '+avgMark(avg(s,'again')):''].filter(Boolean).join('   '); if(sub) mid.appendChild(el('div','ar',sub));
+      const sub=[genreOf(s), s.area].filter(Boolean).join('   '); if(sub) mid.appendChild(el('div','ar',sub));
       li.appendChild(mid);
       const ctl=el('div','ctl');
       if (mine){
         const up=el('button','ic','▲'); up.setAttribute('aria-label',`${s.name}を上げる`); up.disabled=i===0; up.onclick=()=>moveRank(i,-1);
         const dn=el('button','ic','▼'); dn.setAttribute('aria-label',`${s.name}を下げる`); dn.disabled=i===list.length-1; dn.onclick=()=>moveRank(i,1);
-        const rm=el('button','ic','✕'); rm.setAttribute('aria-label',`${s.name}をランキングから外す`); rm.onclick=()=>saveRank(list.filter(x=>x!==id));
+        const rm=el('button','ic','✕'); rm.setAttribute('aria-label',`${s.name}をランキングから外す`); rm.onclick=()=>saveRank(list.filter(x=>x!==id),rankCat);
         ctl.append(up,dn,rm);
       }
       li.appendChild(ctl); ol.appendChild(li); });
     v.appendChild(ol);
   }
   if (mine && list.length<RANK_MAX){
-    const cand=shops.filter(s=>wentBy(s)[me] && !list.includes(s.id)).sort((a,b)=>(avg(b,'again')??-1)-(avg(a,'again')??-1));
+    const cand=shops.filter(s=>wentBy(s)[me] && !list.includes(s.id)).sort((a,b)=>((starAvg(b)||{}).v??-1)-((starAvg(a)||{}).v??-1));
     if (cand.length){
       const f=el('div','addrank'); const lab=el('label','sr','ランキングに追加する店'); lab.htmlFor='rankSel';
       const sel=el('select'); sel.id='rankSel'; const o0=el('option',null,`${list.length+1}位に入れる店を選ぶ`); o0.value=''; sel.appendChild(o0);
       for (const s of cand){ const o=el('option',null,s.name+(s.area?`(${s.area})`:'')); o.value=s.id; sel.appendChild(o); }
-      const b=el('button','btn btn-ink','入れる'); b.onclick=()=>{ if(sel.value) saveRank([...list, sel.value]); };
+      const b=el('button','btn btn-ink','入れる'); b.onclick=()=>{ if(sel.value) saveRank([...list, sel.value],rankCat); };
       f.append(lab,sel,b); v.appendChild(f);
     } else if (!shops.some(s=>wentBy(s)[me])) v.appendChild(el('p','hint','まずは「行った」店を記録しましょう。'));
   }
 }
-function moveRank(i,d){ const l=rankList(me); const j=i+d; if(j<0||j>=l.length) return; [l[i],l[j]]=[l[j],l[i]]; saveRank(l); }
+function moveRank(i,d){ const l=rankList(me,rankCat); const j=i+d; if(j<0||j>=l.length) return; [l[i],l[j]]=[l[j],l[i]]; saveRank(l,rankCat); }
 
 async function addManual(raw){
   if (isUrl(raw)){

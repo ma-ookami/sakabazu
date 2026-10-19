@@ -73,7 +73,8 @@ function avg(s,k){ const r=s.r||{}; const ms=[]; for(const u in r){ const m=r[u]
 const avgMark = v => v==null ? null : MARKS[3-Math.round(v)];
 const wantIds = s => inScope(wantBy(s));
 function recorders(s){ const r=s.r||{}; return Object.keys(r).filter(u => r[u] && Object.values(r[u]).some(x => x && (x.m || (x.t||'').trim()))); }
-function rankList(uid){ const ids=(rankings[uid]&&rankings[uid].ids)||[]; return ids.filter(id => shops.some(s => s.id===id && wentBy(s)[uid])); }
+const RANK_CATS = [['ids','総合','好きな居酒屋'],['cheap','安い・チェーン','安くて使える店'],['date','デート','デートに使える店']];
+function rankList(uid,cat='ids'){ const ids=(rankings[uid]&&rankings[uid][cat])||[]; return ids.filter(id => shops.some(s => s.id===id && wentBy(s)[uid])); }
 
 // a link we can open: only http(s) (a "javascript:" link saved in a shop must never run)
 const safeUrl = u => typeof u==='string' && /^https?:\/\//i.test(u.trim()) ? u.trim() : '';

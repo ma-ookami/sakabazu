@@ -91,7 +91,7 @@ function enterGroup(mid, mine){
     const o={}; for (const d of snap.docs) o[d.id]=JSON.parse(JSON.stringify(d.data()||{})); privDocs=o; privOk=true; mergeShops();
   },e=>{ console.warn('priv',e&&e.code); }));
   cloudSubs.push(db.collection('rankings').limit(200).onSnapshot(snap=>{
-    const o={}; for(const d of snap.docs){ const v=d.data()||{}; o[d.id]={ids:Array.isArray(v.ids)?[...v.ids]:[]}; } rankings=o; render();
+    const o={}; for(const d of snap.docs){ const v=d.data()||{}; o[d.id]={}; for (const [k] of RANK_CATS) o[d.id][k]=Array.isArray(v[k])?[...v[k]]:[]; } rankings=o; render();
   },()=>{}));
   watchFriends(); watchRequests();
   cloudSubs.push(db.collection('nights').limit(1000).onSnapshot(snap=>{ const o={}; for (const d of snap.docs){ const v=d.data()||{}; if (NIGHTS[v.kind]) o[d.id]=v.kind; } nightsDb=o; render(); },()=>{}));

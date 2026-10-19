@@ -52,3 +52,4 @@
 .day .dnight{font-size:15px;line-height:1;margin-top:2px}
 .dl-night{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}
 .dl-night .cal-del{margin-left:auto}
+.rank-cats{display:flex;margin:16px 0 4px}.rank-cats button{flex:1;padding:7px 4px;font-size:13px;white-space:nowrap}

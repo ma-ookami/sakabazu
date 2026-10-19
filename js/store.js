@@ -99,12 +99,13 @@ async function deleteShop(id){
   if (id.startsWith('f~')) return;
   myShops=myShops.filter(s=>s.id!==id); afterChange();
   if (mode==='db'){ await enqueue(id,()=>db.doc('shops/'+id).delete()); db.doc('priv/'+id).delete().catch(()=>{}); } else saveLocal();
-  if (me && rankList(me).includes(id)) saveRank(rankList(me).filter(x=>x!==id));
+  for (const [k] of RANK_CATS) if (me && rankList(me,k).includes(id)) saveRank(rankList(me,k).filter(x=>x!==id),k);
 }
-function saveRank(ids){
+function saveRank(ids,cat='ids'){
   if (!me || readOnly) return;
-  ids=ids.slice(0,RANK_MAX); rankings[me]={ids}; render();
-  if (mode==='db') enqueue('rank:'+me,()=>db.doc('rankings/'+me).set({ids,updatedAt:Date.now()})); else saveLocal();
+  ids=ids.slice(0,RANK_MAX); rankings[me]={...(rankings[me]||{}), [cat]:ids}; render();
+  const doc={updatedAt:Date.now()}; for (const [k] of RANK_CATS) doc[k]=(rankings[me][k]||[]).slice(0,RANK_MAX);
+  if (mode==='db') enqueue('rank:'+me,()=>db.doc('rankings/'+me).set(doc)); else saveLocal();
 }
 
 /* ---------- local fallback ---------- */
