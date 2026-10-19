@@ -285,6 +285,7 @@ async function runSearch(more){
 
 // a pasted link: Google Maps / ホットペッパー are added right away; any other page asks for the shop's name
 async function runUrls(text){
+  text=tidyPaste(text);
   const list=urlsIn(text); if(!list.length) return;
   const seq=++sx.seq; sx.state='loading'; sx.label='URL'; sx.urlRes=[]; renderResults();
   const show=()=>{ const r=$('sxRes'); if(r) r.scrollIntoView({block:'start',behavior:'smooth'}); }; show();

@@ -26,7 +26,17 @@ const TAGS=[
   {k:'otoshi',l:'お通しあり',c:'お金・会計'},{k:'nootoshi',l:'お通しなし',c:'お金・会計'},{k:'senbero',l:'せんべろ',c:'お金・会計'},{k:'payseat',l:'会計は席で',c:'お金・会計'},{k:'payregi',l:'会計はレジで',c:'お金・会計'},{k:'card',l:'カード可',c:'お金・会計'},{k:'cashless',l:'電子マネー可',c:'お金・会計'},{k:'cashonly',l:'現金のみ',c:'お金・会計'},
   {k:'nosmoke',l:'禁煙',c:'たばこ・場所'},{k:'smoke',l:'喫煙可',c:'たばこ・場所'},{k:'station',l:'駅近',c:'たばこ・場所'},
 ];
-const norm = x => (x||'').normalize('NFKC').toLowerCase().replace(/\s+/g,'');
+// invisible characters that come along with copied text (zero-width spaces, BOM, soft hyphen…)
+const INVIS = /[​-‏⁠-⁤﻿­]/g;
+const norm = x => (x||'').replace(INVIS,'').normalize('NFKC').toLowerCase().replace(/\s+/g,'');
+// a name or area as typed / pasted: no invisible characters, full-width or repeated spaces become one
+const tidyText = x => (x||'').replace(INVIS,'').replace(/[\s　 ]+/g,' ').trim();
+// pasted text: drop invisible characters, and join a link that was broken over two lines
+function tidyPaste(t){
+  t=(t||'').replace(INVIS,'').replace(/ /g,' ').replace(/\r\n?/g,'\n');
+  // a line that is only link characters, right after a link, is the rest of that link
+  return t.replace(/(https?:\/\/[^\s<>"'「」()（）]+)[ \t]*\n[ \t]*([A-Za-z0-9%@\/?=&#._~+,:;-]+)(?=[ \t]*(\n|$))/g, (m,a,b)=> /^(https?:|www\.)/i.test(b) ? m : a+b);
+}
 const $ = id => document.getElementById(id);
 const el = (tag, cls, text) => { const e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; };
 

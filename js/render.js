@@ -35,6 +35,7 @@ function matches(s){ if (tagFilter && !(s.tags && s.tags[tagFilter])) return fal
 
 
 async function addOrBump(name,area,extra){
+  name=tidyText(name).slice(0,60); area=tidyText(area).slice(0,40);
   const hid=extra&&extra.hp&&extra.hp.id;
   const dup=myShops.find(   // only my own list: a friend's shop gets copied in, not bumped
     s=>(hid && s.hp && s.hp.id===hid) || norm(s.name)===norm(name));
