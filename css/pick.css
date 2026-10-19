@@ -169,3 +169,6 @@
 
 .slot .sl-x{position:absolute;top:4px;right:4px;width:28px;height:28px;padding:0;display:grid;place-items:center;border:0;border-radius:50%;background:rgba(255,255,255,.16);color:inherit;font-size:18px;line-height:1;cursor:pointer;z-index:1}
 .slot .sl-x:hover{background:rgba(255,255,255,.28)}
+
+.hint .hint-who{display:inline-flex;align-items:center;gap:4px;vertical-align:middle;margin:1px 1px;padding:2px 8px 2px 3px;border:1px solid var(--line,currentColor);border-radius:999px;background:var(--card);color:var(--ink);font-weight:600}
+.hint .hint-who .pl-av{box-shadow:none}

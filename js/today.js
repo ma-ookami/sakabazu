@@ -196,8 +196,14 @@ function mineRow(s){
 // the 今日の候補 tab: mine and the 飲み友's picks together; shops both picked come first, marked 🍻
 function todayTab(b){
   const wf=activeFriends()[0], cs=todayCands();
-  b.appendChild(el('p','hint', wf ? `あなたと${whoNames()}が出した今日の候補。いいと思ったら「＋ 私も」。選んだ人数が多い店から並びます。`
-    : '今日の候補。「飲み友と」に切り替えると、相手の候補と合わせて見られます。'));
+  const hp=el('p','hint');
+  if (wf){
+    const nm=(id,mid,n)=>{ const c=el('span','hint-who'); c.append(avatar({},mid,'pl-av'), n); return c; };
+    hp.append(nm(me,me,'あなた'), 'と');
+    activeFriends().forEach((u,i)=>{ if(i) hp.append('・'); hp.append(nm(u,(friends[u]||{}).mid,(friends[u]||{}).nick||'飲み友')); });
+    hp.append('が出した今日の候補。いいと思ったら「＋ 私も」。選んだ人数が多い店から並びます。');
+  } else hp.textContent='今日の候補。「飲み友と」に切り替えると、相手の候補と合わせて見られます。';
+  b.appendChild(hp);
   if (!cs.length){ b.appendChild(el('p','empty','まだ候補がありません。「探す」で「＋ 候補」を押して入れてください。')); return; }
   const ul=el('ul','plist cands');
   for (const c of cs){
