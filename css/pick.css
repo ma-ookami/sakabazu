@@ -163,3 +163,6 @@
 .tm.tsuke .ck-dot{opacity:1;fill:#2E5FA8}
 .tm.tsuke .ck-foot{fill:#27211D}
 .cand-side .tier-marks{margin-bottom:2px}
+/* icons on the 行った / 行きたい labels: centred letter, no white ring */
+.st-who .pl-av,.who-t .pl-av,.pl-stack .pl-av{box-shadow:none;display:inline-flex;align-items:center;justify-content:center;line-height:1;padding:0;font-size:10px;font-family:"Zen Kaku Gothic New",system-ui,sans-serif;font-weight:700;text-align:center;overflow:hidden}
+.pl-stack .pl-av + .pl-av{margin-left:-3px}
