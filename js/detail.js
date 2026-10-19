@@ -1,5 +1,6 @@
 /* ---------- detail ---------- */
 const memoTimers={}, pendingMemo={};
+let openKey='';   // the open shop's key (to follow it when a 飲み友's shop becomes mine)
 function openDetail(id,opts){ openId=id; builtStatus=null; showSheet('detail',opts); patchDetail(); focusIn('detail'); }
 function closeDetail(){ flushMemos(); openId=null; hideSheet('detail'); render(); }
 function myVal(id,k){ const s=shops.find(x=>x.id===id); return (s&&s.r&&me&&s.r[me]&&s.r[me][k])||{}; }
@@ -73,10 +74,15 @@ function fold(title,node,val,icon,vid){
 }
 const tagCount = s => TAGS.filter(t=>s.tags&&s.tags[t.k]).length;
 async function patchDetail(){
-  const s=shops.find(x=>x.id===openId); if(!s){ if(openId) closeDetail(); return; }
+  let s=shops.find(x=>x.id===openId);
+  // a 飲み友's shop just copied into my list: keep showing it (now as mine)
+  if (!s && openId && openId.startsWith('f~') && openKey){ s=shops.find(x=>!isFriendShop(x) && shopKey(x)===openKey); if (s){ openId=s.id; builtStatus=null; } }
+  if(!s){ if(openId) closeDetail(); return; }
+  openKey=shopKey(s);
   if (builtStatus!==(statusOf(s)||'want')+'|'+mySt(s)+'|'+[...mix].join()) buildDetail(s);
   $('dName').textContent=s.name||'(名前なし)';
   for (const b of $('dSeg').children) b.setAttribute('aria-pressed',String(b.dataset.s===mySt(s)));
+  $('dSeg').style.display = isFriendShop(s) && !mySt(s) ? 'none' : '';   // a 飲み友's shop: the 自分も buttons below take its place
   { const v=$('dWentV'); if(v){ const w=wentBy(s)[me]; v.textContent = typeof w==='string' ? fmtDate(w) : w ? '日付なし' : ''; } }
   { const v=$('dPlanV'); if(v) v.textContent = s.planDate ? fmtDate(s.planDate) : '未定'; }
   { const v=$('dLocV'); if(v) v.textContent = s.loc ? '記録済み' : '未記録'; }

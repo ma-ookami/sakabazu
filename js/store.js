@@ -12,7 +12,7 @@ function deepMerge(t,s){ for(const k in s){ if(s[k]&&typeof s[k]==='object'&&!Ar
 function patchShop(id,patch){
   if (readOnly) return Promise.resolve();
   // a friend's shop: copy it into my list first, then apply the change there
-  if (id.startsWith('f~')){ importShop(id).then(nid=>{ if(nid && !nid.startsWith('f~')) patchShop(nid,patch); }); return Promise.resolve(); }
+  if (id.startsWith('f~')){ importShop(id).then(nid=>{ if(nid && !nid.startsWith('f~')){ if (openId===id){ openId=nid; builtStatus=null; } patchShop(nid,patch); } }); return Promise.resolve(); }
   patch.updatedAt=Date.now();
   const s=myShops.find(x=>x.id===id); if(s) deepMerge(s,JSON.parse(JSON.stringify(patch)));
   afterChange();
