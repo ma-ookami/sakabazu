@@ -48,6 +48,8 @@ function fillInfo(s){
   if (s.loc || s.name){ const a=el('a','d-link','マップ ↗'); a.href=mapsUrl(s); a.target='_blank'; a.rel='noopener noreferrer'; lr.appendChild(a); }
   if (!readOnly && !hs && !ht && !genreOf(s)){ const b=el('button','d-link d-add','＋ ジャンル・営業時間を入れる'); b.type='button'; b.onclick=()=>openForm(s.id); lr.appendChild(b); }
   d.appendChild(lr);
+  // shop details that came from ホットペッパー carry its credit
+  if (s.hp && /^J\d{9}$/.test(s.hp.id||'')){ const cr=el('p','hp-credit'); const c=el('a',null,'Powered by ホットペッパーグルメ Webサービス'); c.href='https://webservice.recruit.co.jp/'; c.target='_blank'; c.rel='noopener noreferrer'; c.title='ホットペッパーグルメ Webサービス'; cr.appendChild(c); d.appendChild(cr); }
 }
 setInterval(()=>{ const a=document.activeElement; if(swiping || (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName))) return; if(tab==='list'||tab==='home') render(); if(openId) fillInfo(shops.find(x=>x.id===openId)||{}); },60000);
 

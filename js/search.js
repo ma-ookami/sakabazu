@@ -400,6 +400,8 @@ function renderResults(){
   }
   const h=el('div','sx-head'); h.appendChild(el('span','sx-lab',sx.label||'検索結果'));
   h.appendChild(el('span','sx-n',`${sx.total.toLocaleString()}件`));
+  // ホットペッパーの利用規約: クレジット(Powered by …、公式サイトへのリンク)と、写真を出すときは「画像提供」の表記
+  { const cr=el('p','hp-credit'); const c=el('a',null,'Powered by ホットペッパーグルメ Webサービス'); c.href='https://webservice.recruit.co.jp/'; c.target='_blank'; c.rel='noopener noreferrer'; c.title='ホットペッパーグルメ Webサービス'; cr.append(c, document.createTextNode('　【画像提供：ホットペッパー グルメ】')); setTimeout(()=>h.after(cr)); }
   const {q}=sxQuery();
   if (q.lat||q.here){ const s=el('select','sx-sort'); s.setAttribute('aria-label','並び順');
     for (const [v,l] of [['near','近い順'],['rec','おすすめ順']]){ const o=el('option',null,l); o.value=v; o.selected=(v==='near')===sx.near; s.appendChild(o); }
