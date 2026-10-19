@@ -107,3 +107,6 @@
 .pk-t.pk-honc[aria-pressed="true"] .lan-body{fill:var(--red);stroke:#7A1A14;stroke-width:.8}
 .pk-t.pk-tsukec[aria-pressed="true"] .ck-sake{opacity:1;fill:#CFE2F3}
 #pBody .dc-tg{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}#pBody .dc-tg::-webkit-scrollbar{display:none}#pBody .dc-tg .chip{flex:none}#pBody .dc-fb{margin-left:auto;min-width:40px;justify-content:center}
+.pl-stack{display:inline-flex;margin-right:2px}
+.pl-stack .pl-av + .pl-av{margin-left:-6px}
+.pk-t:disabled{opacity:.35;cursor:not-allowed}

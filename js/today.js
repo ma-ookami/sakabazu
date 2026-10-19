@@ -151,10 +151,11 @@ function buildPick(){
   const tg=el('div','dc-tg');
   pick.want=true; pick.went=true;   // always both: who wanted / who went shows on each card
   { const base=shops.filter(statusOf);
-    const tog=(k,l,ic,cls,label)=>{ const x=el('button','chip pk-t '+cls,l); x.type='button'; if(ic) x.prepend(ic); x.setAttribute('aria-pressed',String(!!pick[k])); x.setAttribute('aria-label',label); x.onclick=()=>{ pick[k]=!pick[k]; pick.chosen=null; buildPick(); }; tg.appendChild(x); };
-    tog('fresh1','初めての店',null,'pk-new', activeFriends().length?'選んだメンバーの誰も行っていない店だけ':'まだ行っていない店だけ');
+    if (pick.fresh1 && pick.tsuke) pick.tsuke=false;
+    const tog=(k,l,ic,cls,label,off)=>{ const x=el('button','chip pk-t '+cls,l); x.type='button'; if(ic) x.prepend(ic); if(off){ x.disabled=true; x.title='初めての店と行きつけは一緒に選べません'; } x.setAttribute('aria-pressed',String(!!pick[k])); x.setAttribute('aria-label',label); x.onclick=()=>{ pick[k]=!pick[k]; pick.chosen=null; buildPick(); }; tg.appendChild(x); };
+    tog('fresh1','初めての店',null,'pk-new', activeFriends().length?'選んだメンバーの誰も行っていない店だけ':'まだ行っていない店だけ', !!pick.tsuke);
     if (pick.hon || base.some(s=>honBy(s).length)) tog('hon','本命',lanEl(),'pk-honc','本命の店だけ');
-    if (pick.tsuke || base.some(s=>tsukeBy(s).length)) tog('tsuke','行きつけ',chokoEl(),'pk-tsukec','行きつけの店だけ'); }
+    if (pick.tsuke || base.some(s=>tsukeBy(s).length)) tog('tsuke','行きつけ',chokoEl(),'pk-tsukec','行きつけの店だけ', !!pick.fresh1); }
   const on=[pick.at&&(+pick.at.slice(0,2))+'時〜', pick.genre, pick.star&&'★'+pick.star+'〜'].filter(Boolean);
   const fb=el('button','chip dc-fb'+(on.length?' on':''), '⚙'+(on.length?' '+on.length:'')); fb.type='button'; fb.setAttribute('aria-label','絞り込み(時間・ジャンル・星)'+(on.length?'：'+on.join('・'):'')); fb.title='時間・ジャンル・星で絞り込み'; fb.setAttribute('aria-expanded',String(pick.fopen));
   fb.onclick=()=>{ pick.fopen=!pick.fopen; buildPick(); }; tg.appendChild(fb);
@@ -223,7 +224,10 @@ function pickChips(s,withStatus){
     const fr=activeFriends();
     if (fr.length){   // 飲み友と: each person's own 行った / 行きたい
       const who=[[me,'あなた'], ...fr.map(f=>[friends[f].mid, friends[f].nick||'飲み友'])];
-      for (const [u,n] of who){ const st = wentBy(s)[u] ? 'went' : (s.wants&&s.wants[u]) ? 'want' : null; if(!st) continue; pill(ch,'st-'+st+' st-who', st==='went'?'行った':'行きたい'); const p=ch.lastChild; p.prepend(avatar({},u,'pl-av')); p.title=p.ariaLabel=`${n} ${p.textContent}`; }
+      // one label per kind, with everyone's icons overlapping: (あ)(け) 行きたい / (た) 行った
+      for (const st of ['want','went']){ const ppl=who.filter(([u])=> st==='went' ? !!wentBy(s)[u] : !wentBy(s)[u] && !!(s.wants&&s.wants[u])); if(!ppl.length) continue;
+        pill(ch,'st-'+st+' st-who', st==='went'?'行った':'行きたい'); const p=ch.lastChild; const stk=el('span','pl-stack'); ppl.forEach(([u])=>stk.appendChild(avatar({},u,'pl-av'))); p.prepend(stk);
+        p.title=p.ariaLabel=`${ppl.map(x=>x[1]).join('・')} ${st==='went'?'行った':'行きたい'}`; }
     } else { const w=statusOf(s)==='went'; pill(ch, w?'st-went':'st-want', w?'行った':'行きたい'); }
   }
   honPill(ch,s); tsukePill(ch,s); hoursPill(ch,s); { const g=genreOf(s); if(g) pill(ch,'genre',g); }
