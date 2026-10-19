@@ -133,3 +133,13 @@
 .pk-mark.hon .lan-cap{fill:#1F1B19}
 .pk-mark.tsuke .ck-body{fill:#FFFDF8;stroke:#27211D}.pk-mark.tsuke .ck-sake{opacity:1;fill:#CFE2F3}.pk-mark.tsuke .ck-ring{opacity:1;fill:none;stroke:#2E5FA8;stroke-width:1.2}.pk-mark.tsuke .ck-dot{opacity:1;fill:#2E5FA8}.pk-mark.tsuke .ck-foot{fill:#27211D}
 .pk-legend{margin:8px 0 0;font-size:11px;color:var(--sub)}
+
+.pk-chips{margin:0}
+.pl-stack .pk-p{position:relative;display:inline-grid}
+.pl-stack .pk-p + .pk-p{margin-left:-6px}
+.pl-stack .pk-p .pl-av{width:17px;height:17px;font-size:9.5px;box-shadow:0 0 0 1px #fff}
+.pl-stack .pk-mark{right:-5px;bottom:-5px;width:12px;height:12px}
+.pl-stack .pk-mark .lan{width:6px;height:9px}
+.pl-stack .pk-mark .choko{width:8px;height:7px}
+.st-who:has(.pk-mark){padding-right:10px}
+#pBody .pinfo{gap:4px}
