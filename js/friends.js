@@ -19,7 +19,7 @@ const cleanCode = s => (s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
 // the list the screens show
 function rebuildShops(){
   const fr=activeFriends();
-  if (!fr.length){ shops=myShops; return; }
+  if (!fr.length){ shops=myShops; hpOverlay(shops); hpRefresh(); return; }
   const key = s => (s.hp&&s.hp.id) ? 'hp:'+s.hp.id : 'n:'+norm(s.name||'');
   const out=myShops.map(s=>({...s, wants:{...(s.wants||{})}, went:(s.went&&typeof s.went==='object')?{...s.went}:wentBy(s), r:{...(s.r||{})}}));
   const byKey=new Map(out.map(s=>[key(s),s]));
@@ -44,14 +44,15 @@ function rebuildShops(){
       if (!s.loc && okLoc(t.loc)) s.loc={lat:t.loc.lat, lng:t.loc.lng, src:'link'};
     }
   }
-  shops=out;
+  shops=out; hpOverlay(shops); hpRefresh();
 }
 
 // copy a friend's shop into my list (when I tap 行きたい / 行った / edit on it). -> my new shop id
 async function importShop(id){
   const s=shops.find(x=>x.id===id); if(!s || !isFriendShop(s)) return id;
   const k0=(s.hp&&s.hp.id)||'', own=myShops.find(x=>(k0 && x.hp && x.hp.id===k0) || norm(x.name)===norm(s.name)); if(own) return own.id;
-  const extra={}; for (const k of ['loc','hours','tags','links','hp']) if (s[k]) extra[k]=s[k];
+  const extra={}; for (const k of ['loc','hours','tags','links','hp']) if (s[k]) extra[k]=JSON.parse(JSON.stringify(s[k]));
+  if (extra.hp && extra.hp.id){ extra.hp={id:extra.hp.id, ...(s._ovGenre||!extra.hp.genre?{}:{genre:extra.hp.genre})}; if (s._ovHours) delete extra.hours; }   // ホットペッパー details stay live
   const nid=await addOrBump(s.name,s.area||"",extra);
   return nid;
 }

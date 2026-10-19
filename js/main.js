@@ -25,7 +25,10 @@ $('form').onsubmit=e=>{ e.preventDefault(); const name=$('fName').value.trim(), 
   const open=$('fOpen').value, close=$('fClose').value;
   if ((open&&!close)||(!open&&close)){ toast('開店と閉店の両方を入れてください'); return; }
   const hours={open,close,closed:formDays.slice().sort(),note:$('fHNote').value.trim()};
-  patchShop(editingId,{name,area,hours,links:links.slice(0,5),hp:{genre:$('fGenre').value.trim()}}); closeForm(); toast('お店の情報を保存しました'); };
+  const cur=myShops.find(x=>x.id===editingId)||{}, g=$('fGenre').value.trim(), p={name,area,links:links.slice(0,5)};
+  if (!(cur._ovHours && JSON.stringify(hours)===JSON.stringify({open:cur.hours.open||'',close:cur.hours.close||'',closed:(cur.hours.closed||[]).slice().sort(),note:cur.hours.note||''}))) p.hours=hours;
+  if (!(cur._ovGenre && g===genreOf(cur))) p.hp={genre:g};
+  patchShop(editingId,p); closeForm(); toast('お店の情報を保存しました'); };
 $('fBack').onclick=closeForm; $('fCancel').onclick=closeForm;
 $('sBack').onclick=closeSearch;
 

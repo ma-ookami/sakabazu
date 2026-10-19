@@ -81,7 +81,7 @@ function backupSec(root){
 }
 function saveBackup(){
   const data={app:'sakabazu', v:1, at:new Date().toISOString(), me, nick:(members[me]&&members[me].nick)||'', ic:(members[me]&&members[me].ic)||null, dm:dmCfg,
-    rank:(rankings[me]&&rankings[me].ids)||[], nights:nightsAll(), shops:myShops.map(s=>JSON.parse(JSON.stringify(s)))};
+    rank:(rankings[me]&&rankings[me].ids)||[], nights:nightsAll(), shops:myShops.map(s=>{ const c=JSON.parse(JSON.stringify(s)); if (c.hp&&c.hp.id){ delete c.hp.budget; delete c.hp.photo; if (s._ovGenre) delete c.hp.genre; } if (s._ovHours) delete c.hours; delete c._ovGenre; delete c._ovHours; return c; })};
   const blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});
   const a=el('a'); a.href=URL.createObjectURL(blob); a.download=`sakabazu-${today()}.json`; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href),4000);

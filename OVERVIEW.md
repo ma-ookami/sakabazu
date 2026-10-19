@@ -65,8 +65,11 @@ GitHub Pages + Firebase(匿名ログイン + Firestore)。お店検索は Cloudf
 `pins`・`links` は以前のグループ機能(合言葉・別端末の追加)の名残。今は新しく作れない。
 
 ### `shops/{shopId}`
-`name, area, createdBy, createdAt, updatedAt, wants{uid:true}, went{uid:日付|true}, planDate, loc{lat,lng,src}, hours{open,close,closed[],note}, links[], hp{id,genre,budget,photo}, tags{}, visits{vid:{date,people,actual,guesses}}, r{uid:{star, hon, note:{t}, price:{m,t}...}}`
+`name, area, createdBy, createdAt, updatedAt, wants{uid:true}, went{uid:日付|true}, planDate, loc{lat,lng,src}, hours{open,close,closed[],note}, links[], hp{id, genre(自分で入れたときだけ)}, tags{}, visits{vid:{date,people,actual,guesses}}, r{uid:{star, hon, note:{t}, price:{m,t}...}}`
 - `r[uid]` はその人の評価・メモ・本命(`hon`)・行きつけ(`tsuke`)。飲み友の表示に使うのは `star`・`hon`・`tsuke` だけ(ほかは priv/ に分けて保存)。
+
+### ホットペッパーの情報
+ホットペッパー利用規約(データベースへの複製保存の禁止、キャッシュは24時間以内に更新)に合わせ、保存するのは店のID・店名・最寄り駅・位置だけ。ジャンル・予算・写真・営業時間は表示のたびにAPIから取り直し(9件ずつまとめて)、端末に24時間だけ覚える(`hpLive`, `nm-hplive`)。以前に保存したコピーは、最新と同じなら自動で消す(`hpTidy`)。自分で編集した値は残す。
 
 ### 書き込み
 `patchShop()` で画面を先に更新し、ドキュメントごとに順番に `set(..., {merge:true})` で保存する。

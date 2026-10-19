@@ -81,11 +81,60 @@ function hpTags(h){
   return t;
 }
 // everything we can fill in for a shop from one result
+// what we keep of a ホットペッパー shop: its id and place only (the API terms: no copies in a database,
+// caches refreshed within 24h). genre, budget, photo and hours are fetched live (hpLive) and kept 24h on this device
 function hpShopExtra(h){
-  const extra={hp:{id:h.id, genre:(h.genre&&h.genre.name)||'', budget:hpBudget(h), photo:hpPhoto(h)}};
+  hpLiveSet(h);
+  const extra={hp:{id:h.id}};
   if (h.lat && h.lng) extra.loc={lat:+h.lat, lng:+h.lng, src:'hp'};
-  if (h.urls && h.urls.pc) extra.links=[h.urls.pc];
-  const hours=hpHours(h); if (hours.open || hours.closed.length || hours.note) extra.hours=hours;
-  const tags=hpTags(h); if (Object.keys(tags).length) extra.tags=tags;
   return extra;
+}
+// ---------- live details of ホットペッパー shops: id -> {at, genre, budget, photo, hours} (this device, 24h) ----------
+const HP_TTL=24*36e5;
+let hpLive=(()=>{ try{ const o=JSON.parse(localStorage.getItem('nm-hplive')||'{}'); return o&&typeof o==='object'?o:{}; }catch{ return {}; } })();
+const hpLiveSave=()=>{ try{ const now=Date.now(); for (const k in hpLive) if (now-hpLive[k].at>HP_TTL*2) delete hpLive[k]; localStorage.setItem('nm-hplive',JSON.stringify(hpLive)); }catch{} };
+function hpLiveSet(h){ if(!h||!/^J\d{9}$/.test(h.id||'')) return;
+  const hours=hpHours(h);
+  hpLive[h.id]={at:Date.now(), name:h.name||'', genre:(h.genre&&h.genre.name)||'', budget:hpBudget(h), photo:hpPhoto(h), hours:(hours.open||hours.closed.length||hours.note)?hours:null};
+  hpLiveSave(); }
+const hpLiveOf = id => { const v=hpLive[id]; return v && Date.now()-v.at<HP_TTL ? v : null; };
+// show the live details on the shops (only where the shop has no value of its own)
+function hpOverlay(list){
+  for (const s of list){ const id=s.hp&&s.hp.id; if(!id) continue; const v=hpLive[id]; if(!v) continue;
+    s.hp={...s.hp}; if (!s.hp.genre && v.genre){ s.hp.genre=v.genre; s._ovGenre=true; } if (v.budget) s.hp.budget=v.budget; if (v.photo) s.hp.photo=v.photo;
+    if (!s.hours && v.hours){ s.hours=v.hours; s._ovHours=true; } }
+}
+// fetch what's missing or older than 24h (9 ids per call: the Worker keeps 100 characters of a parameter)
+let hpBusy=false, hpTimer=null;
+function hpRefresh(){ clearTimeout(hpTimer); hpTimer=setTimeout(hpFetchStale,400); }
+async function hpFetchStale(){
+  if (hpBusy || !hpOn()) return;
+  const ids=[...new Set(shops.concat(myShops).map(s=>s.hp&&s.hp.id).filter(id=>id && /^J\d{9}$/.test(id) && !hpLiveOf(id)))].slice(0,90);
+  if (!ids.length) return;
+  hpBusy=true; let got=false;
+  try{
+    for (let i=0;i<ids.length;i+=9){ const part=ids.slice(i,i+9);
+      const r=await hpSearch({id:part.join(','), count:'20'}).catch(()=>null);
+      const seen=new Set(); for (const h of (r&&r.shops)||[]){ hpLiveSet(h); seen.add(h.id); got=true; }
+      for (const id of part) if (!seen.has(id) && r) hpLive[id]={at:Date.now(), gone:true};   // not on ホットペッパー any more
+    }
+    hpLiveSave();
+  } finally { hpBusy=false; }
+  if (got){ hpTidy(); afterChange(); }
+}
+// shops saved before: drop the ホットペッパー copies (kept only if the user changed them). once per shop
+function hpTidy(){
+  if (readOnly || !me) return;
+  let done={}; try{ done=JSON.parse(localStorage.getItem('nm-hptidy')||'{}'); }catch{}
+  for (const s of myShops){ const id=s.hp&&s.hp.id; const v=id&&hpLiveOf(id); if(!v || v.gone || done[s.id]) continue;
+    const raw=s; const p={}, hp={};
+    if (raw.hp.budget!==undefined) hp.budget=null; if (raw.hp.photo!==undefined) hp.photo=null;
+    if (raw.hp.genre && !raw._ovGenre && raw.hp.genre===v.genre) hp.genre=null;
+    if (Object.keys(hp).length) p.hp=hp;
+    if (raw.hours && !raw._ovHours && v.hours && JSON.stringify(raw.hours)===JSON.stringify(v.hours)) p.hours=null;
+    if (Array.isArray(raw.links) && raw.links.some(u=>/hotpepper\.jp\/str/.test(u))) p.links=raw.links.filter(u=>!/hotpepper\.jp\/str/.test(u));
+    if (Object.keys(p).length) patchShop(s.id,p);
+    done[s.id]=1;
+  }
+  try{ localStorage.setItem('nm-hptidy',JSON.stringify(done)); }catch{}
 }
