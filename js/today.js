@@ -172,6 +172,7 @@ function buildPick(){
   const spin=el('button','btn btn-ink',chosen?'もう一回':'🎲 おまかせ'); spin.disabled=!cands.length; spin.onclick=()=>omakase(cands); ob.appendChild(spin);
   if (chosen && !readOnly && me){ const on=isPicked(chosen.s); const go=el('button','btn btn-red', on?'✓ 候補':'候補に入れる'); go.onclick=()=>togglePick(chosen.s); ob.appendChild(go);
     const here=el('button','btn btn-line','ここにする'); here.onclick=()=>{ decide(chosen.s); closePick(); }; ob.appendChild(here); }
+  if (chosen){ const x=el('button','sl-x','×'); x.type='button'; x.setAttribute('aria-label','結果を閉じて回す前に戻す'); x.onclick=()=>{ pick.chosen=null; buildPick(); }; slot.appendChild(x); }
   slot.appendChild(ob); om.appendChild(slot); b.appendChild(om);
   if (!cands.length){ b.appendChild(el('p','empty', shops.length?'条件に合う店がありません。条件を外してみてください。':'まだ店がありません。リストの「＋」から行きたい店を入れてみましょう。')); return; }
   const ul=el('ul','plist');
