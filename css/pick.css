@@ -148,3 +148,18 @@
 .pk-top{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;font-size:12.5px;color:var(--sub)}
 .pk-top .pill{height:22px;box-sizing:border-box;padding:0 8px;font-size:11.5px;line-height:1;margin:0}
 .pk-lines .pk-chips{margin:0}
+/* 本命 / 行きつけ marks above the ＋候補 */
+.pk-side{display:flex;flex-direction:column;align-items:center;gap:6px;flex:none}
+.tier-marks{display:flex;gap:6px;justify-content:center}
+.tm{display:inline-grid;place-items:center}
+.tm .lan{width:15px;height:21px}
+.tm .choko{width:20px;height:18px}
+.tm.hon .lan-body{fill:var(--red);stroke:#7A1A14;stroke-width:.8}
+.tm.hon .lan-cap{fill:#1F1B19}
+.tm.hon .lan{filter:drop-shadow(0 0 4px rgba(255,179,71,.7))}
+.tm.tsuke .ck-body{fill:#FFFDF8;stroke:#27211D;stroke-width:1.3}
+.tm.tsuke .ck-sake{opacity:1;fill:#CFE2F3}
+.tm.tsuke .ck-ring{opacity:1;fill:none;stroke:#2E5FA8;stroke-width:1.2}
+.tm.tsuke .ck-dot{opacity:1;fill:#2E5FA8}
+.tm.tsuke .ck-foot{fill:#27211D}
+.cand-side .tier-marks{margin-bottom:2px}

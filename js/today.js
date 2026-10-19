@@ -179,7 +179,7 @@ function buildPick(){
     info.appendChild(el('span','pn',s.name||'(名前なし)'));
     info.appendChild(pickChips(s,true));
     if (!readOnly && me && !mySt(s)){ const wrap=el('div','pk-main'); wrap.append(info, mineRow(s)); li.appendChild(wrap); } else li.appendChild(info);
-    if (!readOnly && me) li.appendChild(pickBtn(s));
+    { const side=el('div','pk-side'); const mk=tierMarks(s); if(mk) side.appendChild(mk); if (!readOnly && me) side.appendChild(pickBtn(s)); if (side.children.length) li.appendChild(side); }
     ul.appendChild(li);
   }
   b.appendChild(ul);
@@ -206,7 +206,7 @@ function todayTab(b){
     if (c.shop) info.appendChild(pickChips(c.shop,false));
     const who=el('span','who-l'); for (const u of c.by){ const mid=u===me?me:(friends[u]||{}).mid, nm=u===me?'あなた':(friends[u]||{}).nick||'飲み友'; const t=el('span','who-t'+(u===me?' me':''),'✓'); t.prepend(avatar({},mid,'pl-av')); t.title=t.ariaLabel=nm+' ✓'; who.appendChild(t); } info.appendChild(who);
     if (!readOnly && me && c.shop && !mySt(c.shop)){ const wrap=el('div','pk-main'); wrap.append(info, mineRow(c.shop)); li.appendChild(wrap); } else li.appendChild(info);
-    if (!readOnly && me){ const side=el('div','cand-side'); const dc=decided(); const isGo=dc && dc.key===c.key;
+    if (!readOnly && me){ const side=el('div','cand-side'); { const mk=c.shop&&tierMarks(c.shop); if(mk) side.appendChild(mk); } const dc=decided(); const isGo=dc && dc.key===c.key;
       if (isGo){ li.classList.add('go'); side.appendChild(el('span','go-b','✓ ここに決定')); }
       else { const go=el('button','sbtn go-btn'+(both?' on':''),'ここにする'); go.onclick=()=>decide(c.shop,c); side.appendChild(go); }
       const on=c.by.has(me); const g=el('button','sbtn sm'+(on?'':''), on?'候補から外す':'＋ 私も'); g.onclick=()=>togglePick(c.shop,c); side.appendChild(g); li.appendChild(side); }
@@ -236,7 +236,7 @@ function pickChips(s,withStatus){
         pill(row,'st-'+st+' st-who', st==='went'?'行った':'行きたい'); const p=row.lastChild; const stk=el('span','pl-stack');
         for (const [u] of ppl) stk.appendChild(avatar({},u,'pl-av'));
         p.prepend(stk); p.title=p.ariaLabel=ppl.map(x=>x[1]).join('・')+' '+(st==='went'?'行った':'行きたい'); }
-    } else { const w=statusOf(s)==='went'; pill(row, w?'st-went':'st-want', w?'行った':'行きたい'); if (isHon(s)) honPill(row,s); if (isTsuke(s)) tsukePill(row,s); }
+    } else { const w=statusOf(s)==='went'; pill(row, w?'st-went':'st-want', w?'行った':'行きたい'); }
     if (row.children.length) box.appendChild(row);
   }
   return box;
@@ -362,4 +362,14 @@ function openNowStrip(v){
   }
   if (more){ const m=el('button','now-more'); m.type='button'; m.append(el('b',null,`ほか${more}軒`), el('span',null,'一覧で見る ›')); m.onclick=()=>{ pick.want=true; pick.went=true; pick.genre=nowGenre||''; pick.at=''; openPick('find'); }; row.appendChild(m); }
   sec.appendChild(row); sec.appendChild(el('p','now-note','営業時間内の店です。空席はお店で確認してください')); v.appendChild(sec);
+}
+
+// someone's 本命 / 行きつけ: a lantern / an お猪口 above the ＋候補 (who: in the title)
+function tierMarks(s){
+  const hb=honBy(s), tb=tsukeBy(s); if(!hb.length && !tb.length) return null;
+  const nm=u=>u===me?'あなた':(friendByMid(u)||{}).nick||'飲み友';
+  const w=el('span','tier-marks');
+  if (hb.length){ const m=el('span','tm hon'); m.appendChild(lanEl()); m.title=m.ariaLabel=hb.map(nm).join('・')+'の本命'; w.appendChild(m); }
+  if (tb.length){ const m=el('span','tm tsuke'); m.appendChild(chokoEl()); m.title=m.ariaLabel=tb.map(nm).join('・')+'の行きつけ'; w.appendChild(m); }
+  return w;
 }
