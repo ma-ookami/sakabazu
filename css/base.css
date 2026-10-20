@@ -73,3 +73,7 @@ body > *{transition:opacity .25s ease}
 /* the last item of any page stays clear of the floating tab bar (+ the iPhone home bar) */
 html{scroll-padding-bottom:calc(130px + env(safe-area-inset-bottom,0px))}
 #view:has(.fab){padding-bottom:70px}
+/* 件数: 名前の右に小さな丸い数字(行きたい=赤、行った=紺) */
+.seg button .sn{display:inline-block;min-width:1.6em;margin-left:6px;padding:1px 6px;border-radius:999px;font-size:11.5px;font-weight:700;line-height:1.5;text-align:center;font-variant-numeric:tabular-nums;background:color-mix(in srgb,var(--sub) 16%,transparent);color:var(--sub)}
+.seg button[aria-pressed="true"] .sn.want{background:var(--red);color:var(--on-red)}
+.seg button[aria-pressed="true"] .sn.went{background:#2F4A78;color:#F2EADB}

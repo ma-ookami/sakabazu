@@ -3,10 +3,10 @@
 const groupMode = () => mode==='db' && !!me && activeFriends().length>0;
 function segBar(v,items,cur,onPick,cls){
   const seg=el('div','seg topseg'+(cls?' '+cls:'')); seg.setAttribute('role','group');
-  for (const [k,l] of items){ const b=el('button',null,l); b.setAttribute('aria-pressed',String(cur===k)); b.onclick=()=>{ if(cur!==k) withTransition(()=>{ onPick(k); render(); window.scrollTo({top:0}); }); }; seg.appendChild(b); }
+  for (const [k,l,n,nc] of items){ const b=el('button',null,l); if (n!=null){ b.appendChild(el('span','sn'+(nc?' '+nc:''),String(n))); } b.setAttribute('aria-pressed',String(cur===k)); b.onclick=()=>{ if(cur!==k) withTransition(()=>{ onPick(k); render(); window.scrollTo({top:0}); }); }; seg.appendChild(b); }
   v.appendChild(seg);
 }
-function listSeg(v){ segBar(v,[['want',`行きたい ${shops.filter(inWant).length}`],['went',`行った ${shops.filter(inWent).length}`],['cal','カレンダー']],listSub,k=>{ listSub=k; }); }
+function listSeg(v){ segBar(v,[['want','行きたい',shops.filter(inWant).length,'want'],['went','行った',shops.filter(inWent).length,'went'],['cal','カレンダー']],listSub,k=>{ listSub=k; }); }
 function goAdd(){ listSub='want'; setTab('list'); openSearch(''); }
 function renderHome(v0){
   const v=el('div','homestack'); v0.appendChild(v);
