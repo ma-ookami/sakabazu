@@ -148,11 +148,12 @@ function omakase(cands){
 // who is in on this: あなた + the chosen 飲み友, as icon chips under the title
 function whoRow(){
   const w=$('pWho'), hd=w&&w.parentNode; if(!w) return; w.textContent='';
+  hd.querySelectorAll('.p-cheers').forEach(x=>x.remove());
   const fr=activeFriends(); w.hidden=!fr.length; hd.classList.toggle('with-friends',!!fr.length); if(!fr.length) return;
-  // (あ) × (け) × (ま) 🍻 どこ行く?   -- the title text stays for screen readers
-  const av=(mid,n)=>{ const a=avatar({},mid,'pl-av'); a.title=n; return a; };
-  w.append(av(me,'あなた')); fr.forEach(u=>{ w.append(el('span','p-x','×'), av((friends[u]||{}).mid,(friends[u]||{}).nick||'飲み友')); });
-  const ch=el('span','p-cheers'+(pick.cheers?' go':''),'🍻'); pick.cheers=false; w.append(ch, el('span','p-q','どこ行く?'));
+  // row 1: 戻る 🍻 タイトル / row 2: (あ)あなた × (け)けんと × ...  (icon + name together)
+  const chip=(mid,n)=>{ const c=el('span','hint-who'); c.append(avatar({},mid,'pl-av'), n); return c; };
+  w.append(chip(me,'あなた')); fr.forEach(u=>{ w.append(el('span','p-x','×'), chip((friends[u]||{}).mid,(friends[u]||{}).nick||'飲み友')); });
+  const ch=el('span','p-cheers'+(pick.cheers?' go':''),'🍻'); pick.cheers=false; hd.insertBefore(ch,$('pTitle'));
 }
 function buildPick(){
   const b=$('pBody'); if(!b || !isOpen('pickSheet')) return;
