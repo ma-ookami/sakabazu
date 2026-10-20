@@ -114,11 +114,6 @@
 .sx-bar .sx-go-big{margin-top:0}
 
 /* compact add screen */
-.add-ways{gap:6px;margin:2px 0 10px}
-.add-way{grid-auto-flow:column;justify-content:center;align-items:center;gap:6px;padding:10px 4px}
-.add-way svg{margin:0;width:18px;height:18px}
-.add-way b{font-size:13.5px}
-.add-way small{display:none}
 .sx-pair{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .sx-pair .seg button{padding:6px 12px;font-size:12.5px;white-space:nowrap}
 .sx-areas{margin-top:10px;margin-bottom:0}
