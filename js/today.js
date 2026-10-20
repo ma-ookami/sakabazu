@@ -168,7 +168,7 @@ function buildPick(){
   { const base=shops.filter(statusOf);
     if (pick.fresh1 && pick.tsuke) pick.tsuke=false;
     const cnt=k=>base.filter(s=>fMatch(s,{...pick,[k]:true})).length;   // how many shops this chip would leave
-    const tog=(k,l,ic,cls,label,off)=>{ const x=el('button','chip pk-t '+cls,l+' '+cnt(k)); x.type='button'; if(ic) x.prepend(ic); if(off){ x.disabled=true; x.title='初めての店と定番は一緒に選べません'; } x.setAttribute('aria-pressed',String(!!pick[k])); x.setAttribute('aria-label',label); x.onclick=()=>{ pick[k]=!pick[k]; pick.chosen=null; buildPick(); }; tg.appendChild(x); };
+    const tog=(k,l,ic,cls,label,off)=>{ const x=el('button','chip pk-t '+cls,l); x.append(' ',el('span','pk-n',String(cnt(k)))); x.type='button'; if(ic) x.prepend(ic); if(off){ x.disabled=true; x.title='初めての店と定番は一緒に選べません'; } x.setAttribute('aria-pressed',String(!!pick[k])); x.setAttribute('aria-label',label); x.onclick=()=>{ pick[k]=!pick[k]; pick.chosen=null; buildPick(); }; tg.appendChild(x); };
     tog('fresh1','初めての店',null,'pk-new', activeFriends().length?'選んだメンバーの誰も行っていない店だけ':'まだ行っていない店だけ', !!pick.tsuke);
     if (pick.hon || base.some(s=>honBy(s).length)) tog('hon','本命',lanEl(),'pk-honc','本命の店だけ');
     if (pick.tsuke || base.some(s=>tsukeBy(s).length)) tog('tsuke','定番',chokoEl(),'pk-tsukec','定番の店だけ', !!pick.fresh1); }
