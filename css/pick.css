@@ -200,3 +200,15 @@
 .p-head .p-who{margin:0 0 0 auto;justify-content:flex-end;gap:4px}
 .p-head .p-who .hint-who{font-size:12px}
 .p-head .p-who .hint-who .pl-av{width:20px;height:20px;font-size:10px}
+
+/* playful header: round 戻る, and with 飲み友 "(あ) × (け) 🍻 どこ行く?" instead of the long title */
+.p-head .back{font-size:0;width:34px;height:34px;min-height:0;padding:0;justify-content:center;border-radius:50%;background:var(--faint)}
+.p-head .back b{font-size:22px;line-height:1;font-weight:500;padding-bottom:2px}
+.p-head.with-friends .d-name{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.p-head .p-who{margin:0 0 0 2px;justify-content:flex-start;align-items:center;gap:3px;flex-wrap:nowrap;min-width:0}
+.p-who .pl-av{width:26px;height:26px;font-size:12px;box-shadow:0 0 0 2px var(--card);flex:none}
+.p-who .p-x{font-size:11px;color:var(--sub);margin:0 1px}
+.p-who .p-cheers{display:inline-block;font-size:20px;margin-left:4px;transform-origin:50% 90%}
+.p-who .p-q{font-family:var(--serif);font-weight:700;font-size:clamp(19px,5.4vw,23px);white-space:nowrap}
+@media (prefers-reduced-motion:no-preference){ .p-cheers.go{animation:cheers .7s var(--ease-spring)} }
+@keyframes cheers{0%{transform:rotate(-30deg) scale(.6);opacity:0}45%{transform:rotate(18deg) scale(1.25);opacity:1}70%{transform:rotate(-8deg)}100%{transform:none}}

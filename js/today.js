@@ -121,7 +121,7 @@ async function shareShop(s,time){
 // 今日どこ行く?: a sheet over 決める (探す | 今日の候補)
 function openPick(src){
   if (tab!=='home') setTab('home');
-  pick.chosen=null; pick.proposing=null; if (src) pick.src = src==='today' ? 'today' : 'find';
+  pick.cheers=true; pick.chosen=null; pick.proposing=null; if (src) pick.src = src==='today' ? 'today' : 'find';
   const wf=activeFriends()[0]; $('pTitle').textContent = wf ? '飲み友とどこ行く?' : '今日どこ行く?';
   showSheet('pickSheet'); buildPick(); focusIn('pickSheet');
 }
@@ -147,10 +147,12 @@ function omakase(cands){
 }
 // who is in on this: あなた + the chosen 飲み友, as icon chips under the title
 function whoRow(){
-  const w=$('pWho'); if(!w) return; w.textContent='';
-  const fr=activeFriends(); w.hidden=!fr.length; if(!fr.length) return;
-  const nm=(mid,n)=>{ const c=el('span','hint-who'); c.append(avatar({},mid,'pl-av'), n); return c; };
-  w.append(nm(me,'あなた')); fr.forEach(u=>w.append(nm((friends[u]||{}).mid,(friends[u]||{}).nick||'飲み友')));
+  const w=$('pWho'), hd=w&&w.parentNode; if(!w) return; w.textContent='';
+  const fr=activeFriends(); w.hidden=!fr.length; hd.classList.toggle('with-friends',!!fr.length); if(!fr.length) return;
+  // (あ) × (け) × (ま) 🍻 どこ行く?   -- the title text stays for screen readers
+  const av=(mid,n)=>{ const a=avatar({},mid,'pl-av'); a.title=n; return a; };
+  w.append(av(me,'あなた')); fr.forEach(u=>{ w.append(el('span','p-x','×'), av((friends[u]||{}).mid,(friends[u]||{}).nick||'飲み友')); });
+  const ch=el('span','p-cheers'+(pick.cheers?' go':''),'🍻'); pick.cheers=false; w.append(ch, el('span','p-q','どこ行く?'));
 }
 function buildPick(){
   const b=$('pBody'); if(!b || !isOpen('pickSheet')) return;
