@@ -106,7 +106,7 @@
 .pk-t.pk-tsukec[aria-pressed="true"]{background:color-mix(in srgb,#2E5FA8 10%,var(--card));border-color:#2E5FA8;color:#2E5FA8}
 .pk-t.pk-honc[aria-pressed="true"] .lan-body{fill:var(--red);stroke:#7A1A14;stroke-width:.8}
 .pk-t.pk-tsukec[aria-pressed="true"] .ck-sake{opacity:1;fill:#CFE2F3}
-#pBody .dc-tg{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}#pBody .dc-tg::-webkit-scrollbar{display:none}#pBody .dc-tg .chip{flex:none}#pBody .dc-fb{margin-left:auto;min-width:40px;justify-content:center}
+#pBody .dc-tg{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}#pBody .dc-tg::-webkit-scrollbar{display:none}#pBody .dc-tg .chip{flex:none}#pBody .dc-fb{margin-left:auto;min-width:0;justify-content:center;white-space:nowrap}
 .pl-stack{display:inline-flex;margin-right:2px}
 .pl-stack .pl-av + .pl-av{margin-left:-6px}
 .pk-t:disabled{opacity:.35;cursor:not-allowed}
@@ -186,3 +186,8 @@
 .dc-tg .chip.pk-t{padding:4px 8px;gap:3px;font-size:12px}
 #pBody .dc-tg:has(.pk-t){gap:4px}
 .dc-tg .pk-t .pk-n{min-width:1.6ch}
+/* compact 絞り込み panel */
+#pBody .pk-q{margin-top:6px;padding:6px 10px;font-size:15px}
+#pBody .pk-bar{margin-top:6px;margin-bottom:8px}
+#pBody .pk-q + .pk-bar{margin-top:6px}
+#pBody .pk-bar .pk-sel,#pBody .pk-bar .pk-hon{height:34px}
