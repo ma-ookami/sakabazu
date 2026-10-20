@@ -23,7 +23,7 @@ function buildSearch(){
   // how to add: three ways, side by side
   const ways=el('div','add-ways'); ways.setAttribute('role','tablist'); ways.setAttribute('aria-label','追加のしかた');
   const ICON={find:'<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/>', url:'<path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.2 1.2"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/>', name:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>'};
-  for (const [k,l,sub] of [['find','探す','エリア・料理'],['url','URLを貼る','LINEのリンク'],['name','名前だけ','載っていない店']]){
+  for (const [k,l,sub] of [['find','探す','エリア・料理'],['url','URLを貼る','リンクから追加'],['name','名前だけ','載っていない店']]){
     const w=el('button','add-way'); w.type='button'; w.setAttribute('role','tab'); w.setAttribute('aria-selected',String(mode===k));
     w.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+ICON[k]+'</svg>';
     w.append(el('b',null,l), el('small',null,sub));

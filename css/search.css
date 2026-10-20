@@ -126,3 +126,5 @@
 .sx-filters .chip,.sx-filters .sx-budget{flex:none}
 .sx-bar{margin-top:10px}
 .sx-selline:empty{display:none}
+/* genres + conditions wrap instead of scrolling sideways */
+.sx-areas,.sx-genres,.sx-filters{flex-wrap:wrap;overflow:visible;gap:6px}
