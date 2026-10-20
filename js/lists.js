@@ -35,13 +35,12 @@ function renderWent(v){
   if (!readOnly) v.appendChild(el('p','hint','右にスワイプで ↩行きたい、左で外す'));
   listF.hon=false; filterBar(v,listF,shops.filter(inWent),render);
   let arr=shops.filter(inWent).filter(s=>fMatch(s,listF));
-  if (!['new','star','price'].includes(sort)) sort='new';
-  const key = sort==='price'?'price':null;
-  arr.sort((a,b)=>{ if(sort==='star'){ const x=(starAvg(a)||{}).v, y=(starAvg(b)||{}).v; if(x!==y) return (y??-1)-(x??-1); } if(key){ const x=avg(a,key), y=avg(b,key); if(x!==y) return (y??-1)-(x??-1); }
+  if (!['new','star'].includes(sort)) sort='new';
+  arr.sort((a,b)=>{ if(sort==='star'){ const x=(starAvg(a)||{}).v, y=(starAvg(b)||{}).v; if(x!==y) return (y??-1)-(x??-1); }
     return lastWent(b).localeCompare(lastWent(a)) || (b.createdAt||0)-(a.createdAt||0); });
   const meta=el('div','meta'); meta.appendChild(el('span',null,`${arr.length} 軒`));
   const lab=el('label',null,'並び順 '); const sel=el('select');
-  for (const [val,txt] of [['new','新しい順'],['star','星が高い順'],['price','安い順']]){ const o=el('option',null,txt); o.value=val; o.selected=sort===val; sel.appendChild(o); }
+  for (const [val,txt] of [['new','新しい順'],['star','星が高い順']]){ const o=el('option',null,txt); o.value=val; o.selected=sort===val; sel.appendChild(o); }
   sel.onchange=()=>{sort=sel.value; render();}; lab.appendChild(sel); meta.appendChild(lab); v.appendChild(meta);
   const list=el('div','list'); v.appendChild(list);
   if (!arr.length){ const e=el('div','empty'); const noT=listF.tsuke && !shops.some(x=>inWent(x)&&isTsuke(x)); e.appendChild(el('span','mincho', noT?'定番の店はまだありません':shops.some(inWent)?'条件に合う店がありません':'まだ記録がありません'));
