@@ -212,3 +212,8 @@
 .p-who .p-x{font-size:13px;color:var(--sub)}
 @media (prefers-reduced-motion:no-preference){ .p-cheers.go{animation:cheers .7s var(--ease-spring)} }
 @keyframes cheers{0%{transform:rotate(-30deg) scale(.6);opacity:0}45%{transform:rotate(18deg) scale(1.25);opacity:1}70%{transform:rotate(-8deg)}100%{transform:none}}
+/* 戻る: bigger target + visible press */
+.p-head .back{position:relative;width:42px;height:42px;background:color-mix(in srgb,var(--red) 10%,var(--faint));touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:transform .08s,background-color .08s}
+.p-head .back::before{content:"";position:absolute;inset:-6px -10px -6px -6px}
+.p-head .back b{font-size:28px;padding-bottom:3px}
+.p-head .back:active{transform:scale(.88);background:color-mix(in srgb,var(--red) 28%,var(--faint))}
