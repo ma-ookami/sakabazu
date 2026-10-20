@@ -121,7 +121,7 @@ function openPick(src){
 function closePick(){ hideSheet('pickSheet'); }
 function omakase(cands){
   if (!cands.length) return;
-  const bag=cands.flatMap(x=>Array(1+honBy(x.s).length*2+tsukeBy(x.s).length*2).fill(x));   // 本命 comes up about 3x as often
+  const bag=cands.flatMap(x=>Array(x.w ?? 1+honBy(x.s).length*2+tsukeBy(x.s).length*2).fill(x));   // 本命 comes up about 3x as often
   const one=()=>bag[Math.floor(Math.random()*bag.length)].s;
   let final=one(); if (cands.length>1) while(final.id===pick.chosen) final=one();
   pick.proposing=null;
@@ -138,10 +138,18 @@ function omakase(cands){
   strip.animate([{transform:'translateY(0)'},{transform:`translateY(${-h*(names.length-1)}px)`}],{duration:1900,easing:'cubic-bezier(.15,.75,.2,1)',fill:'forwards'})
     .finished.then(()=>{ if(isOpen('pickSheet')) land(); },()=>{});
 }
+// who is in on this: あなた + the chosen 飲み友, as icon chips under the title
+function whoRow(){
+  const w=$('pWho'); if(!w) return; w.textContent='';
+  const fr=activeFriends(); w.hidden=!fr.length; if(!fr.length) return;
+  const nm=(mid,n)=>{ const c=el('span','hint-who'); c.append(avatar({},mid,'pl-av'), n); return c; };
+  w.append(nm(me,'あなた')); fr.forEach(u=>w.append(nm((friends[u]||{}).mid,(friends[u]||{}).nick||'飲み友')));
+}
 function buildPick(){
   const b=$('pBody'); if(!b || !isOpen('pickSheet')) return;
   const ae=document.activeElement; if (ae && b.contains(ae) && ae.tagName==='INPUT') return;
   b.textContent='';
+  whoRow();
   const seg=el('div','seg pk-seg'); seg.setAttribute('role','group'); seg.setAttribute('aria-label','表示');
   const nc=todayCands().length;
   for (const [k,l] of [['find','探す'],['today',nc?`今日の候補 ${nc}`:'今日の候補']]){ const x=el('button',null,l); x.setAttribute('aria-pressed',String(pick.src===k)); x.onclick=()=>{ pick.src=k; pick.chosen=null; buildPick(); }; seg.appendChild(x); }
@@ -163,17 +171,6 @@ function buildPick(){
   b.appendChild(tg);
   if (pick.fopen) filterBar(b,pick,shops.filter(s=>(pick.want&&inWant(s))||(pick.went&&inWent(s))),buildPick);
   const cands=candidates();
-  const om=el('div','omakase'); const slot=el('div','slot'); slot.id='pSlot'; slot.setAttribute('aria-live','polite');
-  const chosen=pick.chosen && cands.find(x=>x.s.id===pick.chosen);
-  if (chosen){ slot.classList.add('hit'); if(pick.fresh){ slot.classList.add('fresh'); pick.fresh=false; } slot.append(el('span','sl-k','🎲 ここはどう?'), el('span','sl-n',chosen.s.name||''));
-    const sub=[genreOf(chosen.s), chosen.s.area].filter(Boolean).join('　'); if(sub) slot.appendChild(el('span','sl-a',sub)); }
-  else slot.append(el('span','sl-k',`${cands.length}軒の中から`), el('span','sl-n','迷ったら、おまかせ'));
-  const ob=el('div','sl-btns');
-  const spin=el('button','btn btn-ink',chosen?'もう一回':'🎲 おまかせ'); spin.disabled=!cands.length; spin.onclick=()=>omakase(cands); ob.appendChild(spin);
-  if (chosen && !readOnly && me){ const on=isPicked(chosen.s); const go=el('button','btn btn-red', on?'✓ 候補':'候補に入れる'); go.onclick=()=>togglePick(chosen.s); ob.appendChild(go);
-    const here=el('button','btn btn-line','ここにする'); here.onclick=()=>{ decide(chosen.s); closePick(); }; ob.appendChild(here); }
-  if (chosen){ const x=el('button','sl-x','×'); x.type='button'; x.setAttribute('aria-label','結果を閉じて回す前に戻す'); x.onclick=()=>{ pick.chosen=null; buildPick(); }; slot.appendChild(x); }
-  slot.appendChild(ob); om.appendChild(slot); b.appendChild(om);
   if (!cands.length){ b.appendChild(el('p','empty', shops.length?'条件に合う店がありません。条件を外してみてください。':'まだ店がありません。リストの「＋」から行きたい店を入れてみましょう。')); return; }
   const ul=el('ul','plist');
   for (const {s} of cands){
@@ -194,16 +191,25 @@ function mineRow(s){
   r.append(w,g); r.onclick=e=>e.stopPropagation(); return r;
 }
 // the 今日の候補 tab: mine and the 飲み友's picks together; shops both picked come first, marked 🍻
+// the ルーレット over 今日の候補 only (a narrowed-down set picks better than the whole list)
+function roulette(b,cs){
+  const items=cs.map(c=>({s:{id:c.key,name:c.name}, c, w:c.shop?1+honBy(c.shop).length*2+tsukeBy(c.shop).length*2:1}));
+  const chosen=pick.chosen && items.find(x=>x.s.id===pick.chosen);
+  const om=el('div','omakase'); const slot=el('div','slot'); slot.id='pSlot'; slot.setAttribute('aria-live','polite');
+  if (chosen){ slot.classList.add('hit'); if(pick.fresh){ slot.classList.add('fresh'); pick.fresh=false; } slot.append(el('span','sl-k','🎲 ここはどう?'), el('span','sl-n',chosen.c.name||''));
+    const sub=chosen.c.shop ? [genreOf(chosen.c.shop), chosen.c.shop.area].filter(Boolean).join('　') : ''; if(sub) slot.appendChild(el('span','sl-a',sub)); }
+  else slot.append(el('span','sl-k',`${items.length}軒の中から`), el('span','sl-n','迷ったら、おまかせ'));
+  const ob=el('div','sl-btns');
+  const spin=el('button','btn btn-ink',chosen?'もう一回':'🎲 おまかせ'); spin.onclick=()=>omakase(items); ob.appendChild(spin);
+  if (chosen && !readOnly && me){ const here=el('button','btn btn-line','ここにする'); here.onclick=()=>{ decide(chosen.c.shop,chosen.c); closePick(); }; ob.appendChild(here); }
+  if (chosen){ const x=el('button','sl-x','×'); x.type='button'; x.setAttribute('aria-label','結果を閉じて回す前に戻す'); x.onclick=()=>{ pick.chosen=null; buildPick(); }; slot.appendChild(x); }
+  slot.appendChild(ob); om.appendChild(slot); b.appendChild(om);
+}
 function todayTab(b){
   const wf=activeFriends()[0], cs=todayCands();
-  const hp=el('p','hint');
-  if (wf){
-    const nm=(id,mid,n)=>{ const c=el('span','hint-who'); c.append(avatar({},mid,'pl-av'), n); return c; };
-    hp.append(nm(me,me,'あなた'), 'と');
-    activeFriends().forEach((u,i)=>{ if(i) hp.append('・'); hp.append(nm(u,(friends[u]||{}).mid,(friends[u]||{}).nick||'飲み友')); });
-    hp.append('が出した今日の候補。いいと思ったら「＋ 私も」。選んだ人数が多い店から並びます。');
-  } else hp.textContent='今日の候補。「飲み友と」に切り替えると、相手の候補と合わせて見られます。';
-  b.appendChild(hp);
+  b.appendChild(el('p','hint', wf ? 'みんなが出した今日の候補。いいと思ったら「＋ 私も」。選んだ人数が多い店から並びます。'
+    : '今日の候補。「飲み友と」に切り替えると、相手の候補と合わせて見られます。'));
+  if (cs.length) roulette(b,cs);
   if (!cs.length){ b.appendChild(el('p','empty','まだ候補がありません。「探す」で「＋ 候補」を押して入れてください。')); return; }
   const ul=el('ul','plist cands');
   for (const c of cs){
