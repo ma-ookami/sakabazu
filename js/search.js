@@ -60,7 +60,7 @@ function buildSearch(){
     // many areas (東京): show the first few + the chosen one, the rest behind a 「+N」 chip
     const all=HP_AREAS.filter(p=>!p.city || p.city===curCity()), LIM=8;
     const fold=all.length>LIM+2 && !sx.areaMore;
-    const shown=fold ? all.filter((p,i)=>i<LIM || p.id===hpArea_ || !p.city) : all;
+    const shown=fold ? all.filter((p,i)=>i<LIM || p.id===hpArea_) : all;
     for (const p of shown){ const c=el('button','chip',p.label); c.type='button'; c.dataset.id=p.id;
       c.onclick=()=>{ setHpArea(p.id); markAreas(); selLine(); };
       ar.appendChild(c); }
