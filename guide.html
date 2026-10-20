@@ -83,6 +83,11 @@ h2{margin:2px 0 12px;font-family:var(--serif);font-size:clamp(22px,6vw,28px);lin
 .rows div:first-child{border-top:0}
 .rows span{color:var(--sub)}
 /* more */
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:10px;counter-reset:st}
+.steps li{counter-increment:st;display:grid;grid-template-columns:34px 1fr;gap:2px 12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.steps li::before{content:counter(st);grid-row:span 2;width:34px;height:34px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;font-weight:700;font-size:16px}
+.steps b{font-size:14.5px}
+.steps span{font-size:12.5px;color:var(--sub);line-height:1.6}
 .more{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .mo{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;display:grid;gap:2px}
 .mo b{font-size:14px}
@@ -222,6 +227,16 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:0 0 28px}
       <div class="wr"><i>🔍</i><p>候補を探すだけで、<b>毎回ぐったりする</b></p></div>
     </div>
     <div class="solve"><span class="solve-ar">▼</span><p>酒場図なら、<span class="mk">行きたい店と行った店をためておいて、みんなと候補を出し合うだけ</span>。</p></div>
+  </section>
+
+  <section id="start">
+    <span class="kicker">QUICK START</span>
+    <h2>はじめの30秒</h2>
+    <ol class="steps">
+      <li><b>お店を探して「＋行きたい」</b><span>「お店を追加」でエリアとジャンルを選んで、気になる店を1軒入れる</span></li>
+      <li><b>行ったら「行った」を押す</b><span>行った日と星はあとからでOK。ひとことも残せます</span></li>
+      <li><b>迷ったら「今日どこ行く?」</b><span>1人ならルーレットでおまかせ。飲み友とは、お互いのリストから一緒に決める</span></li>
+    </ol>
   </section>
 
   <!-- 1 記録 -->
@@ -471,9 +486,7 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:0 0 28px}
       <div class="mo"><i><svg class="lan" viewBox="0 0 20 28" aria-hidden="true"><rect class="lan-cap" x="6" y="2" width="8" height="3" rx="1"/><ellipse class="lan-body" cx="10" cy="14" rx="7.2" ry="9"/><path class="lan-rib" d="M3.6 10.5Q10 12.5 16.4 10.5M3 14.5Q10 16.5 17 14.5M3.6 18.5Q10 20.5 16.4 18.5"/><rect class="lan-cap" x="6" y="22.5" width="8" height="3" rx="1"/><path class="lan-tas" d="M10 25.5v2.3"/></svg></i><b>本命</b><span>行きたい店の「絶対ここ」に提灯を</span></div>
       <div class="mo"><i><svg class="choko" viewBox="0 0 24 22" aria-hidden="true"><path class="ck-body" d="M3.5 6.5h17l-2.3 10.2a2.4 2.4 0 0 1-2.3 1.8H8.1a2.4 2.4 0 0 1-2.3-1.8z"/><path class="ck-sake" d="M5.3 9.6h13.4l-1.6 6.6a1.5 1.5 0 0 1-1.4 1.1H8.3a1.5 1.5 0 0 1-1.4-1.1z"/><ellipse class="ck-ring" cx="12" cy="13.2" rx="3.1" ry="1.5"/><ellipse class="ck-dot" cx="12" cy="13.2" rx="1.2" ry=".55"/><path class="ck-foot" d="M9 18.5h6v1.6H9z"/><path class="ck-rim" d="M3.5 6.5h17"/></svg></i><b>定番</b><span>また行きたい店にお猪口を</span></div>
       <div class="mo"><i>🟢</i><b>営業中の店</b><span>営業時間内の店を決める画面に</span></div>
-      <div class="mo"><i>🎲</i><b>おまかせ</b><span>迷ったらルーレットで</span></div>
       <div class="mo"><i>📅</i><b>カレンダー</b><span>家飲み・休肝日も記録</span></div>
-      <div class="mo"><i>🔗</i><b>リンクで登録</b><span>共有の文面ごと貼ってOK</span></div>
     </div>
   </section>
 
@@ -482,6 +495,8 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:0 0 28px}
     <h2>よくある質問</h2>
     <details><summary>メモやひとことは飲み友に見られる?</summary><p>見られません。飲み友に見えるのは、店の基本情報・星・本命・定番・今日の候補だけです。</p></details>
     <details><summary>スマホを変えたら?</summary><p>記録はその端末に結びついています。右上のアイコン →「あなた」→「バックアップを保存」でファイルにしておき、新しい端末で「バックアップから戻す」。</p></details>
+    <details><summary>間違えて入れた店は?</summary><p>「行きたい」のリストで、お店を左にスワイプすると外せます。「行った」の店は右にスワイプで「行きたい」に戻せます。外したあとも、すぐ「元に戻す」で取り消せます。</p></details>
+    <details><summary>札幌・東京以外のお店は?</summary><p>「探す」は札幌と東京のエリアで使えます。ほかの地域のお店は、Googleマップなどのリンクを貼るか、「名前だけ」で追加してください。</p></details>
     <details><summary>ホーム画面に置きたい</summary><p>iPhoneはSafariの共有ボタン →「ホーム画面に追加」、Androidは「︙」→「ホーム画面に追加」。</p></details>
     <details><summary>「営業中の店」はすぐ入れる?</summary><p>営業時間内という意味で、空席まではわかりません。ホットペッパーグルメのお店は「ネット予約」から空きを確認できます。</p></details>
   </section>
