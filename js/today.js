@@ -126,7 +126,7 @@ function omakase(cands){
   let final=one(); if (cands.length>1) while(final.id===pick.chosen) final=one();
   pick.proposing=null;
   const slot=$('pSlot'); const land=()=>{ pick.chosen=final.id; pick.fresh=true; buzz(); buildPick(); };
-  if (reduceMotion() || cands.length<2 || !slot || !slot.animate){ land(); return; }
+  if (reduceMotion() || !slot || !slot.animate){ land(); return; }
   // a reel of names that spins down and stops on the final one
   const names=[]; for(let i=0;i<21;i++) names.push(one().name||''); names.push(final.name||'');
   slot.classList.remove('hit','fresh'); slot.textContent='';
