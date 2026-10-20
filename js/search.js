@@ -16,7 +16,9 @@ function closeSearch(){ hideSheet('searchSheet'); sx.mode='find'; sx.editing=fal
 function selLine(){ const e=$('sxSel'); if(!e) return;
   const on=[hpAreaOf().label, sxWords(sxKwAll()), sx.src==='hp'&&sx.budget&&(HP_BUDGETS.find(x=>x[0]===sx.budget)||[])[1], ...(sx.src==='hp'?HP_FLAGS.filter(([k])=>sx.flags[k]).map(x=>x[1]):[])].filter(Boolean);
   e.textContent=on.length>1?on.join(' × '):''; }
+const SX_GOOGLE=false;   // Googleで探す: 一旦オフ(今後追加予定)。true で検索先の切替が戻る
 function buildSearch(){
+  if (!SX_GOOGLE) sx.src='hp';
   const body=$('sBody'); body.textContent='';
   if (!hpOn() && (sx.mode||'find')==='find') sx.mode='url';
   const mode=sx.mode||'find';
@@ -50,7 +52,7 @@ function buildSearch(){
     const srcSeg=el('div','seg sx-src'); srcSeg.setAttribute('role','group'); srcSeg.setAttribute('aria-label','検索先');
     for (const [k,l] of [['g','Google'],['hp','ホットペッパー']]){ const x=el('button',null,l); x.type='button'; x.setAttribute('aria-pressed',String(sx.src===k));
       x.onclick=()=>{ if(sx.src===k) return; sx.src=k; buildSearch(); }; srcSeg.appendChild(x); }
-    pair.appendChild(srcSeg);
+    if (SX_GOOGLE) pair.appendChild(srcSeg);
     // 2. area
     const cs=el('div','seg sx-city'); cs.setAttribute('role','group'); cs.setAttribute('aria-label','都市');
     for (const c of HP_CITIES){ const x=el('button',null,c.label); x.type='button'; x.setAttribute('aria-pressed',String(curCity()===c.id));
