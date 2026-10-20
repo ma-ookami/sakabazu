@@ -148,7 +148,7 @@ body:has(.toast:not([hidden])) .fab{transform:translateY(-68px)}
 .d-hon,.pk-hon{display:inline-flex;align-items:center;gap:5px}
 .pk-hon[aria-pressed="true"] .lan-body{fill:#FFF3E0;stroke:#FFF3E0}
 
-/* 行きつけ: an empty お猪口 that fills with sake (蛇の目 at the bottom) */
+/* 定番: an empty お猪口 that fills with sake (蛇の目 at the bottom) */
 .choko{width:17px;height:16px;display:block;overflow:visible;flex:none}
 .ck-body{fill:transparent;stroke:currentColor;stroke-width:1.3;stroke-linejoin:round}
 .ck-rim,.ck-foot{fill:none;stroke:currentColor;stroke-width:1.3}

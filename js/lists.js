@@ -44,8 +44,8 @@ function renderWent(v){
   for (const [val,txt] of [['new','新しい順'],['star','星が高い順'],['price','安い順']]){ const o=el('option',null,txt); o.value=val; o.selected=sort===val; sel.appendChild(o); }
   sel.onchange=()=>{sort=sel.value; render();}; lab.appendChild(sel); meta.appendChild(lab); v.appendChild(meta);
   const list=el('div','list'); v.appendChild(list);
-  if (!arr.length){ const e=el('div','empty'); const noT=listF.tsuke && !shops.some(x=>inWent(x)&&isTsuke(x)); e.appendChild(el('span','mincho', noT?'行きつけの店はまだありません':shops.some(inWent)?'条件に合う店がありません':'まだ記録がありません'));
-    if (noT) e.appendChild(document.createTextNode('行った店の名前の横のお猪口を押すと、お酒が満ちて行きつけになります。'));
+  if (!arr.length){ const e=el('div','empty'); const noT=listF.tsuke && !shops.some(x=>inWent(x)&&isTsuke(x)); e.appendChild(el('span','mincho', noT?'定番の店はまだありません':shops.some(inWent)?'条件に合う店がありません':'まだ記録がありません'));
+    if (noT) e.appendChild(document.createTextNode('行った店の名前の横のお猪口を押すと、お酒が満ちて定番になります。'));
     if(!shops.some(inWent)) e.appendChild(document.createTextNode('行きたいリストの店で「行った」を押すと、ここに溜まっていきます。'));
     list.appendChild(e); return; }
   const slots=[], badgeSlots=[];

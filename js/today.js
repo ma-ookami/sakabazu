@@ -34,7 +34,7 @@ function filterBar(box,st,base,redraw){
     n.onclick=()=>{ st.fresh1=!st.fresh1; pick.chosen=null; redraw(); }; fl.appendChild(n); }
   if (st!==pick && !(st===listF && listSub==='went') && (st.hon || base.some(s=>honBy(s).length) || (st===listF && tab==='list' && listSub==='want'))){ const h=el('button','pk-hon','本命'); h.prepend(lanEl()); h.type='button'; h.setAttribute('aria-pressed',String(!!st.hon)); h.setAttribute('aria-label','本命だけ');
     h.onclick=()=>{ st.hon=!st.hon; if(st===pick) pick.chosen=null; redraw(); }; fl.appendChild(h); }
-  if (st!==pick && !(st===listF && listSub==='want') && (st.tsuke || base.some(s=>tsukeBy(s).length) || (st===listF && tab==='list' && listSub==='went'))){ const h=el('button','pk-hon pk-tsuke','行きつけ'); h.prepend(chokoEl()); h.type='button'; h.setAttribute('aria-pressed',String(!!st.tsuke)); h.setAttribute('aria-label','行きつけだけ');
+  if (st!==pick && !(st===listF && listSub==='want') && (st.tsuke || base.some(s=>tsukeBy(s).length) || (st===listF && tab==='list' && listSub==='went'))){ const h=el('button','pk-hon pk-tsuke','定番'); h.prepend(chokoEl()); h.type='button'; h.setAttribute('aria-pressed',String(!!st.tsuke)); h.setAttribute('aria-label','定番だけ');
     h.onclick=()=>{ st.tsuke=!st.tsuke; if(st===pick) pick.chosen=null; redraw(); }; fl.appendChild(h); }
   const sel=(label,items,cur,set)=>{ const w=el('label','pk-sel'+(String(cur)!==String(items[0][0])?' on':''));
     const s=el('select'); s.setAttribute('aria-label',label);
@@ -168,10 +168,10 @@ function buildPick(){
   { const base=shops.filter(statusOf);
     if (pick.fresh1 && pick.tsuke) pick.tsuke=false;
     const cnt=k=>base.filter(s=>fMatch(s,{...pick,[k]:true})).length;   // how many shops this chip would leave
-    const tog=(k,l,ic,cls,label,off)=>{ const x=el('button','chip pk-t '+cls,l+' '+cnt(k)); x.type='button'; if(ic) x.prepend(ic); if(off){ x.disabled=true; x.title='初めての店と行きつけは一緒に選べません'; } x.setAttribute('aria-pressed',String(!!pick[k])); x.setAttribute('aria-label',label); x.onclick=()=>{ pick[k]=!pick[k]; pick.chosen=null; buildPick(); }; tg.appendChild(x); };
+    const tog=(k,l,ic,cls,label,off)=>{ const x=el('button','chip pk-t '+cls,l+' '+cnt(k)); x.type='button'; if(ic) x.prepend(ic); if(off){ x.disabled=true; x.title='初めての店と定番は一緒に選べません'; } x.setAttribute('aria-pressed',String(!!pick[k])); x.setAttribute('aria-label',label); x.onclick=()=>{ pick[k]=!pick[k]; pick.chosen=null; buildPick(); }; tg.appendChild(x); };
     tog('fresh1','初めての店',null,'pk-new', activeFriends().length?'選んだメンバーの誰も行っていない店だけ':'まだ行っていない店だけ', !!pick.tsuke);
     if (pick.hon || base.some(s=>honBy(s).length)) tog('hon','本命',lanEl(),'pk-honc','本命の店だけ');
-    if (pick.tsuke || base.some(s=>tsukeBy(s).length)) tog('tsuke','行きつけ',chokoEl(),'pk-tsukec','行きつけの店だけ', !!pick.fresh1); }
+    if (pick.tsuke || base.some(s=>tsukeBy(s).length)) tog('tsuke','定番',chokoEl(),'pk-tsukec','定番の店だけ', !!pick.fresh1); }
   const on=[pick.q&&'「'+pick.q+'」', pick.at&&(+pick.at.slice(0,2))+'時〜', pick.genre, pick.star&&'★'+pick.star+'〜'].filter(Boolean);
   const fb=el('button','chip dc-fb'+(on.length?' on':''), '⚙'+(on.length?' '+on.length:'')); fb.type='button'; fb.setAttribute('aria-label','検索・絞り込み(時間・ジャンル・星)'+(on.length?'：'+on.join('・'):'')); fb.title='検索・時間・ジャンル・星で絞り込み'; fb.setAttribute('aria-expanded',String(pick.fopen));
   fb.onclick=()=>{ pick.fopen=!pick.fopen; buildPick(); }; tg.appendChild(fb);
@@ -240,7 +240,7 @@ $('pBack').onclick=closePick;
 
 // the same little labels as the list cards: 行った/行きたい, 営業時間, ジャンル, 星
 // a shop's lines in 今日どこ行く?: the shop in one line of text (営業中 〜24:00 ・ 居酒屋 ・ ★4.0),
-// then (with 飲み友) who: icons ringed red (行きたい) / navy (行った), with a small 提灯 / お猪口 for 本命 / 行きつけ
+// then (with 飲み友) who: icons ringed red (行きたい) / navy (行った), with a small 提灯 / お猪口 for 本命 / 定番
 // a shop in 今日どこ行く?: 営業時間・ジャンル・★ on one line, then 行きたい / 行った (with whose icons)
 function pickChips(s,withStatus){
   const box=el('div','pk-lines'), fr=activeFriends();
@@ -385,12 +385,12 @@ function openNowStrip(v){
   sec.appendChild(row); sec.appendChild(el('p','now-note','営業時間内の店です。空席はお店で確認してください')); v.appendChild(sec);
 }
 
-// someone's 本命 / 行きつけ: a lantern / an お猪口 above the ＋候補 (who: in the title)
+// someone's 本命 / 定番: a lantern / an お猪口 above the ＋候補 (who: in the title)
 function tierMarks(s){
   const hb=honBy(s), tb=tsukeBy(s); if(!hb.length && !tb.length) return null;
   const nm=u=>u===me?'あなた':(friendByMid(u)||{}).nick||'飲み友';
   const w=el('span','tier-marks');
   if (hb.length){ const m=el('span','tm hon'); m.appendChild(lanEl()); m.title=m.ariaLabel=hb.map(nm).join('・')+'の本命'; w.appendChild(m); }
-  if (tb.length){ const m=el('span','tm tsuke'); m.appendChild(chokoEl()); m.title=m.ariaLabel=tb.map(nm).join('・')+'の行きつけ'; w.appendChild(m); }
+  if (tb.length){ const m=el('span','tm tsuke'); m.appendChild(chokoEl()); m.title=m.ariaLabel=tb.map(nm).join('・')+'の定番'; w.appendChild(m); }
   return w;
 }

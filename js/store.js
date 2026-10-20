@@ -117,7 +117,7 @@ function afterChange(){ rebuildShops(); render(); if(openId) patchDetail(); if(i
 // 本命 (the shops you most want to go to): r[uid].hon. shown as a 提灯 that lights up
 const LANTERN='<svg class="lan" viewBox="0 0 20 28" aria-hidden="true"><rect class="lan-cap" x="6" y="2" width="8" height="3" rx="1"/><ellipse class="lan-body" cx="10" cy="14" rx="7.2" ry="9"/><path class="lan-rib" d="M3.6 10.5Q10 12.5 16.4 10.5M3 14.5Q10 16.5 17 14.5M3.6 18.5Q10 20.5 16.4 18.5"/><rect class="lan-cap" x="6" y="22.5" width="8" height="3" rx="1"/><path class="lan-tas" d="M10 25.5v2.3"/></svg>';
 const lanEl = () => { const t=document.createElement('template'); t.innerHTML=LANTERN; return t.content.firstChild; };
-// 本命 is for shops still wanted: once you've been there it no longer counts (行きつけ takes over)
+// 本命 is for shops still wanted: once you've been there it no longer counts (定番 takes over)
 const isHon = (s,u=me) => !!(s && s.r && s.r[u] && s.r[u].hon) && !wentBy(s)[u];
 const honBy = s => inScope(Object.keys((s&&s.r)||{}).filter(u=>isHon(s,u)));
 function toggleHon(id){ const s=shops.find(x=>x.id===id); if(!s||!me||readOnly) return; const on=!isHon(s); buzz();
@@ -171,22 +171,22 @@ function movePrivOut(raw){
   }
 }
 
-// 行きつけ (shops I keep going back to): r[uid].tsuke. shown as a お猪口 that fills with sake
+// 定番 (shops I keep going back to): r[uid].tsuke. shown as a お猪口 that fills with sake
 const CHOKO='<svg class="choko" viewBox="0 0 24 22" aria-hidden="true"><path class="ck-body" d="M3.5 6.5h17l-2.3 10.2a2.4 2.4 0 0 1-2.3 1.8H8.1a2.4 2.4 0 0 1-2.3-1.8z"/><path class="ck-sake" d="M5.3 9.6h13.4l-1.6 6.6a1.5 1.5 0 0 1-1.4 1.1H8.3a1.5 1.5 0 0 1-1.4-1.1z"/><ellipse class="ck-ring" cx="12" cy="13.2" rx="3.1" ry="1.5"/><ellipse class="ck-dot" cx="12" cy="13.2" rx="1.2" ry=".55"/><path class="ck-foot" d="M9 18.5h6v1.6H9z"/><path class="ck-rim" d="M3.5 6.5h17"/></svg>';
 const chokoEl = () => { const t=document.createElement('template'); t.innerHTML=CHOKO; return t.content.firstChild; };
 const isTsuke = (s,u=me) => !!(s && s.r && s.r[u] && s.r[u].tsuke);
 const tsukeBy = s => inScope(Object.keys((s&&s.r)||{}).filter(u=>isTsuke(s,u)));
 function toggleTsuke(id){ const s=shops.find(x=>x.id===id); if(!s||!me||readOnly) return; const on=!isTsuke(s); buzz();
-  patchShop(id,{r:{[me]:{tsuke:on}}}); if (on) toast(`「${s.name}」を行きつけにしました`); }
+  patchShop(id,{r:{[me]:{tsuke:on}}}); if (on) toast(`「${s.name}」を定番にしました`); }
 function tsukeBtn(s){
   const on=isTsuke(s); const b=el('button','tsuke-btn'); b.appendChild(chokoEl()); b.type='button'; b.setAttribute('aria-pressed',String(on));
-  b.setAttribute('aria-label',(s.name||'')+(on?'の行きつけを外す':'を行きつけにする')); b.title=on?'行きつけ':'行きつけにする';
+  b.setAttribute('aria-label',(s.name||'')+(on?'の定番を外す':'を定番にする')); b.title=on?'定番':'定番にする';
   b.onclick=e=>{ e.stopPropagation(); toggleTsuke(s.id); }; return b;
 }
-// a label: 行きつけ / <nick>の行きつけ / 2人の行きつけ
+// a label: 定番 / <nick>の定番 / 2人の定番
 function tsukePill(ch,s){ const by=tsukeBy(s); if(!by.length) return;
-  const t = by.length>1 ? (by.length===2?'2人の行きつけ':`${by.length}人の行きつけ`) : by[0]===me ? '行きつけ' : `${(friendByMid(by[0])||{}).nick||'飲み友'}の行きつけ`;
-  pill(ch,'tsuke',t); ch.lastChild.prepend(chokoEl()); whoIcons(ch.lastChild,by,'行きつけ'); }
+  const t = by.length>1 ? (by.length===2?'2人の定番':`${by.length}人の定番`) : by[0]===me ? '定番' : `${(friendByMid(by[0])||{}).nick||'飲み友'}の定番`;
+  pill(ch,'tsuke',t); ch.lastChild.prepend(chokoEl()); whoIcons(ch.lastChild,by,'定番'); }
 
 // with 飲み友: whose it is, as overlapping icons before the mark ("(け)(ま)🏮 本命")
 function whoIcons(p,by,word){

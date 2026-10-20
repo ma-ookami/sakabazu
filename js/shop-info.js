@@ -41,7 +41,7 @@ function fillInfo(s){
   const lr=el('div','d-links');
   if (!readOnly && me && mySt(s)==='want'){ const on=isHon(s); const h=el('button','d-link d-hon',on?'本命':'本命にする'); h.prepend(lanEl()); h.type='button'; h.setAttribute('aria-pressed',String(on)); h.onclick=()=>toggleHon(s.id); lr.appendChild(h); }
   else if (honBy(s).length) honPill(lr,s);
-  if (!readOnly && me && mySt(s)==='went'){ const on=isTsuke(s); const h=el('button','d-link d-hon d-tsuke',on?'行きつけ':'行きつけにする'); h.type='button'; h.prepend(chokoEl()); h.setAttribute('aria-pressed',String(on)); h.onclick=()=>toggleTsuke(s.id); lr.appendChild(h); }
+  if (!readOnly && me && mySt(s)==='went'){ const on=isTsuke(s); const h=el('button','d-link d-hon d-tsuke',on?'定番':'定番にする'); h.type='button'; h.prepend(chokoEl()); h.setAttribute('aria-pressed',String(on)); h.onclick=()=>toggleTsuke(s.id); lr.appendChild(h); }
   else if (tsukeBy(s).length) tsukePill(lr,s);
   for (const u of (Array.isArray(s.links)?s.links:[]).map(safeUrl).filter(Boolean)){ const a=el('a','d-link',linkLabel(u)+' ↗'); a.href=u; a.target='_blank'; a.rel='noopener noreferrer'; lr.appendChild(a); }
   if (s.hp && /^J\d{9}$/.test(s.hp.id||'') && !(Array.isArray(s.links) && s.links.some(u=>/hotpepper\.jp/.test(u)))){ const a=el('a','d-link','ホットペッパーグルメ ↗'); a.href=`https://www.hotpepper.jp/str${s.hp.id}/`; a.target='_blank'; a.rel='noopener noreferrer'; lr.appendChild(a); }
