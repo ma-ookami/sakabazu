@@ -229,15 +229,7 @@
 .p-nb .dc-ar{display:inline-block;transition:transform .2s;font-size:11px}
 .p-nb .dc-ar.open{transform:rotate(180deg)}
 
-/* 本命 / 定番 as a little tab hanging from the card's top-right edge */
-#pBody .plist li{position:relative}
-#pBody .plist li.has-tier{padding-top:20px}
-#pBody .plist li > .tier-marks{position:absolute;top:-1px;right:14px;gap:8px;padding:2px 10px 3px;background:color-mix(in srgb,var(--faint) 70%,var(--card));border:1px solid var(--line);border-top:0;border-radius:0 0 10px 10px}
-#pBody .plist li > .tier-marks .tm.hon .lan{width:12px;height:17px}
-#pBody .plist li > .tier-marks .tm.tsuke .choko{width:17px;height:15px}
-/* tab -> a badge fully inside the card (no cut into the edge); the action button drops to the bottom-right */
-#pBody .plist li.has-tier{padding-top:12px}
-#pBody .plist li > .tier-marks{top:9px;right:10px;padding:2px 8px;background:var(--faint);border:1px solid var(--line);border-radius:999px;gap:6px}
-#pBody .plist li.has-tier .pn{padding-right:58px}
-#pBody .plist li.has-tier .pk-side,#pBody .plist li.has-tier .cand-side{align-self:flex-end}
-#pBody .plist li.has-tier{min-height:92px;box-sizing:border-box}
+/* 本命 / 定番: a small badge right after the shop name (the name keeps its full width) */
+#pBody .plist li .pn .tier-marks{display:inline-flex;vertical-align:middle;margin-left:8px;padding:1px 7px;gap:5px;background:var(--faint);border:1px solid var(--line);border-radius:999px;position:relative;top:-1px}
+#pBody .plist li .pn .tm.hon .lan{width:11px;height:15px}
+#pBody .plist li .pn .tm.tsuke .choko{width:15px;height:13px}
