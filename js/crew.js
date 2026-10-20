@@ -72,7 +72,7 @@ async function saveIcon(ic){
 // ---------- バックアップ (the list lives in this browser; a file keeps it safe when changing phones) ----------
 function backupSec(root){
   const box=sec('バックアップ','端末を変えるときや、ブラウザのデータを消す前に'); root.appendChild(box);
-  box.appendChild(el('p','hint','あなたのリストは、この端末(ブラウザ)に結びついています。ファイルに保存しておけば、新しい端末で「戻す」と同じ店・星・メモ・来店記録を取り込めます。飲み友は、相手にもう一度申請が届き、承認されるとつながり直します。'));
+  box.appendChild(el('p','hint','あなたのリストは、この端末(ブラウザ)に結びついています。ファイルに保存しておけば、新しい端末で「戻す」と同じ店・星・メモ・来店記録・ランキング・名前とアイコンを取り込めます。飲み友は、相手にもう一度申請が届き、承認されるとつながり直します。'));
   const row=el('div','bk-row');
   const sv=el('button','btn btn-ink','バックアップを保存'); sv.type='button'; sv.onclick=saveBackup;
   const ld=el('label','btn btn-line bk-load','バックアップから戻す'); const fi=el('input'); fi.type='file'; fi.accept='application/json,.json'; fi.hidden=true;
@@ -102,9 +102,14 @@ async function loadBackup(file){
   const add=d.shops.filter(s=>s && typeof s.name==='string' && s.name.trim() && !have.has(shopKey(s)));
   const rkNew={}; if (d.ranks && typeof d.ranks==='object'){ const cur=rankKeys(); for (const [k] of RANK_CATS){ const want=Array.isArray(d.ranks[k])?d.ranks[k].filter(x=>typeof x==='string'):[]; const add2=want.filter(x=>!cur[k].includes(x)).slice(0,Math.max(0,RANK_MAX-cur[k].length)); if (add2.length) rkNew[k]=add2; } }
   const rkN=Object.values(rkNew).reduce((a,x)=>a+x.length,0);
+  // 名前とアイコン(この端末で別のものを使っていたら、バックアップのものに置き換える)
+  const nk=typeof d.nick==='string' ? d.nick.trim().slice(0,20) : '';
+  let ic=null; if (d.ic && typeof d.ic==='object'){ ic={}; if (Number.isInteger(d.ic.c) && d.ic.c>=0 && d.ic.c<=15) ic.c=d.ic.c; if (['circle','squircle','hexagon','flower','badge'].includes(d.ic.s)) ic.s=d.ic.s; if (typeof d.ic.e==='string') ic.e=d.ic.e.slice(0,8); if (!Object.keys(ic).length) ic=null; }
+  const curM=members[me]||{};
+  const nkChg=!!nk && nk!==curM.nick, icChg=!!ic && JSON.stringify(ic)!==JSON.stringify(curM.ic||null);
   const fr0=Array.isArray(d.friends) ? d.friends.filter(x=>x && typeof x.mid==='string' && !friends[x.mid] && !frSent[x.mid]) : [];
-  if (!add.length && !fr0.length && !rkN && !(d.nights && Object.keys(d.nights).length)){ toast('新しく戻す店はありません(全部リストにあります)'); return; }
-  if (!(await ask(`バックアップから${add.length}軒を戻します。すでにリストにある店はそのままです。`+(rkN?`ランキング${rkN}件も戻します。`:'')+(fr0.length&&mode==='db' ? `飲み友${fr0.length}人にも、もう一度申請を送ります(相手が承認すると、また飲み友になります)。` : ''),'戻す'))) return;
+  if (!add.length && !fr0.length && !rkN && !nkChg && !icChg && !(d.nights && Object.keys(d.nights).length)){ toast('新しく戻す店はありません(全部リストにあります)'); return; }
+  if (!(await ask(`バックアップから${add.length}軒を戻します。すでにリストにある店はそのままです。`+(rkN?`ランキング${rkN}件も戻します。`:'')+((nkChg||icChg)?`${nkChg&&icChg?'名前とアイコン':nkChg?'名前':'アイコン'}もバックアップのものにします。`:'')+(fr0.length&&mode==='db' ? `飲み友${fr0.length}人にも、もう一度申請を送ります(相手が承認すると、また飲み友になります)。` : ''),'戻す'))) return;
   let n=0; const idOf={}; for (const s of myShops) idOf[shopKey(s)]=s.id;
   for (const s0 of add){
     const s=remapMe(s0, typeof d.me==='string' ? d.me : '');
@@ -121,6 +126,8 @@ async function loadBackup(file){
   if (d.dm) saveDm(d.dm);
   if (d.nights && typeof d.nights==='object'){ const have=nightsAll(); for (const [day,k] of Object.entries(d.nights)) if (/^\d{4}-\d{2}-\d{2}$/.test(day) && NIGHTS[k] && !have[day]) setNight(k,day); }
   for (const [k,keys] of Object.entries(rkNew)){ const ids=keys.map(x=>idOf[x]).filter(Boolean); if (ids.length) saveRank([...(rankings[me]&&rankings[me][k]||[]), ...ids.filter(i=>!((rankings[me]&&rankings[me][k])||[]).includes(i))], k); }
+  if (nkChg) await saveNick(nk);
+  if (icChg) await saveIcon(ic);
   let sentN=0; const noCode=[];
   if (mode==='db') for (const x of fr0){ if (!okCode(x.code)){ noCode.push(x.nick||'飲み友'); continue; } const err=await addFriend(x.code); if (!err) sentN++; else noCode.push(x.nick||'飲み友'); }
   afterChange(); toast(`${n}軒を戻しました`+(sentN?`。飲み友${sentN}人に申請を送りました`:''));
