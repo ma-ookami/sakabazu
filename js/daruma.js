@@ -128,7 +128,7 @@ function darumaSvg(c){
   <ellipse cx="22" cy="12.5" rx="6" ry="2.6" fill="#fff" opacity=".28" transform="rotate(-22 22 12.5)"/>
   <ellipse cx="32" cy="31" rx="18" ry="15" fill="${face}" stroke="${gold}" stroke-width="1.6"/>
   ${c.kaoiro==='horo' ? `<ellipse cx="32" cy="32" rx="17" ry="13.5" fill="#FF7A7A" opacity=".16"/><ellipse cx="19.5" cy="35.5" rx="4.2" ry="2.4" fill="#FF6B6B" opacity=".55"/><ellipse cx="44.5" cy="35.5" rx="4.2" ry="2.4" fill="#FF6B6B" opacity=".55"/><path d="M15 29.5l2 .8M14.6 32l2 .4M49 29.5l-2 .8M49.4 32l-2 .4" stroke="#E0453A" stroke-width=".8" stroke-linecap="round" opacity=".7"/>` : ''}
-  ${c.moji ? `<text x="32" y="56" text-anchor="middle" font-size="9.5" font-weight="700" font-family="Zen Antique, serif" fill="${gold}" stroke="${B}" stroke-width="2.2" paint-order="stroke">${c.moji}</text>` : ''}
+  ${c.moji ? `<text x="32" y="56" text-anchor="middle" font-size="9.5" font-weight="700" font-family="Zen Old Mincho, serif" fill="${gold}" stroke="${B}" stroke-width="2.2" paint-order="stroke">${c.moji}</text>` : ''}
   ${brow}${hige}
   <g class="dm-f dm-normal"><g class="dm-eyes">${eye}</g>${mouth}${hoho()}</g>
   <g class="dm-f dm-happy">${ln('M21.5 31Q25 26.5 28.5 31',2.4)+ln('M35.5 31Q39 26.5 42.5 31',2.4)}

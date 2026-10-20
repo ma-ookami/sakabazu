@@ -9,7 +9,7 @@
   --r-sm:10px; --r-md:14px; --r-lg:20px; --r-xl:26px;
   --ease-out:cubic-bezier(.2,.8,.2,1); --ease-spring:cubic-bezier(.3,1.3,.5,1);
   --serif:"Zen Old Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
-  --brush:"Zen Antique","Hiragino Mincho ProN","Yu Mincho",serif;
+  --brush:"Zen Old Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
