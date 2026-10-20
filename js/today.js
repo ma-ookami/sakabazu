@@ -4,15 +4,17 @@ let todayDocs={}; const cleaned=new Set();
 const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const nightKey = () => ymd(new Date(Date.now()-5*36e5));
 const lastNightKey = () => ymd(new Date(Date.now()-29*36e5));
-const pick={want:true,went:true,fopen:false,src:'find',at:'',genre:'',star:0,near:false,here:null,chosen:null,proposing:null,time:'19:00'};
+const pick={q:'',want:true,went:true,fopen:false,src:'find',at:'',genre:'',star:0,near:false,here:null,chosen:null,proposing:null,time:'19:00'};
 // 今日どこ行く? narrows by: the time you'd go (open then), the genre, and the stars
 const PICK_TIMES=['15:00','17:00','18:00','19:00','21:00','23:00'];
 const PICK_STARS=[3,3.5,4];
 const genreOf = s => (s.hp && s.hp.genre) || '';
 // open at "HH:MM" today? null when the hours are unknown
 // the same 3 pickers (時間 / ジャンル / 星) on 今日どこ行く? and on the lists. st: {at, genre, star}
-const fOn = st => !!(st.at || st.genre || st.star || st.hon || st.tsuke || st.fresh1);
+const fOn = st => !!(st.q || st.at || st.genre || st.star || st.hon || st.tsuke || st.fresh1);
+const qNorm = x => String(x||'').normalize('NFKC').toLowerCase().replace(/s+/g,'');
 function fMatch(s,st){
+  if (st.q && !qNorm((s.name||'')+(s.area||'')+(genreOf(s)||'')+(s.addr||'')).includes(qNorm(st.q))) return false;
   if (st.hon && !honBy(s).length) return false;
   if (st.fresh1 && wentIds(s).length) return false;   // はじめての店: nobody in this group has been
   if (st.tsuke && !tsukeBy(s).length) return false;
@@ -22,6 +24,11 @@ function fMatch(s,st){
   return true;
 }
 function filterBar(box,st,base,redraw){
+  if (st===pick){ const q=el('input','pk-q'); q.type='search'; q.value=st.q||''; q.placeholder='店名・エリア・ジャンルで探す'; q.setAttribute('aria-label','店を検索'); q.autocomplete='off'; q.enterKeyHint='search';
+    let tm=0, comp=false; const go=()=>{ clearTimeout(tm); tm=setTimeout(()=>{ if(comp) return; st.q=q.value.trim(); pick.chosen=null; redraw(); const n=document.querySelector('#pBody .pk-q'); if(n){ n.focus(); const l=n.value.length; try{ n.setSelectionRange(l,l); }catch{} } },250); };
+    q.addEventListener('compositionstart',()=>{ comp=true; }); q.addEventListener('compositionend',()=>{ comp=false; go(); }); q.addEventListener('input',go);
+    q.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); q.blur(); } });
+    box.appendChild(q); }
   const fl=el('div','pk-bar');
   if (false){ const n=el('button','pk-hon pk-new','初めての店'); n.type='button'; n.setAttribute('aria-pressed',String(!!st.fresh1)); n.setAttribute('aria-label', activeFriends().length?'選んだメンバーの誰も行っていない店だけ':'まだ行っていない店だけ');
     n.onclick=()=>{ st.fresh1=!st.fresh1; pick.chosen=null; redraw(); }; fl.appendChild(n); }
@@ -147,7 +154,7 @@ function whoRow(){
 }
 function buildPick(){
   const b=$('pBody'); if(!b || !isOpen('pickSheet')) return;
-  const ae=document.activeElement; if (ae && b.contains(ae) && ae.tagName==='INPUT') return;
+  const ae=document.activeElement; if (ae && b.contains(ae) && ae.tagName==='INPUT' && !ae.classList.contains('pk-q')) return;
   b.textContent='';
   whoRow();
   const seg=el('div','seg pk-seg'); seg.setAttribute('role','group'); seg.setAttribute('aria-label','表示');
@@ -165,8 +172,8 @@ function buildPick(){
     tog('fresh1','初めての店',null,'pk-new', activeFriends().length?'選んだメンバーの誰も行っていない店だけ':'まだ行っていない店だけ', !!pick.tsuke);
     if (pick.hon || base.some(s=>honBy(s).length)) tog('hon','本命',lanEl(),'pk-honc','本命の店だけ');
     if (pick.tsuke || base.some(s=>tsukeBy(s).length)) tog('tsuke','行きつけ',chokoEl(),'pk-tsukec','行きつけの店だけ', !!pick.fresh1); }
-  const on=[pick.at&&(+pick.at.slice(0,2))+'時〜', pick.genre, pick.star&&'★'+pick.star+'〜'].filter(Boolean);
-  const fb=el('button','chip dc-fb'+(on.length?' on':''), '⚙'+(on.length?' '+on.length:'')); fb.type='button'; fb.setAttribute('aria-label','絞り込み(時間・ジャンル・星)'+(on.length?'：'+on.join('・'):'')); fb.title='時間・ジャンル・星で絞り込み'; fb.setAttribute('aria-expanded',String(pick.fopen));
+  const on=[pick.q&&'「'+pick.q+'」', pick.at&&(+pick.at.slice(0,2))+'時〜', pick.genre, pick.star&&'★'+pick.star+'〜'].filter(Boolean);
+  const fb=el('button','chip dc-fb'+(on.length?' on':''), '⚙'+(on.length?' '+on.length:'')); fb.type='button'; fb.setAttribute('aria-label','検索・絞り込み(時間・ジャンル・星)'+(on.length?'：'+on.join('・'):'')); fb.title='検索・時間・ジャンル・星で絞り込み'; fb.setAttribute('aria-expanded',String(pick.fopen));
   fb.onclick=()=>{ pick.fopen=!pick.fopen; buildPick(); }; tg.appendChild(fb);
   b.appendChild(tg);
   if (pick.fopen) filterBar(b,pick,shops.filter(s=>(pick.want&&inWant(s))||(pick.went&&inWent(s))),buildPick);
