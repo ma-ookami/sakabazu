@@ -191,3 +191,5 @@
 #pBody .pk-bar{margin-top:6px;margin-bottom:8px}
 #pBody .pk-q + .pk-bar{margin-top:6px}
 #pBody .pk-bar .pk-sel,#pBody .pk-bar .pk-hon{height:34px}
+.dc-fb .dc-ar{display:inline-block;transition:transform .2s;font-size:11px}
+.dc-fb .dc-ar.open{transform:rotate(180deg)}

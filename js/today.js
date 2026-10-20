@@ -173,7 +173,7 @@ function buildPick(){
     if (pick.hon || base.some(s=>honBy(s).length)) tog('hon','本命',lanEl(),'pk-honc','本命の店だけ');
     if (pick.tsuke || base.some(s=>tsukeBy(s).length)) tog('tsuke','定番',chokoEl(),'pk-tsukec','定番の店だけ', !!pick.fresh1); }
   const on=[pick.q&&'「'+pick.q+'」', pick.at&&(+pick.at.slice(0,2))+'時〜', pick.genre, pick.star&&'★'+pick.star+'〜'].filter(Boolean);
-  const fb=el('button','chip dc-fb'+(on.length?' on':''), '絞り込み'+(on.length?' '+on.length:'')+(pick.fopen?'▴':'▾')); fb.type='button'; fb.setAttribute('aria-label','検索・絞り込み(時間・ジャンル・星)'+(on.length?'：'+on.join('・'):'')); fb.title='検索・時間・ジャンル・星で絞り込み'; fb.setAttribute('aria-expanded',String(pick.fopen));
+  const fb=el('button','chip dc-fb'+(on.length?' on':''), '絞り込み'+(on.length?' '+on.length:'')); fb.append(' ',el('span','dc-ar'+(pick.fopen?' open':''),'▾')); fb.type='button'; fb.setAttribute('aria-label','検索・絞り込み(時間・ジャンル・星)'+(on.length?'：'+on.join('・'):'')); fb.title='検索・時間・ジャンル・星で絞り込み'; fb.setAttribute('aria-expanded',String(pick.fopen));
   fb.onclick=()=>{ pick.fopen=!pick.fopen; buildPick(); }; tg.appendChild(fb);
   b.appendChild(tg);
   if (pick.fopen) filterBar(b,pick,shops.filter(s=>(pick.want&&inWant(s))||(pick.went&&inWent(s))),buildPick);
