@@ -15,7 +15,7 @@ function closeSearch(){ hideSheet('searchSheet'); sx.mode='find'; sx.editing=fal
 
 function selLine(){ const e=$('sxSel'); if(!e) return;
   const on=[hpAreaOf().label, sxWords(sxKwAll()), sx.src==='hp'&&sx.budget&&(HP_BUDGETS.find(x=>x[0]===sx.budget)||[])[1], ...(sx.src==='hp'?HP_FLAGS.filter(([k])=>sx.flags[k]).map(x=>x[1]):[])].filter(Boolean);
-  e.textContent=on.join(' × '); }
+  e.textContent=on.length>1?on.join(' × '):''; }
 function buildSearch(){
   const body=$('sBody'); body.textContent='';
   if (!hpOn() && (sx.mode||'find')==='find') sx.mode='url';
@@ -46,24 +46,22 @@ function buildSearch(){
     body.appendChild(sum);
   } else {
     // 1. where to search (decides which conditions apply)
-    body.appendChild(el('h3','sx-h sx-h1','検索先'));
+    const pair=el('div','sx-pair'); body.appendChild(pair);
     const srcSeg=el('div','seg sx-src'); srcSeg.setAttribute('role','group'); srcSeg.setAttribute('aria-label','検索先');
-    for (const [k,l] of [['g','Google'],['hp','ホットペッパーグルメ']]){ const x=el('button',null,l); x.type='button'; x.setAttribute('aria-pressed',String(sx.src===k));
+    for (const [k,l] of [['g','Google'],['hp','ホットペッパー']]){ const x=el('button',null,l); x.type='button'; x.setAttribute('aria-pressed',String(sx.src===k));
       x.onclick=()=>{ if(sx.src===k) return; sx.src=k; buildSearch(); }; srcSeg.appendChild(x); }
-    body.appendChild(srcSeg);
+    pair.appendChild(srcSeg);
     // 2. area
-    const eh=el('div','sx-eh'); eh.appendChild(el('h3','sx-h','エリア'));
     const cs=el('div','seg sx-city'); cs.setAttribute('role','group'); cs.setAttribute('aria-label','都市');
     for (const c of HP_CITIES){ const x=el('button',null,c.label); x.type='button'; x.setAttribute('aria-pressed',String(curCity()===c.id));
       x.onclick=()=>{ if(curCity()===c.id) return; setCity(c.id); setHpArea(c.id); buildSearch(); }; cs.appendChild(x); }
-    eh.appendChild(cs); body.appendChild(eh);
+    pair.appendChild(cs);
     const ar=el('div','chips sx-areas'); ar.id='sxAreas'; ar.setAttribute('aria-label','エリア');
     for (const p of HP_AREAS.filter(p=>!p.city || p.city===curCity())){ const c=el('button','chip',p.label); c.type='button'; c.dataset.id=p.id;
       c.onclick=()=>{ setHpArea(p.id); markAreas(); selLine(); };
       ar.appendChild(c); }
     body.appendChild(ar); markAreas();
     // 3. keyword
-    body.appendChild(el('h3','sx-h','店名・料理'));
     const f=el('form','sx-box'); f.noValidate=true;
     const r2=el('label','sx-row'); r2.appendChild(el('span','sx-ic','🔍'));
     const ki=el('input','sx-in'); ki.id='sxKw'; ki.type='search'; ki.placeholder='例: 焼き鳥 / 店名'; ki.autocomplete='off'; ki.maxLength=5000; ki.value=sx.kw;

@@ -112,3 +112,22 @@
 .sx-bar{position:sticky;bottom:0;z-index:2;margin:14px -18px 0;padding:10px 18px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(to bottom,transparent,var(--bg) 14px)}
 .sx-selline{margin:0 0 6px;min-height:1.4em;text-align:center;font-size:12.5px;font-weight:700;color:var(--sub);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sx-bar .sx-go-big{margin-top:0}
+
+/* compact add screen */
+.add-ways{gap:6px;margin:2px 0 10px}
+.add-way{grid-auto-flow:column;justify-content:center;align-items:center;gap:6px;padding:10px 4px}
+.add-way svg{margin:0;width:18px;height:18px}
+.add-way b{font-size:13.5px}
+.add-way small{display:none}
+.sx-pair{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sx-pair .seg button{padding:6px 12px;font-size:12.5px;white-space:nowrap}
+.sx-areas{margin-top:10px;margin-bottom:0}
+.sx-box{margin-top:10px;padding:0 12px}
+.sx-row{border-bottom:0;padding:0 2px}
+.sx-in{padding:12px 2px}
+.sx-h{margin:14px 2px 6px}
+.sx-genres{margin:0}
+.sx-filters{flex-wrap:nowrap;overflow-x:auto;margin:0}
+.sx-filters .chip,.sx-filters .sx-budget{flex:none}
+.sx-bar{margin-top:10px}
+.sx-selline:empty{display:none}
