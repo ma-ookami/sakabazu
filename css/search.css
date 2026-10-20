@@ -128,3 +128,4 @@
 .sx-selline:empty{display:none}
 /* genres + conditions wrap instead of scrolling sideways */
 .sx-areas,.sx-genres,.sx-filters{flex-wrap:wrap;overflow:visible;gap:6px}
+.sx-more-ar{flex:none;color:var(--red);border-color:var(--red)}

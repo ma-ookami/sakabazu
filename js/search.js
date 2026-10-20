@@ -57,9 +57,15 @@ function buildSearch(){
       x.onclick=()=>{ if(curCity()===c.id) return; setCity(c.id); setHpArea(c.id); buildSearch(); }; cs.appendChild(x); }
     pair.appendChild(cs);
     const ar=el('div','chips sx-areas'); ar.id='sxAreas'; ar.setAttribute('aria-label','エリア');
-    for (const p of HP_AREAS.filter(p=>!p.city || p.city===curCity())){ const c=el('button','chip',p.label); c.type='button'; c.dataset.id=p.id;
+    // many areas (東京): show the first few + the chosen one, the rest behind a 「+N」 chip
+    const all=HP_AREAS.filter(p=>!p.city || p.city===curCity()), LIM=8;
+    const fold=all.length>LIM+2 && !sx.areaMore;
+    const shown=fold ? all.filter((p,i)=>i<LIM || p.id===hpArea_ || !p.city) : all;
+    for (const p of shown){ const c=el('button','chip',p.label); c.type='button'; c.dataset.id=p.id;
       c.onclick=()=>{ setHpArea(p.id); markAreas(); selLine(); };
       ar.appendChild(c); }
+    if (all.length>LIM+2){ const m=el('button','chip sx-more-ar', fold ? '＋'+(all.length-shown.length)+' ▾' : '閉じる ▴'); m.type='button';
+      m.onclick=()=>{ sx.areaMore=!sx.areaMore; buildSearch(); }; ar.appendChild(m); }
     body.appendChild(ar); markAreas();
     // 3. keyword
     const f=el('form','sx-box'); f.noValidate=true;
@@ -408,7 +414,7 @@ function renderResults(){
     box.appendChild(c); return;
   }
   const h=el('div','sx-head'); h.appendChild(el('span','sx-lab',sx.label||'検索結果'));
-  h.appendChild(el('span','sx-n',`${sx.total.toLocaleString()}件`));
+  h.appendChild(el('span','sx-n', sx.total>=1000 ? '1,000件以上' : `${sx.total.toLocaleString()}件`));
   // ホットペッパーの利用規約: クレジット(Powered by …、公式サイトへのリンク)と、写真を出すときは「画像提供」の表記
   { const cr=el('p','hp-credit'); const c=el('a',null,'Powered by ホットペッパーグルメ Webサービス'); c.href='https://webservice.recruit.co.jp/'; c.target='_blank'; c.rel='noopener noreferrer'; c.title='ホットペッパーグルメ Webサービス'; cr.append(c, document.createTextNode('　【画像提供：ホットペッパー グルメ】')); setTimeout(()=>h.after(cr)); }
   const {q}=sxQuery();
@@ -416,6 +422,7 @@ function renderResults(){
     for (const [v,l] of [['near','近い順'],['rec','おすすめ順']]){ const o=el('option',null,l); o.value=v; o.selected=(v==='near')===sx.near; s.appendChild(o); }
     s.onchange=()=>{ sx.near=s.value==='near'; runSearch(); }; h.appendChild(s); }
   box.appendChild(h);
+  if (sx.total>=1000) box.appendChild(el('p','sx-help','数が多いので、ジャンル・店名・こだわり条件で絞ると探しやすくなります。'));
   if (!sx.results.length){
     box.appendChild(el('p','smsg','見つかりませんでした。ホットペッパーグルメに載っていない店は出てきません。条件を減らすか、言い方を変えてみてください。'));
     const any=Object.values(sx.flags).some(Boolean)||sx.budget;
