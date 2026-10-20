@@ -194,7 +194,7 @@ function buildPick(){
     info.appendChild(el('span','pn',s.name||'(名前なし)'));
     info.appendChild(pickChips(s,true));
     if (!readOnly && me && !mySt(s)){ const wrap=el('div','pk-main'); wrap.append(info, mineRow(s)); li.appendChild(wrap); } else li.appendChild(info);
-    { const side=el('div','pk-side'); const mk=tierMarks(s); if(mk) side.appendChild(mk); if (!readOnly && me) side.appendChild(pickBtn(s)); if (side.children.length) li.appendChild(side); }
+    { const side=el('div','pk-side'); const mk=tierMarks(s); if(mk){ li.classList.add('has-tier'); li.appendChild(mk); } if (!readOnly && me) side.appendChild(pickBtn(s)); if (side.children.length) li.appendChild(side); }
     ul.appendChild(li);
   }
   b.appendChild(ul);
@@ -236,7 +236,7 @@ function todayTab(b){
     if (c.shop) info.appendChild(pickChips(c.shop,false));
     const who=el('span','who-l'); for (const u of c.by){ const mid=u===me?me:(friends[u]||{}).mid, nm=u===me?'あなた':(friends[u]||{}).nick||'飲み友'; const t=el('span','who-t'+(u===me?' me':''),'✓'); t.prepend(avatar({},mid,'pl-av')); t.title=t.ariaLabel=nm+' ✓'; who.appendChild(t); } info.appendChild(who);
     if (!readOnly && me && c.shop && !mySt(c.shop)){ const wrap=el('div','pk-main'); wrap.append(info, mineRow(c.shop)); li.appendChild(wrap); } else li.appendChild(info);
-    if (!readOnly && me){ const side=el('div','cand-side'); { const mk=c.shop&&tierMarks(c.shop); if(mk) side.appendChild(mk); } const dc=decided(); const isGo=dc && dc.key===c.key;
+    if (!readOnly && me){ const side=el('div','cand-side'); { const mk=c.shop&&tierMarks(c.shop); if(mk){ li.classList.add('has-tier'); li.appendChild(mk); } } const dc=decided(); const isGo=dc && dc.key===c.key;
       if (isGo){ li.classList.add('go'); side.appendChild(el('span','go-b','✓ ここに決定')); }
       else { const go=el('button','sbtn go-btn'+(both?' on':''),'ここにする'); go.onclick=()=>decide(c.shop,c); side.appendChild(go); }
       const on=c.by.has(me); const g=el('button','sbtn sm'+(on?'':''), on?'候補から外す':'＋ 私も'); g.onclick=()=>togglePick(c.shop,c); side.appendChild(g); li.appendChild(side); }

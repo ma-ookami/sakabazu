@@ -228,3 +228,10 @@
 .p-head .p-who .p-nb:active{transform:scale(.94)}
 .p-nb .dc-ar{display:inline-block;transition:transform .2s;font-size:11px}
 .p-nb .dc-ar.open{transform:rotate(180deg)}
+
+/* 本命 / 定番 as a little tab hanging from the card's top-right edge */
+#pBody .plist li{position:relative}
+#pBody .plist li.has-tier{padding-top:20px}
+#pBody .plist li > .tier-marks{position:absolute;top:-1px;right:14px;gap:8px;padding:2px 10px 3px;background:color-mix(in srgb,var(--faint) 70%,var(--card));border:1px solid var(--line);border-top:0;border-radius:0 0 10px 10px}
+#pBody .plist li > .tier-marks .tm.hon .lan{width:12px;height:17px}
+#pBody .plist li > .tier-marks .tm.tsuke .choko{width:17px;height:15px}
