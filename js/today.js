@@ -121,7 +121,7 @@ async function shareShop(s,time){
 // 今日どこ行く?: a sheet over 決める (探す | 今日の候補)
 function openPick(src){
   if (tab!=='home') setTab('home');
-  pick.cheers=true; pick.chosen=null; pick.proposing=null; if (src) pick.src = src==='today' ? 'today' : 'find';
+  pick.cheers=true; pick.whoNames=false; pick.chosen=null; pick.proposing=null; if (src) pick.src = src==='today' ? 'today' : 'find';
   const wf=activeFriends()[0]; $('pTitle').textContent = wf ? '飲み友とどこ行く?' : '今日どこ行く?';
   showSheet('pickSheet'); buildPick(); focusIn('pickSheet');
 }
@@ -150,9 +150,15 @@ function whoRow(){
   const w=$('pWho'), hd=w&&w.parentNode; if(!w) return; w.textContent='';
   hd.querySelectorAll('.p-cheers').forEach(x=>x.remove());
   const fr=activeFriends(); w.hidden=!fr.length; hd.classList.toggle('with-friends',!!fr.length); if(!fr.length) return;
-  // row 1: 戻る 🍻 タイトル / row 2: (あ)あなた × (け)けんと × ...  (icon + name together)
-  const chip=(mid,n)=>{ const c=el('span','hint-who'); c.append(avatar({},mid,'pl-av'), n); return c; };
-  w.append(chip(me,'あなた')); fr.forEach(u=>{ w.append(el('span','p-x','×'), chip((friends[u]||{}).mid,(friends[u]||{}).nick||'飲み友')); });
+  // up to 4 people: icon + name together. 5+: icons only, and a button that shows icon + name while it's on
+  const many=fr.length+1>=5, named=!many || pick.whoNames;
+  const people=[[me,'あなた'],...fr.map(u=>[(friends[u]||{}).mid,(friends[u]||{}).nick||'飲み友'])];
+  for (const [mid,n] of people){
+    if (named){ const c=el('span','hint-who'); c.append(avatar({},mid,'pl-av'), n); w.append(c); }
+    else { const a=avatar({},mid,'pl-av'); a.title=n; w.append(a); }
+  }
+  if (many){ const b=el('button','p-nb'+(pick.whoNames?' on':''),'名前'); b.type='button'; b.setAttribute('aria-pressed',String(!!pick.whoNames)); b.setAttribute('aria-label','参加者の名前を'+(pick.whoNames?'隠す':'表示'));
+    b.append(' ',el('span','dc-ar'+(pick.whoNames?' open':''),'▾')); b.onclick=()=>{ pick.whoNames=!pick.whoNames; whoRow(); }; w.append(b); }
   const ch=el('span','p-cheers'+(pick.cheers?' go':''),'🍻'); pick.cheers=false; hd.insertBefore(ch,$('pTitle'));
 }
 function buildPick(){
