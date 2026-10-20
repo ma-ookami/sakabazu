@@ -2,7 +2,6 @@
 const listF={at:'',genre:'',star:0,hon:false};   // the lists' 時間 / ジャンル / 星 (same pickers as 今日どこ行く?)
 async function renderWant(v){
   listF.tsuke=false;
-  if (!readOnly) v.appendChild(el('p','hint','左にスワイプで外せます'));
   let arr=shops.filter(inWant);
   filterBar(v,listF,arr,render);
   arr=arr.filter(s=>fMatch(s,listF)).sort((a,b)=>{
@@ -32,7 +31,6 @@ async function renderWant(v){
 }
 
 function renderWent(v){
-  if (!readOnly) v.appendChild(el('p','hint','右にスワイプで ↩行きたい、左で外す'));
   listF.hon=false; filterBar(v,listF,shops.filter(inWent),render);
   let arr=shops.filter(inWent).filter(s=>fMatch(s,listF));
   if (!['new','star'].includes(sort)) sort='new';
