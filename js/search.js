@@ -13,6 +13,9 @@ function openSearch(kw){
 }
 function closeSearch(){ hideSheet('searchSheet'); sx.mode='find'; sx.editing=false; }
 
+function selLine(){ const e=$('sxSel'); if(!e) return;
+  const on=[hpAreaOf().label, sxWords(sxKwAll()), sx.src==='hp'&&sx.budget&&(HP_BUDGETS.find(x=>x[0]===sx.budget)||[])[1], ...(sx.src==='hp'?HP_FLAGS.filter(([k])=>sx.flags[k]).map(x=>x[1]):[])].filter(Boolean);
+  e.textContent=on.join(' × '); }
 function buildSearch(){
   const body=$('sBody'); body.textContent='';
   if (!hpOn() && (sx.mode||'find')==='find') sx.mode='url';
@@ -42,53 +45,58 @@ function buildSearch(){
     sum.onclick=()=>{ sx.editing=true; buildSearch(); const k=$('sxKw'); if(k) k.focus({preventScroll:true}); };
     body.appendChild(sum);
   } else {
-    const eh=el('div','sx-eh'); eh.appendChild(el('h3','sx-h sx-h1','エリア'));
+    // 1. where to search (decides which conditions apply)
+    body.appendChild(el('h3','sx-h sx-h1','検索先'));
+    const srcSeg=el('div','seg sx-src'); srcSeg.setAttribute('role','group'); srcSeg.setAttribute('aria-label','検索先');
+    for (const [k,l] of [['g','Google'],['hp','ホットペッパーグルメ']]){ const x=el('button',null,l); x.type='button'; x.setAttribute('aria-pressed',String(sx.src===k));
+      x.onclick=()=>{ if(sx.src===k) return; sx.src=k; buildSearch(); }; srcSeg.appendChild(x); }
+    body.appendChild(srcSeg);
+    // 2. area
+    const eh=el('div','sx-eh'); eh.appendChild(el('h3','sx-h','エリア'));
     const cs=el('div','seg sx-city'); cs.setAttribute('role','group'); cs.setAttribute('aria-label','都市');
     for (const c of HP_CITIES){ const x=el('button',null,c.label); x.type='button'; x.setAttribute('aria-pressed',String(curCity()===c.id));
       x.onclick=()=>{ if(curCity()===c.id) return; setCity(c.id); setHpArea(c.id); buildSearch(); }; cs.appendChild(x); }
     eh.appendChild(cs); body.appendChild(eh);
     const ar=el('div','chips sx-areas'); ar.id='sxAreas'; ar.setAttribute('aria-label','エリア');
     for (const p of HP_AREAS.filter(p=>!p.city || p.city===curCity())){ const c=el('button','chip',p.label); c.type='button'; c.dataset.id=p.id;
-      c.onclick=()=>{ setHpArea(p.id); markAreas(); };
+      c.onclick=()=>{ setHpArea(p.id); markAreas(); selLine(); };
       ar.appendChild(c); }
     body.appendChild(ar); markAreas();
+    // 3. keyword
+    body.appendChild(el('h3','sx-h','店名・料理'));
     const f=el('form','sx-box'); f.noValidate=true;
     const r2=el('label','sx-row'); r2.appendChild(el('span','sx-ic','🔍'));
-    const ki=el('input','sx-in'); ki.id='sxKw'; ki.type='search'; ki.placeholder='店名・料理'; ki.autocomplete='off'; ki.maxLength=5000; ki.value=sx.kw;
-    ki.oninput=()=>{ sx.kw=ki.value; };
+    const ki=el('input','sx-in'); ki.id='sxKw'; ki.type='search'; ki.placeholder='例: 焼き鳥 / 店名'; ki.autocomplete='off'; ki.maxLength=5000; ki.value=sx.kw;
+    ki.oninput=()=>{ sx.kw=ki.value; selLine(); };
     ki.addEventListener('paste',e=>{ const t=clipFromEvent(e); if (!hasUrl(t)) return; e.preventDefault(); ki.value=''; sx.kw=''; runUrls(t); });
     r2.appendChild(ki); f.appendChild(r2);
     f.onsubmit=e=>{ e.preventDefault(); ki.blur(); runSearch(); };
     body.appendChild(f);
-    body.appendChild(el('h3','sx-h','ジャンル(1つ選べます)'));
-    const gs=el('div','sx-genres');
-    for (const g of HP_GENRES){ const c=el('button','sx-genre',g); c.type='button'; c.setAttribute('aria-pressed',String(sx.genre===g));
-      c.onclick=()=>{ sx.genre = sx.genre===g ? '' : g; for (const x of gs.children) x.setAttribute('aria-pressed',String(x.textContent===sx.genre)); }; gs.appendChild(c); }
-    body.appendChild(gs);
-    // where to search, and the conditions (folded behind ⚙)
-    const row=el('div','sx-opts');
-    const srcSeg=el('div','seg sx-src'); srcSeg.setAttribute('role','group'); srcSeg.setAttribute('aria-label','検索先');
-    for (const [k,l] of [['g','Google'],['hp','ホットペッパーグルメ']]){ const x=el('button',null,l); x.type='button'; x.setAttribute('aria-pressed',String(sx.src===k));
-      x.onclick=()=>{ if(sx.src===k) return; sx.src=k; buildSearch(); }; srcSeg.appendChild(x); }
-    row.appendChild(srcSeg);
-    if (sx.src==='hp'){ const n=(sx.budget?1:0)+HP_FLAGS.filter(([k])=>sx.flags[k]).length;
-      const fb=el('button','chip sx-fb'+(n?' on':''), '⚙ 条件'+(n?' '+n:'')); fb.type='button'; fb.setAttribute('aria-expanded',String(!!sx.fopen));
-      fb.onclick=()=>{ sx.fopen=!sx.fopen; buildSearch(); }; row.appendChild(fb); }
-    body.appendChild(row);
-    if (sx.src==='hp' && sx.fopen){
+    // 4. genre: one scrolling row, the chosen one first
+    body.appendChild(el('h3','sx-h','ジャンル'));
+    const gs=el('div','chips sx-genres');
+    const paintG=()=>{ for (const x of gs.children) x.setAttribute('aria-pressed',String(x.dataset.g===sx.genre)); };
+    for (const g of HP_GENRES){ const c=el('button','chip sx-genre',g); c.type='button'; c.dataset.g=g;
+      c.onclick=()=>{ sx.genre = sx.genre===g ? '' : g; paintG(); selLine(); }; gs.appendChild(c); }
+    paintG(); body.appendChild(gs);
+    // 5. conditions (Hot Pepper only), always visible
+    if (sx.src==='hp'){
+      body.appendChild(el('h3','sx-h','こだわり条件'));
       const fl=el('div','chips sx-filters'); fl.setAttribute('aria-label','こだわり条件');
       const bs=el('select','sx-budget'); bs.setAttribute('aria-label','予算(夜)');
       for (const [v,l] of HP_BUDGETS){ const o=el('option',null,l); o.value=v; o.selected=sx.budget===v; bs.appendChild(o); }
       bs.classList.toggle('on',!!sx.budget);
-      bs.onchange=()=>{ sx.budget=bs.value; bs.classList.toggle('on',!!sx.budget); };
+      bs.onchange=()=>{ sx.budget=bs.value; bs.classList.toggle('on',!!sx.budget); selLine(); };
       fl.appendChild(bs);
       for (const [k,l] of HP_FLAGS){ const c=el('button','chip',l); c.type='button'; c.setAttribute('aria-pressed',String(!!sx.flags[k]));
-        c.onclick=()=>{ sx.flags[k]=!sx.flags[k]; c.setAttribute('aria-pressed',String(sx.flags[k])); };
+        c.onclick=()=>{ sx.flags[k]=!sx.flags[k]; c.setAttribute('aria-pressed',String(sx.flags[k])); selLine(); };
         fl.appendChild(c); }
       body.appendChild(fl);
     }
-    const go=el('button','btn btn-red sx-go sx-go-big','🔍 この条件で探す'); go.type='button'; go.onclick=()=>{ const k=$('sxKw'); if(k) k.blur(); runSearch(); }; body.appendChild(go);
-    body.appendChild(el('p','sx-go-hint','店名を入れなくても、エリアとジャンルだけで探せます'));
+    // 6. chosen conditions + search button, pinned to the bottom
+    const bar=el('div','sx-bar'); const sel=el('p','sx-selline'); sel.id='sxSel'; bar.appendChild(sel);
+    const go=el('button','btn btn-red sx-go sx-go-big','🔍 この条件で探す'); go.type='button'; go.onclick=()=>{ const k=$('sxKw'); if(k) k.blur(); runSearch(); }; bar.appendChild(go);
+    body.appendChild(bar); selLine();
   }
   const res=el('div','sx-res'); res.id='sxRes'; res.setAttribute('aria-live','polite'); body.appendChild(res);
   renderResults();
