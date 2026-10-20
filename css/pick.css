@@ -183,3 +183,6 @@
 /* width stays put when the count goes 9 <-> 10 or a chip is toggled */
 .pk-t{font-weight:400}
 .pk-t .pk-n{display:inline-block;min-width:2ch;text-align:left;font-variant-numeric:tabular-nums}
+.dc-tg .chip.pk-t{padding:4px 8px;gap:3px;font-size:12px}
+#pBody .dc-tg:has(.pk-t){gap:4px}
+.dc-tg .pk-t .pk-n{min-width:1.6ch}
