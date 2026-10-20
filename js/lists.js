@@ -4,13 +4,7 @@ async function renderWant(v){
   listF.tsuke=false;
   let arr=shops.filter(inWant);
   filterBar(v,listF,arr,render);
-  arr=arr.filter(s=>fMatch(s,listF)).sort((a,b)=>{
-    const ha=isHon(a), hb=isHon(b); if (ha!==hb) return ha?-1:1;
-    const pa=a.planDate||'', pb=b.planDate||'';
-    if (pa&&!pb) return -1; if (pb&&!pa) return 1; if (pa!==pb) return pa<pb?-1:1;
-    const wa=wantIds(a).length, wb=wantIds(b).length; if(wa!==wb) return wb-wa;
-    return (b.createdAt||0)-(a.createdAt||0);
-  });
+  arr=arr.filter(s=>fMatch(s,listF)).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));   // 新着順
   const list=el('div','list'); v.appendChild(list);
   if (!arr.length){
     const e=el('div','empty'); e.appendChild(el('span','mincho', listF.hon&&!shops.some(x=>inWant(x)&&isHon(x)) ? '本命の店はまだありません' : fOn(listF)?'条件に合う店がありません':'行きたい店はまだありません'));
