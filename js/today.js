@@ -110,7 +110,7 @@ function todayBlock(v){
   if (cs.length){
     const both=cs.filter(allOk);
     b.appendChild(el('span','tb-s', both.length ? `${okLabel(both[0])}: ${both.map(c=>c.name).slice(0,2).join('・')}${both.length>2?' ほか':''}` : `今日の候補 ${cs.length}軒`));
-  } else b.appendChild(el('span','tb-s', wf ? `${whoNames()}と候補を出し合って、みんながいい店を探す` : '行きたい店と行った店から探す'));
+  } else b.appendChild(el('span','tb-s', wf ? 'みんなと候補を出し合って、みんながいい店を探す' : '行きたい店と行った店から探す'));
   v.appendChild(b);
 }
 async function shareShop(s,time){
