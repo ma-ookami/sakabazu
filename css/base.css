@@ -8,7 +8,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 button,input,textarea,select{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:2px solid var(--red);outline-offset:2px}
-.wrap{max-width:640px;margin:0 auto;padding:0 18px calc(160px + env(safe-area-inset-bottom,0px));position:relative;z-index:1}
+.wrap{max-width:640px;margin:0 auto;padding:0 18px calc(92px + env(safe-area-inset-bottom,0px));position:relative;z-index:1}
 .mincho{font-family:var(--serif)}
 .yen,.pill.yen,.noren .stats b{font-variant-numeric:tabular-nums}
 
