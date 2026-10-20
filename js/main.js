@@ -30,7 +30,7 @@ $('form').onsubmit=e=>{ e.preventDefault(); const name=$('fName').value.trim(), 
   if (!(cur._ovGenre && g===genreOf(cur))) p.hp={genre:g};
   patchShop(editingId,p); closeForm(); toast('お店の情報を保存しました'); };
 $('fBack').onclick=closeForm; $('fCancel').onclick=closeForm;
-$('sBack').onclick=closeSearch;
+$('sBack').onclick=()=>{ buzz(); closeSearch(); };
 
 $('dBack').onclick=closeDetail;
 $('dMore').onclick=()=>{ const s=shops.find(x=>x.id===openId); if(!s) return; const items=[{label:'情報を編集(店名・ジャンル・営業時間・リンク)', run:()=>openForm(s.id)}];

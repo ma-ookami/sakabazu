@@ -238,7 +238,7 @@ function todayTab(b){
   }
   b.appendChild(ul);
 }
-$('pBack').onclick=closePick;
+$('pBack').onclick=()=>{ buzz(); closePick(); };
 
 
 // the same little labels as the list cards: 行った/行きたい, 営業時間, ジャンル, 星
