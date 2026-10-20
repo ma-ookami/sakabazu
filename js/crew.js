@@ -79,9 +79,11 @@ function backupSec(root){
   fi.onchange=()=>{ const f=fi.files&&fi.files[0]; fi.value=''; if(f) loadBackup(f); }; ld.appendChild(fi);
   row.append(sv,ld); box.appendChild(row);
 }
+// ランキングは店のIDが端末ごとに変わるので、店の名前+場所(shopKey)で保存する
+const rankKeys = () => { const o={}; for (const [k] of RANK_CATS) o[k]=rankList(me,k).map(id=>{ const s=myShops.find(x=>x.id===id); return s?shopKey(s):null; }).filter(Boolean); return o; };
 function saveBackup(){
   const data={app:'sakabazu', v:1, at:new Date().toISOString(), me, nick:(members[me]&&members[me].nick)||'', ic:(members[me]&&members[me].ic)||null, dm:dmCfg,
-    rank:(rankings[me]&&rankings[me].ids)||[], friends:Object.values(friends).map(f=>({mid:f.mid, nick:f.nick, code:f.code||''})), nights:nightsAll(), shops:myShops.map(s=>{ const c=JSON.parse(JSON.stringify(s)); if (c.hp&&c.hp.id){ delete c.hp.budget; delete c.hp.photo; if (s._ovGenre) delete c.hp.genre; } if (s._ovHours) delete c.hours; delete c._ovGenre; delete c._ovHours; return c; })};
+    ranks:rankKeys(), friends:Object.values(friends).map(f=>({mid:f.mid, nick:f.nick, code:f.code||''})), nights:nightsAll(), shops:myShops.map(s=>{ const c=JSON.parse(JSON.stringify(s)); if (c.hp&&c.hp.id){ delete c.hp.budget; delete c.hp.photo; if (s._ovGenre) delete c.hp.genre; } if (s._ovHours) delete c.hours; delete c._ovGenre; delete c._ovHours; return c; })};
   const blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});
   const a=el('a'); a.href=URL.createObjectURL(blob); a.download=`sakabazu-${today()}.json`; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href),4000);
@@ -98,10 +100,12 @@ async function loadBackup(file){
   if (!d || d.app!=='sakabazu' || !Array.isArray(d.shops)){ toast('酒場図のバックアップではないようです'); return; }
   const have=new Set(myShops.map(shopKey));
   const add=d.shops.filter(s=>s && typeof s.name==='string' && s.name.trim() && !have.has(shopKey(s)));
+  const rkNew={}; if (d.ranks && typeof d.ranks==='object'){ const cur=rankKeys(); for (const [k] of RANK_CATS){ const want=Array.isArray(d.ranks[k])?d.ranks[k].filter(x=>typeof x==='string'):[]; const add2=want.filter(x=>!cur[k].includes(x)).slice(0,Math.max(0,RANK_MAX-cur[k].length)); if (add2.length) rkNew[k]=add2; } }
+  const rkN=Object.values(rkNew).reduce((a,x)=>a+x.length,0);
   const fr0=Array.isArray(d.friends) ? d.friends.filter(x=>x && typeof x.mid==='string' && !friends[x.mid] && !frSent[x.mid]) : [];
-  if (!add.length && !fr0.length && !(d.nights && Object.keys(d.nights).length)){ toast('新しく戻す店はありません(全部リストにあります)'); return; }
-  if (!(await ask(`バックアップから${add.length}軒を戻します。すでにリストにある店はそのままです。`+(fr0.length&&mode==='db' ? `飲み友${fr0.length}人にも、もう一度申請を送ります(相手が承認すると、また飲み友になります)。` : ''),'戻す'))) return;
-  let n=0;
+  if (!add.length && !fr0.length && !rkN && !(d.nights && Object.keys(d.nights).length)){ toast('新しく戻す店はありません(全部リストにあります)'); return; }
+  if (!(await ask(`バックアップから${add.length}軒を戻します。すでにリストにある店はそのままです。`+(rkN?`ランキング${rkN}件も戻します。`:'')+(fr0.length&&mode==='db' ? `飲み友${fr0.length}人にも、もう一度申請を送ります(相手が承認すると、また飲み友になります)。` : ''),'戻す'))) return;
+  let n=0; const idOf={}; for (const s of myShops) idOf[shopKey(s)]=s.id;
   for (const s0 of add){
     const s=remapMe(s0, typeof d.me==='string' ? d.me : '');
     const keep={}; for (const k of ['name','area','wants','went','r','tags','loc','planDate','hours','links','visits','hp']) if (s[k]!=null) keep[k]=s[k];
@@ -109,13 +113,14 @@ async function loadBackup(file){
     if (keep.loc && !okLoc(keep.loc)) delete keep.loc; if (Array.isArray(keep.links)) keep.links=keep.links.filter(u=>typeof u==='string').slice(0,5); else delete keep.links;
     const base={...keep, createdBy:me, createdAt:Number.isInteger(s.createdAt)?s.createdAt:Date.now(), updatedAt:Date.now()};
     try{
-      if (mode==='db'){ const ref=db.collection('shops').doc(); const {pub,priv}=splitPriv(base); await fs.doc(gpath('shops/'+ref.id)).set(pub); if (priv) await writeShop(ref.id,priv); }
-      else { myShops.push({id:'l'+Date.now().toString(36)+n, ...base}); saveLocal(); }
+      if (mode==='db'){ const ref=db.collection('shops').doc(); idOf[shopKey(base)]=ref.id; const {pub,priv}=splitPriv(base); await fs.doc(gpath('shops/'+ref.id)).set(pub); if (priv) await writeShop(ref.id,priv); }
+      else { const nid='l'+Date.now().toString(36)+n; idOf[shopKey(base)]=nid; myShops.push({id:nid, ...base}); saveLocal(); }
       n++;
     }catch(e){ console.warn(e); }
   }
   if (d.dm) saveDm(d.dm);
   if (d.nights && typeof d.nights==='object'){ const have=nightsAll(); for (const [day,k] of Object.entries(d.nights)) if (/^\d{4}-\d{2}-\d{2}$/.test(day) && NIGHTS[k] && !have[day]) setNight(k,day); }
+  for (const [k,keys] of Object.entries(rkNew)){ const ids=keys.map(x=>idOf[x]).filter(Boolean); if (ids.length) saveRank([...(rankings[me]&&rankings[me][k]||[]), ...ids.filter(i=>!((rankings[me]&&rankings[me][k])||[]).includes(i))], k); }
   let sentN=0; const noCode=[];
   if (mode==='db') for (const x of fr0){ if (!okCode(x.code)){ noCode.push(x.nick||'飲み友'); continue; } const err=await addFriend(x.code); if (!err) sentN++; else noCode.push(x.nick||'飲み友'); }
   afterChange(); toast(`${n}軒を戻しました`+(sentN?`。飲み友${sentN}人に申請を送りました`:''));
