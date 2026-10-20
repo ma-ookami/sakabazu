@@ -193,3 +193,10 @@
 #pBody .pk-bar .pk-sel,#pBody .pk-bar .pk-hon{height:34px}
 .dc-fb .dc-ar{display:inline-block;transition:transform .2s;font-size:11px}
 .dc-fb .dc-ar.open{transform:rotate(180deg)}
+
+/* 戻る + タイトル + 参加者 on one row */
+.p-head{justify-content:flex-start;flex-wrap:wrap;row-gap:2px;min-height:0;padding-bottom:4px}
+.p-head .d-name{margin:0;font-size:clamp(19px,5.4vw,23px);line-height:1.2;flex:0 1 auto;min-width:0}
+.p-head .p-who{margin:0 0 0 auto;justify-content:flex-end;gap:4px}
+.p-head .p-who .hint-who{font-size:12px}
+.p-head .p-who .hint-who .pl-av{width:20px;height:20px;font-size:10px}
