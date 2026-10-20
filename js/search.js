@@ -48,7 +48,7 @@ function buildSearch(){
     body.appendChild(sum);
   } else {
     // 1. where to search (decides which conditions apply)
-    const pair=el('div','sx-pair'); body.appendChild(pair);
+    const pair=el('div','sx-pair'+(SX_GOOGLE?'':' solo')); body.appendChild(pair);
     const srcSeg=el('div','seg sx-src'); srcSeg.setAttribute('role','group'); srcSeg.setAttribute('aria-label','検索先');
     for (const [k,l] of [['g','Google'],['hp','ホットペッパー']]){ const x=el('button',null,l); x.type='button'; x.setAttribute('aria-pressed',String(sx.src===k));
       x.onclick=()=>{ if(sx.src===k) return; sx.src=k; buildSearch(); }; srcSeg.appendChild(x); }

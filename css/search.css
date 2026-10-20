@@ -130,3 +130,6 @@
 .sx-areas,.sx-genres,.sx-filters{flex-wrap:wrap;overflow:visible;gap:6px}
 .sx-more-ar{flex:none;color:var(--red);border-color:var(--red)}
 .sx-pair .sx-city{margin-left:auto}
+/* 検索先の切替がないときは、札幌|東京を横いっぱいに */
+.sx-pair.solo .sx-city{display:flex;width:100%;margin-left:0}
+.sx-pair.solo .sx-city button{flex:1;padding:8px 14px;font-size:13.5px}
