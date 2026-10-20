@@ -13,6 +13,7 @@ const mixedFriends = () => [...mix].filter(f=>friends[f]);
 const friendByMid = mid => Object.values(friends).find(f=>f.mid===mid);
 const isFriendShop = s => !!(s && s._friend);
 const CODE_ABC='ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+const okCode = x => typeof x==='string' && /^[A-Z0-9]{7}$/.test(x) ? x : '';
 const fmtCode = c => c ? c.slice(0,4)+'-'+c.slice(4) : '';
 const cleanCode = s => (s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
 
@@ -60,7 +61,7 @@ async function importShop(id){
 // subscriptions: my friends, and the shops of each friend I mix in
 function watchFriends(){
   cloudSubs.push(db.collection('friends').limit(200).onSnapshot(snap=>{
-    const o={}; for (const d of snap.docs){ const v=d.data()||{}; if(typeof v.gid==='string' && typeof v.mid==='string') o[d.id]={gid:v.gid, mid:v.mid, nick:String(v.nick||'飲み友').slice(0,20), at:v.at||0}; }
+    const o={}; for (const d of snap.docs){ const v=d.data()||{}; if(typeof v.gid==='string' && typeof v.mid==='string') o[d.id]={gid:v.gid, mid:v.mid, nick:String(v.nick||'飲み友').slice(0,20), at:v.at||0, code:okCode(v.code)}; }
     for (const f in o){ const was=friends[f]; if (was && was.fetched){ o[f].nick=was.nick; o[f].ic=was.ic; o[f].dm=was.dm; o[f].fetched=true; } }
     friends=o; friendsLoaded=true; for (const f in o) if (!o[f].fetched) fetchFriend(f);
     if (!addChecked) setTimeout(checkAddLink,300);
@@ -73,7 +74,7 @@ function watchRequests(){
     frReqs=o; render();
   },()=>{}));
   cloudSubs.push(db.collection('sent').limit(100).onSnapshot(snap=>{
-    const o={}; for (const d of snap.docs){ const v=d.data()||{}; if(typeof v.gid==='string' && typeof v.mid==='string') o[d.id]={gid:v.gid, mid:v.mid, nick:String(v.nick||'飲み友').slice(0,20), at:v.at||0}; }
+    const o={}; for (const d of snap.docs){ const v=d.data()||{}; if(typeof v.gid==='string' && typeof v.mid==='string') o[d.id]={gid:v.gid, mid:v.mid, nick:String(v.nick||'飲み友').slice(0,20), at:v.at||0, code:okCode(v.code)}; }
     frSent=o; syncSentSubs(); render();
   },()=>{}));
 }
@@ -82,7 +83,7 @@ function syncSentSubs(){
   for (const k of Object.keys(sentSubs)) if (!frSent[k]){ try{ sentSubs[k](); }catch{} delete sentSubs[k]; }
   for (const [k,s] of Object.entries(frSent)) if (!sentSubs[k]){
     sentSubs[k]=fs.doc(`groups/${s.gid}/friends/${uid}`).onSnapshot(d=>{ if(!d.exists) return;
-      const b=fs.batch(); b.set(fs.doc(gpath('friends/'+s.mid)),{gid:s.gid, mid:s.mid, nick:s.nick, at:Date.now()}); b.delete(fs.doc(gpath('sent/'+k)));
+      const b=fs.batch(); b.set(fs.doc(gpath('friends/'+s.mid)),{gid:s.gid, mid:s.mid, nick:s.nick, at:Date.now(), ...(s.code?{code:s.code}:{})}); b.delete(fs.doc(gpath('sent/'+k)));
       b.commit().then(()=>toast(`「${s.nick}」が飲み友申請を承認しました`)).catch(e=>console.warn(e)); },()=>{});
   }
 }
@@ -162,13 +163,13 @@ async function addFriend(raw){
   const from=await ensureCode(); if (!from) return '自分の飲み友コードを作れませんでした。もう一度どうぞ';
   const b=fs.batch();
   b.set(fs.doc(`groups/${v.gid}/requests/${uid}`),{gid, mid:me, nick:(members[me]&&members[me].nick)||'', code:c, from, at:Date.now()});
-  b.set(fs.doc(gpath('sent/'+v.mid)),{gid:v.gid, mid:v.mid, nick:String(v.nick||'飲み友').slice(0,20), at:Date.now()});
+  b.set(fs.doc(gpath('sent/'+v.mid)),{gid:v.gid, mid:v.mid, nick:String(v.nick||'飲み友').slice(0,20), at:Date.now(), code:c});
   try{ await b.commit(); }catch(e){ console.warn(e); return '申請できませんでした('+(e.code||'error')+')'; }
   return '';
 }
 async function approveReq(k){
   const r=frReqs[k]; if(!r) return;
-  const b=fs.batch(); b.set(fs.doc(gpath('friends/'+r.mid)),{gid:r.gid, mid:r.mid, nick:r.nick, at:Date.now()}); b.delete(fs.doc(gpath('requests/'+k)));
+  const fc=okCode(r.from); const b=fs.batch(); b.set(fs.doc(gpath('friends/'+r.mid)),{gid:r.gid, mid:r.mid, nick:r.nick, at:Date.now(), ...(fc?{code:fc}:{})}); b.delete(fs.doc(gpath('requests/'+k)));
   try{ await b.commit(); toast(`「${r.nick}」と飲み友になりました`); }catch(e){ onWriteError(e); }
 }
 async function declineReq(k){ const r=frReqs[k]; if(!r) return;

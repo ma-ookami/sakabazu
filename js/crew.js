@@ -72,7 +72,7 @@ async function saveIcon(ic){
 // ---------- バックアップ (the list lives in this browser; a file keeps it safe when changing phones) ----------
 function backupSec(root){
   const box=sec('バックアップ','端末を変えるときや、ブラウザのデータを消す前に'); root.appendChild(box);
-  box.appendChild(el('p','hint','あなたのリストは、この端末(ブラウザ)に結びついています。ファイルに保存しておけば、新しい端末で「戻す」と同じ店・星・メモ・来店記録を取り込めます。'));
+  box.appendChild(el('p','hint','あなたのリストは、この端末(ブラウザ)に結びついています。ファイルに保存しておけば、新しい端末で「戻す」と同じ店・星・メモ・来店記録を取り込めます。飲み友は、相手にもう一度申請が届き、承認されるとつながり直します。'));
   const row=el('div','bk-row');
   const sv=el('button','btn btn-ink','バックアップを保存'); sv.type='button'; sv.onclick=saveBackup;
   const ld=el('label','btn btn-line bk-load','バックアップから戻す'); const fi=el('input'); fi.type='file'; fi.accept='application/json,.json'; fi.hidden=true;
@@ -81,7 +81,7 @@ function backupSec(root){
 }
 function saveBackup(){
   const data={app:'sakabazu', v:1, at:new Date().toISOString(), me, nick:(members[me]&&members[me].nick)||'', ic:(members[me]&&members[me].ic)||null, dm:dmCfg,
-    rank:(rankings[me]&&rankings[me].ids)||[], nights:nightsAll(), shops:myShops.map(s=>{ const c=JSON.parse(JSON.stringify(s)); if (c.hp&&c.hp.id){ delete c.hp.budget; delete c.hp.photo; if (s._ovGenre) delete c.hp.genre; } if (s._ovHours) delete c.hours; delete c._ovGenre; delete c._ovHours; return c; })};
+    rank:(rankings[me]&&rankings[me].ids)||[], friends:Object.values(friends).map(f=>({mid:f.mid, nick:f.nick, code:f.code||''})), nights:nightsAll(), shops:myShops.map(s=>{ const c=JSON.parse(JSON.stringify(s)); if (c.hp&&c.hp.id){ delete c.hp.budget; delete c.hp.photo; if (s._ovGenre) delete c.hp.genre; } if (s._ovHours) delete c.hours; delete c._ovGenre; delete c._ovHours; return c; })};
   const blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});
   const a=el('a'); a.href=URL.createObjectURL(blob); a.download=`sakabazu-${today()}.json`; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href),4000);
@@ -98,8 +98,9 @@ async function loadBackup(file){
   if (!d || d.app!=='sakabazu' || !Array.isArray(d.shops)){ toast('酒場図のバックアップではないようです'); return; }
   const have=new Set(myShops.map(shopKey));
   const add=d.shops.filter(s=>s && typeof s.name==='string' && s.name.trim() && !have.has(shopKey(s)));
-  if (!add.length && !(d.nights && Object.keys(d.nights).length)){ toast('新しく戻す店はありません(全部リストにあります)'); return; }
-  if (!(await ask(`バックアップから${add.length}軒を戻します。すでにリストにある店はそのままです。`,'戻す'))) return;
+  const fr0=Array.isArray(d.friends) ? d.friends.filter(x=>x && typeof x.mid==='string' && !friends[x.mid] && !frSent[x.mid]) : [];
+  if (!add.length && !fr0.length && !(d.nights && Object.keys(d.nights).length)){ toast('新しく戻す店はありません(全部リストにあります)'); return; }
+  if (!(await ask(`バックアップから${add.length}軒を戻します。すでにリストにある店はそのままです。`+(fr0.length&&mode==='db' ? `飲み友${fr0.length}人にも、もう一度申請を送ります(相手が承認すると、また飲み友になります)。` : ''),'戻す'))) return;
   let n=0;
   for (const s0 of add){
     const s=remapMe(s0, typeof d.me==='string' ? d.me : '');
@@ -115,5 +116,8 @@ async function loadBackup(file){
   }
   if (d.dm) saveDm(d.dm);
   if (d.nights && typeof d.nights==='object'){ const have=nightsAll(); for (const [day,k] of Object.entries(d.nights)) if (/^\d{4}-\d{2}-\d{2}$/.test(day) && NIGHTS[k] && !have[day]) setNight(k,day); }
-  afterChange(); toast(`${n}軒を戻しました`);
+  let sentN=0; const noCode=[];
+  if (mode==='db') for (const x of fr0){ if (!okCode(x.code)){ noCode.push(x.nick||'飲み友'); continue; } const err=await addFriend(x.code); if (!err) sentN++; else noCode.push(x.nick||'飲み友'); }
+  afterChange(); toast(`${n}軒を戻しました`+(sentN?`。飲み友${sentN}人に申請を送りました`:''));
+  if (noCode.length) setTimeout(()=>toast(`${noCode.slice(0,3).join('・')}${noCode.length>3?'など':''}は、コードをもう一度入れてください`),2600);
 }
