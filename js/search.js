@@ -9,7 +9,7 @@ const sx = {src:'hp', gres:[], gnext:'',kw:'',   // ホットペッパー first 
 function openSearch(kw){
   if (typeof kw==='string') sx.kw=kw;
   showSheet('searchSheet'); buildSearch();
-  if (sx.kw.trim()) runSearch(); else { const k=$('sxKw'); if(k) k.focus({preventScroll:true}); }
+  if (sx.kw.trim()) runSearch();   // 開いただけではキーボードを出さない(入力欄をタップしたときだけ)
 }
 function closeSearch(){ hideSheet('searchSheet'); sx.mode='find'; sx.editing=false; }
 
