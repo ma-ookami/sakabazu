@@ -88,11 +88,12 @@ h2{margin:2px 0 12px;font-family:var(--serif);font-size:clamp(22px,6vw,28px);lin
 .steps li::before{content:counter(st);grid-row:span 2;width:34px;height:34px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;font-weight:700;font-size:16px}
 .steps b{font-size:14.5px}
 .steps span{font-size:12.5px;color:var(--sub);line-height:1.6}
-.more{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.mo{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;display:grid;gap:2px}
-.mo b{font-size:14px}
-.mo span{font-size:12.5px;color:var(--sub);line-height:1.6}
-.mo i{font-style:normal;font-size:20px}
+.more{display:grid;gap:8px}
+.mo{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:grid;grid-template-columns:42px 1fr;grid-template-rows:auto auto;column-gap:12px;row-gap:1px;align-items:center}
+.mo i{grid-row:span 2;width:42px;height:42px;border-radius:12px;background:color-mix(in srgb,var(--red) 8%,var(--bg));display:grid;place-items:center}
+.mo b{font-size:14.5px;align-self:end}
+.mo span{font-size:12.5px;color:var(--sub);line-height:1.55;align-self:start}
+.mo i{font-style:normal;font-size:22px}
 .mo svg{width:16px;height:22px}
 /* faq */
 details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:0 14px;margin-bottom:8px}
@@ -485,6 +486,7 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:0 0 28px}
     <div class="more">
       <div class="mo"><i><svg class="lan" viewBox="0 0 20 28" aria-hidden="true"><rect class="lan-cap" x="6" y="2" width="8" height="3" rx="1"/><ellipse class="lan-body" cx="10" cy="14" rx="7.2" ry="9"/><path class="lan-rib" d="M3.6 10.5Q10 12.5 16.4 10.5M3 14.5Q10 16.5 17 14.5M3.6 18.5Q10 20.5 16.4 18.5"/><rect class="lan-cap" x="6" y="22.5" width="8" height="3" rx="1"/><path class="lan-tas" d="M10 25.5v2.3"/></svg></i><b>本命</b><span>行きたい店の「絶対ここ」に提灯を</span></div>
       <div class="mo"><i><svg class="choko" viewBox="0 0 24 22" aria-hidden="true"><path class="ck-body" d="M3.5 6.5h17l-2.3 10.2a2.4 2.4 0 0 1-2.3 1.8H8.1a2.4 2.4 0 0 1-2.3-1.8z"/><path class="ck-sake" d="M5.3 9.6h13.4l-1.6 6.6a1.5 1.5 0 0 1-1.4 1.1H8.3a1.5 1.5 0 0 1-1.4-1.1z"/><ellipse class="ck-ring" cx="12" cy="13.2" rx="3.1" ry="1.5"/><ellipse class="ck-dot" cx="12" cy="13.2" rx="1.2" ry=".55"/><path class="ck-foot" d="M9 18.5h6v1.6H9z"/><path class="ck-rim" d="M3.5 6.5h17"/></svg></i><b>定番</b><span>また行きたい店にお猪口を</span></div>
+      <div class="mo"><i>🏆</i><b>ランキング</b><span>行った店を10軒まで。種類別に3つ作れる</span></div>
       <div class="mo"><i>🟢</i><b>営業中の店</b><span>営業時間内の店を決める画面に</span></div>
       <div class="mo"><i>📅</i><b>カレンダー</b><span>家飲み・休肝日も記録</span></div>
     </div>
