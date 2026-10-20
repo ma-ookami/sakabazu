@@ -7,6 +7,7 @@
 const VERSION = 4;
 const ALLOWED = [
   'https://ma-ookami.github.io',
+  'https://sakabazu.rokunanabox.com',
   /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/,
 ];
 const PARAMS = ['keyword', 'name_any', 'id', 'lat', 'lng', 'range', 'order', 'count', 'start',
