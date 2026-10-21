@@ -198,7 +198,7 @@ function whoRow(){
 const dayWord = () => isTonight() ? '今日' : dayLabel(dayKey());
 const addDays = n => { const d=dayDate(nightKey()); d.setDate(d.getDate()+n); return ymd(d); };
 // あさって以降どこ行く?: our own month grid (the phone's date picker fired its change unreliably); tapping a day opens the shops for it
-function openDatePick(){ const d=dayDate(addDays(2)); pick.dm={y:d.getFullYear(),m:d.getMonth()}; openPick('find','',true); }
+function openDatePick(){ const d=dayDate(addDays(2)); pick.dm={y:d.getFullYear(),m:d.getMonth()}; pick.dsel=''; openPick('find','',true); }
 function dateGrid(b){
   const {y,m}=pick.dm, min=addDays(2), minD=dayDate(min), plans=plansByDate();
   const head=el('div','calhead'), pv=el('button','calnav','‹'), nx=el('button','calnav','›'); pv.type=nx.type='button';
@@ -210,11 +210,21 @@ function dateGrid(b){
   const first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
   for (let i=0;i<first;i++) g.appendChild(el('div','day out'));
   for (let d=1; d<=days; d++){ const ds=ymd(new Date(y,m,d)), wd=(first+d-1)%7, pl=plans[ds];
-    const x=el('button','day'+(pl?' cplan':'')+(wd===0?' sun':wd===6?' sat':'')); x.type='button'; x.disabled = ds<min; x.setAttribute('aria-label',`${m+1}月${d}日`);
+    const x=el('button','day'+(pl?' cplan':'')+(wd===0?' sun':wd===6?' sat':'')); x.type='button'; x.disabled = ds<min; x.setAttribute('aria-label',`${m+1}月${d}日`); x.setAttribute('aria-pressed',String(pick.dsel===ds));
     x.appendChild(el('span','dn',String(d))); if (pl) x.appendChild(el('span','dname',pl.name||''));
-    x.onclick=()=>{ pick.choosing=false; pick.day=ds; pick.chosen=null; pick.src='find'; pick.lim=0; buildPick(); };
+    x.onclick=()=>{ pick.dsel=ds; buildPick(); };
     g.appendChild(x); }
   b.appendChild(g);
+  // the chosen day, and 決定 to go on to its shops
+  const bar=el('div','dp-bar'), sel=pick.dsel&&pick.dsel>=min ? dayDate(pick.dsel) : null;
+  bar.appendChild(el('div','dp-day', sel ? `${sel.getMonth()+1}月${sel.getDate()}日(${WD[sel.getDay()]})` : '日付を選んでください'));
+  // what's already planned that day: the decided shop (whose it is), or 家飲み / 休肝日
+  if (sel){ const pl=plans[pick.dsel], nk=nightsAll()[pick.dsel];
+    if (pl) bar.appendChild(el('div','dp-has',`🍻 予定あり: ${pl.name||'お店'}${pl.mine?'':`(${(friends[pl.by]||{}).nick||'飲み友'}が決めた)`}`));
+    if (nk) bar.appendChild(el('div','dp-has',`${NIGHTS[nk].ic} ${NIGHTS[nk].l}の予定`)); }
+  const ok=el('button','btn btn-ink dp-ok',(sel&&plans[pick.dsel]?'この日を決め直す':'この日でどこ行く?')); ok.type='button'; ok.disabled=!sel;
+  ok.onclick=()=>{ pick.choosing=false; pick.day=pick.dsel; pick.chosen=null; pick.src='find'; pick.lim=0; buildPick(); };
+  bar.appendChild(ok); b.appendChild(bar);
 }
 function buildPick(){
   const b=$('pBody'); if(!b || !isOpen('pickSheet')) return;

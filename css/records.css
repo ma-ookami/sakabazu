@@ -68,3 +68,8 @@
 #pBody .calgrid .day.cplan .dname{font-weight:700;color:var(--ink)}
 .dl-nights{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:2px 0 12px}
 .dl-nights .night-b{height:44px;font-size:14px}
+#pBody .dp-bar{display:grid;gap:10px;margin:16px 0 4px;text-align:center}
+#pBody .dp-day{font-family:var(--serif);font-weight:700;font-size:22px;letter-spacing:.04em}
+#pBody .dp-ok{width:100%}
+#pBody .dp-ok:disabled{opacity:.4}
+#pBody .dp-has{font-size:13.5px;font-weight:700;color:var(--ink);background:color-mix(in srgb,var(--gold) 16%,var(--card));border:1px solid color-mix(in srgb,var(--gold) 55%,transparent);border-radius:12px;padding:8px 12px}
