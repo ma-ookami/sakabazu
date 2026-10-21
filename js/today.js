@@ -138,8 +138,10 @@ function todayBlock(v){
   const pk=el('label','todaybtn todaycard tc-date'); pk.append(el('span','tb-t','あさって以降どこ行く?'), el('span','tb-s','📅 日付を指定する'));
   const inp=el('input'); inp.type='date'; inp.min=addDays(2); inp.setAttribute('aria-label','あさって以降の日付を指定してどこ行く?');
   const openedPicker=()=>{ datePickUntil=Date.now()+120000; }, closedPicker=()=>{ datePickUntil=0; if (datePickLater){ datePickLater=false; setTimeout(render,0); } };
-  inp.onfocus=openedPicker; inp.onclick=openedPicker; inp.onblur=()=>setTimeout(closedPicker,300);
-  inp.onchange=()=>{ closedPicker(); if(inp.value && inp.value>addDays(1)){ openPick('find',inp.value); inp.value=''; } }; pk.appendChild(inp);
+  // some phones fire change late or only when the picker closes: take the date on change or when the picker closes, once
+  const commit=()=>{ const v=inp.value; if (v && v>addDays(1)){ inp.value=''; closedPicker(); openPick('find',v); } };
+  inp.onfocus=openedPicker; inp.onclick=openedPicker; inp.onchange=commit;
+  inp.onblur=()=>setTimeout(()=>{ closedPicker(); commit(); },300); pk.appendChild(inp);
   row.appendChild(pk); stack.appendChild(row); v.appendChild(stack);
 }
 async function shareShop(s,time,day){

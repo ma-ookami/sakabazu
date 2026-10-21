@@ -302,3 +302,7 @@ body.gating .tabs{display:none}
 .fplan .fp-t{flex:1;min-width:0}
 .fplan .fp-go{opacity:.6;font-size:18px;line-height:1}
 .fplan:active{transform:scale(.98)}
+/* 今日はここ! is on red: the hours pill sits on white, the genre / stars take the card's light text */
+.gocard:not(.ln) .pk-top{color:var(--on-red)}
+.gocard:not(.ln) .pk-top .pill{background:rgba(255,255,255,.92)}
+.gocard:not(.ln) .pk-star{color:#FFE3A3}

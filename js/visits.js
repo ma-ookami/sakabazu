@@ -141,7 +141,7 @@ function renderCal(v){
     const b=el('button','day'+(es.length?' has':'')+(pl?' cplan':'')+(nk?' night-'+nk:'')+(ds===td?' today':'')+(wd===0?' sun':wd===6?' sat':''));
     b.setAttribute('aria-pressed',String(cal.sel===ds)); b.setAttribute('aria-label',`${cal.m+1}月${d}日${es.length?`、${es.length}軒`:''}${pl?`、予定: ${pl.name}`:''}`);
     b.appendChild(el('span','dn',String(d)));
-    if (pl){ const dots=el('span','dots'); dots.appendChild(el('i','dot cplan')); b.appendChild(dots); b.appendChild(el('span','dname',pl.name||'')); }
+    if (pl) b.appendChild(el('span','dname',pl.name||''));
     if (nk && !es.length){ b.appendChild(el('span','dnight',NIGHTS[nk].ic)); b.appendChild(el('span','dname',NIGHTS[nk].l)); }
     if (es.length){ const dots=el('span','dots'); es.slice(0,3).forEach(()=>dots.appendChild(el('i','dot'))); b.appendChild(dots); b.appendChild(el('span','dname',es[0].s.name||'')); }
     b.onclick=()=>{ cal.sel=ds; render(); };
