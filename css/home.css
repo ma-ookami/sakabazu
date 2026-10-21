@@ -245,3 +245,8 @@ body.gating .tabs{display:none}
 .now-more{flex:none;width:120px;scroll-snap-align:start;display:grid;place-content:center;gap:4px;text-align:center;border:1.5px dashed var(--line);border-radius:var(--r-lg);background:transparent;color:var(--ink);font:inherit}
 .now-more span{font-size:11.5px;color:var(--sub)}
 .now-note{margin:-4px 0 0;font-size:11px;color:var(--sub)}
+#pBody .pk-days{display:flex;gap:6px;margin:0 0 10px}
+#pBody .pk-day{flex:1;padding:7px 4px;text-align:center;position:relative;cursor:pointer}
+#pBody .pk-day[aria-pressed=true]{background:var(--ink,#1b2a49);color:#fff}
+#pBody .pk-cal input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+#pBody .pk-cal.on{background:var(--ink,#1b2a49);color:#fff}

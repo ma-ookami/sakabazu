@@ -95,7 +95,7 @@ function syncFriendSubs(){
       fShops[f]=snap.docs.map(d=>({id:d.id,...JSON.parse(JSON.stringify(d.data()||{}))})); delete fDenied[f]; afterChange();
     },e=>{ console.warn(e); fDenied[f]=true; fShops[f]=[]; afterChange(); });
     // their 今日の候補 (today only)
-    const u2=fs.collection(`groups/${fr.gid}/today`).where('date','==',nightKey()).limit(100).onSnapshot(snap=>{
+    const u2=fs.collection(`groups/${fr.gid}/today`).where('date','>=',nightKey()).limit(100).onSnapshot(snap=>{
       fToday[f]=snap.docs.map(d=>({id:d.id,...JSON.parse(JSON.stringify(d.data()||{}))})).filter(d=>typeof d.shopId==='string'); afterChange();
     },e=>{ console.warn(e); fToday[f]=[]; });
     fSubs[f]=()=>{ u1(); u2(); };
