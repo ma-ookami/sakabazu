@@ -4,6 +4,7 @@ let todayDocs={}; const cleaned=new Set();
 const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const nightKey = () => ymd(new Date(Date.now()-5*36e5));
 const lastNightKey = () => ymd(new Date(Date.now()-29*36e5));
+const nightsAgo = n => ymd(new Date(Date.now()-(5+24*n)*36e5));   // a decided night is asked about (行った?) for a week, then dropped
 // which night 今日どこ行く? is about: '' = tonight, else a later date (YYYY-MM-DD)
 const dayKey = () => pick.day && pick.day>nightKey() ? pick.day : nightKey();
 const isTonight = () => dayKey()===nightKey();
@@ -136,7 +137,9 @@ function todayBlock(v){
   row.appendChild(card('明日',addDays(1),'前の日に決める','tc-next'));
   const pk=el('label','todaybtn todaycard tc-date'); pk.append(el('span','tb-t','あさって以降どこ行く?'), el('span','tb-s','📅 日付を指定する'));
   const inp=el('input'); inp.type='date'; inp.min=addDays(2); inp.setAttribute('aria-label','あさって以降の日付を指定してどこ行く?');
-  inp.onchange=()=>{ if(inp.value && inp.value>addDays(1)){ openPick('find',inp.value); inp.value=''; } }; pk.appendChild(inp);
+  const openedPicker=()=>{ datePickUntil=Date.now()+120000; }, closedPicker=()=>{ datePickUntil=0; if (datePickLater){ datePickLater=false; setTimeout(render,0); } };
+  inp.onfocus=openedPicker; inp.onclick=openedPicker; inp.onblur=()=>setTimeout(closedPicker,300);
+  inp.onchange=()=>{ closedPicker(); if(inp.value && inp.value>addDays(1)){ openPick('find',inp.value); inp.value=''; } }; pk.appendChild(inp);
   row.appendChild(pk); stack.appendChild(row); v.appendChild(stack);
 }
 async function shareShop(s,time,day){
@@ -380,11 +383,12 @@ function goCard(v){
 // the morning after: "昨日の◯◯、行った?"
 function lastNightCard(v){
   if (!me || readOnly) return;
-  const y=lastNightKey(); const e=Object.entries(todayDocs).find(([,d])=>d.go && d.by===me && d.date===y); if(!e) return;
-  const [id,d]=e;
+  const t=nightKey(), w=nightsAgo(7);   // the most recent unanswered night first
+  const e=Object.entries(todayDocs).filter(([,d])=>d.go && d.by===me && d.date<t && d.date>=w).sort(([,a],[,b])=>a.date<b.date?1:-1)[0]; if(!e) return;
+  const [id,d]=e, yest=d.date===lastNightKey();
   const c=el('section','gocard ln');
-  c.appendChild(el('span','gc-k','ゆうべのお店'));
-  c.appendChild(el('p','gc-q',`昨日の「${d.name||'お店'}」、行った?`));
+  c.appendChild(el('span','gc-k',yest?'ゆうべのお店':'この前のお店'));
+  c.appendChild(el('p','gc-q',`${yest?'昨日':fmtDate(d.date)}の「${d.name||'お店'}」、行った?`));
   const done=()=>{ const o={...todayDocs}; delete o[id]; todayDocs=o; if (mode==='db') enqueue('today:'+id,()=>db.doc('today/'+id).delete()); else saveLocal(); afterChange(); };
   const acts=el('div','gc-acts');
   const yes=el('button','sbtn on','行った'); yes.onclick=async()=>{ yes.disabled=true;

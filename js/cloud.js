@@ -103,9 +103,9 @@ function enterGroup(mid, mine){
     render(); if(openId) patchDetail();
   },()=>{}));
   cloudSubs.push(db.collection('today').limit(500).onSnapshot(snap=>{
-    const o={}; const t=nightKey(), y=lastNightKey();
+    const o={}; const t=nightKey(), w=nightsAgo(7);
     for (const d of snap.docs){ const v=JSON.parse(JSON.stringify(d.data()||{})); if(typeof v.shopId!=='string') continue; o[d.id]=v;
-      if (v.date && v.date<t && !(v.go && v.date===y) && v.by===me && !cleaned.has(d.id)){ cleaned.add(d.id); enqueue('today:'+d.id,()=>db.doc('today/'+d.id).delete()); } }
+      if (v.date && v.date<t && !(v.go && v.date>=w) && v.by===me && !cleaned.has(d.id)){ cleaned.add(d.id); enqueue('today:'+d.id,()=>db.doc('today/'+d.id).delete()); } }
     todayDocs=o; todayLoaded=true; afterChange();
   },()=>{}));
 }

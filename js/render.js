@@ -13,7 +13,10 @@ function counts(){
 let imeOn=false, renderLater=false;
 document.addEventListener('compositionstart',()=>{ imeOn=true; },true);
 document.addEventListener('compositionend',()=>{ imeOn=false; if(renderLater){ renderLater=false; setTimeout(render,0); } },true);
+// while the date picker (the 日付を指定 card) is open, don't rebuild the screen: that would remove the input and close the picker
+let datePickUntil=0, datePickLater=false;
 function render(){
+  if (Date.now()<datePickUntil){ datePickLater=true; return; }
   if (imeOn && $('view').contains(document.activeElement)){ renderLater=true; return; }
   counts(); meBtn();
   // typing in settings: don't rebuild under the cursor (data updates arrive while you type)

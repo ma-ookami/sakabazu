@@ -119,7 +119,7 @@ const cal={y:null,m:null,sel:null};
 function renderCal(v){
   const now=new Date(); if(cal.y==null){ cal.y=now.getFullYear(); cal.m=now.getMonth(); }
   const by={}; for(const e of calEntries()) (by[e.date]=by[e.date]||[]).push(e);
-  const ym=`${cal.y}-${String(cal.m+1).padStart(2,'0')}`; const td=today();
+  const ym=`${cal.y}-${String(cal.m+1).padStart(2,'0')}`; const td=nightKey();
   const monthDays=Object.keys(by).filter(d=>d.startsWith(ym)).sort();
   const head=el('div','calhead');
   const pv=el('button','calnav','‹'); pv.setAttribute('aria-label','前の月'); pv.onclick=()=>{ cal.m--; if(cal.m<0){ cal.m=11; cal.y--; } cal.sel=null; render(); };
@@ -138,10 +138,10 @@ function renderCal(v){
   for (let d=1; d<=days; d++){
     const ds=`${ym}-${String(d).padStart(2,'0')}`; const es=by[ds]||[]; const wd=(first+d-1)%7;
     const pl=!es.length && plans[ds], nk=!pl && ng[ds];
-    const b=el('button','day'+(es.length?' has':'')+(pl?' plan':'')+(nk?' night-'+nk:'')+(ds===td?' today':'')+(wd===0?' sun':wd===6?' sat':''));
+    const b=el('button','day'+(es.length?' has':'')+(pl?' cplan':'')+(nk?' night-'+nk:'')+(ds===td?' today':'')+(wd===0?' sun':wd===6?' sat':''));
     b.setAttribute('aria-pressed',String(cal.sel===ds)); b.setAttribute('aria-label',`${cal.m+1}月${d}日${es.length?`、${es.length}軒`:''}${pl?`、予定: ${pl.name}`:''}`);
     b.appendChild(el('span','dn',String(d)));
-    if (pl){ const dots=el('span','dots'); dots.appendChild(el('i','dot plan')); b.appendChild(dots); b.appendChild(el('span','dname',pl.name||'')); }
+    if (pl){ const dots=el('span','dots'); dots.appendChild(el('i','dot cplan')); b.appendChild(dots); b.appendChild(el('span','dname',pl.name||'')); }
     if (nk && !es.length){ b.appendChild(el('span','dnight',NIGHTS[nk].ic)); b.appendChild(el('span','dname',NIGHTS[nk].l)); }
     if (es.length){ const dots=el('span','dots'); es.slice(0,3).forEach(()=>dots.appendChild(el('i','dot'))); b.appendChild(dots); b.appendChild(el('span','dname',es[0].s.name||'')); }
     b.onclick=()=>{ cal.sel=ds; render(); };
@@ -150,6 +150,8 @@ function renderCal(v){
   v.appendChild(g);
   if (cal.sel && cal.sel.startsWith(ym)){
     const es=by[cal.sel]||[]; const box=el('section','daylist'); box.appendChild(el('h3','dl-h',fmtDate(cal.sel)));
+    // tonight or a later day: choose the shop for it from here (the 決める sheet opens on that night)
+    if (!readOnly && cal.sel>=nightKey()){ const go=el('button','btn btn-line dl-pick',(plans[cal.sel]?'決め直す':'🍻 この日どこ行く?')); go.type='button'; go.onclick=()=>openPick('find',cal.sel===nightKey()?'':cal.sel); box.appendChild(go); }
     const pl=!es.length && plans[cal.sel], nk=!pl && ng[cal.sel];
     if (pl){ const r=el('div','dl-night dl-plan'); r.appendChild(el('span','nb-ic','🍻'));
       const n=el('button','dl-pn',pl.name||'(名前なし)'); n.type='button'; if (pl.shop) n.onclick=()=>openDetail(pl.shop.id); r.append(el('span','dl-pk','予定'), n);
