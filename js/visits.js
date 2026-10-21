@@ -158,9 +158,12 @@ function renderCal(v){
       if (!pl.mine){ const w=el('span','dl-by',`${(friends[pl.by]||{}).nick||'飲み友'}が決めた`); r.appendChild(w); }
       if (pl.mine && !readOnly){ const x=el('button','sbtn cal-del','やめる'); x.onclick=()=>undecide(cal.sel); r.appendChild(x); }
       box.appendChild(r); }
-    if (nk){ const r=el('div','dl-night'); r.append(el('span','nb-ic',NIGHTS[nk].ic), el('b',null,NIGHTS[nk].l));
-      if (!readOnly){ const x=el('button','sbtn cal-del','消す'); x.onclick=()=>setNight('',cal.sel); r.appendChild(x); } box.appendChild(r); }
-    if (!es.length && !nk && !pl) box.appendChild(el('p','hint','この日の記録はありません。'));
+    // 家飲み / 休肝日 for this day: any day, past (to fix a record) or later (as a plan); tap again to clear
+    { const cur=ng[cal.sel]||'', row=el('div','dl-nights');
+      for (const [k,n] of Object.entries(NIGHTS)){ const x=el('button','night-b'+(cur===k?' on':'')); x.type='button'; x.setAttribute('aria-pressed',String(cur===k)); x.disabled=!!readOnly;
+        x.append(el('span','nb-ic',n.ic), el('span','nb-t',n.l)); x.onclick=()=>setNight(cur===k?'':k, cal.sel); row.appendChild(x); }
+      box.appendChild(row); }
+    if (!es.length && !nk && !pl && !ng[cal.sel]) box.appendChild(el('p','hint','この日の記録はありません。'));
     else { const ul=el('ul','plist'); const slots=[];
       for (const e of es){ const li=el('li'); const info=el('button','pinfo'); info.onclick=()=>openDetail(e.s.id);
         info.appendChild(el('span','pn',e.s.name||'(名前なし)'));
