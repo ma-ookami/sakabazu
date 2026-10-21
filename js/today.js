@@ -135,13 +135,8 @@ function todayBlock(v){
   stack.appendChild(c1);
   const row=el('div','todayrow');
   row.appendChild(card('明日',addDays(1),'前の日に決める','tc-next'));
-  const pk=el('label','todaybtn todaycard tc-date'); pk.append(el('span','tb-t','あさって以降どこ行く?'), el('span','tb-s','📅 日付を指定する'));
-  const inp=el('input'); inp.type='date'; inp.min=addDays(2); inp.setAttribute('aria-label','あさって以降の日付を指定してどこ行く?');
-  const openedPicker=()=>{ datePickUntil=Date.now()+120000; }, closedPicker=()=>{ datePickUntil=0; if (datePickLater){ datePickLater=false; setTimeout(render,0); } };
-  // some phones fire change late or only when the picker closes: take the date on change or when the picker closes, once
-  const commit=()=>{ const v=inp.value; if (v && v>addDays(1)){ inp.value=''; closedPicker(); openPick('find',v); } };
-  inp.onfocus=openedPicker; inp.onclick=openedPicker; inp.onchange=commit;
-  inp.onblur=()=>setTimeout(()=>{ closedPicker(); commit(); },300); pk.appendChild(inp);
+  const pk=el('button','todaybtn todaycard tc-date'); pk.type='button'; pk.append(el('span','tb-t','あさって以降どこ行く?'), el('span','tb-s','📅 日付を指定する'));
+  pk.onclick=openDatePick;
   row.appendChild(pk); stack.appendChild(row); v.appendChild(stack);
 }
 async function shareShop(s,time,day){
@@ -150,15 +145,16 @@ async function shareShop(s,time,day){
   try{ await navigator.clipboard.writeText(text); toast('メッセージをコピーしました。LINEなどに貼って送れます'); }catch{ toast('コピーできませんでした'); }
 }
 // 今日どこ行く?: a sheet over 決める (探す | 今日の候補)
-function openPick(src,day){
-  pick.day=day||''; pick.lim=0;
+function openPick(src,day,choosing){
+  pick.day=day||''; pick.lim=0; pick.choosing=!!choosing;
   if (tab!=='home') setTab('home');
   pick.cheers=true; pick.whoNames=false; pick.chosen=null; pick.proposing=null; if (src) pick.src = src==='today' ? 'today' : 'find';
   setPickTitle();
   showSheet('pickSheet'); buildPick(); focusIn('pickSheet');
 }
 // 今日 / 明日 + どこ行く?, then the date as "10/21" and a round weekday badge (月 silver, 火 fire, 水 water, 木 green, 金 gold, 土 earth, 日 sun)
-function setPickTitle(){ const wf=activeFriends()[0], k=dayKey(), n=dayDiff(k), d=dayDate(k), wd=d.getDay();
+function setPickTitle(){ if (pick.choosing){ $('pTitle').textContent='あさって以降どこ行く?'; return; }
+  const wf=activeFriends()[0], k=dayKey(), n=dayDiff(k), d=dayDate(k), wd=d.getDay();
   const word = n<=0?'今日':n===1?'明日':n===2?'あさって':'';
   const h=$('pTitle'); h.textContent = word + (wf?(word?' ':'')+'飲み友と':'') + 'どこ行く?';
   const dt=el('span','p-dt',`${d.getMonth()+1}/${d.getDate()}`), b=el('span','p-wd w'+wd,WD[wd]); b.setAttribute('aria-label',WD[wd]+'曜日');
@@ -201,11 +197,31 @@ function whoRow(){
 }
 const dayWord = () => isTonight() ? '今日' : dayLabel(dayKey());
 const addDays = n => { const d=dayDate(nightKey()); d.setDate(d.getDate()+n); return ymd(d); };
+// あさって以降どこ行く?: our own month grid (the phone's date picker fired its change unreliably); tapping a day opens the shops for it
+function openDatePick(){ const d=dayDate(addDays(2)); pick.dm={y:d.getFullYear(),m:d.getMonth()}; openPick('find','',true); }
+function dateGrid(b){
+  const {y,m}=pick.dm, min=addDays(2), minD=dayDate(min), plans=plansByDate();
+  const head=el('div','calhead'), pv=el('button','calnav','‹'), nx=el('button','calnav','›'); pv.type=nx.type='button';
+  pv.setAttribute('aria-label','前の月'); nx.setAttribute('aria-label','次の月'); pv.disabled = y===minD.getFullYear() && m<=minD.getMonth();
+  pv.onclick=()=>{ pick.dm = m ? {y,m:m-1} : {y:y-1,m:11}; buildPick(); };
+  nx.onclick=()=>{ pick.dm = m<11 ? {y,m:m+1} : {y:y+1,m:0}; buildPick(); };
+  head.append(pv, el('h2',null,`${y}年 ${m+1}月`), nx); b.appendChild(head);
+  const g=el('div','calgrid'); WD.split('').forEach((w,i)=>g.appendChild(el('div','calwd'+(i===0?' sun':i===6?' sat':''),w)));
+  const first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
+  for (let i=0;i<first;i++) g.appendChild(el('div','day out'));
+  for (let d=1; d<=days; d++){ const ds=ymd(new Date(y,m,d)), wd=(first+d-1)%7, pl=plans[ds];
+    const x=el('button','day'+(pl?' cplan':'')+(wd===0?' sun':wd===6?' sat':'')); x.type='button'; x.disabled = ds<min; x.setAttribute('aria-label',`${m+1}月${d}日`);
+    x.appendChild(el('span','dn',String(d))); if (pl) x.appendChild(el('span','dname',pl.name||''));
+    x.onclick=()=>{ pick.choosing=false; pick.day=ds; pick.chosen=null; pick.src='find'; pick.lim=0; buildPick(); };
+    g.appendChild(x); }
+  b.appendChild(g);
+}
 function buildPick(){
   const b=$('pBody'); if(!b || !isOpen('pickSheet')) return;
   const ae=document.activeElement; if (ae && b.contains(ae) && ae.tagName==='INPUT' && !ae.classList.contains('pk-q')) return;
   b.textContent='';
   whoRow(); setPickTitle();
+  if (pick.choosing){ dateGrid(b); return; }
   const seg=el('div','seg pk-seg'); seg.setAttribute('role','group'); seg.setAttribute('aria-label','表示');
   const nc=todayCands().length;
   for (const [k,l] of [['find','探す'],['today',(nc?`${dayWord()}の候補 ${nc}`:`${dayWord()}の候補`)]]){ const x=el('button',null,l); x.setAttribute('aria-pressed',String(pick.src===k)); x.onclick=()=>{ pick.src=k; pick.chosen=null; buildPick(); }; seg.appendChild(x); }
