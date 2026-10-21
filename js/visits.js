@@ -127,6 +127,7 @@ function renderCal(v){
   head.append(pv, el('h2',null,`${cal.y}年 ${cal.m+1}月`), nx); v.appendChild(head);
   const nShops=new Set(monthDays.flatMap(d=>by[d].map(e=>e.s.id))).size;
   const spent=monthDays.flatMap(d=>by[d]).filter(e=>e.actual>0).reduce((a,e)=>a+e.actual,0);
+  const plans=plansByDate();
   const ng=nightsAll(), nHome=Object.entries(ng).filter(([d,k])=>d.startsWith(ym)&&k==='home').length, nRest=Object.entries(ng).filter(([d,k])=>d.startsWith(ym)&&k==='rest').length;
   v.appendChild(el('p','calstat', (monthDays.length ? `${monthDays.length}日飲んで、${nShops}軒に行きました${spent?`(記録した金額の合計 1人 ${yen(spent)})`:''}` : (nHome||nRest ? '' : 'この月の記録はまだありません')) + (nHome||nRest ? `${monthDays.length?'　':''}${nHome?`🏠家飲み ${nHome}日`:''}${nHome&&nRest?'・':''}${nRest?`🍵休肝日 ${nRest}日`:''}` : '')));
   const g=el('div','calgrid');
@@ -136,10 +137,11 @@ function renderCal(v){
   if (!cal.sel) cal.sel = td.startsWith(ym) ? td : (monthDays[monthDays.length-1]||null);
   for (let d=1; d<=days; d++){
     const ds=`${ym}-${String(d).padStart(2,'0')}`; const es=by[ds]||[]; const wd=(first+d-1)%7;
-    const nk=ng[ds];
-    const b=el('button','day'+(es.length?' has':'')+(nk?' night-'+nk:'')+(ds===td?' today':'')+(wd===0?' sun':wd===6?' sat':''));
-    b.setAttribute('aria-pressed',String(cal.sel===ds)); b.setAttribute('aria-label',`${cal.m+1}月${d}日${es.length?`、${es.length}軒`:''}`);
+    const pl=!es.length && plans[ds], nk=!pl && ng[ds];
+    const b=el('button','day'+(es.length?' has':'')+(pl?' plan':'')+(nk?' night-'+nk:'')+(ds===td?' today':'')+(wd===0?' sun':wd===6?' sat':''));
+    b.setAttribute('aria-pressed',String(cal.sel===ds)); b.setAttribute('aria-label',`${cal.m+1}月${d}日${es.length?`、${es.length}軒`:''}${pl?`、予定: ${pl.name}`:''}`);
     b.appendChild(el('span','dn',String(d)));
+    if (pl){ const dots=el('span','dots'); dots.appendChild(el('i','dot plan')); b.appendChild(dots); b.appendChild(el('span','dname',pl.name||'')); }
     if (nk && !es.length){ b.appendChild(el('span','dnight',NIGHTS[nk].ic)); b.appendChild(el('span','dname',NIGHTS[nk].l)); }
     if (es.length){ const dots=el('span','dots'); es.slice(0,3).forEach(()=>dots.appendChild(el('i','dot'))); b.appendChild(dots); b.appendChild(el('span','dname',es[0].s.name||'')); }
     b.onclick=()=>{ cal.sel=ds; render(); };
@@ -148,10 +150,15 @@ function renderCal(v){
   v.appendChild(g);
   if (cal.sel && cal.sel.startsWith(ym)){
     const es=by[cal.sel]||[]; const box=el('section','daylist'); box.appendChild(el('h3','dl-h',fmtDate(cal.sel)));
-    const nk=ng[cal.sel];
+    const pl=!es.length && plans[cal.sel], nk=!pl && ng[cal.sel];
+    if (pl){ const r=el('div','dl-night dl-plan'); r.appendChild(el('span','nb-ic','🍻'));
+      const n=el('button','dl-pn',pl.name||'(名前なし)'); n.type='button'; if (pl.shop) n.onclick=()=>openDetail(pl.shop.id); r.append(el('span','dl-pk','予定'), n);
+      if (!pl.mine){ const w=el('span','dl-by',`${(friends[pl.by]||{}).nick||'飲み友'}が決めた`); r.appendChild(w); }
+      if (pl.mine && !readOnly){ const x=el('button','sbtn cal-del','やめる'); x.onclick=()=>undecide(cal.sel); r.appendChild(x); }
+      box.appendChild(r); }
     if (nk){ const r=el('div','dl-night'); r.append(el('span','nb-ic',NIGHTS[nk].ic), el('b',null,NIGHTS[nk].l));
       if (!readOnly){ const x=el('button','sbtn cal-del','消す'); x.onclick=()=>setNight('',cal.sel); r.appendChild(x); } box.appendChild(r); }
-    if (!es.length && !nk) box.appendChild(el('p','hint','この日の記録はありません。'));
+    if (!es.length && !nk && !pl) box.appendChild(el('p','hint','この日の記録はありません。'));
     else { const ul=el('ul','plist'); const slots=[];
       for (const e of es){ const li=el('li'); const info=el('button','pinfo'); info.onclick=()=>openDetail(e.s.id);
         info.appendChild(el('span','pn',e.s.name||'(名前なし)'));

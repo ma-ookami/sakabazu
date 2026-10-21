@@ -295,3 +295,10 @@ body.gating .tabs{display:none}
 .todaycard.tc-date{background:radial-gradient(220px 160px at 88% 50%,color-mix(in srgb,var(--glow) 30%,transparent),transparent 70%),color-mix(in srgb,var(--indigo) 22%,#b0801f);color:var(--on-indigo);border:0;box-shadow:var(--shadow-2)}
 .todaycard.tc-date::after{display:block}
 .todaycard.tc-date .tb-s{opacity:.85}
+#pBody .pk-more{display:block;width:100%;margin:12px 0 4px}
+
+.fplans{display:grid;gap:6px}
+.fplan{display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:1px solid color-mix(in srgb,var(--gold) 50%,transparent);background:color-mix(in srgb,var(--gold) 12%,var(--card));color:var(--ink);border-radius:var(--r-lg);padding:10px 12px;font:inherit;font-size:13px;font-weight:700}
+.fplan .fp-t{flex:1;min-width:0}
+.fplan .fp-go{opacity:.6;font-size:18px;line-height:1}
+.fplan:active{transform:scale(.98)}

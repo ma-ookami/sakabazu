@@ -1,7 +1,7 @@
 /* ---------- friends: add by 飲み友コード, and mix their lists into yours ----------
    myShops: my own shops (the only ones I write). shops: what the screens show = mine + the friends I mix in.
    A friend-only shop is read-only (id "f~<fid>~<shopId>"); acting on it first copies it into my list. */
-let myShops=[], friends={}, fShops={}, fDenied={}, fSubs={}, myCode='';
+let myShops=[], friends={}, fShops={}, fDenied={}, fSubs={}, fTSubs={}, myCode='';
 let frReqs={}, frSent={}, sentSubs={};
 let friendsLoaded=false;   // the first list of 飲み友 has arrived   // 飲み友申請: to me / from me (waiting)
 // the 飲み友 I'm going with (one or more): their lists are mixed into 決める
@@ -88,17 +88,20 @@ function syncSentSubs(){
   }
 }
 function syncFriendSubs(){
-  for (const f of Object.keys(fSubs)) if (!mix.has(f) || !friends[f]){ try{ fSubs[f](); }catch{} delete fSubs[f]; delete fShops[f]; delete fToday[f]; }
+  for (const f of Object.keys(fSubs)) if (!mix.has(f) || !friends[f]){ try{ fSubs[f](); }catch{} delete fSubs[f]; delete fShops[f]; }
+  for (const f of Object.keys(fTSubs)) if (!friends[f]){ try{ fTSubs[f](); }catch{} delete fTSubs[f]; delete fToday[f]; }
+  // their picks that name me (with: [my id]): every 飲み友 is watched, so a plan made with me shows up even when I haven't mixed them in.
+  // the rules only let me read the ones that name me; the date is filtered where they're used
+  for (const f of Object.keys(friends)) if (!fTSubs[f] && auth.currentUser){
+    fTSubs[f]=fs.collection(`groups/${friends[f].gid}/today`).where('with','array-contains',auth.currentUser.uid).limit(100).onSnapshot(snap=>{
+      fToday[f]=snap.docs.map(d=>({id:d.id,...JSON.parse(JSON.stringify(d.data()||{}))})).filter(d=>typeof d.shopId==='string'); afterChange();
+    },e=>{ console.warn(e); fToday[f]=[]; }); }
   for (const f of mixedFriends()) if (!fSubs[f]){
     const fr=friends[f];
     const u1=fs.collection(`groups/${fr.gid}/shops`).limit(1000).onSnapshot(snap=>{
       fShops[f]=snap.docs.map(d=>({id:d.id,...JSON.parse(JSON.stringify(d.data()||{}))})); delete fDenied[f]; afterChange();
     },e=>{ console.warn(e); fDenied[f]=true; fShops[f]=[]; afterChange(); });
-    // their 今日の候補 (today only)
-    const u2=fs.collection(`groups/${fr.gid}/today`).where('date','>=',nightKey()).limit(100).onSnapshot(snap=>{
-      fToday[f]=snap.docs.map(d=>({id:d.id,...JSON.parse(JSON.stringify(d.data()||{}))})).filter(d=>typeof d.shopId==='string'); afterChange();
-    },e=>{ console.warn(e); fToday[f]=[]; });
-    fSubs[f]=()=>{ u1(); u2(); };
+    fSubs[f]=u1;
   }
 }
 // their current name and icon (the friend doc keeps the name from when we became friends)
@@ -108,6 +111,7 @@ function fetchFriend(f){
     if (v.nick) friends[f].nick=String(v.nick).slice(0,20); if (v.ic && typeof v.ic==='object') friends[f].ic=v.ic; if (v.dm && typeof v.dm==='object') friends[f].dm=v.dm; render(); }).catch(()=>{});
 }
 function stopFriendSubs(){ for (const f of Object.keys(fSubs)){ try{ fSubs[f](); }catch{} } fSubs={}; fShops={}; fToday={};
+  for (const f of Object.keys(fTSubs)){ try{ fTSubs[f](); }catch{} } fTSubs={};
   for (const k of Object.keys(sentSubs)){ try{ sentSubs[k](); }catch{} } sentSubs={}; frReqs={}; frSent={}; }
 
 // my 飲み友コード: one per device, made the first time it is needed

@@ -6,7 +6,7 @@ function segBar(v,items,cur,onPick,cls){
   for (const [k,l,n,nc] of items){ const b=el('button',null,l); if (n!=null){ b.appendChild(el('span','sn'+(nc?' '+nc:''),String(n))); } b.setAttribute('aria-pressed',String(cur===k)); b.onclick=()=>{ if(cur!==k) withTransition(()=>{ onPick(k); render(); window.scrollTo({top:0}); }); }; seg.appendChild(b); }
   v.appendChild(seg);
 }
-function listSeg(v){ segBar(v,[['want','行きたい',shops.filter(inWant).length,'want'],['went','行った',shops.filter(inWent).length,'went'],['cal','カレンダー']],listSub,k=>{ listSub=k; }); }
+function listSeg(v){ segBar(v,[['want','行きたい',shops.filter(inWant).length,'want'],['went','行った',shops.filter(inWent).length,'went']],listSub,k=>{ listSub=k; }); }
 function goAdd(){ listSub='want'; setTab('list'); openSearch(''); }
 function renderHome(v0){
   const v=el('div','homestack'); v0.appendChild(v);
@@ -14,6 +14,7 @@ function renderHome(v0){
   lastNightCard(v);
   whoBar(v);
   goCard(v);
+  friendPlanNote(v);
   todayBlock(v);
   if (!readOnly){ const acts=el('div','homeacts');
     // one red card for adding: search (the whole card) and, at its corner, a small tag for links

@@ -37,6 +37,10 @@ service cloud.firestore {
     function isFriend(gid) {
       return signedIn() && exists(/databases/$(database)/documents/groups/$(gid)/friends/$(request.auth.uid));
     }
+    // who a today pick is shared with: up to 20 ids
+    function validWith(d) {
+      return d.get('with', []) is list && d.get('with', []).size() <= 20;
+    }
     function validFriend(d) {
       return d.keys().hasOnly(['gid', 'mid', 'nick', 'code', 'at'])
         && isText(d.gid, 1, 64) && isText(d.mid, 1, 128) && isText(d.get('nick', ''), 0, 20)
@@ -228,9 +232,11 @@ service cloud.firestore {
 
       // 今日の候補: <YYYY-MM-DD>_<shopId>. 飲み友 can read them (to find the shops both picked)
       match /today/{tid} {
-        allow read: if isMember(gid) || isFriend(gid);
+        // a 飲み友 reads only the picks that name them (with: [their id]); the query must say so (array-contains)
+        allow read: if isMember(gid) || (isFriend(gid) && request.auth.uid in resource.data.with);
         allow create: if isMember(gid)
-          && request.resource.data.keys().hasOnly(['shopId', 'date', 'by', 'time', 'createdAt', 'votes', 'name', 'key', 'go'])
+          && validWith(request.resource.data)
+          && request.resource.data.keys().hasOnly(['shopId', 'date', 'by', 'time', 'createdAt', 'votes', 'name', 'key', 'go', 'with'])
           && isText(request.resource.data.shopId, 1, 64)
           && isDay(request.resource.data.date)
           && tid == request.resource.data.date + '_' + request.resource.data.shopId
@@ -241,7 +247,8 @@ service cloud.firestore {
           && isText(request.resource.data.get('name', ''), 0, 60) && isText(request.resource.data.get('key', ''), 0, 80)
           && request.resource.data.get('go', false) is bool;
         allow update: if isMember(gid)
-          && request.resource.data.keys().hasOnly(['shopId', 'date', 'by', 'time', 'createdAt', 'votes', 'name', 'key', 'go'])
+          && validWith(request.resource.data)
+          && request.resource.data.keys().hasOnly(['shopId', 'date', 'by', 'time', 'createdAt', 'votes', 'name', 'key', 'go', 'with'])
           && request.resource.data.shopId == resource.data.shopId
           && request.resource.data.date == resource.data.date
           && request.resource.data.by == resource.data.by

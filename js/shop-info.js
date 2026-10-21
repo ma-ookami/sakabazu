@@ -54,7 +54,7 @@ function fillInfo(s){
   // shop details that came from ホットペッパー carry its credit
   if (s.hp && /^J\d{9}$/.test(s.hp.id||'')){ const cr=el('p','hp-credit'); const c=el('a',null,'Powered by ホットペッパーグルメ Webサービス'); c.href='https://webservice.recruit.co.jp/'; c.target='_blank'; c.rel='noopener noreferrer'; c.title='ホットペッパーグルメ Webサービス'; cr.appendChild(c); d.appendChild(cr); }
 }
-setInterval(()=>{ const a=document.activeElement; if(swiping || (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName))) return; if(tab==='list'||tab==='home') render(); if(openId) fillInfo(shops.find(x=>x.id===openId)||{}); },60000);
+setInterval(()=>{ const a=document.activeElement; if(swiping || (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName))) return; if(tab==='list'||tab==='home'||tab==='cal') render(); if(openId) fillInfo(shops.find(x=>x.id===openId)||{}); },60000);
 
 // ホットペッパー's reservation page for a shop (the free seats are checked there)
 const yoyakuUrl = s => s && s.hp && /^J\d{9}$/.test(s.hp.id||'') ? `https://www.hotpepper.jp/str${s.hp.id}/yoyaku/` : '';
