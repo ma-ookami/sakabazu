@@ -14,7 +14,6 @@ function renderHome(v0){
   lastNightCard(v);
   whoBar(v);
   goCard(v);
-  if (!friendMode && !decided()) nightBtns(v);
   todayBlock(v);
   if (!readOnly){ const acts=el('div','homeacts');
     // one red card for adding: search (the whole card) and, at its corner, a small tag for links

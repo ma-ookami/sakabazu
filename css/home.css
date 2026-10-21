@@ -261,3 +261,37 @@ body.gating .tabs{display:none}
 .todayrow .todaybtn{padding-right:10px}
 .tb-cal{width:44px;height:44px;font-size:21px;bottom:6px;right:6px;background:color-mix(in srgb,var(--on-indigo) 20%,transparent)}
 .todaycard .tb-s{padding-right:44px}
+.todaycard .tb-s{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.35}
+.todaycard .tb-main{-webkit-tap-highlight-color:transparent}
+.todayrow .todaybtn{transition:transform .12s var(--ease-out),filter .12s,box-shadow .12s}
+.todayrow .todaybtn:active{transform:scale(.955);filter:brightness(1.25);box-shadow:var(--shadow-1,none)}
+.todayrow .todaybtn:has(.tb-main:focus-visible){outline:2px solid var(--gold);outline-offset:2px}
+.todayrow .tc-next{background:radial-gradient(220px 160px at 88% 50%,color-mix(in srgb,var(--glow) 30%,transparent),transparent 70%),color-mix(in srgb,var(--indigo) 25%,#34684c)}
+
+/* top: wide 今日 card + 明日 / 日付指定 */
+.todaystack{display:grid;gap:10px;margin:22px 0 4px}
+.homestack .todaystack{margin:0}
+.todaystack .todayrow{margin:0}
+.todaystack .tc-wide{display:flex;align-items:stretch;gap:12px;padding:16px 12px 16px 18px;margin:0}
+.todaystack .tc-wide .tb-main{flex:1;align-self:center}
+.todaystack .tc-wide .tb-t{font-size:26px}
+.tc-side{display:flex;flex-direction:column;gap:8px;width:108px;flex:none;position:relative;z-index:1}
+.tc-night{display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid color-mix(in srgb,var(--on-indigo) 50%,transparent);background:color-mix(in srgb,var(--on-indigo) 12%,transparent);color:var(--on-indigo);border-radius:14px;padding:10px 6px;font:inherit;font-size:13px;font-weight:700;white-space:nowrap;cursor:pointer;transition:transform .12s,background-color .15s}
+.tc-night .nb-ic{font-size:16px}
+.tc-night:active{transform:scale(.94)}
+.tc-night.on{background:var(--on-indigo);color:var(--indigo);border-color:var(--on-indigo)}
+.todaystack .todayrow .todaybtn{min-height:76px;align-content:center}
+.todaycard.tc-date{position:relative;background:var(--bg);color:var(--ink);border:1.5px dashed color-mix(in srgb,var(--ink) 40%,transparent);box-shadow:none;cursor:pointer}
+.todaycard.tc-date::after{display:none}
+.todaycard.tc-date .tb-s{opacity:.7}
+.todaycard.tc-date input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.todaystack .tc-wide::after{left:50%;right:auto;transform:translate(-50%,-50%)}
+@media (min-width:700px){
+  .tc-side{flex-direction:row;width:auto;align-self:center}
+  .tc-night{padding:12px 18px}
+}
+.todaystack .todaybtn::before{display:none}
+.todaycard.tc-date .tb-t{white-space:normal;line-height:1.25}
+.todaycard.tc-date{background:radial-gradient(220px 160px at 88% 50%,color-mix(in srgb,var(--glow) 30%,transparent),transparent 70%),color-mix(in srgb,var(--indigo) 22%,#b0801f);color:var(--on-indigo);border:0;box-shadow:var(--shadow-2)}
+.todaycard.tc-date::after{display:block}
+.todaycard.tc-date .tb-s{opacity:.85}
