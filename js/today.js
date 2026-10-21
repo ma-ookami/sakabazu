@@ -130,7 +130,7 @@ function todayBlock(v){
   stack.appendChild(c1);
   const row=el('div','todayrow');
   row.appendChild(card('明日',addDays(1),'前の日に決める','tc-next'));
-  const pk=el('label','todaybtn todaycard tc-date'); pk.append(el('span','tb-t','あさって以降どこ行く?'), el('span','tb-s','📅 カレンダーで日付を指定'));
+  const pk=el('label','todaybtn todaycard tc-date'); pk.append(el('span','tb-t','あさって以降どこ行く?'), el('span','tb-s','📅 日付を指定する'));
   const inp=el('input'); inp.type='date'; inp.min=addDays(2); inp.setAttribute('aria-label','あさって以降の日付を指定してどこ行く?');
   inp.onchange=()=>{ if(inp.value && inp.value>addDays(1)){ openPick('find',inp.value); inp.value=''; } }; pk.appendChild(inp);
   row.appendChild(pk); stack.appendChild(row); v.appendChild(stack);
