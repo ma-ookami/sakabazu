@@ -233,3 +233,13 @@
 #pBody .plist li .pn .tier-marks{display:inline-flex;vertical-align:middle;margin-left:8px;padding:1px 7px;gap:5px;background:var(--faint);border:1px solid var(--line);border-radius:999px;position:relative;top:-1px}
 #pBody .plist li .pn .tm.hon .lan{width:11px;height:15px}
 #pBody .plist li .pn .tm.tsuke .choko{width:15px;height:13px}
+
+.p-head .p-dt{margin-left:8px;font-family:var(--sans,inherit);font-size:15px;font-weight:600;letter-spacing:.02em;color:var(--sub)}
+.p-head .p-wd{display:inline-flex;align-items:center;justify-content:center;vertical-align:2px;margin-left:4px;width:21px;height:21px;border-radius:50%;background:#8A94A6;color:#fff;font-family:"Zen Kaku Gothic New",sans-serif;font-size:11px;font-weight:700;line-height:1;padding-bottom:1px;box-sizing:border-box}
+.p-head .p-wd.w0{background:#E8872B}
+.p-head .p-wd.w1{background:#8A94A6}
+.p-head .p-wd.w2{background:#D2452F}
+.p-head .p-wd.w3{background:#3A82C4}
+.p-head .p-wd.w4{background:#3F9560}
+.p-head .p-wd.w5{background:#C9A227}
+.p-head .p-wd.w6{background:#8B6B4A}

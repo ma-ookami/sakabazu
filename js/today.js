@@ -10,7 +10,7 @@ const isTonight = () => dayKey()===nightKey();
 const dayDate = k => { const [y,m,d]=k.split('-').map(Number); return new Date(y,m-1,d); };
 const dayDiff = k => Math.round((dayDate(k)-dayDate(nightKey()))/864e5);
 const WD='日月火水木金土';
-function dayLabel(k){ const n=dayDiff(k); if(n<=0) return '今日'; if(n===1) return 'あした'; if(n===2) return 'あさって'; const d=dayDate(k); return `${d.getMonth()+1}/${d.getDate()}(${WD[d.getDay()]})`; }
+function dayLabel(k){ const n=dayDiff(k); if(n<=0) return '今日'; if(n===1) return '明日'; if(n===2) return '明後日'; const d=dayDate(k); return `${d.getMonth()+1}/${d.getDate()}(${WD[d.getDay()]})`; }
 const pick={day:'',q:'',want:true,went:true,fopen:false,src:'find',at:'',genre:'',star:0,near:false,here:null,chosen:null,proposing:null,time:'19:00'};
 // 今日どこ行く? narrows by: the time you'd go (open then), the genre, and the stars
 const PICK_TIMES=['15:00','17:00','18:00','19:00','21:00','23:00'];
@@ -111,15 +111,21 @@ function pickBtn(s){
   b.setAttribute('aria-label',(s.name||'')+(on?'を今日の候補から外す':'を今日の候補に入れる'));
   b.onclick=e=>{ e.stopPropagation(); togglePick(s); }; return b;
 }
+// two cards side by side: 今日 and あした (the second also has a 📅 for any other date); the sheet opens on that night
 function todayBlock(v){
-  const wf=activeFriends()[0], cs=todayCands(nightKey());
-  const b=el('button','todaybtn'); b.onclick=()=>{ pick.day=''; openPick(cs.length?'today':'find'); };
-  b.append(el('span','tb-t', wf ? '飲み友とどこ行く?' : '今日どこ行く?'));
-  if (cs.length){
+  const wf=activeFriends()[0], row=el('div','todayrow');
+  const card=(label,day,sub,cls)=>{ const c=el('div','todaybtn todaycard '+cls), b=el('button','tb-main'); b.type='button';
+    const cs=todayCands(day||nightKey());
+    b.onclick=()=>openPick(cs.length?'today':'find',day);
+    b.append(el('span','tb-t',label+(wf?'飲み友と':'')+'どこ行く?'));
     const both=cs.filter(allOk);
-    b.appendChild(el('span','tb-s', both.length ? `${okLabel(both[0])}: ${both.map(c=>c.name).slice(0,2).join('・')}${both.length>2?' ほか':''}` : `今日の候補 ${cs.length}軒`));
-  } else b.appendChild(el('span','tb-s', wf ? 'みんなと候補を出し合って、みんながいい店を探す' : '行きたい店と行った店から探す'));
-  v.appendChild(b);
+    b.appendChild(el('span','tb-s', cs.length ? (both.length ? `${okLabel(both[0])}: ${both.map(x=>x.name).slice(0,2).join('・')}` : `候補 ${cs.length}軒`) : sub));
+    c.appendChild(b); row.appendChild(c); return c; };
+  card('今日','',wf?'みんなで決める':'行きたい店から探す','tc-today');
+  const c2=card('明日',addDays(1),'前の日に決める','tc-next');
+  const w=el('label','tb-cal','📅'); const inp=el('input'); inp.type='date'; inp.min=addDays(1); inp.setAttribute('aria-label','ほかの日を選ぶ'); w.title='ほかの日を選ぶ';
+  inp.onchange=()=>{ if(inp.value && inp.value>nightKey()){ openPick('find',inp.value); inp.value=''; } }; w.appendChild(inp); c2.appendChild(w);
+  v.appendChild(row);
 }
 async function shareShop(s,time){
   const text=`今日ここどう?\n${s.name}${s.area?`(${s.area})`:''}${time?`\n${time}〜`:''}\n${mapsUrl(s)}\n\n酒場図: ${location.origin+location.pathname}`;
@@ -127,14 +133,19 @@ async function shareShop(s,time){
   try{ await navigator.clipboard.writeText(text); toast('メッセージをコピーしました。LINEなどに貼って送れます'); }catch{ toast('コピーできませんでした'); }
 }
 // 今日どこ行く?: a sheet over 決める (探す | 今日の候補)
-function openPick(src){
+function openPick(src,day){
+  pick.day=day||'';
   if (tab!=='home') setTab('home');
-  if (pick.day && pick.day<=nightKey()) pick.day='';
   pick.cheers=true; pick.whoNames=false; pick.chosen=null; pick.proposing=null; if (src) pick.src = src==='today' ? 'today' : 'find';
   setPickTitle();
   showSheet('pickSheet'); buildPick(); focusIn('pickSheet');
 }
-function setPickTitle(){ const wf=activeFriends()[0], d=isTonight()?'':dayLabel(dayKey())+' '; $('pTitle').textContent = d + (wf ? '飲み友とどこ行く?' : (d?'どこ行く?':'今日どこ行く?')); }
+// 今日 / 明日 + どこ行く?, then the date as "10/21" and a round weekday badge (月 silver, 火 fire, 水 water, 木 green, 金 gold, 土 earth, 日 sun)
+function setPickTitle(){ const wf=activeFriends()[0], k=dayKey(), n=dayDiff(k), d=dayDate(k), wd=d.getDay();
+  const word = n<=0?'今日':n===1?'明日':n===2?'明後日':'';
+  const h=$('pTitle'); h.textContent = word + (wf?(word?' ':'')+'飲み友と':'') + 'どこ行く?';
+  const dt=el('span','p-dt',`${d.getMonth()+1}/${d.getDate()}`), b=el('span','p-wd w'+wd,WD[wd]); b.setAttribute('aria-label',WD[wd]+'曜日');
+  h.append(dt,b); }
 function closePick(){ hideSheet('pickSheet'); }
 function omakase(cands){
   if (!cands.length) return;
@@ -173,22 +184,11 @@ function whoRow(){
 }
 const dayWord = () => isTonight() ? '今日' : dayLabel(dayKey());
 const addDays = n => { const d=dayDate(nightKey()); d.setDate(d.getDate()+n); return ymd(d); };
-// 今日 / あした / あさって / 📅 (any later date): which night we're choosing a shop for
-function dayRow(b){
-  const row=el('div','pk-days'), cur=dayKey();
-  const chip=(l,k)=>{ const x=el('button','chip pk-day',l); x.type='button'; x.setAttribute('aria-pressed',String(cur===k)); x.onclick=()=>{ pick.day=k===nightKey()?'':k; pick.chosen=null; buildPick(); }; row.appendChild(x); };
-  chip('今日',nightKey()); chip('あした',addDays(1)); chip('あさって',addDays(2));
-  const far=dayDiff(cur)>2, w=el('label','chip pk-day pk-cal'+(far?' on':'')); w.setAttribute('aria-pressed',String(far));
-  w.append(far?dayLabel(cur):'📅 日付');
-  const i=el('input'); i.type='date'; i.min=addDays(1); i.value=cur; i.setAttribute('aria-label','日付を選ぶ');
-  i.onchange=()=>{ if(i.value && i.value>nightKey()){ pick.day=i.value; pick.chosen=null; buildPick(); } };
-  w.appendChild(i); row.appendChild(w); b.appendChild(row);
-}
 function buildPick(){
   const b=$('pBody'); if(!b || !isOpen('pickSheet')) return;
   const ae=document.activeElement; if (ae && b.contains(ae) && ae.tagName==='INPUT' && !ae.classList.contains('pk-q')) return;
   b.textContent='';
-  whoRow(); setPickTitle(); dayRow(b);
+  whoRow(); setPickTitle();
   const seg=el('div','seg pk-seg'); seg.setAttribute('role','group'); seg.setAttribute('aria-label','表示');
   const nc=todayCands().length;
   for (const [k,l] of [['find','探す'],['today',(nc?`${dayWord()}の候補 ${nc}`:`${dayWord()}の候補`)]]){ const x=el('button',null,l); x.setAttribute('aria-pressed',String(pick.src===k)); x.onclick=()=>{ pick.src=k; pick.chosen=null; buildPick(); }; seg.appendChild(x); }

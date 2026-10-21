@@ -245,8 +245,19 @@ body.gating .tabs{display:none}
 .now-more{flex:none;width:120px;scroll-snap-align:start;display:grid;place-content:center;gap:4px;text-align:center;border:1.5px dashed var(--line);border-radius:var(--r-lg);background:transparent;color:var(--ink);font:inherit}
 .now-more span{font-size:11.5px;color:var(--sub)}
 .now-note{margin:-4px 0 0;font-size:11px;color:var(--sub)}
-#pBody .pk-days{display:flex;gap:6px;margin:0 0 10px}
-#pBody .pk-day{flex:1;padding:7px 4px;text-align:center;position:relative;cursor:pointer}
-#pBody .pk-day[aria-pressed=true]{background:var(--ink,#1b2a49);color:#fff}
-#pBody .pk-cal input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
-#pBody .pk-cal.on{background:var(--ink,#1b2a49);color:#fff}
+
+.todayrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:22px 0 4px}
+.homestack .todayrow{margin:0}
+.todayrow .todaybtn{margin:0;padding:18px 14px 16px 16px;min-width:0;gap:0;align-content:center}
+.todayrow .todaybtn::before{display:none}
+.todaycard .tb-main{display:grid;gap:0;text-align:left;color:inherit;background:none;border:0;padding:0;position:relative;z-index:1;min-width:0}
+.todaycard .tb-t{font-size:19px;letter-spacing:.03em;line-height:1.3;white-space:nowrap}
+.todaycard .tb-s{margin-top:6px;padding-right:30px;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-cal{position:absolute;z-index:2;bottom:8px;right:8px;width:34px;height:34px;display:grid;place-items:center;font-size:16px;border-radius:50%;background:color-mix(in srgb,var(--on-indigo) 14%,transparent);cursor:pointer}
+.tb-cal input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.todayrow .todaybtn::after{width:140px;height:140px;right:-34px}
+.todayrow .tc-next{background:radial-gradient(220px 160px at 88% 50%,color-mix(in srgb,var(--glow) 45%,transparent),transparent 70%),color-mix(in srgb,var(--indigo) 40%,#1f5662)}
+.todaycard .tb-t{font-size:21px;letter-spacing:.02em}
+.todayrow .todaybtn{padding-right:10px}
+.tb-cal{width:44px;height:44px;font-size:21px;bottom:6px;right:6px;background:color-mix(in srgb,var(--on-indigo) 20%,transparent)}
+.todaycard .tb-s{padding-right:44px}
