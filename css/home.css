@@ -306,3 +306,9 @@ body.gating .tabs{display:none}
 .gocard:not(.ln) .pk-top{color:var(--on-red)}
 .gocard:not(.ln) .pk-top .pill{background:rgba(255,255,255,.92)}
 .gocard:not(.ln) .pk-star{color:#FFE3A3}
+
+/* with 飲み友: 「明日」+「飲み友とどこ行く?」 on two lines so the title is never cut off */
+.todaycard .tb-t.tb-2l{white-space:normal;display:grid;gap:0;line-height:1.2}
+.todaycard .tb-2l .tb-w{font-size:1em}
+.todaycard .tb-2l .tb-w2{font-size:15px;white-space:nowrap;letter-spacing:0}
+.todaystack .tc-wide .tb-2l .tb-w2{font-size:21px}

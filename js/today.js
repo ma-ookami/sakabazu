@@ -123,7 +123,8 @@ function todayBlock(v){
   const card=(label,day,sub,cls)=>{ const c=el('div','todaybtn todaycard '+cls), b=el('button','tb-main'); b.type='button';
     const cs=todayCands(day||nightKey());
     b.onclick=()=>openPick(cs.length?'today':'find',day);
-    b.append(el('span','tb-t',label+(wf?'飲み友と':'')+'どこ行く?'));
+    if (wf){ const h=el('span','tb-t tb-2l'); h.append(el('span','tb-w',label), el('span','tb-w2','飲み友とどこ行く?')); b.append(h); }   // two lines: the long title would be cut off
+    else b.append(el('span','tb-t',label+'どこ行く?'));
     const both=cs.filter(allOk), dd=decided(day||nightKey());
     b.appendChild(el('span','tb-s', dd ? '✓ '+(dd.name||'お店')+'に決定' : cs.length ? (both.length ? `${okLabel(both[0])}: ${both.map(x=>x.name).slice(0,2).join('・')}` : `候補 ${cs.length}軒`) : sub));
     c.appendChild(b); return c; };

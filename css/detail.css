@@ -144,3 +144,6 @@ textarea.memo,.field{box-sizing:border-box;max-width:100%}
 .d-card .d-name{font-size:clamp(24px,7vw,32px)}
 .d-seg{margin:0}
 #dInfo .mine-row{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+/* a long 予算 text wraps inside the pill instead of running off the card */
+.d-chips .pill,.sc-chips .pill{max-width:100%}
+.d-chips .pill.yen,.sc-chips .pill.yen{white-space:normal;height:auto;min-height:24px;padding:4px 10px;line-height:1.35;border-radius:14px}
