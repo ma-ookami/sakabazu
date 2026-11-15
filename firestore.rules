@@ -272,6 +272,33 @@ service cloud.firestore {
       allow delete: if signedIn() && actsAs(resource.data.gid, resource.data.mid);
     }
 
+    // iPhoneアプリへの引き継ぎ: バックアップと同じ中身を24時間だけ置く。コード(10文字)を知っている人が1件ずつ読める
+    match /handoffs/{code} {
+      allow get: if signedIn() && resource.data.exp > request.time;
+      allow list: if false;
+      allow create: if signedIn() && code.matches('^[A-Z2-9]{10}$')
+        && request.resource.data.keys().hasOnly(['by', 'at', 'exp', 'n'])
+        && request.resource.data.by == request.auth.uid
+        && request.resource.data.at is int
+        && request.resource.data.exp is timestamp && request.resource.data.exp < request.time + duration.value(25, 'h')
+        && request.resource.data.n is int && request.resource.data.n >= 1 && request.resource.data.n <= 20;
+      allow update: if false;
+      allow delete: if signedIn() && (resource.data.by == request.auth.uid || resource.data.exp > request.time);
+      match /parts/{i} {
+        allow get: if signedIn() && resource.data.exp > request.time;
+        allow list: if false;
+        allow create: if signedIn() && i.matches('^[0-9]{1,2}$')
+          && getAfter(/databases/$(database)/documents/handoffs/$(code)).data.by == request.auth.uid
+          && request.resource.data.keys().hasOnly(['d', 'exp'])
+          && request.resource.data.d is string && request.resource.data.d.size() <= 210000
+          && request.resource.data.exp is timestamp && request.resource.data.exp < request.time + duration.value(25, 'h');
+        allow update: if false;
+        allow delete: if signedIn() && (!exists(/databases/$(database)/documents/handoffs/$(code))
+          || get(/databases/$(database)/documents/handoffs/$(code)).data.by == request.auth.uid
+          || resource.data.exp > request.time);
+      }
+    }
+
     // where my group is: { gid, owned: [gids I created], code: my 友達コード }
     match /users/{uid} {
       allow read: if signedIn() && request.auth.uid == uid;

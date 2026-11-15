@@ -78,12 +78,50 @@ function backupSec(root){
   const ld=el('label','btn btn-line bk-load','バックアップから戻す'); const fi=el('input'); fi.type='file'; fi.accept='application/json,.json'; fi.hidden=true;
   fi.onchange=()=>{ const f=fi.files&&fi.files[0]; fi.value=''; if(f) loadBackup(f); }; ld.appendChild(fi);
   row.append(sv,ld); box.appendChild(row);
+  if (mode==='db') handoffSec(root);
+}
+// iPhoneアプリへの引き継ぎ: バックアップと同じ中身を handoffs/<コード> に24時間だけ置き、アプリでコードを入れて取り込む
+let handoff=null;   // {code, exp(ms)}
+try{ const h=JSON.parse(localStorage.getItem('nm-handoff')||'null'); if (h && h.code && h.exp>Date.now()) handoff=h; }catch{}
+const fmtHo = c => c.slice(0,5)+'-'+c.slice(5);
+function handoffSec(root){
+  const box=sec('iPhoneアプリに引き継ぐ','コードを出して、アプリで入れます'); root.appendChild(box);
+  box.appendChild(el('p','hint','店・星・メモ・来店記録・ランキング・名前とアイコン・だるまをアプリに写します。飲み友には、アプリからもう一度申請が届きます。コードは24時間使えます。'));
+  if (handoff && handoff.exp>Date.now()){
+    const c=el('div','fr-code'); c.appendChild(el('span','fr-cl','引き継ぎコード')); c.appendChild(el('b','fr-cv',fmtHo(handoff.code)));
+    const cp=el('button','sbtn','コピー'); cp.type='button'; cp.onclick=async()=>{ try{ await navigator.clipboard.writeText(fmtHo(handoff.code)); toast('コピーしました'); }catch{ toast(fmtHo(handoff.code)); } };
+    c.appendChild(cp); box.appendChild(c);
+    const t=new Date(handoff.exp); box.appendChild(el('p','hint',`${t.getMonth()+1}/${t.getDate()} ${t.getHours()}:${String(t.getMinutes()).padStart(2,'0')} まで使えます。`));
+    const row=el('div','bk-row'); const re=el('button','btn btn-line','作り直す(最新の記録で)'); re.type='button'; re.onclick=makeHandoff;
+    const rm=el('button','btn btn-line','取り消す'); rm.type='button'; rm.onclick=async()=>{ await dropHandoff(); render(); }; row.append(re,rm); box.appendChild(row);
+  } else { const row=el('div','bk-row'); const b=el('button','btn btn-ink','引き継ぎコードを出す'); b.type='button'; b.onclick=makeHandoff; row.appendChild(b); box.appendChild(row); }
+}
+async function dropHandoff(){
+  const h=handoff; handoff=null; try{ localStorage.removeItem('nm-handoff'); }catch{}
+  if (!h) return;
+  try{ const b=fs.batch(); for (let i=0;i<(h.n||20);i++) b.delete(fs.doc(`handoffs/${h.code}/parts/${i}`)); b.delete(fs.doc('handoffs/'+h.code)); await b.commit(); }catch(e){ console.warn(e); }
+}
+async function makeHandoff(){
+  const json=JSON.stringify(backupData()), parts=[];
+  for (let i=0;i<json.length;i+=200000) parts.push(json.slice(i,i+200000));
+  if (parts.length>20){ toast('記録が多すぎて引き継げません'); return; }
+  await dropHandoff();
+  const a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789', code=[...crypto.getRandomValues(new Uint8Array(10))].map(x=>a[x%32]).join('');
+  const ms=Date.now()+24*3600e3, exp=firebase.firestore.Timestamp.fromMillis(ms);
+  const b=fs.batch(); b.set(fs.doc('handoffs/'+code),{by:uid, at:Date.now(), exp, n:parts.length});
+  parts.forEach((d,i)=>b.set(fs.doc(`handoffs/${code}/parts/${i}`),{d, exp}));
+  try{ await b.commit(); }catch(e){ console.warn(e); toast('コードを出せませんでした('+((e&&e.code)||'error')+')'); return; }
+  handoff={code, exp:ms, n:parts.length}; try{ localStorage.setItem('nm-handoff',JSON.stringify(handoff)); }catch{}
+  render(); toast('引き継ぎコードを出しました');
 }
 // ランキングは店のIDが端末ごとに変わるので、店の名前+場所(shopKey)で保存する
 const rankKeys = () => { const o={}; for (const [k] of RANK_CATS) o[k]=rankList(me,k).map(id=>{ const s=myShops.find(x=>x.id===id); return s?shopKey(s):null; }).filter(Boolean); return o; };
-function saveBackup(){
-  const data={app:'sakabazu', v:1, at:new Date().toISOString(), me, nick:(members[me]&&members[me].nick)||'', ic:(members[me]&&members[me].ic)||null, dm:dmCfg,
+function backupData(){
+  return {app:'sakabazu', v:1, at:new Date().toISOString(), me, nick:(members[me]&&members[me].nick)||'', ic:(members[me]&&members[me].ic)||null, dm:dmCfg,
     ranks:rankKeys(), friends:Object.values(friends).map(f=>({mid:f.mid, nick:f.nick, code:f.code||''})), nights:nightsAll(), shops:myShops.map(s=>{ const c=JSON.parse(JSON.stringify(s)); if (c.hp&&c.hp.id){ delete c.hp.budget; delete c.hp.photo; if (s._ovGenre) delete c.hp.genre; } if (s._ovHours) delete c.hours; delete c._ovGenre; delete c._ovHours; return c; })};
+}
+function saveBackup(){
+  const data=backupData();
   const blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});
   const a=el('a'); a.href=URL.createObjectURL(blob); a.download=`sakabazu-${today()}.json`; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href),4000);
