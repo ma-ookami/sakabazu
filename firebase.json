@@ -1,5 +1,6 @@
 {
-  "firestore": { "rules": "firestore.rules" },
+  "//": "Firestore のルールは iPhone アプリのリポジトリ (dev/sakabazu-app/firestore.rules) で管理している",
+  "firestore": { "rules": "../sakabazu-app/firestore.rules" },
   "emulators": {
     "auth": { "port": 9099 },
     "firestore": { "port": 8085 },

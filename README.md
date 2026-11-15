@@ -11,7 +11,7 @@
 | `sakabazu.html` | アプリ本体 |
 | `css/`、`js/` | 見た目と動き |
 | `firebase-config.js` | Firebase の設定とホットペッパー中継のURL(手順4と「ホットペッパー検索の中継を作る」で貼り付ける) |
-| `firestore.rules` | データを守るルール(手順3で Firebase に貼る) |
+| (ルール) | データを守るルールは iPhone アプリのリポジトリ `sakabazu-app/firestore.rules` にある(手順3で Firebase に貼る) |
 | `manifest.webmanifest`、`icon-192.png`、`icon-512.png`、`apple-touch-icon.png` | ホーム画面に追加したときのアプリ情報 |
 | `worker/hotpepper-proxy.js` | ホットペッパー検索の中継(Cloudflare に貼る。GitHub に置いても問題なし。キーは入っていない) |
 | `firebase.json` | 手元でテストするときの設定(アップロード不要) |
@@ -40,7 +40,7 @@
 2. ロケーションは `asia-northeast1 (Tokyo)` を選ぶ(あとから変えられません)
 3. 「本番環境モードで開始」を選んで作成する
 4. 作成できたら「ルール」タブを開く
-5. 最初から入っている文字をすべて消し、このフォルダの `firestore.rules` の中身をすべてコピーして貼り付ける
+5. 最初から入っている文字をすべて消し、`sakabazu-app/firestore.rules`(iPhone アプリのリポジトリ)の中身をすべてコピーして貼り付ける
 6. 「公開」を押す
 
 ## 4. 設定をコピーする
@@ -179,7 +179,7 @@ APIキーをページに載せると誰でも見られてしまうので、キ�
 1. 手元で確認する:`sakabazu` フォルダで `npx http-server -p 8080 -c-1` を動かし、http://localhost:8080 を開く
 2. 変えたファイルを GitHub にアップロード(または VS Code でコミットして同期)
 3. 1〜2分で公開サイトに反映されます
-4. `firestore.rules` を変えたときは、Firebase の「Firestore Database」→「ルール」に貼り直して「公開」も必要です
+4. ルール(`sakabazu-app/firestore.rules`)を変えたときは、Firebase の「Firestore Database」→「ルール」に貼り直して「公開」も必要です
 
 ## 知っておくこと
 

@@ -45,7 +45,7 @@ GitHub Pages + Firebase(匿名ログイン + Firestore)。お店検索は Cloudf
 
 ## データ構造(Firestore)
 
-各人のリストは `groups/{gid}`(作った本人だけがメンバー)。ルールは `firestore.rules`。
+各人のリストは `groups/{gid}`(作った本人だけがメンバー)。ルールは iPhone アプリのリポジトリの `sakabazu-app/firestore.rules`(Web 版と共有)。
 
 | 場所 | 中身 | 読める人 / 書ける人 |
 |---|---|---|
