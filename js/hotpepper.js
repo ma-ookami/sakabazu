@@ -46,7 +46,9 @@ let hpVer = 0;   // learned from the first answer
 async function hpCall(params){
   const q=new URLSearchParams(params);
   const ctl=new AbortController(), t=setTimeout(()=>ctl.abort(),10000);
-  let r; try{ r=await fetch(window.HOTPEPPER_PROXY.replace(/\/?$/,'/')+'?'+q,{signal:ctl.signal}); }finally{ clearTimeout(t); }
+  // ログインの証明(ID トークン)を付ける(中継が利用者からの呼び出しだけを通すため)
+  let tok=''; try{ const u=window.firebase && firebase.apps.length && firebase.auth().currentUser; if(u) tok=await u.getIdToken(); }catch{}
+  let r; try{ r=await fetch(window.HOTPEPPER_PROXY.replace(/\/?$/,'/')+'?'+q,{signal:ctl.signal, headers: tok ? {Authorization:'Bearer '+tok} : {}}); }finally{ clearTimeout(t); }
   if (!r.ok) throw Object.assign(new Error('proxy '+r.status),{code: r.status===403||r.status===500 ? 'api' : r.status===400 ? 'old' : r.status===501 ? 'nogkey' : 'net'});
   const d=await r.json(); hpVer = (d && d._v) || 1; return d;
 }

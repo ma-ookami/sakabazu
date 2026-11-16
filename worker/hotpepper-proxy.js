@@ -1,10 +1,16 @@
 // 酒場図 のホットペッパー検索の中継(Cloudflare Workers に貼り付けて使う)。
 // - APIキーは Worker の「シークレット」HOTPEPPER_KEY に保存し、ページには載せない
-// - 呼べるのは ALLOWED に書いたページからだけ(ブラウザの Origin で判断)
+// - ブラウザから呼べるのは ALLOWED に書いたページからだけ(Origin で判断。Origin は偽れるので、本当の確認はトークンで)
 // - 渡すのは検索に使う項目だけ。結果は10分キャッシュして、APIの呼び出し回数を減らす
 // - ?resolve=<Googleマップ / Google検索の共有URL> は、転送先の長いURLを返す(店名と位置を読み取るため)
 // - ?gq=<検索語> は Google のお店検索(Places API)。キーは Worker のシークレット GOOGLE_PLACES_KEY
-const VERSION = 4;
+// - 利用者の確認: アプリと Web 版は Firebase のログイン(ID トークン)を Authorization: Bearer で送る。
+//   ここで Google の公開鍵で署名を確かめ、プロジェクト sakabazu のログインだけを通す。
+//   変数 REQUIRE_TOKEN を "1" にすると、トークンのない呼び出しを断る(アプリと Web 版を更新してから "1" にする)
+// - 1人あたりの回数の上限(1時間): ホットペッパー 300 回、Google 検索 60 回。超えたら 429
+const VERSION = 5;
+const PROJECT = 'sakabazu';
+const LIMIT = { hp: 300, google: 60 };
 const ALLOWED = [
   'https://ma-ookami.github.io',
   'https://sakabazu.rokunanabox.com',
@@ -17,6 +23,39 @@ const API = 'https://webservice.recruit.co.jp/hotpepper/gourmet/v1/';
 const SHORT = /^https:\/\/(maps\.app\.goo\.gl\/|goo\.gl\/maps\/|g\.co\/kgs\/|share\.google\/)[A-Za-z0-9_-]+$/;
 
 const allowed = o => !!o && ALLOWED.some(a => typeof a === 'string' ? a === o : a.test(o));
+
+// ---- Firebase の ID トークンを確かめる(RS256。鍵は Google の公開鍵、1時間キャッシュ) ----
+const b64u = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((s.length + 3) % 4)), c => c.charCodeAt(0));
+const jsonOf = s => JSON.parse(new TextDecoder().decode(b64u(s)));
+async function googleKeys() {
+  const url = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
+  const cache = caches.default, key = new Request(url);
+  let r = await cache.match(key);
+  if (!r) { r = await fetch(url); if (!r.ok) return []; const body = await r.text(); await cache.put(key, new Response(body, { headers: { 'cache-control': 'max-age=3600' } })); r = new Response(body); }
+  return ((await r.json()).keys) || [];
+}
+// 通れば uid、だめなら ''
+async function verifyToken(token) {
+  try {
+    const [h, p, sig] = token.split('.'); if (!h || !p || !sig) return '';
+    const head = jsonOf(h), body = jsonOf(p), now = Math.floor(Date.now() / 1000);
+    if (head.alg !== 'RS256') return '';
+    if (body.aud !== PROJECT || body.iss !== 'https://securetoken.google.com/' + PROJECT) return '';
+    if (!(body.exp > now) || !(body.iat <= now + 60) || !body.sub) return '';
+    const jwk = (await googleKeys()).find(k => k.kid === head.kid); if (!jwk) return '';
+    const k = await crypto.subtle.importKey('jwk', jwk, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['verify']);
+    const ok = await crypto.subtle.verify('RSASSA-PKCS1-v1_5', k, b64u(sig), new TextEncoder().encode(h + '.' + p));
+    return ok ? String(body.sub) : '';
+  } catch { return ''; }
+}
+// 1人あたりの回数(1時間ごと)。キャッシュで数えるだけの目安(厳密ではない)
+async function overLimit(uid, kind) {
+  const hour = Math.floor(Date.now() / 3600000), key = new Request(`https://limit.sakabazu/${kind}/${uid}/${hour}`);
+  const cache = caches.default, hit = await cache.match(key), n = hit ? +(await hit.text()) || 0 : 0;
+  if (n >= LIMIT[kind]) return true;
+  await cache.put(key, new Response(String(n + 1), { headers: { 'cache-control': 'max-age=3700' } }));
+  return false;
+}
 const reply = (body, status, origin) => new Response(JSON.stringify(body), {
   status,
   headers: {
@@ -69,10 +108,15 @@ async function google(env, inq, gq) {
 export default {
   async fetch(request, env) {
     const origin = request.headers.get('Origin');
-    if (!allowed(origin)) return reply({ error: 'forbidden' }, 403);
+    // ブラウザからは、決めたページからだけ。Origin のない呼び出し(アプリ)はトークンで確かめる
+    if (origin && !allowed(origin)) return reply({ error: 'forbidden' }, 403);
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: {
-      'access-control-allow-origin': origin, 'access-control-allow-methods': 'GET', 'access-control-max-age': '86400', 'vary': 'Origin' } });
+      'access-control-allow-origin': origin || '*', 'access-control-allow-methods': 'GET', 'access-control-allow-headers': 'authorization',
+      'access-control-max-age': '86400', 'vary': 'Origin' } });
     if (request.method !== 'GET') return reply({ error: 'method' }, 405, origin);
+    const auth = request.headers.get('Authorization') || '';
+    const uid = auth.startsWith('Bearer ') ? await verifyToken(auth.slice(7)) : '';
+    if (!uid && (env.REQUIRE_TOKEN === '1' || !origin)) return reply({ error: 'login required', _v: VERSION }, 401, origin);
 
     const inq = new URL(request.url).searchParams;
     const short = inq.get('resolve');
@@ -85,10 +129,12 @@ export default {
     // Google Places (New) text search: ?gq=<words>[&lat&lng&r=<m>][&rect=1][&pt=<page token>]
     const gq = inq.get('gq');
     if (gq) {
+      if (uid && await overLimit(uid, 'google')) return reply({ error: 'too many', _v: VERSION }, 429, origin);
       if (!env.GOOGLE_PLACES_KEY) return reply({ error: 'no google key', _v: VERSION }, 501, origin);
       return reply({ ...(await google(env, inq, gq)), _v: VERSION }, 200, origin);
     }
 
+    if (uid && await overLimit(uid, 'hp')) return reply({ error: 'too many', _v: VERSION }, 429, origin);
     if (!env.HOTPEPPER_KEY) return reply({ error: 'no key' }, 500, origin);
     const q = new URLSearchParams();
     for (const k of PARAMS) { const v = inq.get(k); if (v) q.set(k, v.slice(0, 100)); }
