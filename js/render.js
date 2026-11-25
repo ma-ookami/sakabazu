@@ -44,14 +44,14 @@ async function addOrBump(name,area,extra){
     if (wentBy(dup)[me]) toast(`「${dup.name}」は行った店に記録済みです`, '開く', ()=>openDetail(dup.id));
     else if (dup.wants && dup.wants[me]) toast(`「${dup.name}」はもう行きたいに入っています`);
     else if (me){   // a shop I took out before: back in as 行きたい, with the new details
-      const p={wants:{[me]:true}}; if (extra){ for (const k of ['loc','hours','tags','hp']) if (extra[k] && !dup[k]) p[k]=extra[k]; if (Array.isArray(extra.links)) p.links=[...new Set([...(Array.isArray(dup.links)?dup.links:[]), ...extra.links])].slice(0,5); }
+      const p={wants:{[me]:true}}; if (extra){ for (const k of ['loc','hours','tags','hp','genre']) if (extra[k] && !dup[k]) p[k]=extra[k]; if (Array.isArray(extra.links)) p.links=[...new Set([...(Array.isArray(dup.links)?dup.links:[]), ...extra.links])].slice(0,5); }
       patchShop(dup.id,p); return dup.id; }
     return null;
   }
   const id=await addShop(name,area);
   if (id) darumaCheer(`「${name}」、いいね!行けるといいね`);
   if (id && extra){
-    const p={}; for (const k of ['loc','links','hours','tags','hp']) if (extra[k]) p[k]=extra[k];
+    const p={}; for (const k of ['loc','links','hours','tags','hp','genre']) if (extra[k]) p[k]=extra[k];
     if (extra.note && me) p.r={[me]:{note:{t:extra.note}}};
     if (Object.keys(p).length) patchShop(id,p);
   }

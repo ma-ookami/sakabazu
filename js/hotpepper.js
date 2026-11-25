@@ -103,7 +103,7 @@ const hpLiveOf = id => { const v=hpLive[id]; return v && Date.now()-v.at<HP_TTL 
 // show the live details on the shops (only where the shop has no value of its own)
 function hpOverlay(list){
   for (const s of list){ const id=s.hp&&s.hp.id; if(!id) continue; const v=hpLive[id]; if(!v) continue;
-    s.hp={...s.hp}; if (!s.hp.genre && v.genre){ s.hp.genre=v.genre; s._ovGenre=true; } if (v.budget) s.hp.budget=v.budget; if (v.photo) s.hp.photo=v.photo;
+    s.hp={...s.hp}; if (!s.genre && !s.hp.genre && v.genre){ s.hp.genre=v.genre; s._ovGenre=true; } if (v.budget) s.hp.budget=v.budget; if (v.photo) s.hp.photo=v.photo;
     if (!s.hours && v.hours){ s.hours=v.hours; s._ovHours=true; } }
 }
 // fetch what's missing or older than 24h (9 ids per call: the Worker keeps 100 characters of a parameter)

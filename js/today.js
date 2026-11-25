@@ -17,7 +17,8 @@ const pick={day:'',q:'',want:true,went:true,fopen:false,src:'find',at:'',genre:'
 const PICK_TIMES=['15:00','17:00','18:00','19:00','21:00','23:00'];
 const PICK_STARS=[3,3.5,4];
 const PICK_PAGE=30;
-const genreOf = s => (s.hp && s.hp.genre) || '';
+// 自分(や食べログ・Google)のジャンルは s.genre(前は hp.genre)。ホットペッパーのジャンルは保存せず、24時間だけ hp.genre に重ねて見せる
+const genreOf = s => s.genre || (s.hp && s.hp.genre) || '';
 // open at "HH:MM" today? null when the hours are unknown
 // the same 3 pickers (時間 / ジャンル / 星) on 今日どこ行く? and on the lists. st: {at, genre, star}
 const fOn = st => !!(st.q || st.at || st.genre || st.star || st.hon || st.tsuke || st.fresh1);

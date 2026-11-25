@@ -27,7 +27,7 @@ $('form').onsubmit=e=>{ e.preventDefault(); const name=$('fName').value.trim(), 
   const hours={open,close,closed:formDays.slice().sort(),note:$('fHNote').value.trim()};
   const cur=myShops.find(x=>x.id===editingId)||{}, g=$('fGenre').value.trim(), p={name,area,links:links.slice(0,5)};
   if (!(cur._ovHours && JSON.stringify(hours)===JSON.stringify({open:cur.hours.open||'',close:cur.hours.close||'',closed:(cur.hours.closed||[]).slice().sort(),note:cur.hours.note||''}))) p.hours=hours;
-  if (!(cur._ovGenre && g===genreOf(cur))) p.hp={genre:g};
+  if (!(cur._ovGenre && g===genreOf(cur))){ p.genre=g||null; if (cur.hp && cur.hp.genre && !cur._ovGenre) p.hp={genre:null}; }   // 前の置き場所(hp.genre)は消す
   patchShop(editingId,p); closeForm(); toast('お店の情報を保存しました'); };
 $('fBack').onclick=closeForm; $('fCancel').onclick=closeForm;
 $('sBack').onclick=()=>{ buzz(); closeSearch(); };

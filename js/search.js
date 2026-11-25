@@ -309,7 +309,7 @@ async function runUrls(text){
     sx.prog=`${k+1}/${list.length}`; renderResults();
     let r = x.tb ? {needName:true, msg:''} : await addFromUrl(x.u); if (seq!==sx.seq) return;
     if (x.tb){ if (inMine(x.tb.name)) r={msg:`「${x.tb.name}」はもうリストにあります。`};
-      else { const id=await addOrBump(x.tb.name, x.tb.area?x.tb.area.replace(/駅$/,'')+'駅':'', {links:[x.u], ...(x.tb.genre?{hp:{genre:x.tb.genre}}:{})}); if (id) r={added:x.tb.name, id}; } }
+      else { const id=await addOrBump(x.tb.name, x.tb.area?x.tb.area.replace(/駅$/,'')+'駅':'', {links:[x.u], ...(x.tb.genre?{genre:x.tb.genre}:{})}); if (id) r={added:x.tb.name, id}; } }
     // only for shop links (Google / ホットペッパー): any other link keeps asking, so a chat line like 「見て!」 never becomes a shop
     if (r.needName && x.hint && SHOP_LINK.test(x.u)){ const own=inMine(x.hint);
       if (own) r={msg:`「${x.hint}」はもうリストにあります。`}; else { if (!r.loc && x.addr) r.loc=await geocode(x.addr); const ex=await enrichByName(x.hint, r.loc); const id=await addOrBump(x.hint, ex.area||'', {...ex.extra, links:[r.long||x.u, ...((ex.extra&&ex.extra.links)||[])].slice(0,5), ...(r.loc?{loc:r.loc}:{})}); if (id) r={added:x.hint, id}; } }
@@ -516,7 +516,7 @@ function gHours(p){
 function gExtra(p){
   const ex={}; if (p.location) ex.loc={lat:p.location.latitude, lng:p.location.longitude, src:'g'};
   if (p.googleMapsUri) ex.links=[p.googleMapsUri];
-  const g=p.primaryTypeDisplayName&&p.primaryTypeDisplayName.text; if (g) ex.hp={genre:g};
+  const g=p.primaryTypeDisplayName&&p.primaryTypeDisplayName.text; if (g) ex.genre=g;
   const h=gHours(p); if (h) ex.hours=h;
   return ex;
 }
@@ -593,7 +593,7 @@ function askGenre(sh){
     const list=[...Object.keys(n).sort((a,b)=>n[b]-n[a]), ...HP_GENRES.filter(g=>!n[g])].slice(0,16);
     const ch=el('div','chips g-chips');
     const done=v=>{ if(!d.isConnected) return; d.close(); d.remove(); res(v); };
-    for (const g of list){ const b=el('button','chip',g); b.type='button'; b.onclick=()=>{ patchShop(sh.id,{hp:{genre:g}}); toast(`「${sh.name}」を${g}にしました`); done(true); }; ch.appendChild(b); }
+    for (const g of list){ const b=el('button','chip',g); b.type='button'; b.onclick=()=>{ patchShop(sh.id,{genre:g}); toast(`「${sh.name}」を${g}にしました`); done(true); }; ch.appendChild(b); }
     box.appendChild(ch);
     const a=el('div','actions'); a.style.marginTop='12px'; const later=el('button','btn btn-line','あとで'); later.type='button'; later.onclick=()=>done(false); a.appendChild(later); box.appendChild(a);
     d.appendChild(box); document.body.appendChild(d);

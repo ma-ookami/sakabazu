@@ -53,7 +53,9 @@ async function importShop(id){
   const s=shops.find(x=>x.id===id); if(!s || !isFriendShop(s)) return id;
   const k0=(s.hp&&s.hp.id)||'', own=myShops.find(x=>(k0 && x.hp && x.hp.id===k0) || norm(x.name)===norm(s.name)); if(own) return own.id;
   const extra={}; for (const k of ['loc','hours','tags','links','hp']) if (s[k]) extra[k]=JSON.parse(JSON.stringify(s[k]));
-  if (extra.hp && extra.hp.id){ extra.hp={id:extra.hp.id, ...(s._ovGenre||!extra.hp.genre?{}:{genre:extra.hp.genre})}; if (s._ovHours) delete extra.hours; }   // ホットペッパー details stay live
+  const g=s.genre||(!s._ovGenre&&s.hp&&s.hp.genre)||'';
+  if (extra.hp && extra.hp.id){ extra.hp={id:extra.hp.id}; if (s._ovHours) delete extra.hours; } else delete extra.hp;   // hp はホットペッパーの ID だけ(詳しい情報はその場で取る)
+  if (g) extra.genre=g;
   const nid=await addOrBump(s.name,s.area||"",extra);
   return nid;
 }
