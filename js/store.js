@@ -152,7 +152,7 @@ function writeShop(id,patch){
   const {pub,priv}=splitPriv(patch);
   return Promise.all([
     Object.keys(pub).length ? db.doc('shops/'+id).update(pub) : null,
-    priv ? db.doc('priv/'+id).update(priv).catch(e=>{ if(e && e.code==='permission-denied') return db.doc('shops/'+id).update(priv); throw e; }) : null,
+    priv ? db.doc('priv/'+id).update({...priv, updatedAt:patch.updatedAt||Date.now()}).catch(e=>{ if(e && e.code==='permission-denied') return db.doc('shops/'+id).update(priv); throw e; }) : null,
   ]);
 }
 // shops written before: move their private part out of the shop (once, quietly). only after priv/ accepts writes
@@ -165,8 +165,8 @@ function movePrivOut(raw){
     const hasVisits = s.visits && typeof s.visits==='object' && Object.keys(s.visits).length;
     if (!any && !hasVisits) continue;
     privMoved.add(s.id);
-    const priv={}; if (any) priv.r=rp; if (hasVisits) priv.visits=s.visits;
-    const del={}; if (hasVisits) del.visits=null; if (any){ del.r={}; for (const u in rp){ del.r[u]={}; for (const f in rp[u]) del.r[u][f]=null; } }
+    const priv={updatedAt:Date.now()}; if (any) priv.r=rp; if (hasVisits) priv.visits=s.visits;   // updatedAt: アプリが変わった分だけ読むため
+    const del={updatedAt:Date.now()}; if (hasVisits) del.visits=null; if (any){ del.r={}; for (const u in rp){ del.r[u]={}; for (const f in rp[u]) del.r[u][f]=null; } }
     enqueue(s.id,()=>db.doc('priv/'+s.id).update(JSON.parse(JSON.stringify(priv))).then(()=>db.doc('shops/'+s.id).update(del)).catch(e=>console.warn('priv move',e&&e.code)));
   }
 }
